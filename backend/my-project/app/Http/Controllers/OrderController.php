@@ -12,6 +12,7 @@ use App\Services\InventoryUnavailableException;
 use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
@@ -43,9 +44,15 @@ class OrderController extends Controller
         return (new OrderResource($order))->response()->setStatusCode(201);
     }
 
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return OrderResource::collection($this->orders->getUserOrders(Auth::guard('api')->user()));
+        $filters = $request->validate([
+            'status' => ['nullable', 'in:pending,confirmed,processing,shipped,delivered,cancelled'],
+        ]);
+
+        return OrderResource::collection(
+            $this->orders->getUserOrders(Auth::guard('api')->user(), $filters['status'] ?? null)
+        );
     }
 
     public function show(Order $order): OrderResource
@@ -53,12 +60,21 @@ class OrderController extends Controller
         $user = Auth::guard('api')->user();
         abort_unless($user->role === 'admin' || $order->user_id === $user->id, 404);
 
-        return new OrderResource($order->load('items.product'));
+        $relations = ['items.product'];
+        if ($user->role === 'admin') {
+            $relations[] = 'user';
+        }
+
+        return new OrderResource($order->load($relations));
     }
 
-    public function adminIndex(): AnonymousResourceCollection
+    public function adminIndex(Request $request): AnonymousResourceCollection
     {
-        return OrderResource::collection($this->orders->getAllOrders());
+        $filters = $request->validate([
+            'status' => ['nullable', 'in:pending,confirmed,processing,shipped,delivered,cancelled'],
+        ]);
+
+        return OrderResource::collection($this->orders->getAllOrders($filters['status'] ?? null));
     }
 
     public function updateStatus(UpdateOrderStatusRequest $request, Order $order): OrderResource|JsonResponse

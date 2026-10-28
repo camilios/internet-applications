@@ -275,12 +275,15 @@ class OrderService
     /**
      * Get paginated orders for a user.
      */
-    public function getUserOrders(User $user): LengthAwarePaginator
+    public function getUserOrders(User $user, ?string $status = null): LengthAwarePaginator
     {
-        return $user->orders()
-            ->with('items.product')
-            ->latest()
-            ->paginate(15);
+        $query = $user->orders()->with('items.product')->latest();
+
+        if ($status !== null) {
+            $query->where('status', $status);
+        }
+
+        return $query->paginate(15);
     }
 
     /**
@@ -294,11 +297,15 @@ class OrderService
     /**
      * Get all orders (admin).
      */
-    public function getAllOrders(): LengthAwarePaginator
+    public function getAllOrders(?string $status = null): LengthAwarePaginator
     {
-        return Order::with('items.product', 'user')
-            ->latest()
-            ->paginate(15);
+        $query = Order::with('items.product', 'user')->latest();
+
+        if ($status !== null) {
+            $query->where('status', $status);
+        }
+
+        return $query->paginate(15);
     }
 
     /**

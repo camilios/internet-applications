@@ -15,8 +15,10 @@ use App\Services\NotificationService;
 use App\Services\OrderService;
 use App\Services\ReservationResult;
 use Carbon\Carbon;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Mockery;
 use RuntimeException;
@@ -132,6 +134,122 @@ class ApiWorkflowTest extends TestCase
                 'price' => '10.00',
                 'category_id' => $category->id,
             ])->assertCreated();
+    }
+
+    public function test_admin_product_management_supports_create_update_and_deactivation(): void
+    {
+        $category = Category::create(['name' => 'Product management']);
+        $customer = User::factory()->create();
+        $product = $this->makeProduct();
+
+        $this->withToken(auth('api')->login($customer))
+            ->putJson('/api/products/'.$product->id, ['name' => 'Customer edit'])
+            ->assertForbidden();
+        $this->withToken(auth('api')->login($customer))
+            ->deleteJson('/api/products/'.$product->id)
+            ->assertForbidden();
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $adminToken = auth('api')->login($admin);
+
+        $created = $this->withToken($adminToken)
+            ->postJson('/api/products', [
+                'name' => 'Created by admin',
+                'price' => '15.00',
+                'category_id' => $category->id,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.name', 'Created by admin');
+        $createdId = $created->json('data.id');
+
+        $this->withToken($adminToken)
+            ->putJson('/api/products/'.$createdId, ['name' => 'Updated by admin'])
+            ->assertOk()
+            ->assertJsonPath('data.name', 'Updated by admin');
+
+        $this->withToken($adminToken)
+            ->deleteJson('/api/products/'.$createdId)
+            ->assertOk()
+            ->assertJsonPath('message', 'Product deactivated.');
+
+        $this->assertSoftDeleted('products', ['id' => $createdId]);
+        $this->getJson('/api/products?search=Updated')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+    }
+
+    public function test_product_images_accept_supported_raster_formats_and_reject_svg(): void
+    {
+        Storage::fake('public');
+        $category = Category::create(['name' => 'Image uploads']);
+        $adminToken = auth('api')->login(User::factory()->create(['role' => 'admin']));
+
+        $created = $this->withToken($adminToken)
+            ->withHeader('Accept', 'application/json')
+            ->post('/api/products', [
+            'name' => 'Image product',
+            'price' => '20.00',
+            'category_id' => $category->id,
+            'image' => UploadedFile::fake()->image('product.png', 10, 10),
+        ])->assertCreated();
+
+        $imagePath = basename($created->json('data.image_url'));
+        Storage::disk('public')->assertExists('products/'.$imagePath);
+
+        $this->withToken($adminToken)
+            ->withHeader('Accept', 'application/json')
+            ->post('/api/products', [
+            'name' => 'SVG product',
+            'price' => '20.00',
+            'category_id' => $category->id,
+            'image' => UploadedFile::fake()->createWithContent(
+                'product.svg',
+                '<svg xmlns="http://www.w3.org/2000/svg"></svg>'
+            ),
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('image');
+    }
+
+    public function test_dashboard_and_user_listing_are_connected_and_admin_scoped(): void
+    {
+        $customer = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
+        Order::create([
+            'user_id' => $customer->id,
+            'total' => '12.50',
+            'status' => 'confirmed',
+        ]);
+
+        $customerToken = auth('api')->login($customer);
+        $this->withToken($customerToken)
+            ->getJson('/api/dashboard')
+            ->assertOk()
+            ->assertJsonPath('data.total_orders', 1)
+            ->assertJsonPath('data.orders_today', 1)
+            ->assertJsonPath('data.total_users', null)
+            ->assertJsonPath('data.total_sales', '12.50');
+        $this->withToken($customerToken)->getJson('/api/users')->assertForbidden();
+        $this->withToken($customerToken)
+            ->getJson('/api/orders?status=pending')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+
+        $adminToken = auth('api')->login($admin);
+        $this->withToken($adminToken)
+            ->getJson('/api/dashboard')
+            ->assertOk()
+            ->assertJsonPath('data.total_users', 2)
+            ->assertJsonPath('data.total_orders', 1);
+        $this->withToken($adminToken)
+            ->getJson('/api/users')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonMissingPath('data.0.password');
+        $this->withToken($adminToken)
+            ->getJson('/api/admin/orders?status=confirmed')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.user.id', $customer->id);
     }
 
     public function test_product_detail_uses_confirmed_inventory_and_reports_inventory_outage(): void

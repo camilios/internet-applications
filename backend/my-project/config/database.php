@@ -62,6 +62,26 @@ return [
             ]) : [],
         ],
 
+        'inventory' => [
+            'driver' => 'mysql',
+            'url' => env('INVENTORY_DB_URL'),
+            'host' => env('INVENTORY_DB_HOST', '127.0.0.1'),
+            'port' => env('INVENTORY_DB_PORT', '3308'),
+            'database' => env('INVENTORY_DB_DATABASE', 'inventory_db'),
+            'username' => env('INVENTORY_DB_USERNAME', 'inventory_service'),
+            'password' => env('INVENTORY_DB_PASSWORD', 'change_me_inventory_mysql_password'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

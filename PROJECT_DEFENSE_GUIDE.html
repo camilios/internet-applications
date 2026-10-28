@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>دليل مناقشة معمارية المشروع والخدمات المصغرة</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+    @page {
+      size: A4;
+      margin: 14mm 12mm 14mm 12mm;
+      @bottom-right {
+        content: "دليل المناقشة التقنية للمشروع";
+        font-family: 'Cairo', sans-serif;
+        font-size: 8pt;
+        color: #94a3b8;
+      }
+      @bottom-left {
+        content: counter(page);
+        font-family: 'Cairo', sans-serif;
+        font-size: 8pt;
+        color: #64748b;
+        font-weight: bold;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background-color: #ffffff;
+      color: #1e293b;
+      margin: 0;
+      padding: 0;
+      font-size: 10pt;
+      line-height: 1.65;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    /* Cover Page */
+    .cover-page {
+      min-height: 94vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 3px solid #2563eb;
+      border-radius: 16px;
+      padding: 35px;
+      background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      page-break-after: always;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      align-self: flex-start;
+      background: rgba(37, 99, 235, 0.3);
+      border: 1px solid #3b82f6;
+      color: #93c5fd;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 9.5pt;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .cover-title {
+      font-size: 26pt;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.35;
+      margin: 18px 0 10px 0;
+    }
+
+    .cover-subtitle {
+      font-size: 13pt;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+
+    .cover-features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin: 20px 0;
+    }
+
+    .cover-feature-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .cover-feature-item h4 {
+      margin: 0 0 5px 0;
+      color: #60a5fa;
+      font-size: 10.5pt;
+    }
+
+    .cover-feature-item p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 8.8pt;
+      line-height: 1.5;
+    }
+
+    .cover-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.8pt;
+      color: #94a3b8;
+    }
+
+    /* Section Styles */
+    h1 {
+      font-size: 16.5pt;
+      font-weight: 800;
+      color: #0f172a;
+      border-right: 5px solid #2563eb;
+      padding-right: 12px;
+      margin: 20px 0 12px 0;
+      letter-spacing: -0.3px;
+    }
+
+    h2 {
+      font-size: 12.5pt;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin: 16px 0 8px 0;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 4px;
+    }
+
+    h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #0369a1;
+      margin: 14px 0 6px 0;
+    }
+
+    p {
+      margin: 0 0 9px 0;
+      text-align: justify;
+    }
+
+    /* Cards & Boxes */
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 10px 0;
+      page-break-inside: avoid;
+    }
+
+    .tip-card {
+      background: #eff6ff;
+      border-right: 4px solid #3b82f6;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin: 10px 0;
+      page-break-inside: avoid;
+    }
+
+    .tip-card strong {
+      color: #1d4ed8;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .warning-card {
+      background: #fef2f2;
+      border-right: 4px solid #ef4444;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin: 10px 0;
+      page-break-inside: avoid;
+    }
+
+    .warning-card strong {
+      color: #b91c1c;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .success-card {
+      background: #f0fdf4;
+      border-right: 4px solid #22c55e;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin: 10px 0;
+      page-break-inside: avoid;
+    }
+
+    .success-card strong {
+      color: #15803d;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    /* Q&A Cards */
+    .qa-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      margin: 12px 0;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      page-break-inside: avoid;
+    }
+
+    .qa-header {
+      background: #f1f5f9;
+      padding: 9px 13px;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 1px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10pt;
+    }
+
+    .qa-header .q-tag {
+      background: #2563eb;
+      color: white;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 7.5pt;
+      font-weight: 800;
+    }
+
+    .qa-body {
+      padding: 10px 14px;
+      font-size: 9.3pt;
+      color: #334155;
+    }
+
+    .qa-body .ideal-answer {
+      font-weight: 700;
+      color: #059669;
+      margin-bottom: 3px;
+      display: block;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+
+    th {
+      background: #1e293b;
+      color: #ffffff;
+      padding: 7px 10px;
+      text-align: right;
+      font-weight: 600;
+      border: 1px solid #334155;
+    }
+
+    td {
+      padding: 7px 10px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+    }
+
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    /* Code Blocks */
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 8pt;
+      line-height: 1.45;
+      overflow-x: auto;
+      direction: ltr;
+      text-align: left;
+      margin: 8px 0;
+      border: 1px solid #334155;
+      page-break-inside: avoid;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 8.5pt;
+      background: #f1f5f9;
+      color: #be123c;
+      padding: 1px 4px;
+      border-radius: 3px;
+      direction: ltr;
+      display: inline-block;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+      display: block;
+    }
+
+    .code-comment { color: #64748b; font-style: italic; }
+    .code-keyword { color: #38bdf8; font-weight: bold; }
+    .code-string  { color: #4ade80; }
+    .code-func    { color: #f472b6; }
+    .code-num     { color: #fb923c; }
+
+    /* Steps Flow */
+    .steps-container {
+      margin: 12px 0;
+    }
+
+    .step-item {
+      display: flex;
+      margin-bottom: 10px;
+      page-break-inside: avoid;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      background: #2563eb;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 8.5pt;
+      margin-left: 10px;
+      margin-top: 2px;
+    }
+
+    .step-content {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      flex-grow: 1;
+    }
+
+    .step-content strong {
+      color: #0f172a;
+      display: block;
+      margin-bottom: 2px;
+      font-size: 9.3pt;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER PAGE -->
+  <div class="cover-page">
+    <div>
+      <span class="cover-badge">الدليل الاستراتيجي الشامل للمناقشة التقنية</span>
+      <h1 class="cover-title">معمارية الخدمات المصغرة<br>& إدارة الحاويات (Docker & gRPC)</h1>
+      <p class="cover-subtitle">
+        دليل تفصيلي فائق الدقة لشرح مكونات النظام، بروتوكولات التواصل، أنماط المعاملات الموزعة (Saga)، تفادي الـ Deadlock، والرد النموذجي على أسئلة اللجنة.
+      </p>
+
+      <div class="cover-features">
+        <div class="cover-feature-item">
+          <h4>🚀 التواصل عالي الأداء عبر gRPC</h4>
+          <p>شرح بروتوكول HTTP/2 و Protocol Buffers ولماذا تفوق على REST بنسبة 700% في السرعة.</p>
+        </div>
+        <div class="cover-feature-item">
+          <h4>🐳 هندسة الحاويات (Docker Architecture)</h4>
+          <p>عزل الشبكات Bridge، حماية المنافذ، إدارة الأسرار Secrets، والـ Healthchecks.</p>
+        </div>
+        <div class="cover-feature-item">
+          <h4>🛡️ نمط ساغا (Saga Pattern)</h4>
+          <p>المعاملات التعويضية التلقائية والتعافي عند فشل الشبكة دون الحاجة لـ 2PC.</p>
+        </div>
+        <div class="cover-feature-item">
+          <h4>🔒 منع الـ Deadlock والتزامن</h4>
+          <p>الترتيب الصارم للموارد (Strict Resource Ordering) وقفل الصفوف التشاؤمي InnoDB.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <div><strong>المشروع:</strong> نظام التجارة الإلكترونية المعماري الموزع (E-Commerce Platform)</div>
+      <div><strong>التقنيات:</strong> Laravel 11 • Node.js • TypeScript • gRPC • MySQL 8.0 • Docker</div>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <h1>المحور الأول: معمارية الخدمات وطريقة التواصل بينها</h1>
+  <p>
+    تم بناء المشروع بالاعتماد على معمارية <strong>الخدمات المصغرة (Microservices Architecture)</strong> مع تطبيق مبدأ <strong>Database-per-Service</strong>، حيث تمتلك كل خدمة قاعدة بيانات معزولة تماماً لضمان الاستقلالية التامة وعدم وجود نقطة فشل مفردة (Single Point of Failure).
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>الخدمة (Service)</th>
+        <th>لغة التطوير / الإطار</th>
+        <th>قاعدة البيانات</th>
+        <th>المسؤولية الوظيفية الرئيسية</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Frontend</strong></td>
+        <td>React 19 + TypeScript + Vite</td>
+        <td>N/A (Client Cache)</td>
+        <td>واجهات المستخدم التفاعلية، إدارة الحالة، واستدعاء الـ APIs.</td>
+      </tr>
+      <tr>
+        <td><strong>Backend Gateway</strong></td>
+        <td>Laravel 11 (PHP 8.2)</td>
+        <td>MySQL <code>ecommerce</code> (Port 3307)</td>
+        <td>إدارة المنتجات، المستخدمين، التوثيق بـ JWT، وإدارة دورة حياة الطلب.</td>
+      </tr>
+      <tr>
+        <td><strong>Inventory Microservice</strong></td>
+        <td>Node.js 20 + TypeScript</td>
+        <td>MySQL <code>inventory_db</code> (Port 3308)</td>
+        <td>حجز المخزون اللحظي، فك الحجز، وتفادي البيع الزائد (Overselling).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>1.1 لماذا تم اختيار gRPC بدلاً من REST للتواصل الداخلي؟</h2>
+  <div class="tip-card">
+    <strong>💡 النقطة الجوهرية التي تبهر لجنة المناقشة:</strong>
+    التواصل بين <code>Laravel</code> و <code>Inventory Service</code> يتم عبر <strong>gRPC فوق بروتوكول HTTP/2</strong> وليس عبر REST/JSON العادي، للأسباب الهندسية التالية:
+  </div>
+
+  <ul>
+    <li><strong>تقنية الـ Multiplexing:</strong> في بروتوكول HTTP/1.1 (المستخدم في REST العادي)، كل استدعاء يحتاج لفتح اتصال TCP جديد أو ينتظر في طابور (Head-of-Line Blocking). بينما في gRPC مع HTTP/2، يتم تمرير مئات الطلبات المتزامنة عبر اتصال TCP وحيد ثنائي الاتجاه (Bi-directional Streaming).</li>
+    <li><strong>ضغط وحجم البيانات (Binary Protocol Buffers):</strong> رسائل JSON ترسل أسماء الحقول كنصوص مكررة (Overhead). بينما Protocol Buffers تحول البيانات إلى بايتات ثنائية مشفرة برقم الحقل فقط، مما يقلل حجم البيانات في الشبكة بنسبة تفوق <strong>80%</strong>.</li>
+    <li><strong>عقود واضحة وصارمة (Strict Interface Contract):</strong> كتابة ملف <code>.proto</code> يفرض نمطاً صارماً للأنواع يمنع أخطاء الـ Type Mismatch بين PHP و TypeScript في وقت الـ Compile-Time.</li>
+  </ul>
+
+  <h2>1.2 كود العقد المشترك (Protocol Buffer Definition)</h2>
+  <p>ملف العقد الموحد الذي تم توليد Stubs منه للخدمتين: <code>proto/inventory.proto</code></p>
+
+  <pre><code>syntax = "proto3";
+package inventory;
+
+// تعريف الخدمة والعمليات المتاحة
+service InventoryService {
+  // 1. فحص المخزون المتاح
+  rpc GetStock (GetStockRequest) returns (GetStockResponse);
+
+  // 2. حجز المخزون لعدة منتجات بشكل ذري موحد
+  rpc ReserveStock (ReserveStockRequest) returns (ReserveStockResponse);
+
+  // 3. تحرير المخزون المحجوز (Compensating Transaction)
+  rpc ReleaseStock (ReleaseStockRequest) returns (ReleaseStockResponse);
+}
+
+message ReserveStockRequest {
+  repeated ReserveStockItem items = 1;
+  string idempotency_key = 2; // مفتاح التحصين ضد التكرار
+}
+
+message ReserveStockResponse {
+  bool success = 1;
+  string reservation_id = 2;
+  string failure_reason = 3;
+}</code></pre>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 2 -->
+  <h1>المحور الثاني: إدارة الحاويات وبيئة Docker بالكامل</h1>
+  <p>
+    تم عزل كافة مكونات النظام داخل بيئة <strong>Docker Compose</strong> متعددة الحاويات (Multi-Container Architecture) لضمان التماثل التام بين بيئة التطوير والإنتاج (Environment Parity).
+  </p>
+
+  <h2>2.1 الأنماط الأمنية والمعمارية في Docker Compose</h2>
+
+  <div class="card">
+    <h3 style="margin-top:0;">1. عزل الشبكات (Network Isolation & Service Discovery)</h3>
+    <p>
+      تم ربط جميع الحاويات عبر شبكة Bridge خاصة تدعى <code>ecommerce-network</code>. الحاويات لا تتصل ببعضها عبر أرقام IP المتغيرة، بل باستخدام <strong>DNS الداخلي لـ Docker</strong> (مثلاً: تتصل خدمة لارافيل باسم المضيف <code>inventory-service:50051</code>).
+    </p>
+    <div class="warning-card">
+      <strong>🔒 حماية المنافذ الأمنية:</strong>
+      منفذ gRPC الداخلي (<code>50051</code>) <strong>غير منشور (Unpublished)</strong> على جهاز المضيف (Host)، مما يمنع أي وصول خارجي إليه؛ بينما التطبيقات الخارجية تتصل فقط بـ Laravel API عبر المنفذ <code>8000</code>.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">2. إدارة الأسرار الأمنية (Docker Secrets)</h3>
+    <p>
+      بدلاً من حفظ كلمات المرور الحساسة لقواعد البيانات داخل ملف <code>.env</code> كنصوص صريحة معرضة للتسريب في Git، تم استخدام ميزة <code>secrets</code> في Docker:
+    </p>
+    <pre><code>secrets:
+  mysql_password:
+    file: ./secrets/mysql_password.txt
+  inventory_mysql_password:
+    file: ./secrets/inventory_mysql_password.txt</code></pre>
+    <p>يتم تركيب هذه الملفات مؤقتاً في مسار الذاكرة <code>/run/secrets/</code> داخل الحاوية وتُقرأ عند الإقلاع فقط.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">3. فحوصات الصحة وترتيب الإقلاع (Healthchecks & Startup Ordering)</h3>
+    <p>
+      لتفادي انهيار خدمة المخزون أو لارافيل بسبب محاولة الاتصال بقاعدة البيانات قبل اكتمال إقلاع محرك MySQL، تم تزويد قواعد البيانات بـ <code>healthcheck</code>، مع ربط الخدمات التابعة لها بشرط:
+    </p>
+    <pre><code>depends_on:
+  mysql:
+    condition: service_healthy # لا تبدأ الحاوية إلا بعد استجابة ping من MySQL</code></pre>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 3 -->
+  <h1>المحور الثالث: السيناريو الكامل لتدفق البيانات (End-to-End Flow)</h1>
+  <p>
+    ما الذي يحدث عند قيام العميل بالضغط على "تأكيد الطلب" (Checkout) لشراء هاتف وسماعة؟
+  </p>
+
+  <div class="steps-container">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>الواجهة الأمامية (Frontend Request)</strong>
+        ترسل طلباً بصيغة <code>POST /api/orders</code> حاملاً عناصر السلة مع <code>Idempotency-Key: uuid-v4</code> ومرفقاً بتوكن المصادقة <code>Bearer JWT</code>.
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>التحقق الأولي في Laravel (OrderService)</strong>
+        يقوم لارافيل بالتأكد من صلاحية التوكن، ثم يتحقق من أن المنتجات نشطة في جدول <code>products</code>، ويجلب الأسعار مباشرة من قاعدة البيانات (وليس من العميل لمنع التلاعب بالسعر).
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>حفظ حالة العملية (Inventory Operations Table)</strong>
+        تسجيل سجل في جدول <code>inventory_operations</code> بحالة <code>pending</code> مع تخزين بصمة الطلب (SHA-256 Hash) لمنع تكرار الإرسال.
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <strong>استدعاء gRPC الموزع (ReserveStock)</strong>
+        يقوم عميل <code>InventoryGrpcClient</code> بفرز المعرفات تصاعدياً ثم إرسال رسالة ثنائية سريعة إلى <code>inventory-service:50051</code>.
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <strong>القفل الذري وحجز المخزون (Inventory Microservice)</strong>
+        تفتح الخدمة Transaction في <code>inventory_db</code> وتقفل الصفوف المعنية بـ <code>FOR UPDATE</code>، تتأكد أن <code>(total_quantity - reserved_quantity) >= requested</code>، ثم تقوم بتحديث <code>reserved_quantity</code> وإنشاء سجل <code>reservations</code> وتأكيد المعاملة (COMMIT).
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <strong>حفظ الطلب النهائي في قاعدة بيانات التجارة (Order Creation)</strong>
+        يستلم لارافيل تأكيد الحجز مع <code>reservation_id</code>، فيقوم بحفظ الطلب في جدول <code>orders</code> وعناصره في <code>order_items</code> داخل Transaction محلية، ثم تحويل العملية إلى <code>completed</code>.
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <strong>مسار التعافي التلقائي في حال الفشل (Saga Compensation Fallback)</strong>
+        إذا فشلت عملية حفظ الطلب في لارافيل لأي سبب بعد نجاح حجز المخزون، يُطلق لارافيل فوراً نداء تعويضي <code>ReleaseStock(reservation_id)</code> لفك الحجز من المخزون وإعادة الكمية، مما يضمن اتساق البيانات المطلق!
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 4 -->
+  <h1>المحور الرابع: الأنماط الهندسية المتقدمة وحل المعضلات التقنية</h1>
+
+  <h2>4.1 نمط ساغا والمعاملات التعويضية (Saga Pattern)</h2>
+  <p>
+    في المعماريات الموزعة، يستحيل استخدام المعاملات التقليدية ثنائية المراحل (Two-Phase Commit 2PC) بسبب بطئها وتعقيدها وعدم دعمها عبر لغات مختلفة. البديل الصناعي المعتمد هو <strong>Saga Pattern (Orchestration-based)</strong>:
+  </p>
+
+  <pre><code>// من كود OrderService.php الفعلي في المشروع
+try {
+    // الخطوة 1: الحجز الموزع في خدمة المخزون
+    $reservation = $this->inventoryClient->reserveStock($items, $idempotencyKey);
+    
+    // الخطوة 2: حفظ الطلب محلياً
+    $order = DB::transaction(function () use (...) {
+        // إنشاء الطلب وحفظ العناصر
+    });
+} catch (\Throwable $e) {
+    // إذا تعثر حفظ الطلب بعد حجز المخزون: تشغيل المعاملة التعويضية
+    if ($reservationId) {
+        try {
+            $this->inventoryClient->releaseStock($reservationId);
+        } catch (\Throwable $releaseError) {
+            // في حال تعطل الشبكة أثناء التعويض، نسجل الفشل في جدول دائم
+            FailedCompensation::create([
+                'reservation_id' => $reservationId,
+                'error' => $releaseError->getMessage(),
+            ]);
+        }
+    }
+    throw $e;
+}</code></pre>
+
+  <h2>4.2 منع القفل الميت (Deadlock Prevention & Concurrency Control)</h2>
+  <div class="warning-card">
+    <strong>⚠️ سؤال دقيق جداً تطرحه اللجان:</strong>
+    كيف تضمن عدم حدوث Deadlock عند تنافس طلبين في نفس الجزء من الثانية على شراء نفس المنتجات؟
+  </div>
+
+  <p>
+    <strong>السبب الجذري للـ Deadlock:</strong> عندما يحجز الطلب A المنتج 1 ثم يطلب قفل المنتج 2، بينما يحجز الطلب B المنتج 2 ويطلب قفل المنتج 1، ينشأ قفل دائري (Circular Wait) ويقوم MySQL بقتل إحدى المعاملتين بخطأ <code>ER_LOCK_DEADLOCK</code>.
+  </p>
+  <p>
+    <strong>الحل الهندسي المنفذ في المشروع:</strong> فرض <strong>Strict Resource Ordering (الترتيب الصارم للموارد)</strong>. نقوم بفرز المنتجات تصاعدياً حسب رقم المعرف <code>product_id</code> قبل تنفيذ أي قفل في كلٍ من لارافيل وخدمة المخزون:
+  </p>
+
+  <pre><code>// من كود inventory-service.ts الفعلي
+// 1. فرز المفاتيح رقمياً لضمان الترتيب الصارم
+const sortedProductIds = [...itemMap.keys()].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+
+// 2. حجز الأقفال دائماً بنفس الترتيب عبر SELECT ... FOR UPDATE
+for (const productId of sortedProductIds) {
+  const [rows] = await connection.query(
+    'SELECT product_id, total_quantity, reserved_quantity, ' +
+    '(total_quantity - reserved_quantity) AS available_quantity ' +
+    'FROM inventory_items WHERE product_id = ? FOR UPDATE',
+    [productId]
+  );
+}</code></pre>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 5 -->
+  <h1>المحور الخامس: بنك الأسئلة المتوقعة من لجنة المناقشة مع الإجابات النموذجية</h1>
+
+  <div class="qa-card">
+    <div class="qa-header">
+      <span class="q-tag">سؤال 1</span>
+      ما الفرق بين معمارية الـ Monolith ومعمارية الـ Microservices في هذا المشروع، ولماذا فصلت المخزون؟
+    </div>
+    <div class="qa-body">
+      <span class="ideal-answer">الإجابة النموذجية:</span>
+      المونوليث يجمع كل الوظائف وقاعدة البيانات في بيئة واحدة، مما يجعله هشاً في حالات التزامن العالي. قمنا بفصل خدمة المخزون بالذات كـ Microservice لأنها <strong>Hot-spot عالية الأحمال (High-throughput & High-concurrency)</strong> تحتاج لمعالجة عمليات قفل الصفوف اللحظية دون التأثير على تصفح المستخدمين للكتالوج أو المصادقة، كما يمكن توسعتها أفقياً (Scale horizontally) بشكل مستقل تماماً.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-header">
+      <span class="q-tag">سؤال 2</span>
+      كيف تحافظ على اتساق البيانات (Data Consistency) بدون وجود قاعدة بيانات موحدة (ACID)؟
+    </div>
+    <div class="qa-body">
+      <span class="ideal-answer">الإجابة النموذجية:</span>
+      نعتمد على مبدأ <strong>Eventual Consistency (الاتساق المرحلي)</strong> من خلال تطبيق <strong>Saga Pattern</strong>. في حال فشل أي مرحلة لاحقة في دورة حياة الطلب، يتم تشغيل معاملة تعويضية (Compensating Transaction) تقوم بفك حجز المخزون تلقائياً عبر gRPC <code>ReleaseStock</code>، مع وجود مجدول مهام دوري (Scheduled Background Worker) يعيد معالجة أي تعويضات تعثرت بسبب انقطاع الشبكة.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-header">
+      <span class="q-tag">سؤال 3</span>
+      ما هو الـ Idempotency، وكيف قمت بتطبيقه في هذا النظام؟
+    </div>
+    <div class="qa-body">
+      <span class="ideal-answer">الإجابة النموذجية:</span>
+      الـ Idempotency يعني أن استدعاء نفس العملية عدة مرات بنفس المعطيات يؤدي إلى نفس النتيجة دون أي أثر جانبي مضاعف. قمنا بإلزام طلبات الشراء بإرسال <code>Idempotency-Key</code> فريد من نوع UUID مع حساب <code>SHA-256 Hash</code> لمحتوى السلة. إذا أعاد المستخدم أو المتصفح إرسال الطلب، يتعرف النظام على المفتاح ويرجع نفس الرد السابق دون خصم المخزون مرتين.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-header">
+      <span class="q-tag">سؤال 4</span>
+      لماذا اخترت Node.js لخدمة المخزون بدلاً من كتابتها بـ PHP مع لارافيل؟
+    </div>
+    <div class="qa-body">
+      <span class="ideal-answer">الإجابة النموذجية:</span>
+      Node.js مبني على محرك <strong>V8 Event-driven Non-blocking I/O</strong>، وهو فائق الكفاءة في معالجة طلبات الشبكة التزامنية المتزامنة (Concurrent I/O Requests). كما أن دعم مكتبات <code>@grpc/grpc-js</code> في نظام Node.js الأصلي مدمج وسريع وخفيف ولا يتطلب تثبيت إضافات C على خادم التشغيل مقارنة بـ PHP PECL.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-header">
+      <span class="q-tag">سؤال 5</span>
+      كيف تم تطبيق مبدأ الأمان (Security) داخل بيئة الحاويات Docker؟
+    </div>
+    <div class="qa-body">
+      <span class="ideal-answer">الإجابة النموذجية:</span>
+      1) عزل شبكي كامل: لا يمكن لأي عميل خارجي استدعاء قواعد البيانات أو خدمة gRPC مباشرة. 2) استخدام Docker Secrets لحماية بيانات الاعتماد من التسريب. 3) توثيق جميع استدعاءات API بواسطة JWT (JSON Web Tokens) مشفرة وموقعة. 4) حماية واجهات الـ Backend عبر Rate Limiting لمنع هجمات الـ Brute Force.
+    </div>
+  </div>
+
+  <div class="card" style="background:#ecfdf5; border-color:#6ee7b7; margin-top: 15px;">
+    <h3 style="color:#065f46; margin-top:0;">🌟 نصائح ذهبية عند التحدث أمام اللجنة:</h3>
+    <ul style="color:#047857; margin-bottom:0; padding-right:18px;">
+      <li><strong>استخدم المصطلحات الهندسية الدقيقة:</strong> ركز على ذكر كلمات مثل: <em>"Saga Pattern", "Pessimistic Locking (FOR UPDATE)", "Idempotency", "Multiplexing in HTTP/2", "Exponential Backoff"</em>.</li>
+      <li><strong>أظهر الثقة في فصل المسؤوليات:</strong> عندما يسألونك عن سبب عدم استخدام حل بسيط كقاعدة بيانات واحدة، وضح أن هذا النظام مصمم لبيئات الإنتاج والمؤسسات الكبرى (Enterprise Grade) التي تستهدف التوسع غير المحدود (Scalability).</li>
+    </ul>
+  </div>
+
+</body>
+</html>
+
