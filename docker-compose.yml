@@ -1,0 +1,344 @@
+services:
+  # ─── MySQL Database (Laravel) ─────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: ecommerce-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    secrets:
+      - mysql_root_password
+      - mysql_password
+
+  # ─── MySQL Database (Inventory Service) ───────────────────
+  inventory-mysql:
+    image: mysql:8.0
+    container_name: ecommerce-inventory-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/inventory_mysql_root_password
+      MYSQL_DATABASE: inventory_db
+      MYSQL_USER: inventory_service
+      MYSQL_PASSWORD_FILE: /run/secrets/inventory_mysql_password
+    ports:
+      - "3308:3306"
+    volumes:
+      - inventory_mysql_data:/var/lib/mysql
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    secrets:
+      - inventory_mysql_root_password
+      - inventory_mysql_password
+
+  # ─── Laravel Backend ──────────────────────────────────────
+  backend:
+    build:
+      context: ./backend/my-project
+      dockerfile: Dockerfile
+    container_name: ecommerce-backend
+    restart: unless-stopped
+    environment:
+      APP_NAME: "E-Commerce API"
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ecommerce
+      DB_USERNAME: laravel
+      DB_PASSWORD_FILE: /run/secrets/mysql_password
+      JWT_SECRET: ${JWT_SECRET}
+      INVENTORY_GRPC_HOST: inventory-service:50051
+      INVENTORY_GRPC_TIMEOUT: 5
+      CORS_ALLOWED_ORIGINS: "http://localhost:5173,http://localhost:3000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_storage:/var/www/html/storage/app/public
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    secrets:
+      - mysql_password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/up"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ─── Durable compensation scheduler ────────────────────────
+  scheduler:
+    build:
+      context: ./backend/my-project
+      dockerfile: Dockerfile
+    container_name: ecommerce-scheduler
+    restart: unless-stopped
+    environment:
+      APP_NAME: "E-Commerce API"
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ecommerce
+      DB_USERNAME: laravel
+      DB_PASSWORD_FILE: /run/secrets/mysql_password
+      JWT_SECRET: ${JWT_SECRET}
+      INVENTORY_GRPC_HOST: inventory-service:50051
+      INVENTORY_GRPC_TIMEOUT: 5
+      CORS_ALLOWED_ORIGINS: "http://localhost:5173,http://localhost:3000"
+      SKIP_MIGRATIONS: "true"
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      - backend_storage:/var/www/html/storage/app/public
+    depends_on:
+      backend:
+        condition: service_healthy
+      inventory-service:
+        condition: service_started
+    networks:
+      - ecommerce-network
+    secrets:
+      - mysql_password
+
+  # ─── Inventory gRPC Service ───────────────────────────────
+  inventory-service:
+    build:
+      context: .
+      dockerfile: inventory-service/Dockerfile
+    container_name: ecommerce-inventory
+    restart: unless-stopped
+    environment:
+      DB_HOST: inventory-mysql
+      DB_PORT: 3306
+      DB_NAME: inventory_db
+      DB_USER: inventory_service
+      DB_PASSWORD_FILE: /run/secrets/inventory_mysql_password
+      GRPC_PORT: 50051
+      NODE_ENV: production
+    depends_on:
+      inventory-mysql:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    secrets:
+      - inventory_mysql_password
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('net').connect(50051,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ─── Isolated MySQL/gRPC integration test environment ─────
+  mysql-integration:
+    profiles: ["mysql-integration"]
+    image: mysql:8.0
+    container_name: ecommerce-laravel-test-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_integration_root_password
+      MYSQL_DATABASE: ecommerce_test
+      MYSQL_USER: laravel_test
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_integration_password
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql_integration_data:/var/lib/mysql
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    secrets:
+      - mysql_integration_root_password
+      - mysql_integration_password
+
+  inventory-mysql-integration:
+    profiles: ["mysql-integration"]
+    image: mysql:8.0
+    container_name: ecommerce-inventory-test-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/inventory_mysql_integration_root_password
+      MYSQL_DATABASE: inventory_test
+      MYSQL_USER: inventory_test_user
+      MYSQL_PASSWORD_FILE: /run/secrets/inventory_mysql_integration_password
+    ports:
+      - "3311:3306"
+    volumes:
+      - inventory_mysql_integration_data:/var/lib/mysql
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    secrets:
+      - inventory_mysql_integration_root_password
+      - inventory_mysql_integration_password
+
+  inventory-service-integration:
+    profiles: ["mysql-integration"]
+    build:
+      context: .
+      dockerfile: inventory-service/Dockerfile
+    container_name: ecommerce-inventory-test
+    environment:
+      DB_HOST: inventory-mysql-integration
+      DB_PORT: 3306
+      DB_NAME: inventory_test
+      DB_USER: inventory_test_user
+      DB_PASSWORD_FILE: /run/secrets/inventory_mysql_integration_password
+      GRPC_PORT: 50051
+      NODE_ENV: test
+    depends_on:
+      inventory-mysql-integration:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    secrets:
+      - inventory_mysql_integration_password
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('net').connect(50051,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  inventory-test-runner:
+    profiles: ["mysql-integration"]
+    build:
+      context: .
+      dockerfile: inventory-service/Dockerfile
+      target: builder
+    container_name: ecommerce-inventory-test-runner
+    environment:
+      RUN_INVENTORY_DB_TESTS: "true"
+      INVENTORY_TEST_DB_HOST: inventory-mysql-integration
+      INVENTORY_TEST_DB_PORT: 3306
+      INVENTORY_TEST_DB_NAME: inventory_test
+      INVENTORY_TEST_DB_USER: inventory_test_user
+      INVENTORY_TEST_DB_PASSWORD_FILE: /run/secrets/inventory_mysql_integration_password
+    command: ["npm", "test"]
+    depends_on:
+      inventory-mysql-integration:
+        condition: service_healthy
+      inventory-service-integration:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    secrets:
+      - inventory_mysql_integration_password
+
+  backend-test:
+    profiles: ["mysql-integration"]
+    build:
+      context: ./backend/my-project
+      dockerfile: Dockerfile
+      args:
+        INSTALL_DEV_DEPENDENCIES: "true"
+    container_name: ecommerce-backend-test
+    environment:
+      APP_NAME: "E-Commerce API Integration Tests"
+      APP_ENV: testing
+      APP_DEBUG: "false"
+      APP_URL: http://localhost
+      APP_KEY: "base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      DB_CONNECTION: mysql
+      DB_HOST: mysql-integration
+      DB_PORT: 3306
+      DB_DATABASE: ecommerce_test
+      DB_USERNAME: laravel_test
+      DB_PASSWORD_FILE: /run/secrets/mysql_integration_password
+      JWT_SECRET: mysql-integration-test-only-secret
+      INVENTORY_GRPC_HOST: inventory-service-integration:50051
+      INVENTORY_GRPC_TIMEOUT: 5
+      RUN_MYSQL_INTEGRATION_TESTS: "true"
+      INVENTORY_TEST_DB_HOST: inventory-mysql-integration
+      INVENTORY_TEST_DB_PORT: 3306
+      INVENTORY_TEST_DB_NAME: inventory_test
+      INVENTORY_TEST_DB_USER: inventory_test_user
+      INVENTORY_TEST_DB_PASSWORD_FILE: /run/secrets/inventory_mysql_integration_password
+    command: ["php", "vendor/bin/phpunit", "--configuration", "phpunit.mysql.xml"]
+    depends_on:
+      mysql-integration:
+        condition: service_healthy
+      inventory-service-integration:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    secrets:
+      - mysql_integration_password
+      - inventory_mysql_integration_password
+
+  # ─── Frontend (React + Vite) ──────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ecommerce-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+# ─── Networks ───────────────────────────────────────────────
+networks:
+  ecommerce-network:
+    driver: bridge
+
+# ─── Volumes ────────────────────────────────────────────────
+volumes:
+  mysql_data:
+  inventory_mysql_data:
+  mysql_integration_data:
+  inventory_mysql_integration_data:
+  backend_storage:
+
+# ─── Secrets ────────────────────────────────────────────────
+secrets:
+  mysql_root_password:
+    file: ./secrets/mysql_root_password.txt
+  mysql_password:
+    file: ./secrets/mysql_password.txt
+  inventory_mysql_root_password:
+    file: ./secrets/inventory_mysql_root_password.txt
+  inventory_mysql_password:
+    file: ./secrets/inventory_mysql_password.txt
+  mysql_integration_root_password:
+    file: ./secrets/mysql_integration_root_password.txt
+  mysql_integration_password:
+    file: ./secrets/mysql_integration_password.txt
+  inventory_mysql_integration_root_password:
+    file: ./secrets/inventory_mysql_integration_root_password.txt
+  inventory_mysql_integration_password:
+    file: ./secrets/inventory_mysql_integration_password.txt

@@ -1,0 +1,40 @@
+.env
+.env.*
+!.env.example
+secrets/
+**/node_modules/
+**/vendor/
+**/dist/
+backend/my-project/database/*.sqlite
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+secrets/
+**/secrets/
+
+# Dependencies and generated files
+**/node_modules/
+**/vendor/
+**/dist/
+**/build/
+**/coverage/
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Private keys and certificates
+*.pem
+*.p12
+*.pfx
+*.key
+
+# Logs and local overrides
+*.log
+docker-compose.override.yml
