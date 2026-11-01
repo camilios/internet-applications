@@ -1,37 +1,45 @@
-import { useState } from "react"
-import { useNavigate } from "@tanstack/react-router"
-import { useProduct } from "../hooks/use-products"
-import { useCreateOrder } from "@/features/orders/hooks/use-orders"
-import { useAuthStore } from "@/features/auth/stores/auth.store"
-import { LoadingSpinner } from "@/components/feedback/loading-spinner"
-import { EmptyState } from "@/components/feedback/empty-state"
-import { formatCurrency, formatDate } from "@/lib/utils/format"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Link } from "@tanstack/react-router"
-import { Pencil, ArrowRight, ShoppingCart } from "lucide-react"
-import { ROLES } from "@/lib/constants/roles"
+import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useProduct } from "../hooks/use-products";
+import { useCreateOrder } from "@/features/orders/hooks/use-orders";
+import { useAuthStore } from "@/features/auth/stores/auth.store";
+import { LoadingSpinner } from "@/components/feedback/loading-spinner";
+import { EmptyState } from "@/components/feedback/empty-state";
+import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Link } from "@tanstack/react-router";
+import { Pencil, ArrowRight, ShoppingCart } from "lucide-react";
+import { ROLES } from "@/lib/constants/roles";
 
 interface ProductDetailsProps {
-  productId: number
+  productId: number;
 }
 
 export function ProductDetails({ productId }: ProductDetailsProps) {
-  const { data: product, isLoading, error } = useProduct(productId)
-  const isAdmin = useAuthStore((state) => state.user?.role === ROLES.ADMIN)
-  const createOrder = useCreateOrder()
-  const navigate = useNavigate()
-  const [quantity, setQuantity] = useState(1)
+  const { data: product, isLoading, error } = useProduct(productId);
+  const isAdmin = useAuthStore((state) => state.user?.role === ROLES.ADMIN);
+  const createOrder = useCreateOrder();
+  const navigate = useNavigate();
+  const [quantity, setQuantity] = useState(1);
 
-  if (isLoading) return <LoadingSpinner text="جاري تحميل المنتج..." />
+  const isForbidden = error?.statusCode === 403;
+  const isStockDown = error?.statusCode === 503;
+
+  if (isLoading) return <LoadingSpinner text="جاري تحميل المنتج..." />;
 
   if (error || !product) {
-    const isStockDown = error?.statusCode === 503
     return (
       <EmptyState
-        title={isStockDown ? "خدمة المخزون غير متاحة" : "المنتج غير موجود"}
+        title={
+          isForbidden
+            ? "لا تملك صلاحية الوصول"
+            : isStockDown
+              ? "خدمة المخزون غير متاحة"
+              : "المنتج غير موجود"
+        }
         description={error?.message ?? "لم نتمكن من العثور على هذا المنتج."}
         action={
           <Button asChild variant="outline">
@@ -39,7 +47,7 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
           </Button>
         }
       />
-    )
+    );
   }
 
   return (
@@ -53,7 +61,10 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
         </Button>
         {isAdmin && (
           <Button asChild>
-            <Link to="/products/$productId/edit" params={{ productId: String(product.id) }}>
+            <Link
+              to="/products/$productId/edit"
+              params={{ productId: String(product.id) }}
+            >
               <Pencil className="ml-2 h-4 w-4" />
               تعديل
             </Link>
@@ -100,7 +111,9 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
           <CardContent className="space-y-4">
             {product.description && (
               <div>
-                <h3 className="mb-1 text-sm font-medium text-muted-foreground">الوصف</h3>
+                <h3 className="mb-1 text-sm font-medium text-muted-foreground">
+                  الوصف
+                </h3>
                 <p className="leading-relaxed">{product.description}</p>
               </div>
             )}
@@ -112,31 +125,43 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">تاريخ الإضافة</p>
-                <p className="text-lg font-semibold">{formatDate(product.created_at)}</p>
+                <p className="text-lg font-semibold">
+                  {formatDate(product.created_at)}
+                </p>
               </div>
             </div>
             <form
               className="flex flex-wrap items-end gap-3 border-t pt-4"
               onSubmit={(event) => {
-                event.preventDefault()
+                event.preventDefault();
                 createOrder.mutate([{ product_id: product.id, quantity }], {
                   onSuccess: () => navigate({ to: "/orders" }),
-                })
+                });
               }}
             >
               <div className="w-28">
-                <label htmlFor="order-quantity" className="mb-2 block text-sm font-medium">الكمية</label>
+                <label
+                  htmlFor="order-quantity"
+                  className="mb-2 block text-sm font-medium"
+                >
+                  الكمية
+                </label>
                 <Input
                   id="order-quantity"
                   type="number"
                   min={1}
                   max={product.stock}
                   value={quantity}
-                  onChange={(event) => setQuantity(Math.max(1, Number(event.target.value)))}
+                  onChange={(event) =>
+                    setQuantity(Math.max(1, Number(event.target.value)))
+                  }
                   disabled={product.stock < 1}
                 />
               </div>
-              <Button type="submit" disabled={createOrder.isPending || product.stock < 1}>
+              <Button
+                type="submit"
+                disabled={createOrder.isPending || product.stock < 1}
+              >
                 <ShoppingCart className="ml-2 h-4 w-4" />
                 {product.stock < 1 ? "غير متوفر" : "اطلب الآن"}
               </Button>
@@ -145,5 +170,5 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
         </Card>
       </div>
     </div>
-  )
+  );
 }

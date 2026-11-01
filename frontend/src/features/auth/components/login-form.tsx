@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form";
+import { useState, useEffect } from "react";
 import { loginSchema } from "../schemas/auth.schema";
 import { useLogin } from "../hooks/use-login";
 import { FormField } from "@/components/common/form-field";
@@ -17,6 +18,8 @@ interface LoginFormProps {
 
 export function LoginForm({ redirectTo }: LoginFormProps) {
   const loginMutation = useLogin(redirectTo);
+  const error = loginMutation.error;
+  const [secondsLeft, setSecondsLeft] = useState(0);
 
   const form = useForm({
     defaultValues: {
@@ -31,6 +34,18 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
       onChange: loginSchema,
     },
   });
+
+  useEffect(() => {
+    if (error?.statusCode === 429) setSecondsLeft(error.retryAfter ?? 60);
+  }, [error]);
+
+  useEffect(() => {
+    if (secondsLeft <= 0) return;
+    const id = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [secondsLeft]);
+
+  const isRateLimited = secondsLeft > 0;
 
   return (
     <form
@@ -87,10 +102,18 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         )}
       />
 
+      {isRateLimited && (
+        <p role="alert" className="text-sm text-destructive">
+          محاولات كثيرة جداً. حاول مرة أخرى بعد {secondsLeft} ثانية.
+        </p>
+      )}
+
       <Button
         type="submit"
         className="w-full"
-        disabled={loginMutation.isPending || !form.state.canSubmit}
+        disabled={
+          loginMutation.isPending || !form.state.canSubmit || isRateLimited
+        }
       >
         {loginMutation.isPending && (
           <Loader2 className="ml-2 h-4 w-4 animate-spin" />

@@ -37,8 +37,9 @@ export interface MessageResponse {
 
 /** الشكل الموحّد اللي يبنيه الـ API client */
 export interface ApiError {
-  message: string
-  errors?: Record<string, string[]>
-  code?: string
-  statusCode?: number
+  message: string;
+  errors?: Record<string, string[]>;
+  code?: string;
+  statusCode?: number;
+  retryAfter?: number;
 }
