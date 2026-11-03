@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { getFieldError } from "@/lib/utils/form-errors";
+import { formatTimeMS } from "@/lib/utils/format";
 
 /**
  * Example of a clean TanStack Form + Zod integration.
@@ -103,8 +104,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
       />
 
       {isRateLimited && (
-        <p role="alert" className="text-sm text-destructive">
-          محاولات كثيرة جداً. حاول مرة أخرى بعد {secondsLeft} ثانية.
+        <p role="alert" className="text-sm text-destructive font-medium">
+          محاولات كثيرة جداً. حاول مرة أخرى بعد ({formatTimeMS(secondsLeft)}) [دقيقة:ثانية].
         </p>
       )}
 

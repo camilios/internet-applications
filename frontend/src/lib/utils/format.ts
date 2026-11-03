@@ -38,3 +38,12 @@ export function formatRelativeTime(date: string | Date) {
   }
   return rtf.format(days, "day")
 }
+
+/**
+ * تحويل الثواني إلى تنسيق دقائق وثواني m:s أو mm:ss (مثال: 4:38 أو 04:38)
+ */
+export function formatTimeMS(totalSeconds: number): string {
+  const m = Math.floor(Math.max(0, totalSeconds) / 60);
+  const s = Math.max(0, totalSeconds) % 60;
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
+}

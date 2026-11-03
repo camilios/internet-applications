@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -58,10 +59,10 @@ class OrderController extends Controller
     public function show(Order $order): OrderResource
     {
         $user = Auth::guard('api')->user();
-        abort_unless($user->role === 'admin' || $order->user_id === $user->id, 404);
+        Gate::forUser($user)->authorize('view', $order);
 
         $relations = ['items.product'];
-        if ($user->role === 'admin') {
+        if ($user && $user->role === 'admin') {
             $relations[] = 'user';
         }
 

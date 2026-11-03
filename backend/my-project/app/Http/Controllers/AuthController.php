@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
@@ -25,12 +26,35 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
+        $ip = $request->ip();
+        $attemptsKey = 'login_attempts:'.$ip;
+        $lockoutKey = 'login_lockout:'.$ip;
+
         $credentials = $request->safe()->only(['email', 'password']);
         $token = $this->auth->login($credentials['email'], $credentials['password']);
 
         if (! $token) {
+            $attempts = RateLimiter::hit($attemptsKey, 60);
+
+            if ($attempts >= 5) {
+                // Activate 5-minute lockout and reset failed attempts counter
+                RateLimiter::hit($lockoutKey, 300);
+                RateLimiter::clear($attemptsKey);
+
+                $seconds = 300;
+
+                return response()->json([
+                    'message' => 'Too many failed login attempts. Your IP has been locked out for 5 minutes.',
+                    'retry_after' => $seconds,
+                ], 429, [
+                    'Retry-After' => (string) $seconds,
+                ]);
+            }
+
             return response()->json(['message' => 'Invalid credentials.'], 401);
         }
+
+        RateLimiter::clear($attemptsKey);
 
         return $this->tokenResponse($token, $this->auth->me());
     }

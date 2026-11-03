@@ -26,9 +26,14 @@ class InventoryGrpcClient
         return extension_loaded('grpc') && class_exists(BaseStub::class);
     }
 
+    public function shouldFallback(): bool
+    {
+        return ! $this->isGrpcAvailable() && app()->environment('local');
+    }
+
     public function getStock(int $productId): int
     {
-        if (! $this->isGrpcAvailable()) {
+        if ($this->shouldFallback()) {
             return $this->fallbackGetStock($productId);
         }
 
@@ -46,7 +51,7 @@ class InventoryGrpcClient
      */
     public function reserveStock(array $items, string $idempotencyKey): ReservationResult
     {
-        if (! $this->isGrpcAvailable()) {
+        if ($this->shouldFallback()) {
             return $this->fallbackReserveStock($items, $idempotencyKey);
         }
 
@@ -82,7 +87,7 @@ class InventoryGrpcClient
 
     public function releaseStock(string $reservationId): bool
     {
-        if (! $this->isGrpcAvailable()) {
+        if ($this->shouldFallback()) {
             return $this->fallbackReleaseStock($reservationId);
         }
 
