@@ -1,0 +1,114 @@
+{
+  "before": [
+    {
+      "query": "SELECT * FROM products WHERE is_active = 1 ORDER BY created_at DESC LIMIT 15",
+      "type": "ALL",
+      "key": null,
+      "estimated_rows": 15,
+      "leaf_actual_rows": "15",
+      "leaf_loops": "1",
+      "root_completion_ms": "0.514"
+    },
+    {
+      "query": "SELECT * FROM products WHERE is_active = 1 AND category_id = 1 ORDER BY created_at DESC LIMIT 15",
+      "type": "ref",
+      "key": "products_category_id_foreign",
+      "estimated_rows": 3,
+      "leaf_actual_rows": "3",
+      "leaf_loops": "1",
+      "root_completion_ms": "0.204"
+    },
+    {
+      "query": "SELECT * FROM orders WHERE user_id = 3498 ORDER BY created_at DESC LIMIT 15",
+      "type": "ref",
+      "key": "orders_user_id_foreign",
+      "estimated_rows": 89,
+      "leaf_actual_rows": "89",
+      "leaf_loops": "1",
+      "root_completion_ms": "2.21"
+    },
+    {
+      "query": "SELECT * FROM orders WHERE status = 'shipped' ORDER BY created_at DESC LIMIT 15",
+      "type": "ALL",
+      "key": null,
+      "estimated_rows": 298201,
+      "leaf_actual_rows": "300004",
+      "leaf_loops": "1",
+      "root_completion_ms": "303"
+    },
+    {
+      "query": "SELECT * FROM orders ORDER BY created_at DESC LIMIT 15",
+      "type": "ALL",
+      "key": null,
+      "estimated_rows": 298201,
+      "leaf_actual_rows": "300004",
+      "leaf_loops": "1",
+      "root_completion_ms": "333"
+    },
+    {
+      "query": "SELECT COUNT(*) FROM orders WHERE status <> 'cancelled'",
+      "type": "ALL",
+      "key": null,
+      "estimated_rows": 298201,
+      "leaf_actual_rows": "300004",
+      "leaf_loops": "1",
+      "root_completion_ms": "159"
+    }
+  ],
+  "after": [
+    {
+      "query": "SELECT * FROM products WHERE is_active = 1 ORDER BY created_at DESC LIMIT 15",
+      "type": "ALL",
+      "key": null,
+      "estimated_rows": 15,
+      "leaf_actual_rows": "15",
+      "leaf_loops": "1",
+      "root_completion_ms": "0.202"
+    },
+    {
+      "query": "SELECT * FROM products WHERE is_active = 1 AND category_id = 1 ORDER BY created_at DESC LIMIT 15",
+      "type": "ref",
+      "key": "products_category_id_foreign",
+      "estimated_rows": 3,
+      "leaf_actual_rows": "3",
+      "leaf_loops": "1",
+      "root_completion_ms": "0.176"
+    },
+    {
+      "query": "SELECT * FROM orders WHERE user_id = 3498 ORDER BY created_at DESC LIMIT 15",
+      "type": "ref",
+      "key": "orders_user_created_idx",
+      "estimated_rows": 89,
+      "leaf_actual_rows": "15",
+      "leaf_loops": "1",
+      "root_completion_ms": "10.5"
+    },
+    {
+      "query": "SELECT * FROM orders WHERE status = 'shipped' ORDER BY created_at DESC LIMIT 15",
+      "type": "ref",
+      "key": "orders_status_created_idx",
+      "estimated_rows": 93410,
+      "leaf_actual_rows": "15",
+      "leaf_loops": "1",
+      "root_completion_ms": "5.04"
+    },
+    {
+      "query": "SELECT * FROM orders ORDER BY created_at DESC LIMIT 15",
+      "type": "index",
+      "key": "orders_created_idx",
+      "estimated_rows": 15,
+      "leaf_actual_rows": "15",
+      "leaf_loops": "1",
+      "root_completion_ms": "10.4"
+    },
+    {
+      "query": "SELECT COUNT(*) FROM orders WHERE status <> 'cancelled'",
+      "type": "index",
+      "key": "orders_status_created_idx",
+      "estimated_rows": 298201,
+      "leaf_actual_rows": "300004",
+      "leaf_loops": "1",
+      "root_completion_ms": "718"
+    }
+  ]
+}

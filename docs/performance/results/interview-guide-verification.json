@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "scope": "jsdom and Bash syntax; no visual browser verification",
+  "sections": 12,
+  "bashBlocksValidated": 8,
+  "checks": [
+    "Arabic RTL",
+    "anchors and local links",
+    "copy",
+    "expand/collapse",
+    "print",
+    "no external resources",
+    "live EXPLAIN uses orders_created_idx"
+  ]
+}

@@ -3,30 +3,11 @@
 namespace App\Services;
 
 use App\Models\Product;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
-    /**
-     * List products with pagination and filters.
-     */
-    public function list(array $filters): LengthAwarePaginator
-    {
-        $query = Product::with('category')->where('is_active', true);
-
-        if (!empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
-        }
-
-        if (!empty($filters['search'])) {
-            $query->where('name', 'like', '%' . $filters['search'] . '%');
-        }
-
-        $perPage = $filters['per_page'] ?? 15;
-
-        return $query->latest()->paginate($perPage);
-    }
+    public function __construct(private readonly ProductCache $cache) {}
 
     /**
      * Find a single product by ID.
@@ -45,7 +26,10 @@ class ProductService
             $data['image'] = $data['image']->store('products', 'public');
         }
 
-        return Product::create($data);
+        $product = Product::create($data);
+        DashboardCache::forgetAdmin();
+
+        return $product;
     }
 
     /**
@@ -64,6 +48,8 @@ class ProductService
         }
 
         $product->update($data);
+        $this->cache->forget($id);
+        DashboardCache::forgetAdmin();
 
         return $product->fresh('category');
     }
@@ -75,5 +61,7 @@ class ProductService
     {
         $product = Product::findOrFail($id);
         $product->delete();
+        $this->cache->forget($id);
+        DashboardCache::forgetAdmin();
     }
 }

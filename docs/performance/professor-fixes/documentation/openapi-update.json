@@ -1,0 +1,13 @@
+{
+  "openapi": "3.0.3",
+  "path_templates": 17,
+  "added_paths": [
+    "/dashboard",
+    "/users"
+  ],
+  "conditional_get_paths": [
+    "/products",
+    "/products/{product}"
+  ],
+  "yaml_matches_json": true
+}

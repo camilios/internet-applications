@@ -1,0 +1,129 @@
+ Image nginx:alpine Pulling 
+ da90db506dd5 Pulling fs layer 0B
+ c7dfd64eeb02 Pulling fs layer 0B
+ 881fc932939e Pulling fs layer 0B
+ 1abafee971b9 Pulling fs layer 0B
+ a746bd1dc828 Pulling fs layer 0B
+ e011f124249b Pulling fs layer 0B
+ b9c6ee6a30f8 Pulling fs layer 0B
+ 69d81d552257 Pulling fs layer 0B
+ 881fc932939e Already exists 0B
+ 8801fee91458 Download complete 0B
+ 4c900eca9c64 Download complete 0B
+ c7dfd64eeb02 Download complete 0B
+ 1abafee971b9 Downloading 1.049MB
+ 1abafee971b9 Downloading 1.049MB
+ 1abafee971b9 Download complete 0B
+ 1abafee971b9 Extracting 1B
+ 1abafee971b9 Extracting 1B
+ 1abafee971b9 Extracting 1B
+ b9c6ee6a30f8 Download complete 0B
+ c7dfd64eeb02 Pull complete 0B
+ 1abafee971b9 Pull complete 0B
+ 69d81d552257 Downloading 1.399kB
+ 69d81d552257 Download complete 0B
+ a746bd1dc828 Downloading 404B
+ e011f124249b Download complete 0B
+ a746bd1dc828 Download complete 0B
+ e011f124249b Pull complete 0B
+ a746bd1dc828 Pull complete 0B
+ b9c6ee6a30f8 Pull complete 0B
+ 69d81d552257 Pull complete 0B
+ da90db506dd5 Downloading 1.049MB
+ da90db506dd5 Downloading 1.049MB
+ da90db506dd5 Downloading 2.097MB
+ da90db506dd5 Downloading 2.097MB
+ da90db506dd5 Downloading 3.146MB
+ da90db506dd5 Downloading 3.146MB
+ da90db506dd5 Downloading 4.194MB
+ da90db506dd5 Downloading 4.194MB
+ da90db506dd5 Downloading 5.243MB
+ da90db506dd5 Downloading 5.243MB
+ da90db506dd5 Downloading 5.243MB
+ da90db506dd5 Downloading 5.243MB
+ da90db506dd5 Downloading 5.243MB
+ da90db506dd5 Downloading 5.243MB
+ da90db506dd5 Downloading 6.291MB
+ da90db506dd5 Downloading 6.291MB
+ da90db506dd5 Downloading 7.34MB
+ da90db506dd5 Downloading 9.437MB
+ da90db506dd5 Downloading 9.437MB
+ da90db506dd5 Downloading 9.437MB
+ da90db506dd5 Downloading 10.49MB
+ da90db506dd5 Downloading 10.49MB
+ da90db506dd5 Downloading 10.49MB
+ da90db506dd5 Downloading 11.53MB
+ da90db506dd5 Downloading 11.53MB
+ da90db506dd5 Downloading 12.58MB
+ da90db506dd5 Downloading 12.87MB
+ da90db506dd5 Downloading 13.63MB
+ da90db506dd5 Downloading 14.68MB
+ da90db506dd5 Downloading 14.68MB
+ da90db506dd5 Downloading 15.73MB
+ da90db506dd5 Downloading 15.73MB
+ da90db506dd5 Downloading 16.78MB
+ da90db506dd5 Downloading 17.83MB
+ da90db506dd5 Downloading 17.83MB
+ da90db506dd5 Downloading 18.87MB
+ da90db506dd5 Downloading 18.87MB
+ da90db506dd5 Downloading 18.87MB
+ da90db506dd5 Downloading 18.87MB
+ da90db506dd5 Downloading 18.87MB
+ da90db506dd5 Downloading 18.87MB
+ da90db506dd5 Downloading 18.87MB
+ da90db506dd5 Downloading 18.87MB
+ da90db506dd5 Downloading 19.92MB
+ da90db506dd5 Downloading 20.55MB
+ da90db506dd5 Download complete 0B
+ da90db506dd5 Extracting 1B
+ da90db506dd5 Extracting 1B
+ da90db506dd5 Extracting 1B
+ da90db506dd5 Extracting 1B
+ da90db506dd5 Extracting 1B
+ da90db506dd5 Extracting 1B
+ da90db506dd5 Extracting 1B
+ da90db506dd5 Extracting 1B
+ da90db506dd5 Pull complete 0B
+ Image nginx:alpine Pulled 
+ Container ecommerce-inventory-mysql Running 
+ Container ecommerce-mysql Running 
+ Container ecommerce-inventory Running 
+ Container ecommerce-redis Running 
+ Network internet-applications_performance-network Creating 
+ Network internet-applications_performance-network Creating 
+ Network internet-applications_performance-network Created 
+ Network internet-applications_performance-network Created 
+ Container ecommerce-backend Recreate 
+ Container ecommerce-backend Recreated 
+ Container ecommerce-scheduler Recreate 
+ Container ecommerce-loadtest-proxy Creating 
+ Container ecommerce-loadtest-proxy Created 
+ Container ecommerce-scheduler Recreated 
+ Container ecommerce-inventory-mysql Waiting 
+ Container ecommerce-mysql Waiting 
+ Container ecommerce-redis Waiting 
+ Container ecommerce-redis Healthy 
+ Container ecommerce-inventory-mysql Healthy 
+ Container ecommerce-mysql Healthy 
+ Container ecommerce-backend Starting 
+ Container ecommerce-backend Started 
+ Container ecommerce-backend Waiting 
+ Container ecommerce-backend Healthy 
+ Container ecommerce-scheduler Starting 
+ Container ecommerce-loadtest-proxy Starting 
+ Container ecommerce-scheduler Started 
+ Container ecommerce-loadtest-proxy Started 
+ Container ecommerce-backend Waiting 
+ Container ecommerce-scheduler Waiting 
+ Container ecommerce-mysql Waiting 
+ Container ecommerce-loadtest-proxy Waiting 
+ Container ecommerce-inventory Waiting 
+ Container ecommerce-redis Waiting 
+ Container ecommerce-inventory-mysql Waiting 
+ Container ecommerce-scheduler Healthy 
+ Container ecommerce-redis Healthy 
+ Container ecommerce-backend Healthy 
+ Container ecommerce-inventory Healthy 
+ Container ecommerce-inventory-mysql Healthy 
+ Container ecommerce-mysql Healthy 
+container ecommerce-loadtest-proxy exited (1)

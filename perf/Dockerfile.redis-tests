@@ -1,0 +1,3 @@
+FROM internet-applications-backend:latest
+COPY --from=requirement3-tests:prepared /var/www/html/vendor /var/www/html/vendor
+RUN touch .env && php artisan package:discover --no-ansi

@@ -19,8 +19,8 @@ Route::middleware('check.ip.lockout')->group(function () {
     });
 
     Route::middleware('throttle:products')->group(function () {
-        Route::get('/products', [ProductController::class, 'index']);
-        Route::get('/products/{product}', [ProductController::class, 'show']);
+        Route::get('/products', [ProductController::class, 'index'])->middleware('conditional.get');
+        Route::get('/products/{product}', [ProductController::class, 'show'])->middleware('conditional.get');
     });
 
     Route::middleware('auth:api')->group(function () {

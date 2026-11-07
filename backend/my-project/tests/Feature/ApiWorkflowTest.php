@@ -11,7 +11,6 @@ use App\Models\User;
 use App\Services\InventoryGrpcClient;
 use App\Services\InventoryOutcomeUnknownException;
 use App\Services\InventoryUnavailableException;
-use App\Services\NotificationService;
 use App\Services\OrderService;
 use App\Services\ReservationResult;
 use Carbon\Carbon;
@@ -453,11 +452,10 @@ class ApiWorkflowTest extends TestCase
             ->andReturn(false);
         $this->app->instance(InventoryGrpcClient::class, $inventory);
 
-        $notifications = Mockery::mock(NotificationService::class);
-        $notifications->shouldReceive('createOrderNotification')
-            ->once()
-            ->andThrow(new RuntimeException('Simulated notification persistence failure'));
-        $this->app->instance(NotificationService::class, $notifications);
+        // Exercise an actual order-persistence failure; notifications now run after commit.
+        Order::created(static function (): void {
+            throw new RuntimeException('Simulated order persistence failure');
+        });
 
         try {
             app(OrderService::class)->createOrder($user, [
@@ -465,7 +463,7 @@ class ApiWorkflowTest extends TestCase
             ], $operationKey);
             $this->fail('The simulated persistence failure should be rethrown.');
         } catch (RuntimeException $exception) {
-            $this->assertSame('Simulated notification persistence failure', $exception->getMessage());
+            $this->assertSame('Simulated order persistence failure', $exception->getMessage());
         }
 
         $this->assertSame(0, Order::count());

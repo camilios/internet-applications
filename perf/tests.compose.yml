@@ -1,0 +1,14 @@
+services:
+  inventory-service-integration:
+    image: internet-applications-inventory-service:latest
+  backend-test:
+    image: requirement3-tests:latest
+    volumes:
+      - ./backend/my-project/app:/var/www/html/app:ro
+      - ./backend/my-project/routes:/var/www/html/routes:ro
+      - ./backend/my-project/config:/var/www/html/config:ro
+      - ./backend/my-project/database:/var/www/html/database:ro
+      - ./backend/my-project/tests:/var/www/html/tests:ro
+      - ./backend/my-project/bootstrap/app.php:/var/www/html/bootstrap/app.php:ro
+      - ./backend/my-project/phpunit.xml:/var/www/html/phpunit.xml:ro
+      - ./backend/my-project/phpunit.mysql.xml:/var/www/html/phpunit.mysql.xml:ro

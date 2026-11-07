@@ -1,0 +1,2 @@
+Closing both temporary WSL sessions was followed by urllib.error.URLError: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>.
+Restored one hidden wsl.exe -d Ubuntu -- sleep infinity process; PID 19728. It keeps native Docker available without changing WSL settings or adding startup automation.

@@ -21,6 +21,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN pecl install grpc protobuf \
     && docker-php-ext-enable grpc protobuf
 
+# Shared application cache. Stock is always fetched live.
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
 # Set working directory
 WORKDIR /var/www/html
 

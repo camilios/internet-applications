@@ -1,0 +1,21 @@
+{
+  "scope": "jsdom components and real query/mutation hooks; API functions replaced by controlled fixtures",
+  "orderRetry": {
+    "sameKey": true,
+    "ordersCreated": 1,
+    "dashboardOrders": 1,
+    "stockAfterOrder": 9,
+    "stockAfterCancellation": 10,
+    "salesAfterCancellation": "0.00"
+  },
+  "changedItems": {
+    "distinctKeys": 3,
+    "quantityChangeCreatesKey": true,
+    "productChangeCreatesKey": true
+  },
+  "productWrites": {
+    "dashboardAfterCreate": 2,
+    "dashboardAfterDelete": 1,
+    "deletedDetailRefetched": true
+  }
+}

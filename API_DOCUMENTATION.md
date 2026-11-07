@@ -772,3 +772,12 @@ export async function submitOrder(cartItems) {
 
 ### فلترة الطلبات
 يمكن إضافة معامل `status` إلى `GET /api/orders` أو `GET /api/admin/orders` لتصفية الطلبات بإحدى الحالات: `pending`, `confirmed`, `processing`, `shipped`, `delivered`, أو `cancelled`.
+
+
+## Performance, conditional requests, and additional endpoints
+
+- `GET /api/dashboard`: authenticated, customer-scoped (administrator sees global totals). `data` contains `total_products`, `orders_today`, `total_orders`, nullable `total_users`, and decimal-string `total_sales`. Cached for 60 seconds with write invalidation.
+- `GET /api/users`: administrator JWT required; paginated user resources.
+- `GET /api/products` and `/api/products/{product}` return `ETag` and `Cache-Control: private, no-cache`. Send `If-None-Match` to revalidate. `304` has no response body. Detail still calls inventory live; inventory failure returns `503`, never stale stock.
+- MySQL read/write routing is enabled only after replica provisioning. Sticky handles same-request writes; the API additionally verifies a primary GTID fence before reading from the replica and uses the primary on lag or uncertainty. Recent authenticated writers are pinned to primary for five seconds.
+- API rate limits apply to the real peer IP unless it is an explicitly configured trusted proxy. Never trust forwarded headers from arbitrary public clients.

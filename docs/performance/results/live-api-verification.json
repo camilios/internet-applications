@@ -1,0 +1,44 @@
+{
+  "scope": "live HTTP endpoints, actual MySQL and inventory gRPC; browser UI not controlled",
+  "checks": {
+    "price_update_immediate": true,
+    "stock_before": 10,
+    "outage": {
+      "conditional_product_status": 503,
+      "order_status": 503,
+      "stock_error": {
+        "message": "Current inventory is unavailable. Please try again.",
+        "code": "INVENTORY_UNAVAILABLE"
+      },
+      "order_error": {
+        "message": "The reservation result is not yet known. Retry with the same Idempotency-Key.",
+        "code": "RESERVATION_OUTCOME_UNKNOWN"
+      }
+    },
+    "retry_same_key_one_order": true,
+    "dashboard_before_after_order": {
+      "before": {
+        "data": {
+          "total_products": 15,
+          "orders_today": 2,
+          "total_orders": 2,
+          "total_users": null,
+          "total_sales": "2107.97"
+        }
+      },
+      "after": {
+        "data": {
+          "total_products": 16,
+          "orders_today": 3,
+          "total_orders": 3,
+          "total_users": null,
+          "total_sales": "2109.22"
+        }
+      }
+    },
+    "stock_after_order": 9,
+    "stock_after_cancellation": 10,
+    "delete_refreshes_dashboard_and_detail": true
+  },
+  "passed": true
+}

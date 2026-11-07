@@ -1,0 +1,58 @@
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true
+
+   PASS  Tests\Unit\InventoryProtoCodecTest
+  ✓ stock message supports the grpc library deserializer                 0.06s  
+  ✓ reserve request matches the proto wire format
+  ✓ stock response decodes inventory service fields
+  ✓ reservation response decodes repeated item results
+
+   PASS  Tests\Unit\ReadReplicaRouterTest
+  ✓ recent writes use the primary without consulting replica             0.04s  
+  ✓ only a replica that applied the primary fence is eligible            0.04s  
+  ✓ unavailable or unverified replica falls back to primary
+
+   WARN  Tests\Feature\ApiWorkflowTest
+  ✓ registration login and token protected identity                      0.98s  
+  ✓ protected identity rejects missing and invalid tokens                0.11s  
+  - grpc client does not fake a reservation when the extension is missi… 0.11s  
+  ✓ logout invalidates the bearer token                                  0.12s  
+  ✓ registration rejects duplicate and invalid data                      0.09s  
+  ✓ customers cannot manage products but admins can                      0.27s  
+  ✓ admin product management supports create update and deactivation     0.12s  
+  ✓ product images accept supported raster formats and reject svg        0.10s  
+  ✓ dashboard and user listing are connected and admin scoped            0.25s  
+  ✓ product detail uses confirmed inventory and reports inventory outag… 0.08s  
+  ✓ product detail never reports unavailable stock as current            0.08s  
+  ✓ order reserves once uses server price and is idempotent              0.12s  
+  ✓ unknown reservation outcome can be retried with the same idempotenc… 0.13s  
+  ✓ order rejects insufficient stock and another users order is hidden   0.10s  
+  ✓ notification endpoints are scoped to the authenticated user          0.11s  
+  ✓ admin status changes are authorized and cancellation releases stock  0.10s  
+  ✓ failed order save releases stock and persists retryable compensatio… 0.10s  
+  ✓ retry command recovers stale reservations and releases idempotently  0.08s  
+  ✓ order policy access control cases                                    0.09s  
+  ✓ rate limiting independent counters and no cross blocking             0.25s  
+  ✓ login failed attempts trigger 5 minute lockout across entire api     0.11s  
+  ✓ client ip resolution with trusted proxy                              0.07s  
+
+   PASS  Tests\Feature\BoundarySecurityTest
+  ✓ untrusted clients cannot choose their rate limit ip                  0.09s  
+  ✓ inventory has no direct database fallback even in local mode         0.07s  
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application returns a successful response                        0.08s  
+
+   PASS  Tests\Feature\PerformanceCachingTest
+  ✓ dashboard cache is scoped and preserves the json contract            0.09s  
+  ✓ order pagination is complete when timestamps are equal               0.11s  
+  ✓ product cache excludes stock and invalidates after writes            0.08s  
+  ✓ etag revalidates live stock and keeps an empty 304 body              0.08s  
+  ✓ product management refreshes the cached admin product count          0.09s  
+
+  Tests:    1 skipped, 37 passed (265 assertions)
+  Duration: 4.71s
+
+
+Exit code: 0

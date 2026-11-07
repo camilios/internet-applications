@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Services\InventoryGrpcClient;
 use App\Services\InventoryUnavailableException;
 use App\Services\ProductService;
+use App\Services\ProductCache;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -17,7 +18,8 @@ class ProductController extends Controller
 {
     public function __construct(
         private readonly InventoryGrpcClient $inventoryClient,
-        private readonly ProductService $products
+        private readonly ProductService $products,
+        private readonly ProductCache $productCache
     ) {}
 
     public function index(Request $request): AnonymousResourceCollection
@@ -33,13 +35,25 @@ class ProductController extends Controller
 
         $perPage = min(max($request->integer('per_page', 15), 1), 100);
 
-        return ProductResource::collection($query->latest()->paginate($perPage));
+        return ProductResource::collection($query->orderByDesc('created_at')->orderByDesc('id')->paginate($perPage));
     }
 
     public function show(Product $product): JsonResponse|ProductResource
     {
         if (! $product->is_active && request()->user()?->role !== 'admin') {
             abort(404);
+        }
+
+        // Route binding remains authoritative for price, visibility and other product fields.
+        // Only the category relation is reused from the non-stock cache snapshot.
+        $cached = $this->productCache->get($product->id);
+        if ($cached === null) {
+            $product->load('category');
+            $this->productCache->put($product);
+        } else {
+            $category = $cached['category'] ?? null;
+            $product->setRelation('category', $category === null ? null :
+                $product->category()->getRelated()->newFromBuilder($category, $product->getConnectionName()));
         }
 
         try {
@@ -53,7 +67,7 @@ class ProductController extends Controller
 
         $product->setAttribute('stock', $stock);
 
-        return new ProductResource($product->load('category'));
+        return new ProductResource($product);
     }
 
     public function store(StoreProductRequest $request): JsonResponse

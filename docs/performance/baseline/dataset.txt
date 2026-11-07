@@ -1,0 +1,17 @@
+
+   INFO  Seeding database.  
+
+Generated 50000 / 300000 orders
+Generated 100000 / 300000 orders
+Generated 150000 / 300000 orders
+Generated 200000 / 300000 orders
+Generated 250000 / 300000 orders
+Generated 300000 / 300000 orders
+Bulk seeding finished.
+
+Elapsed seconds: 109.983502
+Exit code: 0
+users: 5004
+products: 15
+orders: 300004
+order_items: 749372

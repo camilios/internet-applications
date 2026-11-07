@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useProduct } from "../hooks/use-products";
 import { useCreateOrder } from "@/features/orders/hooks/use-orders";
@@ -24,6 +24,7 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
   const createOrder = useCreateOrder();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
+  const orderAttempt = useRef<{ fingerprint: string; key: string } | null>(null);
 
   const isForbidden = error?.statusCode === 403;
   const isStockDown = error?.statusCode === 503;
@@ -134,8 +135,18 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
               className="flex flex-wrap items-end gap-3 border-t pt-4"
               onSubmit={(event) => {
                 event.preventDefault();
-                createOrder.mutate([{ product_id: product.id, quantity }], {
-                  onSuccess: () => navigate({ to: "/orders" }),
+                const items = [{ product_id: product.id, quantity }];
+                const fingerprint = JSON.stringify(items);
+                // Keep one key when retrying exactly the same item list.
+                if (orderAttempt.current?.fingerprint !== fingerprint) {
+                  orderAttempt.current = { fingerprint, key: crypto.randomUUID() };
+                }
+                const attempt = orderAttempt.current;
+                createOrder.mutate({ items, idempotencyKey: attempt.key }, {
+                  onSuccess: () => {
+                    if (orderAttempt.current === attempt) orderAttempt.current = null;
+                    navigate({ to: "/orders" });
+                  },
                 });
               }}
             >
@@ -152,9 +163,11 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
                   min={1}
                   max={product.stock}
                   value={quantity}
-                  onChange={(event) =>
-                    setQuantity(Math.max(1, Number(event.target.value)))
-                  }
+                  onChange={(event) => {
+                    const nextQuantity = Math.max(1, Number(event.target.value));
+                    if (nextQuantity !== quantity) orderAttempt.current = null;
+                    setQuantity(nextQuantity);
+                  }}
                   disabled={product.stock < 1}
                 />
               </div>

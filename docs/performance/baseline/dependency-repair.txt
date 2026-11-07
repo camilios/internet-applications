@@ -1,0 +1,8 @@
+Installing dependencies from lock file
+Verifying lock file contents can be installed on current platform.
+Package operations: 1 install, 0 updates, 0 removals
+  - Downloading grpc/grpc (1.85.0)
+  - Installing grpc/grpc (1.85.0): Extracting archive
+Generating optimized autoload files
+56 packages you are using are looking for funding.
+Use the `composer fund` command to find out more!

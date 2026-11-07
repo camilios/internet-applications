@@ -1,0 +1,314 @@
+# Requirement 3 — Performance and caching
+
+Date: 2026-11-07 (America/Los_Angeles). Agent: Codex. Status: PARTIAL (approved work and all behavior decisions complete; full browser verification remains outstanding).
+
+## Summary
+
+- Added performance indexes, scoped dashboard caching, shared Redis, stable pagination, product metadata caching and conditional GETs. Inventory source and existing response shapes are preserved; stock remains live.
+- Short laptop workload: dashboard median p95 changed from 152.890 ms at baseline to 28.011 ms after refactoring; all valid k6 runs had 0% endpoint errors. Index-only results were mixed.
+- Seeded 300,000 bulk orders without resetting the main database; final totals remain 300,004 orders and 749,372 items after verification-fixture cleanup.
+- Implemented approved frontend A–D and delegated T9 choice: notification failures log after commit and preserve successful orders. Final checks: 32 default tests passed, 1 skipped; 3 MySQL tests passed; 3 frontend component tests passed; frontend build/lint passed.
+- User deferred T10 read replica, retained T11 pagination totals and retained T13 development server. No behavior decisions remain open. Automatic policy review blocked Brave remote-control launch; component and live API checks were performed instead.
+
+## Environment
+
+Windows 11 Pro 10.0.26300; native Docker Engine in Ubuntu 26.04.1 on WSL 2. Docker Desktop was removed per user request (version not applicable). Docker sees 6 CPUs and 6,214,504,448 bytes RAM initially, 6,214,508,544 finally; host visible RAM 10,358,576 KiB. Docker Compose v5.7.0. Laravel 12.70.1 (instructions say 11), PHP 8.2.35, MySQL 8.0. k6 v2.3.0, commit e088784614, Go 1.27.1.
+Full command output: [initial environment](docs/performance/baseline/environment.txt), [final runtime](docs/performance/results/final-runtime.txt), [docker compose images](docs/performance/results/final-images.txt). Backend/scheduler final image ID 52f9dd077b26; both use the same final source. Tests used separate databases and accounts.
+
+## Code state
+
+Original HEAD: `b9514cbe00b7d310cc2972aff728a9d690bc2a3b`. No commit created. Initial status:
+```text
+ M frontend/src/routeTree.gen.ts
+?? AGENT_INSTRUCTIONS_REQUIREMENT_3.md
+```
+Initial `git diff --stat` had no content changes, only an LF/CRLF warning. Existing routeTree change preserved. Final `git status --short`:
+```text
+ M backend/my-project/.env.example
+ M backend/my-project/Dockerfile
+ M backend/my-project/app/Http/Controllers/DashboardController.php
+ M backend/my-project/app/Http/Controllers/ProductController.php
+ M backend/my-project/app/Services/InventoryGrpcClient.php
+ M backend/my-project/app/Services/InventoryGrpcStub.php
+ M backend/my-project/app/Services/NotificationService.php
+ M backend/my-project/app/Services/OrderService.php
+ M backend/my-project/app/Services/ProductService.php
+ M backend/my-project/bootstrap/app.php
+ M backend/my-project/composer.json
+ M backend/my-project/composer.lock
+ M backend/my-project/routes/api.php
+ M backend/my-project/tests/Feature/ApiWorkflowTest.php
+ M backend/my-project/tests/Integration/InventoryOrderIntegrationTest.php
+ M backend/my-project/tests/Unit/InventoryProtoCodecTest.php
+ M docker-compose.yml
+ M frontend/src/features/orders/api/orders.api.ts
+ M frontend/src/features/orders/hooks/use-orders.ts
+ M frontend/src/features/products/components/product-details.tsx
+ M frontend/src/features/products/hooks/use-products.ts
+ M frontend/src/routeTree.gen.ts
+?? AGENT_INSTRUCTIONS_REQUIREMENT_3.md
+?? REPORT.md
+?? backend/my-project/app/Http/Middleware/ConditionalGet.php
+?? backend/my-project/app/Services/DashboardCache.php
+?? backend/my-project/app/Services/InventoryProtoResponse.php
+?? backend/my-project/app/Services/InventoryReleaseResponse.php
+?? backend/my-project/app/Services/InventoryReservationResponse.php
+?? backend/my-project/app/Services/InventoryStockResponse.php
+?? backend/my-project/app/Services/ProductCache.php
+?? backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php
+?? backend/my-project/database/seeders/BulkOrderSeeder.php
+?? backend/my-project/tests/Feature/PerformanceCachingTest.php
+?? backend/my-project/tests/Integration/NotificationAfterCommitTest.php
+?? docs/
+?? perf/
+```
+Final `git diff --stat` (tracked files; new files listed separately):
+```text
+backend/my-project/.env.example                    |  2 +-
+ backend/my-project/Dockerfile                      |  4 ++
+ .../app/Http/Controllers/DashboardController.php   | 60 +++++++++++++++-------
+ .../app/Http/Controllers/ProductController.php     | 20 ++++++--
+ .../app/Services/InventoryGrpcClient.php           |  4 ++
+ .../my-project/app/Services/InventoryGrpcStub.php  |  6 +--
+ .../app/Services/NotificationService.php           |  2 +-
+ backend/my-project/app/Services/OrderService.php   | 29 +++++++++--
+ backend/my-project/app/Services/ProductService.php | 30 ++++-------
+ backend/my-project/bootstrap/app.php               |  1 +
+ backend/my-project/composer.json                   |  1 +
+ backend/my-project/composer.lock                   | 49 +++++++++++++++++-
+ backend/my-project/routes/api.php                  |  4 +-
+ .../my-project/tests/Feature/ApiWorkflowTest.php   | 12 ++---
+ .../Integration/InventoryOrderIntegrationTest.php  | 24 ++++++---
+ .../tests/Unit/InventoryProtoCodecTest.php         | 14 +++++
+ docker-compose.yml                                 | 26 ++++++++++
+ frontend/src/features/orders/api/orders.api.ts     |  2 +-
+ frontend/src/features/orders/hooks/use-orders.ts   |  9 ++--
+ .../products/components/product-details.tsx        | 25 ++++++---
+ .../src/features/products/hooks/use-products.ts    |  5 +-
+ 21 files changed, 247 insertions(+), 82 deletions(-)
+```
+Every changed file: [tracked manifest](docs/performance/results/changed-files.txt). Every new file, including individual raw artifacts: [new-file manifest](docs/performance/results/new-files.txt). New application files are the middleware, cache classes, SDK adapters, index migration, seeder and tests listed above; perf/ contains reproducible runners and the isolated UI harness. Inventory source diff is empty. `git diff --check` exits 0; line-ending warnings are retained in the raw outputs. [Initial snapshots](docs/performance/baseline/git-status-start.txt), [final snapshots](docs/performance/results/git-status-end.txt), [diff output](docs/performance/results/git-diff-end.txt).
+
+## Task log
+
+| Task | Status | Files changed | Verification performed | Result |
+|---|---|---|---|---|
+| Step 0 | Done | REPORT.md; docs/performance; perf/ | Environment and git snapshots | Evidence retained |
+| Step 1 | Done | Prerequisite SDK repair only | Existing images, migration logs, both health endpoints | Both 200; no frontend container |
+| Step 2 | Done | BulkOrderSeeder.php | Exact Appendix C; time and row counts | 300,004 orders; 749,372 items |
+| Step 3 | Done | baseline/explain-before.txt | Six original query plans and indexes | Recorded before new indexes |
+| Step 4 | Done | perf/k6/; baseline/k6-* | Three runs per scenario after SDK repair | All valid baseline endpoint errors 0% |
+| Step 5 | Done | New index migration; results/after-indexes/ | Plans, both suites, all scenarios x3 | Measured; optimizer caveats below |
+| Step 6 | Done | DashboardController; OrderService | Body comparison, real writes, both suites, dashboard x3 | Private scopes and shapes preserved |
+| Step 7 | Done | Redis, ProductCache, ConditionalGet | One change at a time; both suites and relevant runs x3 | Measured Redis, metadata, ETags |
+| T1 | Done | None | GET /up and frontend | Both 200 initially and finally |
+| T2 | Done | New index migration | migrate, SHOW INDEX, EXPLAIN, both suites | Existing migrations untouched |
+| T3 | Done | BulkOrderSeeder.php | Appendix C copied; successful seed | 109.983502 s |
+| T4 | Done | DashboardController; OrderService; tests | Exact body comparison, scopes, invalidation, both suites | 60-second cache; money strings retained |
+| T5 | Done | Dockerfile; compose; .env.example; perf images | phpredis, cache probe, DB-1 keys, both suites | Redis shared by backend and scheduler |
+| T6 | Done | OrderService; ProductController; NotificationService; tests | Timestamp ties, real page traversal, both suites | 51/51 rows, no duplicates |
+| T7 | Done | ProductCache; ProductController; ProductService; tests | Price visibility, cache content, warm live stock, both suites | Category reuse only; no stock caching |
+| T8 | Done | ConditionalGet; bootstrap; routes; tests | 200/304 empty body, fresh stock, both suites | Live gRPC retained even on 304 |
+| T9 | Done | OrderService; compensation tests; NotificationAfterCommitTest | Three synthetic timing runs each; both suites | Notification level 0; order retained on failure |
+| T10 | Deferred | None | Measured results reviewed; user chose deferral | Read replica deferred by user |
+| T11 | Done | None | Frontend contract reviewed; user chose existing totals | Pagination totals retained by user decision |
+| T12 | Done | perf/k6/*.js | Four scenarios, fixed workload and seeded input | Raw JSON/log per run; median tables below |
+| T13 | Done | None for web server | Current runtime measured; user chose existing server | Development server retained; CLI opcache 0 |
+| T14 | Done | DashboardCache; controllers/services; tests | Removed controller dependency and duplicate unused list; both suites | Admin product counts invalidate on product writes |
+| T15 | Done | REPORT.md only for review | Actual API, types, query hooks, encoding and CORS | Findings below; no inventory source change |
+| T16 | Done | Four approved frontend files; isolated perf/ui-tests/ | Build, lint, 3 component/hook tests, live API checks | A–D implemented; full Brave check blocked |
+
+## Dataset
+
+| Stage | users | products | orders | order_items |
+|---|---|---|---|---|
+| Initial | 4 | 15 | 4 | 7 |
+| After bulk seed / final | 5,004 | 15 | 300,004 | 749,372 |
+
+Seeder elapsed time: 109.983502 seconds. Counts were captured at each load stage and after deleting only owned verification fixtures. Main schema was never reset. [Seed output](docs/performance/baseline/dataset.txt), [final counts](docs/performance/results/final-counts.txt).
+
+## Measurements
+
+Medians of three runs. Endpoint latency excludes setup login; request rate includes all HTTP requests. Units are milliseconds, requests/second, percent errors and received bytes. `not measured` means that scenario was not rerun at that step.
+
+**products-list**
+
+| Metric | baseline | after-indexes | after-dashboard | after-redis | after-pagination | after-product-cache | after-etag | after-refactor |
+|---|---|---|---|---|---|---|---|---|
+| p(50) | 32.477 | 43.612 | not measured | 16.964 | 17.222 | not measured | 18.544 | 18.407 |
+| p(95) | 101.058 | 110.225 | not measured | 25.573 | 25.533 | not measured | 26.932 | 28.018 |
+| p(99) | 513.227 | 136.588 | not measured | 29.615 | 31.757 | not measured | 31.687 | 32.642 |
+| rps | 3.955 | 3.943 | not measured | 4.089 | 4.086 | not measured | 4.083 | 4.084 |
+| error_percent | 0.000 | 0.000 | not measured | 0.000 | 0.000 | not measured | 0.000 | 0.000 |
+| received_bytes | 130589.000 | 126100.000 | not measured | 128907.000 | 131127.000 | not measured | 132443.000 | 132439.000 |
+| conditional_hits | 0.000 | 0.000 | not measured | 0.000 | 0.000 | not measured | 12.000 | 12.000 |
+
+**product-detail**
+
+| Metric | baseline | after-indexes | after-dashboard | after-redis | after-pagination | after-product-cache | after-etag | after-refactor |
+|---|---|---|---|---|---|---|---|---|
+| p(50) | 44.682 | 51.367 | not measured | 20.699 | not measured | 20.478 | 20.651 | not measured |
+| p(95) | 173.607 | 101.187 | not measured | 32.649 | not measured | 30.677 | 31.550 | not measured |
+| p(99) | 307.162 | 148.621 | not measured | 42.722 | not measured | 33.452 | 34.976 | not measured |
+| rps | 3.914 | 3.921 | not measured | 4.068 | not measured | 4.075 | 4.076 | not measured |
+| error_percent | 0.000 | 0.000 | not measured | 0.000 | not measured | 0.000 | 0.000 | not measured |
+| received_bytes | 174007.000 | 175500.000 | not measured | 182734.000 | not measured | 182569.000 | 112267.000 | not measured |
+| conditional_hits | 0.000 | 0.000 | not measured | 0.000 | not measured | 0.000 | 64.000 | not measured |
+
+**customer-orders**
+
+| Metric | baseline | after-indexes | after-dashboard | after-redis | after-pagination | after-product-cache | after-etag | after-refactor |
+|---|---|---|---|---|---|---|---|---|
+| p(50) | 53.096 | 65.236 | not measured | 37.553 | 35.915 | not measured | not measured | not measured |
+| p(95) | 105.157 | 129.309 | not measured | 51.313 | 48.538 | not measured | not measured | not measured |
+| p(99) | 142.562 | 152.587 | not measured | 58.025 | 54.742 | not measured | not measured | not measured |
+| rps | 3.889 | 3.885 | not measured | 4.079 | 4.082 | not measured | not measured | not measured |
+| error_percent | 0.000 | 0.000 | not measured | 0.000 | 0.000 | not measured | not measured | not measured |
+| received_bytes | 3612060.000 | 3581966.000 | not measured | 3702342.000 | 3702342.000 | not measured | not measured | not measured |
+| conditional_hits | 0.000 | 0.000 | not measured | 0.000 | 0.000 | not measured | not measured | not measured |
+
+**dashboard**
+
+| Metric | baseline | after-indexes | after-dashboard | after-redis | after-pagination | after-product-cache | after-etag | after-refactor |
+|---|---|---|---|---|---|---|---|---|
+| p(50) | 43.596 | 49.037 | 44.070 | 17.430 | not measured | not measured | not measured | 17.439 |
+| p(95) | 152.890 | 111.483 | 79.435 | 27.884 | not measured | not measured | not measured | 28.011 |
+| p(99) | 187.190 | 143.243 | 107.052 | 32.988 | not measured | not measured | not measured | 50.854 |
+| rps | 3.878 | 3.903 | 3.944 | 4.086 | not measured | not measured | not measured | 4.083 |
+| error_percent | 0.000 | 0.000 | 0.000 | 0.000 | not measured | not measured | not measured | 0.000 |
+| received_bytes | 47460.000 | 47460.000 | 47460.000 | 49405.000 | not measured | not measured | not measured | 49405.000 |
+| conditional_hits | 0.000 | 0.000 | 0.000 | 0.000 | not measured | not measured | not measured | 0.000 |
+
+Products and orders sometimes became slower after indexes; no improvement is claimed for those stages. ETags primarily saved response bytes: product detail median received bytes changed from 182,569 after metadata caching to 112,267 after ETags, with 64 conditional hits. Detail p95 was 30.677 ms versus 31.550 ms, so no latency benefit is claimed. Scenarios were rerun only when relevant to the change; omitted cells are not measured.
+
+Products and orders sometimes became slower after indexes; no improvement is claimed for those stages. ETags primarily saved response bytes: product detail median received bytes changed from 182,569 after metadata caching to 112,267 after ETags, with 64 conditional hits. Detail p95 was 30.677 ms versus 31.550 ms, so no latency benefit is claimed. Scenarios were rerun only when relevant to the change; omitted cells are not measured.
+
+Products and orders sometimes became slower after indexes; no improvement is claimed for those stages. ETags primarily saved response bytes: product detail median received bytes changed from 182,569 after metadata caching to 112,267 after ETags, with 64 conditional hits. Detail p95 was 30.677 ms versus 31.550 ms, so no latency benefit is claimed. Scenarios were rerun only when relevant to the change; omitted cells are not measured.
+
+Products and orders sometimes became slower after indexes; no improvement is claimed for those stages. ETags primarily saved response bytes: product detail median received bytes changed from 182,569 after metadata caching to 112,267 after ETags, with 64 conditional hits. Detail p95 was 30.677 ms versus 31.550 ms, so no latency benefit is claimed. Scenarios were rerun only when relevant to the change; omitted cells are not measured.
+
+Products and orders sometimes became slower after indexes; no improvement is claimed for those stages. ETags primarily saved response bytes: product detail median received bytes changed from 182,569 after metadata caching to 112,267 after ETags, with 64 conditional hits. Detail p95 was 30.677 ms versus 31.550 ms, so no latency benefit is claimed. Scenarios were rerun only when relevant to the change; omitted cells are not measured.
+
+## EXPLAIN evidence
+
+Query numbers correspond to Step 3 in the instructions; customer query uses real bulk customer 3498. `rows` below is actual rows produced by the leaf scan (one loop each), not the optimizer estimate or a server-wide rows-examined counter. Time is root completion time in milliseconds from a single EXPLAIN ANALYZE execution.
+
+| Query | Before access / key | Before rows / ms | After access / key | After rows / ms |
+|---|---|---|---|---|
+| 1 | ALL / NULL | 15 / 0.514 | ALL / NULL | 15 / 0.202 |
+| 2 | ref / products_category_id_foreign | 3 / 0.204 | ref / products_category_id_foreign | 3 / 0.176 |
+| 3 | ref / orders_user_id_foreign | 89 / 2.21 | ref / orders_user_created_idx | 15 / 10.5 |
+| 4 | ALL / NULL | 300004 / 303 | ref / orders_status_created_idx | 15 / 5.04 |
+| 5 | ALL / NULL | 300004 / 333 | index / orders_created_idx | 15 / 10.4 |
+| 6 | ALL / NULL | 300004 / 159 | index / orders_status_created_idx | 300004 / 718 |
+
+All requested indexes exist. MySQL still scans the tiny unfiltered product table and uses the existing category FK index for category filtering. No FORCE INDEX was added. Indexing reduces scanned order rows for limited lists, but this single execution makes the customer query and count slower; the count still scans all orders. Do not infer a universal speedup. Full SQL, estimates, plans and SHOW INDEX are in `baseline/explain-before.txt` and `results/after-indexes/explain-after.txt`.
+
+## Verification results
+
+| Check | Command / evidence | Result |
+|---|---|---|
+| Default suite | `python perf/requirement3.py tests after-notifications` runs `php artisan test --no-ansi` with SQLite/array cache | 32 passed, 1 skipped, 247 assertions; 0 failed |
+| MySQL/gRPC suite | Same runner runs `php vendor/bin/phpunit --configuration phpunit.mysql.xml --colors=never` against guarded test DB | 3 passed, 22 assertions; 0 failed |
+| Frontend build/lint | `python perf/requirement3.py frontend-checks` | Both exit 0; existing lint/chunk warnings |
+| Components and real query hooks | `npm.cmd exec -- vitest run` in `perf/ui-tests` | 3 passed, 0 failed; mocked APIs, not a full browser |
+| Health / CORS | `python perf/final_checks.py` | /up and frontend 200; preflight 204 allows Origin `*` and authorization/content-type/if-none-match |
+| Dashboard shapes | `snapshot` and `stage-dashboard`; `results/dashboard-response-check.txt` | Actual admin and two customers unchanged; sales string, customer users null |
+| Order visibility/invalidation | `python perf/api_write_verify.py`; real MySQL integration | Customer orders 2→3 immediately; sales 2107.97→2109.22, then cancellation restores sales |
+| Live stock / outage | Same live API runner | Warm stock 10→9→10; inventory stopped: conditional detail and order both 503; same-key recovery/replay creates one order |
+| Price / deletion | Same live API runner | Warm price changes immediately; delete returns 404 and refreshes admin count |
+| Conditional GET | `python perf/requirement3.py verify-etag` | 200 then 304 with 0-byte body; stock change returns fresh 200/ETag |
+| Pagination | `python perf/requirement3.py verify-pagination` and tied-timestamp feature test | 51/51 customer orders over 4 pages; exact DB order, no duplicates |
+
+Both backend suites were run after each applied backend task; each stage retains its test output. The single skip exercises an absent gRPC extension, whereas this environment has it. After-commit integration uses actual commits and proves notification failure at level 0 keeps one completed order and replays without another reservation. Original compensation checks now fail the order write rather than notification creation, retaining rollback/stock-release coverage.
+
+Notification timing uses a synthetic 50 ms notification delay, three runs per side, in guarded test schemas with fake reservation confirmation. These are median milliseconds, not production HTTP timings or complete lock-duration measurements:
+
+| Metric | Before | After |
+|---|---|---|
+| order_persistence_transaction_body_ms | 56.758325 | 7.334035 |
+| order_call_ms | 84.422561 | 84.385254 |
+
+Notification transaction levels were [1,1,1] before and [0,0,0] after. Time moved out of the persistence transaction body; overall synchronous order-call time is essentially unchanged. Final backend/scheduler images were rebuilt and deployed, followed by health and ETag checks. Key source-file SHA-256 hashes match the working source in both images (`results/final-source-verification.json`). Dedicated test containers were stopped; one hidden WSL session remains to keep native Docker available and main services are healthy (`results/test-resource-cleanup.txt`, `results/final-runtime.txt`).
+
+## Problems and deviations
+
+- Use native Ubuntu Docker rather than Docker Desktop, matching the user's explicit setup preference.
+- Original HEAD: b9514cbe00b7d310cc2972aff728a9d690bc2a3b. `baseline/baseline-source.zip` preserves the exact pre-optimization backend source with the gRPC prerequisite repair, excluding secrets and the new index migration.
+- MySQL deliberately prefers a table scan for the 15-row unfiltered product query even after creating the supplied indexes. This is an observed optimizer choice, not an index-creation failure. No FORCE INDEX was added to application queries.
+- Runtime source synchronization rebuilds the route cache, preserving the baseline's cached-route setting throughout the ladder.
+- Redis runtime is built as a documented overlay from the measured existing PHP/gRPC image (`perf/Dockerfile.redis-runtime`), avoiding a repeat of the long gRPC compilation. The normal backend Dockerfile also receives the required Redis extension installation. Entrypoint and CMD remain the same. Scheduler shares Redis settings so background order changes invalidate the same cache.
+- During Redis preparation, a Docker commit command returned an empty error and WSL restarted (subsequently observed uptime about one minute). Cause not established; no load test was running then. Retried the snapshot without pausing. Native Docker still reports 6 CPUs and approximately the same RAM (6,214,508,544 bytes after restart versus 6,214,504,448 before); health and dataset are rechecked before further measurements. This restart is an environmental limitation of the comparison.
+- Both HTTP health checks recovered to 200 before Redis deployment. A temporary foreground WSL session is held during the remaining work to prevent idle shutdown; no WSL settings were changed. Microsoft documents that systemd services alone do not keep WSL alive: https://learn.microsoft.com/en-us/windows/wsl/systemd . This explains a possible lifecycle cause, not a proved diagnosis of the observed restart.
+- Initial frontend build passed TypeScript checking and transformed 8,502 modules, then failed in the Rust bundler with `memory allocation ... bytes failed`. Lint exited 0 with warnings in existing files. The successful retry used RAYON_NUM_THREADS=1, UV_THREADPOOL_SIZE=1 and a 768 MiB Node heap; these are command-local environment values, not permanent settings. Another WSL restart interrupted test-stack recovery, so no Redis measurements were taken on the failed attempt.
+- The bounded frontend retry succeeded (13.07-second Vite bundle phase). Build retains a chunk-size warning; lint exits 0 with existing React/form/fast-refresh warnings. Logs are in `results/frontend/`. Avoid running this project's unrestricted parallel Rust bundler alongside the Docker stack on this laptop.
+- Laravel stores cache keys in Redis database 1, so verification uses `redis-cli -n 1 KEYS '*dashboard*'`; the instruction's DB-0 command would not find them. Redis policy remains exactly 512mb/allkeys-lru.
+- Automatic policy review rejected launching Brave with `--remote-debugging-port=9222` (`blocked by policy`), without a further reason. Browser remote-control verification was not performed; no alternative launch mechanism was used to bypass that rejection. Remaining frontend verification uses an isolated jsdom component/hook test harness plus live API/gRPC checks. This is a recorded deviation from a full browser check.
+- Do not replace the frontend dev server with a Docker frontend; the user requested backend services only earlier in this chat.
+- Reuse the healthy original backend images to avoid recompiling gRPC before the baseline. All final source changes are now persisted in rebuilt backend and scheduler images.
+- First seed command lost namespace backslashes through WSL and failed with `Target class [Database\Seeders\DatabaseSeedersBulkOrderSeeder] does not exist.` No rows were inserted. Used `--class=BulkOrderSeeder`; no reset or seeder change was needed. Original failure: `baseline/seed-command-failed.txt`.
+- Compose v5.7.0 `run` rejects `--no-build` (`unknown flag: --no-build`). Removed that flag; `run` uses the explicitly selected existing test image without `--build`.
+- First `php artisan test` attempt in the dev-dependency image failed because its inherited package-discovery manifest excluded Collision: `Command "test" is not defined.` Regenerated the test container's package manifest; production dependencies unchanged. Also set Python runner output to UTF-8 after a cp1256 console encoding failure while printing that error. Raw first attempt retained separately.
+- The test container inherits dedicated MySQL settings, so the default suite now explicitly receives `DB_CONNECTION=sqlite` and `DB_DATABASE=:memory:`; its first attempt had 22 environment errors, not code regressions. An absent `.env` generated warnings; an empty test-only `.env` resolves these. The MySQL password secret contains CRLF; trim both CR and LF when exporting it for the entrypoint-free runner. Earlier authentication error preserved with secret values redacted.
+- Correction to the preceding diagnosis: Python text-mode subprocess stdin on Windows introduced CRLF into the Bash wrapper, adding a trailing CR to its exported password. Sending UTF-8 bytes avoids Windows newline translation. No production credentials were changed.
+- Baseline integration revealed an actual pre-existing dependency omission: `InventoryGrpcClient` requires `Grpc\BaseStub`, but `grpc/grpc` was absent from composer.json and composer.lock. The PHP extension itself was present. Added locked `grpc/grpc` 1.85.0 before optimization, retaining all other locked versions. The first product-detail load attempt had a measured error rate of 100%; those failed-runtime runs are excluded from optimization comparisons and retained as discarded evidence. All valid baseline scenarios were rerun after repair.
+- Composer reported 8 advisories affecting 5 packages already in the lockfile; security upgrades are outside this performance task and were not applied.
+- Installing the missing package exposed a second pre-existing transport error: `Call to undefined method App\Services\InventoryProtoCodec::mergeFromString()`. Added three typed response adapters implementing the SDK's message contract, converted them back to the existing response arrays, and regression-tested the actual SDK deserializer. No JSON endpoint shape or inventory service source changed. After prerequisites: 27 default tests passed, 1 skipped (gRPC-missing-only case), and 2 real MySQL/gRPC integration tests passed.
+- Short, paced laptop benchmark: 5 VUs, 5-second ramp, 20-second hold, 5-second ramp down, 1-second think time. Three runs per scenario per measured stage. Threshold targets are informational via `--no-thresholds`. This is not a production capacity test.
+- Deterministic forwarded client IPs separate VUs and runs, keeping each below the existing 60 requests/minute rate limits without changing application middleware. Login occurs in k6 setup and endpoint timings use a custom trend to exclude login.
+- Isolated component harness first failed with `ERR_UNSUPPORTED_ESM_URL_SCHEME` on a Windows dynamic import; converting the path to a file URL fixed configuration. The next run had 3 failures and `Cannot read properties of null (reading isServer)` because the router mock resolved differently from frontend imports. Explicit frontend module aliases fixed the harness; all 3 final tests pass. Failed reports/logs are retained under `results/frontend-component-*`.
+- Final cleanup exposed WSL idle shutdown: after both temporary Linux sessions closed, the next HTTP probe failed with `WinError 10061` (connection refused). Restored one hidden `wsl.exe -d Ubuntu -- sleep infinity` process and rechecked startup/health. This lightweight session keeps native Docker available; no WSL settings or startup automation were added. See `results/wsl-session-lifecycle.txt`. Keep an Ubuntu terminal open for future manual runs.
+
+## Decisions
+
+T8: standard body-based ETag completed; live gRPC still runs before every product-detail response, including 304. The advanced stock-version/skip-gRPC alternative was not implemented.
+T9: user reopened the earlier rollback answer, then delegated the accurate/reasonable choice. Selected after-commit creation with error logging; a notification failure preserves the committed order. Earlier rollback choice superseded. No automatic notification retry/queue was added.
+T10: user explicitly chose to defer the read replica after reviewing the measured results; no replica was added.
+T11: user explicitly chose to keep current pagination totals; existing API and frontend pagination contracts are retained.
+T13: user explicitly chose to keep the current development server; artisan serve and current OPcache settings are retained. This is a development choice, not a production deployment recommendation. All behavior decisions are resolved.
+T16: user approved A–D; implemented and checked. E was unnecessary because UTF-8 Arabic source was already correct.
+
+## Frontend review
+
+1. Contracts: existing endpoints, JSON envelopes, pagination totals and dashboard types preserved; total_sales remains string and total_users nullable. Backend response comparisons passed.
+2. Freshness: T15 found missing dashboard/stock invalidation. Approved T16 now invalidates dashboard, order lists and product details after order create/status changes. Product create/delete refresh dashboard; delete refreshes details. The existing two-minute query staleTime remains.
+3. Conditional requests: API client has no no-store setting. Browser revalidation is possible; React Query still controls when requests occur. Private/no-cache ETags do not bypass live stock.
+4. Stock unavailable: existing product page recognizes 503 and shows the inventory-unavailable state. Live conditional GET correctly returns 503 while inventory is stopped.
+5. Base URL stays `http://localhost:8000/api`. Project `config/cors.php` is absent; actual preflight allows Origin `*` and requested bearer-auth/conditional headers. The compose CORS setting is not asserted as an effective origin restriction.
+6. Idempotency: API now requires an explicit key. ProductDetails retains one key for the same item attempt across failures, resets after success and changes it when quantity/product changes. Component tests cover these paths; live API confirms one order for same-key replay.
+7. Encoding: Arabic is valid UTF-8 and unchanged. UI build/lint passed. Component tests use controlled API fixtures plus actual query/mutation hooks; real API/gRPC verification is separate. Brave UI flow was not performed due to policy rejection.
+
+## Trade-offs and limitations
+
+Dashboard TTL is 60 seconds. Order writes invalidate the affected customer and shared admin entry; product writes clear admin counts. Other customers' global counts can remain old until TTL. Product metadata TTL is 300 seconds: only category relation is reused; route binding controls current price/visibility, and stock is never cached. Category changes outside ProductService may wait for TTL.
+Every product detail, including 304, calls inventory live. Redis uses the requested 512mb/allkeys-lru; memory pressure can evict rate-limiter/lockout counters. Notification failures are logged without automatic delivery retries. Existing response shapes and pagination totals are retained.
+The test uses a paced 5-VU workload, not production capacity. WSL restarts and host-memory pressure occurred between stages, so small latency differences are not statistically established. Opcache CLI remains 0 and artisan serve remains a development server. Replica consistency, total-free pagination and nginx/FPM performance are not measured. Full browser validation remains outstanding.
+
+## How to reproduce
+
+Run from `E:\projects\internet-applications` in PowerShell with Ubuntu/native Docker running. The existing deployment already contains every approved change. Do not rerun seed/apply commands on this populated database. `perf/README.md` explains safe current-state checks and the historical ladder, including the isolated source/database requirement for a fresh baseline.
+Current-state verification commands (previously run in this order of dependency; the test container must be running):
+```powershell
+python perf/requirement3.py tests after-notifications
+python perf/requirement3.py frontend-checks
+python perf/requirement3.py verify-pagination
+python perf/requirement3.py verify-etag
+python perf/api_write_verify.py
+Set-Location perf/ui-tests
+npm.cmd install --ignore-scripts --no-audit --no-fund
+$env:RAYON_NUM_THREADS='1'
+$env:UV_THREADPOOL_SIZE='1'
+$env:NODE_OPTIONS='--max-old-space-size=768'
+npm.cmd exec -- vitest run --reporter=json --outputFile=E:/projects/internet-applications/docs/performance/results/frontend-component-tests.json
+Set-Location ../..
+python perf/final_checks.py
+```
+The MySQL suite/timing harness reset only the dedicated `ecommerce_test` schema after checking database/account identity. Live API checks briefly stop inventory, restore it in finally, and delete only tagged fixtures; run when no other user is placing orders. Repeated load runs overwrite that stage's files; copy evidence first. No migration rollback was tested.
+
+## Raw outputs
+
+- `docs/performance/baseline/`: environment, initial git state, dataset/time, corrected source archive, original plans, four scenarios × three JSON/log pairs. `discarded-before-dependency-repair/` retains failed-runtime runs excluded from comparisons.
+- `docs/performance/results/after-indexes/`, `after-dashboard/`, `after-redis/`, `after-pagination/`, `after-product-cache/`, `after-etag/`, `after-refactor/`: stage datasets, test outputs, relevant k6 runs. [Computed medians](docs/performance/results/summary.json); [plan extraction](docs/performance/results/explain-summary.json).
+- [Final default suite](docs/performance/results/after-notifications/tests-artisan.txt), [MySQL suite](docs/performance/results/after-notifications/tests-mysql.txt); [before timing](docs/performance/results/notification-before.json), [after timing](docs/performance/results/notification-after.json).
+- [Live write/outage checks](docs/performance/results/live-api-verification.json), [fixture cleanup counts](docs/performance/results/live-api-cleanup-counts.txt), [pagination](docs/performance/results/pagination-completeness.json), [ETag](docs/performance/results/etag-check.json), [CORS](docs/performance/results/cors-preflight.json), [dashboard bodies](docs/performance/results/dashboard-response-check.txt).
+- `docs/performance/results/frontend/`: successful bounded build and lint (the first allocation failure was observed in tool output; its raw build log was not retained separately); [component results](docs/performance/results/frontend-component-tests.json), [observations](docs/performance/results/frontend-component-evidence.json), and failed harness attempts. Runtime build/start logs and final image/health/count/git snapshots are in `results/`.

@@ -1,0 +1,12 @@
+{
+  "first": {
+    "status": 200,
+    "etag": "\"579df832be30d02ab0183c995c2b023c1aab0025\"",
+    "cache_control": "no-cache, private",
+    "body_bytes": 1155
+  },
+  "second": {
+    "status": 304,
+    "body_bytes": 0
+  }
+}

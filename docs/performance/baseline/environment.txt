@@ -1,0 +1,8 @@
+Docker Compose version v5.7.0
+CONTAINER                   REPOSITORY                                TAG                 PLATFORM            IMAGE ID            SIZE                CREATED
+ecommerce-backend           internet-applications-backend             latest              linux/amd64         e2b68dd1c9b4        1.82GB              48 minutes ago
+ecommerce-inventory         internet-applications-inventory-service   latest              linux/amd64         89a95230e4ba        296MB               51 minutes ago
+ecommerce-inventory-mysql   mysql                                     8.0                 linux/amd64         7dcddc01f13b        1.09GB              6 months ago
+ecommerce-mysql             mysql                                     8.0                 linux/amd64         7dcddc01f13b        1.09GB              6 months ago
+ecommerce-scheduler         internet-applications-scheduler           latest              linux/amd64         6791c32a2b12        1.82GB              48 minutes ago
+Ubuntu 26.04.1 LTS CPUs=6 RAM=6214504448

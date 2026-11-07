@@ -1,0 +1,45 @@
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.35
+Configuration: /var/www/html/phpunit.mysql.xml
+
+FF                                                                  2 / 2 (100%)
+
+Time: 00:03.137, Memory: 44.50 MB
+
+There were 2 failures:
+
+1) Tests\Integration\InventoryOrderIntegrationTest::test_order_reserves_mysql_inventory_through_the_real_grpc_service
+Expected response status code [201] but received 503.
+Failed asserting that 503 is identical to 201.
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:45
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:175
+/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/Concerns/AssertsStatusCodes.php:26
+/var/www/html/tests/Integration/InventoryOrderIntegrationTest.php:55
+
+2) Tests\Integration\InventoryOrderIntegrationTest::test_failed_order_persistence_releases_the_real_mysql_reservation
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'Simulated notification persistence failure'
++'The PHP gRPC extension is not installed.'
+
+/var/www/html/tests/Integration/InventoryOrderIntegrationTest.php:85
+
+--
+
+There was 1 risky test:
+
+1) Tests\Integration\InventoryOrderIntegrationTest::test_failed_order_persistence_releases_the_real_mysql_reservation
+* Test code or tested code did not remove its own error handlers
+
+* Test code or tested code did not remove its own exception handlers
+
+/var/www/html/tests/Integration/InventoryOrderIntegrationTest.php:64
+
+FAILURES!
+Tests: 2, Assertions: 3, Failures: 2, Risky: 1.
+
+Exit code: 1

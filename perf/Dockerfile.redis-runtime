@@ -1,0 +1,10 @@
+# Preserve the measured PHP/gRPC runtime and add only Redis plus current source.
+FROM requirement3-runtime:before-redis
+RUN pecl install redis && docker-php-ext-enable redis
+WORKDIR /var/www/html
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-scripts --optimize-autoloader
+COPY . .
+RUN composer run-script post-autoload-dump \
+    && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache

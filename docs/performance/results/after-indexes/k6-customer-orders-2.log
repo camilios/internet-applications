@@ -1,0 +1,143 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: /scripts/customer-orders.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 5 max VUs, 31s max duration (incl. graceful stop):
+              * fixed: Up to 5 looping VUs for 30s over 3 stages (gracefulRampDown: 1s, gracefulStop: 2s)
+
+
+running (01.0s), 0/5 VUs, 0 complete and 0 interrupted iterations
+fixed   [   2% ] 0/5 VUs  00.5s/30.0s
+
+running (02.0s), 1/5 VUs, 0 complete and 0 interrupted iterations
+fixed   [   5% ] 1/5 VUs  01.5s/30.0s
+
+running (03.0s), 2/5 VUs, 1 complete and 0 interrupted iterations
+fixed   [   8% ] 2/5 VUs  02.5s/30.0s
+
+running (04.0s), 3/5 VUs, 3 complete and 0 interrupted iterations
+fixed   [  12% ] 3/5 VUs  03.5s/30.0s
+
+running (05.0s), 4/5 VUs, 6 complete and 0 interrupted iterations
+fixed   [  15% ] 4/5 VUs  04.5s/30.0s
+
+running (06.0s), 5/5 VUs, 10 complete and 0 interrupted iterations
+fixed   [  18% ] 5/5 VUs  05.5s/30.0s
+
+running (07.0s), 5/5 VUs, 15 complete and 0 interrupted iterations
+fixed   [  22% ] 5/5 VUs  06.5s/30.0s
+
+running (08.0s), 5/5 VUs, 20 complete and 0 interrupted iterations
+fixed   [  25% ] 5/5 VUs  07.5s/30.0s
+
+running (09.0s), 5/5 VUs, 24 complete and 0 interrupted iterations
+fixed   [  28% ] 5/5 VUs  08.5s/30.0s
+
+running (10.0s), 5/5 VUs, 28 complete and 0 interrupted iterations
+fixed   [  32% ] 5/5 VUs  09.5s/30.0s
+
+running (11.0s), 5/5 VUs, 32 complete and 0 interrupted iterations
+fixed   [  35% ] 5/5 VUs  10.5s/30.0s
+
+running (12.0s), 5/5 VUs, 35 complete and 0 interrupted iterations
+fixed   [  38% ] 5/5 VUs  11.5s/30.0s
+
+running (13.0s), 5/5 VUs, 40 complete and 0 interrupted iterations
+fixed   [  42% ] 5/5 VUs  12.5s/30.0s
+
+running (14.0s), 5/5 VUs, 45 complete and 0 interrupted iterations
+fixed   [  45% ] 5/5 VUs  13.5s/30.0s
+
+running (15.0s), 5/5 VUs, 50 complete and 0 interrupted iterations
+fixed   [  48% ] 5/5 VUs  14.5s/30.0s
+
+running (16.0s), 5/5 VUs, 55 complete and 0 interrupted iterations
+fixed   [  52% ] 5/5 VUs  15.5s/30.0s
+
+running (17.0s), 5/5 VUs, 60 complete and 0 interrupted iterations
+fixed   [  55% ] 5/5 VUs  16.5s/30.0s
+
+running (18.0s), 5/5 VUs, 65 complete and 0 interrupted iterations
+fixed   [  58% ] 5/5 VUs  17.5s/30.0s
+
+running (19.0s), 5/5 VUs, 70 complete and 0 interrupted iterations
+fixed   [  62% ] 5/5 VUs  18.5s/30.0s
+
+running (20.0s), 5/5 VUs, 75 complete and 0 interrupted iterations
+fixed   [  65% ] 5/5 VUs  19.5s/30.0s
+
+running (21.0s), 5/5 VUs, 80 complete and 0 interrupted iterations
+fixed   [  68% ] 5/5 VUs  20.5s/30.0s
+
+running (22.0s), 5/5 VUs, 84 complete and 0 interrupted iterations
+fixed   [  72% ] 5/5 VUs  21.5s/30.0s
+
+running (23.0s), 5/5 VUs, 87 complete and 0 interrupted iterations
+fixed   [  75% ] 5/5 VUs  22.5s/30.0s
+
+running (24.0s), 5/5 VUs, 91 complete and 0 interrupted iterations
+fixed   [  78% ] 5/5 VUs  23.5s/30.0s
+
+running (25.0s), 5/5 VUs, 95 complete and 0 interrupted iterations
+fixed   [  82% ] 5/5 VUs  24.5s/30.0s
+
+running (26.0s), 5/5 VUs, 100 complete and 0 interrupted iterations
+fixed   [  85% ] 5/5 VUs  25.5s/30.0s
+
+running (27.0s), 5/5 VUs, 105 complete and 0 interrupted iterations
+fixed   [  88% ] 5/5 VUs  26.5s/30.0s
+
+running (28.0s), 4/5 VUs, 110 complete and 0 interrupted iterations
+fixed   [  92% ] 4/5 VUs  27.5s/30.0s
+
+running (29.0s), 3/5 VUs, 114 complete and 0 interrupted iterations
+fixed   [  95% ] 3/5 VUs  28.5s/30.0s
+
+running (30.0s), 2/5 VUs, 117 complete and 0 interrupted iterations
+fixed   [  98% ] 2/5 VUs  29.5s/30.0s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 119     3.894837/s
+    checks_succeeded...: 100.00% 119 out of 119
+    checks_failed......: 0.00%   0 out of 119
+
+    ✓ HTTP 200 or valid revalidation
+
+    CUSTOM
+    conditional_hits...............: 0      0/s
+    endpoint_duration..............: p(50)=66.19ms p(95)=129.3ms  p(99)=152.58ms
+    endpoint_errors................: 0.00%  0 out of 119
+
+    HTTP
+    http_req_duration..............: p(50)=66.3ms  p(95)=132.08ms p(99)=162.08ms
+      { expected_response:true }...: p(50)=66.3ms  p(95)=132.08ms p(99)=162.08ms
+    http_req_failed................: 0.00%  0 out of 120
+    http_reqs......................: 120    3.927567/s
+
+    EXECUTION
+    iteration_duration.............: p(50)=1.06s   p(95)=1.13s    p(99)=1.15s   
+    iterations.....................: 119    3.894837/s
+    vus............................: 2      min=0        max=5
+    vus_max........................: 5      min=5        max=5
+
+    NETWORK
+    data_received..................: 3.6 MB 117 kB/s
+    data_sent......................: 62 kB  2.0 kB/s
+
+
+
+
+running (30.6s), 0/5 VUs, 119 complete and 0 interrupted iterations
+fixed ✓ [ 100% ] 0/5 VUs  30s
+
+Exit code: 0

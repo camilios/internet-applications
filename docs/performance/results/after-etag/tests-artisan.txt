@@ -1,0 +1,48 @@
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true
+
+   PASS  Tests\Unit\InventoryProtoCodecTest
+  ✓ stock message supports the grpc library deserializer                 0.03s  
+  ✓ reserve request matches the proto wire format                        0.01s  
+  ✓ stock response decodes inventory service fields
+  ✓ reservation response decodes repeated item results
+
+   WARN  Tests\Feature\ApiWorkflowTest
+  ✓ registration login and token protected identity                      0.72s  
+  ✓ protected identity rejects missing and invalid tokens                0.08s  
+  - grpc client does not fake a reservation when the extension is missi… 0.07s  
+  ✓ logout invalidates the bearer token                                  0.10s  
+  ✓ registration rejects duplicate and invalid data                      0.08s  
+  ✓ customers cannot manage products but admins can                      0.15s  
+  ✓ admin product management supports create update and deactivation     0.11s  
+  ✓ product images accept supported raster formats and reject svg        0.14s  
+  ✓ dashboard and user listing are connected and admin scoped            0.16s  
+  ✓ product detail uses confirmed inventory and reports inventory outag… 0.08s  
+  ✓ product detail never reports unavailable stock as current            0.09s  
+  ✓ order reserves once uses server price and is idempotent              0.13s  
+  ✓ unknown reservation outcome can be retried with the same idempotenc… 0.10s  
+  ✓ order rejects insufficient stock and another users order is hidden   0.10s  
+  ✓ notification endpoints are scoped to the authenticated user          0.10s  
+  ✓ admin status changes are authorized and cancellation releases stock  0.09s  
+  ✓ failed order save releases stock and persists retryable compensatio… 0.09s  
+  ✓ retry command recovers stale reservations and releases idempotently  0.08s  
+  ✓ order policy access control cases                                    0.08s  
+  ✓ rate limiting independent counters and no cross blocking             0.29s  
+  ✓ login failed attempts trigger 5 minute lockout across entire api     0.11s  
+  ✓ client ip resolution with trusted proxy                              0.07s  
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application returns a successful response                        0.11s  
+
+   PASS  Tests\Feature\PerformanceCachingTest
+  ✓ dashboard cache is scoped and preserves the json contract            0.12s  
+  ✓ order pagination is complete when timestamps are equal               0.12s  
+  ✓ product cache excludes stock and invalidates after writes            0.10s  
+  ✓ etag revalidates live stock and keeps an empty 304 body              0.14s  
+
+  Tests:    1 skipped, 31 passed (240 assertions)
+  Duration: 3.80s
+
+
+Exit code: 0

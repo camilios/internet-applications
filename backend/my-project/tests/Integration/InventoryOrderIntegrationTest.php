@@ -6,11 +6,9 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\NotificationService;
 use App\Services\OrderService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
-use Mockery;
 use PDO;
 use RuntimeException;
 use Tests\TestCase;
@@ -47,12 +45,23 @@ class InventoryOrderIntegrationTest extends TestCase
         $key = (string) Str::uuid();
         $token = auth('api')->login($user);
 
+        $before = $this->withToken($token)->getJson('/api/dashboard')
+            ->assertOk()->assertJsonPath('data.total_orders', 0)->json();
+        $this->withToken($token)->getJson('/api/products/'.$product->id)
+            ->assertOk()->assertJsonPath('data.stock', 1);
+
         $this->withToken($token)
             ->withHeader('Idempotency-Key', $key)
             ->postJson('/api/orders', [
                 'items' => [['product_id' => $product->id, 'quantity' => 1]],
             ])
             ->assertCreated();
+
+        $after = $this->withToken($token)->getJson('/api/dashboard')
+            ->assertOk()->assertJsonPath('data.total_orders', 1)->json();
+        $this->withToken($token)->getJson('/api/products/'.$product->id)
+            ->assertOk()->assertJsonPath('data.stock', 0);
+        fwrite(STDOUT, 'DASHBOARD_RESPONSE_CHECK '.json_encode(['before' => $before, 'after' => $after]).PHP_EOL);
 
         $this->assertSame(1, (int) $this->inventoryQuantity($product->id)['reserved_quantity']);
         $this->assertDatabaseHas('inventory_operations', [
@@ -68,11 +77,10 @@ class InventoryOrderIntegrationTest extends TestCase
         $this->seedInventory($product->id, 1);
         $key = (string) Str::uuid();
 
-        $notifications = Mockery::mock(NotificationService::class);
-        $notifications->shouldReceive('createOrderNotification')
-            ->once()
-            ->andThrow(new RuntimeException('Simulated notification persistence failure'));
-        $this->app->instance(NotificationService::class, $notifications);
+        // Exercise an actual order-persistence failure; notifications now run after commit.
+        Order::created(static function (): void {
+            throw new RuntimeException('Simulated order persistence failure');
+        });
 
         try {
             app(OrderService::class)->createOrder(
@@ -82,7 +90,7 @@ class InventoryOrderIntegrationTest extends TestCase
             );
             $this->fail('The simulated persistence failure should be rethrown.');
         } catch (RuntimeException $exception) {
-            $this->assertSame('Simulated notification persistence failure', $exception->getMessage());
+            $this->assertSame('Simulated order persistence failure', $exception->getMessage());
         }
 
         $this->assertSame(0, Order::count());

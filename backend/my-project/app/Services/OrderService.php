@@ -176,7 +176,7 @@ class OrderService
                     'order_id' => $order->id,
                     'last_error' => null,
                 ]);
-                $this->notificationService->createOrderNotification($user, $order, 'order_created');
+                $this->notifyAfterCommit($user, $order, 'order_created');
 
                 return $order;
             });
@@ -269,6 +269,8 @@ class OrderService
             throw $e;
         }
 
+        DashboardCache::forgetCache($user->id);
+
         return $order->load('items.product');
     }
 
@@ -277,7 +279,7 @@ class OrderService
      */
     public function getUserOrders(User $user, ?string $status = null): LengthAwarePaginator
     {
-        $query = $user->orders()->with('items.product')->latest();
+        $query = $user->orders()->with('items.product')->orderByDesc('created_at')->orderByDesc('id');
 
         if ($status !== null) {
             $query->where('status', $status);
@@ -299,7 +301,7 @@ class OrderService
      */
     public function getAllOrders(?string $status = null): LengthAwarePaginator
     {
-        $query = Order::with('items.product', 'user')->latest();
+        $query = Order::with('items.product', 'user')->orderByDesc('created_at')->orderByDesc('id');
 
         if ($status !== null) {
             $query->where('status', $status);
@@ -338,9 +340,10 @@ class OrderService
         }
 
         $order->update(['status' => $status]);
+        DashboardCache::forgetCache($order->user_id);
 
         // Notify user of status change
-        $this->notificationService->createOrderNotification(
+        $this->notifyAfterCommit(
             $order->user,
             $order,
             'order_status_updated'
@@ -348,4 +351,22 @@ class OrderService
 
         return $order->fresh('items.product');
     }
+
+    private function notifyAfterCommit(User $user, Order $order, string $type): void
+    {
+        DB::afterCommit(function () use ($user, $order, $type): void {
+            try {
+                $this->notificationService->createOrderNotification($user, $order, $type);
+            } catch (\Throwable $exception) {
+                // The order is committed. A secondary notification must not undo it.
+                Log::error('Order notification failed after commit', [
+                    'order_id' => $order->id,
+                    'user_id' => $user->id,
+                    'type' => $type,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        });
+    }
+
 }

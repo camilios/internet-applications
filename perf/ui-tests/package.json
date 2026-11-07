@@ -1,0 +1,16 @@
+{
+  "name": "requirement3-component-verification",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "react": "file:../../frontend/node_modules/react",
+    "react-dom": "file:../../frontend/node_modules/react-dom",
+    "@tanstack/react-query": "file:../../frontend/node_modules/@tanstack/react-query"
+  },
+  "devDependencies": {
+    "vitest": "latest",
+    "jsdom": "latest",
+    "@testing-library/react": "latest",
+    "@testing-library/user-event": "latest"
+  }
+}

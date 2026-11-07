@@ -1,0 +1,11 @@
+CONTAINER                        REPOSITORY                                TAG                 PLATFORM            IMAGE ID            SIZE                CREATED
+ecommerce-backend                internet-applications-backend             latest              linux/amd64         52f9dd077b26        1.83GB              33 seconds ago
+ecommerce-inventory              internet-applications-inventory-service   latest              linux/amd64         89a95230e4ba        296MB               2 hours ago
+ecommerce-inventory-mysql        mysql                                     8.0                 linux/amd64         7dcddc01f13b        1.09GB              6 months ago
+ecommerce-inventory-test         internet-applications-inventory-service   latest              linux/amd64         89a95230e4ba        296MB               2 hours ago
+ecommerce-inventory-test-mysql   mysql                                     8.0                 linux/amd64         7dcddc01f13b        1.09GB              6 months ago
+ecommerce-laravel-test-mysql     mysql                                     8.0                 linux/amd64         7dcddc01f13b        1.09GB              6 months ago
+ecommerce-mysql                  mysql                                     8.0                 linux/amd64         7dcddc01f13b        1.09GB              6 months ago
+ecommerce-redis                  redis                                     7-alpine            linux/amd64         c5d34a98396a        57.3MB              44 hours ago
+ecommerce-scheduler              internet-applications-scheduler           latest              linux/amd64         52f9dd077b26        1.83GB              33 seconds ago
+requirement3-tests               requirement3-tests                        latest              linux/amd64         6dc25aa2f1b8        1.9GB               42 minutes ago

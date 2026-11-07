@@ -461,6 +461,69 @@
             }
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "تعديل تصنيف (Admin)",
+        "description": "يتطلب صلاحية المشرف (role: admin).",
+        "operationId": "updateCategoryPartial",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "description": "معرّف التصنيف",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreCategoryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "تم تحديث التصنيف بنجاح",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Category"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "غير مصرح"
+          },
+          "403": {
+            "description": "غير مسموح"
+          },
+          "404": {
+            "description": "التصنيف غير موجود"
+          },
+          "422": {
+            "description": "خطأ في البيانات المدخلة"
+          }
+        }
       }
     },
     "/products": {
@@ -511,6 +574,15 @@
               "type": "integer",
               "default": 1
             }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Previously received ETag; a matching current representation returns 304."
           }
         ],
         "responses": {
@@ -520,6 +592,37 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedProducts"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Hash of the final JSON representation, including current stock on detail.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "example": "private, no-cache"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Representation unchanged; empty body. Product detail still checks live inventory.",
+            "headers": {
+              "ETag": {
+                "description": "Hash of the final JSON representation, including current stock on detail.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "example": "private, no-cache"
                 }
               }
             }
@@ -598,6 +701,15 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Previously received ETag; a matching current representation returns 304."
           }
         ],
         "responses": {
@@ -612,6 +724,20 @@
                       "$ref": "#/components/schemas/ProductDetail"
                     }
                   }
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Hash of the final JSON representation, including current stock on detail.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "example": "private, no-cache"
                 }
               }
             }
@@ -629,6 +755,23 @@
                 "example": {
                   "message": "Current inventory is unavailable. Please try again.",
                   "code": "INVENTORY_UNAVAILABLE"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Representation unchanged; empty body. Product detail still checks live inventory.",
+            "headers": {
+              "ETag": {
+                "description": "Hash of the final JSON representation, including current stock on detail.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "example": "private, no-cache"
                 }
               }
             }
@@ -748,6 +891,74 @@
           },
           "404": {
             "description": "المنتج غير موجود"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "تعديل بيانات المنتج (Admin)",
+        "description": "يتطلب صلاحية المشرف.",
+        "operationId": "updateProductPartial",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "description": "معرّف المنتج",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "تم تحديث المنتج بنجاح",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "غير مصرح"
+          },
+          "403": {
+            "description": "غير مسموح"
+          },
+          "404": {
+            "description": "المنتج غير موجود"
+          },
+          "422": {
+            "description": "خطأ في البيانات المدخلة"
           }
         }
       }
@@ -1195,6 +1406,88 @@
           },
           "404": {
             "description": "الإشعار غير موجود أو لا يخص هذا المستخدم"
+          }
+        }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "operationId": "getDashboard",
+        "summary": "Current user dashboard, cached up to 60 seconds",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer-scoped summary or administrator totals; decimal sales string.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/DashboardSummary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "listUsers",
+        "summary": "Administrator-only paginated users",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedUsers"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Administrator role required"
+          },
+          "429": {
+            "description": "Rate limited"
           }
         }
       }
@@ -1895,6 +2188,52 @@
                 "The password field confirmation does not match."
               ]
             }
+          }
+        }
+      },
+      "DashboardSummary": {
+        "type": "object",
+        "required": [
+          "total_products",
+          "orders_today",
+          "total_orders",
+          "total_users",
+          "total_sales"
+        ],
+        "properties": {
+          "total_products": {
+            "type": "integer"
+          },
+          "orders_today": {
+            "type": "integer"
+          },
+          "total_orders": {
+            "type": "integer"
+          },
+          "total_users": {
+            "type": "integer",
+            "nullable": true
+          },
+          "total_sales": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d{2}$"
+          }
+        }
+      },
+      "PaginatedUsers": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/PaginationLinks"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
           }
         }
       }

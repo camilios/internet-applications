@@ -1,0 +1,36 @@
+
+Scenario: dashboard | milliseconds | median of THREE run-level percentiles
+Historical after stage: after-refactor
+Archived BEFORE is saved evidence, NOT a fresh run of the old application.
+
+ARCHIVED BEFORE 
+  source: /mnt/e/projects/internet-applications/docs/performance/baseline
+  run    p50_ms    p95_ms    p99_ms    req/s   error%
+    1    43.596    99.789   187.190    3.905    0.000
+    2    42.952   159.599   286.428    3.869    0.000
+    3    54.032   152.890   177.824    3.878    0.000
+  MED    43.596   152.890   187.190    3.878    0.000
+  median received bytes: 47460
+
+ARCHIVED AFTER 
+  source: /mnt/e/projects/internet-applications/docs/performance/results/after-refactor
+  run    p50_ms    p95_ms    p99_ms    req/s   error%
+    1    18.243    28.011    52.975    4.079    0.000
+    2    17.247    26.123    36.600    4.087    0.000
+    3    17.439    28.590    50.854    4.083    0.000
+  MED    17.439    28.011    50.854    4.083    0.000
+  median received bytes: 49405
+
+LIVE CURRENT (AFTER) 
+  source: /mnt/e/projects/internet-applications/docs/performance/interview/20261107-092535-61565/dashboard
+  run    p50_ms    p95_ms    p99_ms    req/s   error%
+    1    21.209    34.303    52.313    4.030    0.000
+    2    18.389    32.226    36.261    4.074    0.000
+    3    18.035    26.172    27.626    4.083    0.000
+  MED    18.389    32.226    36.261    4.074    0.000
+  median received bytes: 49405
+
+Historical p95 reduction: 81.68% (derived from saved runs).
+Live current timings are new observations; they need not equal historical AFTER.
+Current dataset: {'users': 5004, 'products': 15, 'orders': 300004, 'order_items': 749372}
+This paced laptop workload is not a maximum-capacity test. No deployment threshold gate was used.

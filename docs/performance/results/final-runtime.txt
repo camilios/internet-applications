@@ -1,0 +1,9 @@
+Docker Compose version v5.7.0
+NAME                        IMAGE                                     COMMAND                  SERVICE             CREATED             STATUS                    PORTS
+ecommerce-backend           internet-applications-backend             "docker-entrypoint.s…"   backend             33 minutes ago      Up 40 seconds (healthy)   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+ecommerce-inventory         internet-applications-inventory-service   "docker-entrypoint.s…"   inventory-service   3 hours ago         Up 40 seconds (healthy)   50051/tcp
+ecommerce-inventory-mysql   mysql:8.0                                 "docker-entrypoint.s…"   inventory-mysql     3 hours ago         Up 40 seconds (healthy)   33060/tcp, 0.0.0.0:3308->3306/tcp, [::]:3308->3306/tcp
+ecommerce-mysql             mysql:8.0                                 "docker-entrypoint.s…"   mysql               3 hours ago         Up 40 seconds (healthy)   33060/tcp, 0.0.0.0:3307->3306/tcp, [::]:3307->3306/tcp
+ecommerce-redis             redis:7-alpine                            "docker-entrypoint.s…"   redis               About an hour ago   Up 40 seconds (healthy)   6379/tcp
+ecommerce-scheduler         internet-applications-scheduler           "docker-entrypoint.s…"   scheduler           33 minutes ago      Up 40 seconds             8000/tcp
+Ubuntu 26.04.1 LTS CPUs=6 RAM=6214508544

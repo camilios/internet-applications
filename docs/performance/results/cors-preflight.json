@@ -1,0 +1,16 @@
+{
+  "status": 204,
+  "headers": {
+    "Host": "localhost:8000",
+    "Connection": "close",
+    "X-Powered-By": "PHP/8.2.35",
+    "Cache-Control": "no-cache, private",
+    "Date": "Sat, 07 Nov 2026 15:28:57 GMT",
+    "Access-Control-Allow-Origin": "*",
+    "Vary": "Access-Control-Request-Method, Access-Control-Request-Headers",
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Headers": "authorization,content-type,if-none-match",
+    "Access-Control-Max-Age": "0",
+    "Content-type": "text/html; charset=UTF-8"
+  }
+}

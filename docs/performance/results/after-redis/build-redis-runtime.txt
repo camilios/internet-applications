@@ -1,0 +1,246 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.redis-runtime
+#1 transferring dockerfile: 44B 0.1s
+#1 transferring dockerfile: 606B 0.2s done
+#1 DONE 0.2s
+
+#2 [internal] load metadata for docker.io/library/requirement3-runtime:before-redis
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 33B 0.0s
+#3 transferring context: 207B 0.3s done
+#3 DONE 0.3s
+
+#4 [internal] load build context
+#4 DONE 0.0s
+
+#5 [1/7] FROM docker.io/library/requirement3-runtime:before-redis@sha256:e2b68dd1c9b4d0e33052cc3968b4188606d1c98221a21c2be1423e7ed8d3409d
+#5 resolve docker.io/library/requirement3-runtime:before-redis@sha256:e2b68dd1c9b4d0e33052cc3968b4188606d1c98221a21c2be1423e7ed8d3409d 0.0s done
+#5 CACHED
+
+#4 [internal] load build context
+#4 transferring context: 389.77kB 1.7s done
+#4 DONE 1.7s
+
+#6 [2/7] RUN pecl install redis && docker-php-ext-enable redis
+#6 8.677 downloading redis-6.3.0.tgz ...
+#6 8.678 Starting to download redis-6.3.0.tgz (399,284 bytes)
+#6 8.678 .................................................................................done: 399,284 bytes
+#6 14.11 43 source files, building
+#6 14.11 running: phpize
+#6 14.13 Configuring for:
+#6 14.13 PHP Api Version:         20220829
+#6 14.13 Zend Module Api No:      20220829
+#6 14.13 Zend Extension Api No:   420220829
+#6 15.23 enable igbinary serializer support? [no] : enable lzf compression support? [no] : enable zstd compression support? [no] : enable msgpack serializer support? [no] : enable lz4 compression? [no] : use system liblz4? [yes] : building in /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0
+#6 15.23 running: /tmp/pear/temp/redis/configure --with-php-config=/usr/local/bin/php-config --enable-redis-igbinary=no --enable-redis-lzf=no --enable-redis-zstd=no --enable-redis-msgpack=no --enable-redis-lz4=no --with-liblz4
+#6 15.55 checking for grep that handles long lines and -e... /usr/bin/grep
+#6 15.56 checking for egrep... /usr/bin/grep -E
+#6 15.57 checking for a sed that does not truncate output... /usr/bin/sed
+#6 15.62 checking for pkg-config... /usr/bin/pkg-config
+#6 15.63 checking pkg-config is at least version 0.9.0... yes
+#6 15.63 checking for cc... cc
+#6 15.83 checking whether the C compiler works... yes
+#6 15.83 checking for C compiler default output file name... a.out
+#6 15.90 checking for suffix of executables...
+#6 16.00 checking whether we are cross compiling... no
+#6 16.04 checking for suffix of object files... o
+#6 16.08 checking whether the compiler supports GNU C... yes
+#6 16.12 checking whether cc accepts -g... yes
+#6 16.22 checking for cc option to enable C11 features... none needed
+#6 16.29 checking how to run the C preprocessor... cc -E
+#6 16.34 checking for egrep -e... (cached) /usr/bin/grep -E
+#6 16.36 checking for icc... no
+#6 16.38 checking for suncc... no
+#6 16.39 checking for system library directory... lib
+#6 16.45 checking if compiler supports -Wl,-rpath,... yes
+#6 16.56 checking build system type... x86_64-pc-linux-gnu
+#6 16.56 checking host system type... x86_64-pc-linux-gnu
+#6 16.56 checking target system type... x86_64-pc-linux-gnu
+#6 16.65 checking for PHP prefix... /usr/local
+#6 16.65 checking for PHP includes... -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib
+#6 16.65 checking for PHP extension directory... /usr/local/lib/php/extensions/no-debug-non-zts-20220829
+#6 16.65 checking for PHP installed headers prefix... /usr/local/include/php
+#6 16.70 checking if debug is enabled... no
+#6 16.73 checking if zts is enabled... no
+#6 16.73 checking for gawk... no
+#6 16.73 checking for nawk... nawk
+#6 16.73 checking if nawk is broken... no
+#6 16.74 checking whether to enable redis support... yes, shared
+#6 16.74 checking whether to enable sessions... yes
+#6 16.74 checking whether to enable json serializer support... yes
+#6 16.74 checking whether to enable igbinary serializer support... no
+#6 16.74 checking whether to enable msgpack serializer support... no
+#6 16.74 checking whether to enable lzf compression... no
+#6 16.74 checking use system liblzf... no
+#6 16.74 checking whether to enable Zstd compression... no
+#6 16.74 checking use system libzstd... yes
+#6 16.74 checking whether to enable lz4 compression... no
+#6 16.74 checking use system liblz4... yes
+#6 16.74 checking for hash includes... /usr/local/include/php
+#6 16.74 checking for json includes... /usr/local/include/php
+#6 16.74 checking for redis json support... enabled
+#6 16.75 checking for redis igbinary support... disabled
+#6 16.75 checking for pkg-config... /usr/bin/pkg-config
+#6 16.75 checking for git... yes
+#6 16.79 checking for a sed that does not truncate output... /usr/bin/sed
+#6 16.80 checking for ld used by cc... /usr/bin/ld
+#6 16.81 checking if the linker (/usr/bin/ld) is GNU ld... yes
+#6 16.81 checking for /usr/bin/ld option to reload object files... -r
+#6 16.82 checking for BSD-compatible nm... /usr/bin/nm -B
+#6 16.82 checking whether ln -s works... yes
+#6 16.82 checking how to recognize dependent libraries... pass_all
+#6 16.91 checking for stdio.h... yes
+#6 16.96 checking for stdlib.h... yes
+#6 17.00 checking for string.h... yes
+#6 17.06 checking for inttypes.h... yes
+#6 17.10 checking for stdint.h... yes
+#6 17.14 checking for strings.h... yes
+#6 17.19 checking for sys/stat.h... yes
+#6 17.24 checking for sys/types.h... yes
+#6 17.29 checking for unistd.h... yes
+#6 17.34 checking for dlfcn.h... yes
+#6 17.36 checking the maximum length of command line arguments... 1572864
+#6 17.49 checking command to parse /usr/bin/nm -B output from cc object... ok
+#6 17.50 checking for objdir... .libs
+#6 17.50 checking for ar... ar
+#6 17.50 checking for ranlib... ranlib
+#6 17.50 checking for strip... strip
+#6 17.66 checking if cc supports -fno-rtti -fno-exceptions... no
+#6 17.66 checking for cc option to produce PIC... -fPIC
+#6 17.70 checking if cc PIC flag -fPIC works... yes
+#6 17.90 checking if cc static flag -static works... yes
+#6 17.96 checking if cc supports -c -o file.o... yes
+#6 17.99 checking whether the cc linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+#6 18.05 checking whether -lc should be explicitly linked in... no
+#6 18.09 checking dynamic linker characteristics... GNU/Linux ld.so
+#6 18.09 checking how to hardcode library paths into programs... immediate
+#6 18.09 checking whether stripping libraries is possible... yes
+#6 18.10 checking if libtool supports shared libraries... yes
+#6 18.10 checking whether to build shared libraries... yes
+#6 18.10 checking whether to build static libraries... no
+#6 18.48 
+#6 18.48 creating libtool
+#6 18.52 appending configuration tag "CXX" to libtool
+#6 18.68 configure: patching config.h.in
+#6 18.69 configure: creating ./config.status
+#6 18.81 config.status: creating config.h
+#6 18.89 running: make
+#6 18.97 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis.c -o redis.lo  -MMD -MF redis.dep -MT redis.lo
+#6 19.15 mkdir .libs
+#6 19.16  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis.c -MMD -MF redis.dep -MT redis.lo  -fPIC -DPIC -o .libs/redis.o
+#6 20.88 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_commands.c -o redis_commands.lo  -MMD -MF redis_commands.dep -MT redis_commands.lo
+#6 21.08  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_commands.c -MMD -MF redis_commands.dep -MT redis_commands.lo  -fPIC -DPIC -o .libs/redis_commands.o
+#6 26.16 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/library.c -o library.lo  -MMD -MF library.dep -MT library.lo
+#6 26.38  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/library.c -MMD -MF library.dep -MT library.lo  -fPIC -DPIC -o .libs/library.o
+#6 28.99 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_session.c -o redis_session.lo  -MMD -MF redis_session.dep -MT redis_session.lo
+#6 29.23  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_session.c -MMD -MF redis_session.dep -MT redis_session.lo  -fPIC -DPIC -o .libs/redis_session.o
+#6 30.24 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_array.c -o redis_array.lo  -MMD -MF redis_array.dep -MT redis_array.lo
+#6 30.47  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_array.c -MMD -MF redis_array.dep -MT redis_array.lo  -fPIC -DPIC -o .libs/redis_array.o
+#6 31.74 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_array_impl.c -o redis_array_impl.lo  -MMD -MF redis_array_impl.dep -MT redis_array_impl.lo
+#6 31.95  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_array_impl.c -MMD -MF redis_array_impl.dep -MT redis_array_impl.lo  -fPIC -DPIC -o .libs/redis_array_impl.o
+#6 33.38 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_cluster.c -o redis_cluster.lo  -MMD -MF redis_cluster.dep -MT redis_cluster.lo
+#6 33.58  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_cluster.c -MMD -MF redis_cluster.dep -MT redis_cluster.lo  -fPIC -DPIC -o .libs/redis_cluster.o
+#6 35.62 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/cluster_library.c -o cluster_library.lo  -MMD -MF cluster_library.dep -MT cluster_library.lo
+#6 35.83  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/cluster_library.c -MMD -MF cluster_library.dep -MT cluster_library.lo  -fPIC -DPIC -o .libs/cluster_library.o
+#6 37.44 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_sentinel.c -o redis_sentinel.lo  -MMD -MF redis_sentinel.dep -MT redis_sentinel.lo
+#6 37.66  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/redis_sentinel.c -MMD -MF redis_sentinel.dep -MT redis_sentinel.lo  -fPIC -DPIC -o .libs/redis_sentinel.o
+#6 38.03 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/sentinel_library.c -o sentinel_library.lo  -MMD -MF sentinel_library.dep -MT sentinel_library.lo
+#6 38.22  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/sentinel_library.c -MMD -MF sentinel_library.dep -MT sentinel_library.lo  -fPIC -DPIC -o .libs/sentinel_library.o
+#6 38.50 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/backoff.c -o backoff.lo  -MMD -MF backoff.dep -MT backoff.lo
+#6 38.69  cc -I. -I/tmp/pear/temp/redis -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/redis/backoff.c -MMD -MF backoff.dep -MT backoff.lo  -fPIC -DPIC -o .libs/backoff.o
+#6 38.98 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=link cc -shared -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/include -I/tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/main -I/tmp/pear/temp/redis -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include/php/ext  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -o redis.la -export-dynamic -avoid-version -prefer-pic -module -rpath /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/modules  redis.lo redis_commands.lo library.lo redis_session.lo redis_array.lo redis_array_impl.lo redis_cluster.lo cluster_library.lo redis_sentinel.lo sentinel_library.lo backoff.lo
+#6 39.25 cc -shared  .libs/redis.o .libs/redis_commands.o .libs/library.o .libs/redis_session.o .libs/redis_array.o .libs/redis_array_impl.o .libs/redis_cluster.o .libs/cluster_library.o .libs/redis_sentinel.o .libs/sentinel_library.o .libs/backoff.o   -Wl,-soname -Wl,redis.so -o .libs/redis.so
+#6 39.33 creating redis.la
+#6 39.35 (cd .libs && rm -f redis.la && ln -s ../redis.la redis.la)
+#6 39.36 /bin/bash /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/libtool --tag=CC --mode=install cp ./redis.la /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/modules
+#6 39.42 cp ./.libs/redis.so /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/modules/redis.so
+#6 39.43 cp ./.libs/redis.lai /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/modules/redis.la
+#6 39.47 PATH="$PATH:/sbin" ldconfig -n /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/modules
+#6 39.52 ----------------------------------------------------------------------
+#6 39.52 Libraries have been installed in:
+#6 39.52    /tmp/pear/temp/pear-build-defaultuserKnUlRI/redis-6.3.0/modules
+#6 39.52 
+#6 39.52 If you ever happen to want to link against installed libraries
+#6 39.52 in a given directory, LIBDIR, you must either use libtool, and
+#6 39.52 specify the full pathname of the library, or use the `-LLIBDIR'
+#6 39.52 flag during linking and do at least one of the following:
+#6 39.52    - add LIBDIR to the `LD_LIBRARY_PATH' environment variable
+#6 39.52      during execution
+#6 39.52    - add LIBDIR to the `LD_RUN_PATH' environment variable
+#6 39.52      during linking
+#6 39.52    - use the `-Wl,--rpath -Wl,LIBDIR' linker flag
+#6 39.52    - have your system administrator add LIBDIR to `/etc/ld.so.conf'
+#6 39.52 
+#6 39.52 See any operating system documentation about shared libraries for
+#6 39.52 more information, such as the ld(1) and ld.so(8) manual pages.
+#6 39.52 ----------------------------------------------------------------------
+#6 39.53 
+#6 39.53 Build complete.
+#6 39.53 Don't forget to run 'make test'.
+#6 39.53 
+#6 39.54 running: make INSTALL_ROOT="/tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0" install
+#6 39.61 Installing shared extensions:     /tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0/usr/local/lib/php/extensions/no-debug-non-zts-20220829/
+#6 39.69 running: find "/tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0" | xargs ls -dils
+#6 39.70 33679673    4 drwxr-xr-x 3 root root    4096 Nov  7 14:13 /tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0
+#6 39.70 33679753    4 drwxr-xr-x 3 root root    4096 Nov  7 14:13 /tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0/usr
+#6 39.70 33679754    4 drwxr-xr-x 3 root root    4096 Nov  7 14:13 /tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0/usr/local
+#6 39.70 33679755    4 drwxr-xr-x 3 root root    4096 Nov  7 14:13 /tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0/usr/local/lib
+#6 39.70 33679756    4 drwxr-xr-x 3 root root    4096 Nov  7 14:13 /tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0/usr/local/lib/php
+#6 39.70 33679757    4 drwxr-xr-x 3 root root    4096 Nov  7 14:13 /tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0/usr/local/lib/php/extensions
+#6 39.70 33679759    4 drwxr-xr-x 2 root root    4096 Nov  7 14:13 /tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0/usr/local/lib/php/extensions/no-debug-non-zts-20220829
+#6 39.70 33679751 2488 -rwxr-xr-x 1 root root 2544376 Nov  7 14:13 /tmp/pear/temp/pear-build-defaultuserKnUlRI/install-redis-6.3.0/usr/local/lib/php/extensions/no-debug-non-zts-20220829/redis.so
+#6 39.71 
+#6 39.71 Build process completed successfully
+#6 39.71 Installing '/usr/local/lib/php/extensions/no-debug-non-zts-20220829/redis.so'
+#6 39.76 install ok: channel://pecl.php.net/redis-6.3.0
+#6 39.76 configuration option "php_ini" is not set to php.ini location
+#6 39.76 You should add "extension=redis.so" to php.ini
+#6 DONE 39.9s
+
+#7 [3/7] WORKDIR /var/www/html
+#7 DONE 0.1s
+
+#8 [4/7] COPY composer.json composer.lock ./
+#8 DONE 0.1s
+
+#9 [5/7] RUN composer install --no-dev --no-interaction --no-scripts --optimize-autoloader
+#9 0.626 Installing dependencies from lock file
+#9 0.628 Verifying lock file contents can be installed on current platform.
+#9 2.233 Package operations: 1 install, 0 updates, 0 removals
+#9 2.248   - Downloading grpc/grpc (1.85.0)
+#9 22.68   - Installing grpc/grpc (1.85.0): Extracting archive
+#9 26.47 Generating optimized autoload files
+#9 30.51 56 packages you are using are looking for funding.
+#9 30.51 Use the `composer fund` command to find out more!
+#9 DONE 30.6s
+
+#10 [6/7] COPY . .
+#10 DONE 0.2s
+
+#11 [7/7] RUN composer run-script post-autoload-dump     && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache     && chown -R www-data:www-data storage bootstrap/cache
+#11 0.533 > Illuminate\Foundation\ComposerScripts::postAutoloadDump
+#11 0.561 > @php artisan package:discover --ansi
+#11 0.858 
+#11 0.858   [37;44m INFO [39;49m Discovering packages.  
+#11 0.858 
+#11 0.863   laravel/tinker [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#11 0.864   nesbot/carbon [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#11 0.864   nunomaduro/termwind [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#11 0.865   php-open-source-saver/jwt-auth [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#11 0.866 
+#11 DONE 1.0s
+
+#12 exporting to image
+#12 exporting layers
+#12 exporting layers 0.5s done
+#12 exporting manifest sha256:02a2c203b90d51a67aee840f4e2323b1eb1f0977405d5f4b4d2d25fc2f2e35fe 0.0s done
+#12 exporting config sha256:91ffd59c88e6aede524f0f13294fd5b3aed12db28aef723e22b61b09f506234a 0.0s done
+#12 exporting attestation manifest sha256:e1d351ffd0fa60273d5a0180a062cd8915d30141bbeb9cf2ee2e0165268e48fb 0.0s done
+#12 exporting manifest list sha256:cd94a92a31b7407f01329fa08eded8cc3541f254b8c51bbd656bdf9cd15d8ab1 0.0s done
+#12 naming to docker.io/library/internet-applications-backend:latest done
+#12 unpacking to docker.io/library/internet-applications-backend:latest
+#12 unpacking to docker.io/library/internet-applications-backend:latest 0.3s done
+#12 DONE 1.0s

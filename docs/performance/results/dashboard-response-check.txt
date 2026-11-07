@@ -1,0 +1,62 @@
+{
+  "unchanged_response_bodies": true,
+  "before": {
+    "admin@example.com": {
+      "data": {
+        "total_products": 15,
+        "orders_today": 475,
+        "total_orders": 300004,
+        "total_users": 5004,
+        "total_sales": "1305850040.27"
+      }
+    },
+    "bulk-customer-1@example.test": {
+      "data": {
+        "total_products": 15,
+        "orders_today": 0,
+        "total_orders": 51,
+        "total_users": null,
+        "total_sales": "215910.67"
+      }
+    },
+    "bulk-customer-2@example.test": {
+      "data": {
+        "total_products": 15,
+        "orders_today": 0,
+        "total_orders": 55,
+        "total_users": null,
+        "total_sales": "229012.77"
+      }
+    }
+  },
+  "after": {
+    "admin@example.com": {
+      "data": {
+        "total_products": 15,
+        "orders_today": 475,
+        "total_orders": 300004,
+        "total_users": 5004,
+        "total_sales": "1305850040.27"
+      }
+    },
+    "bulk-customer-1@example.test": {
+      "data": {
+        "total_products": 15,
+        "orders_today": 0,
+        "total_orders": 51,
+        "total_users": null,
+        "total_sales": "215910.67"
+      }
+    },
+    "bulk-customer-2@example.test": {
+      "data": {
+        "total_products": 15,
+        "orders_today": 0,
+        "total_orders": 55,
+        "total_users": null,
+        "total_sales": "229012.77"
+      }
+    }
+  }
+}
+Real order-creation invalidation and stock checks: after-dashboard/tests-mysql.txt

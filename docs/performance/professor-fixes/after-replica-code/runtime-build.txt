@@ -1,0 +1,55 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.final-runtime
+#1 transferring dockerfile: 44B 0.0s
+#1 transferring dockerfile: 359B 0.2s done
+#1 DONE 0.2s
+
+#2 [internal] load metadata for docker.io/library/requirement3-runtime:redis-base
+#2 DONE 0.1s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 33B 0.0s
+#3 transferring context: 207B 0.2s done
+#3 DONE 0.2s
+
+#4 [1/4] FROM docker.io/library/requirement3-runtime:redis-base@sha256:cd94a92a31b7407f01329fa08eded8cc3541f254b8c51bbd656bdf9cd15d8ab1
+#4 resolve docker.io/library/requirement3-runtime:redis-base@sha256:cd94a92a31b7407f01329fa08eded8cc3541f254b8c51bbd656bdf9cd15d8ab1 0.1s done
+#4 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 25.73kB 2.0s done
+#5 DONE 2.0s
+
+#6 [2/4] WORKDIR /var/www/html
+#6 CACHED
+
+#7 [3/4] COPY . .
+#7 DONE 0.3s
+
+#8 [4/4] RUN composer dump-autoload --no-dev --optimize --no-scripts     && composer run-script post-autoload-dump     && chown -R www-data:www-data storage bootstrap/cache
+#8 1.242 Generating optimized autoload files
+#8 6.253 Generated optimized autoload files containing 4790 classes
+#8 6.566 > Illuminate\Foundation\ComposerScripts::postAutoloadDump
+#8 6.603 > @php artisan package:discover --ansi
+#8 6.924 
+#8 6.924   [37;44m INFO [39;49m Discovering packages.  
+#8 6.924 
+#8 6.930   laravel/tinker [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#8 6.930   nesbot/carbon [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#8 6.931   nunomaduro/termwind [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#8 6.932   php-open-source-saver/jwt-auth [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+#8 6.933 
+#8 DONE 7.1s
+
+#9 exporting to image
+#9 exporting layers
+#9 exporting layers 0.2s done
+#9 exporting manifest sha256:f51c1242a4a0aa12dc3635b98ddcf24df48585ef1049d9ef4a29fb67c07e8f8b 0.0s done
+#9 exporting config sha256:b018fe857f338c1d9ee446944c655565d3a2d9251632bd915a7f506b5f69963c 0.0s done
+#9 exporting attestation manifest sha256:b794cfac505ecd61e15b9d781f420ec787d396d10464aa56e4b00939c0ed0bad 0.0s done
+#9 exporting manifest list sha256:7417c8c574f7e731ac5a9a55c835416e20b2ab1a2db30e3aa846a4c638928f9c 0.0s done
+#9 naming to docker.io/library/internet-applications-backend:latest
+#9 naming to docker.io/library/internet-applications-backend:latest done
+#9 unpacking to docker.io/library/internet-applications-backend:latest 0.1s done
+#9 DONE 0.6s

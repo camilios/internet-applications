@@ -2,6 +2,7 @@ import { keepPreviousData } from "@tanstack/react-query"
 import { useGet, useGetAll, useCreate, useUpdate, useDelete } from "@/hooks/api"
 import { productsApi } from "../api/products.api"
 import type { ProductFilters, ProductInput, ProductUpdateInput } from "../types"
+import { dashboardKeys } from "@/features/dashboard/hooks/use-dashboard"
 
 /**
  * Query Keys – مصدر واحد لكل مفاتيح المنتجات
@@ -34,7 +35,7 @@ export function useProduct(id: number) {
 /** إضافة منتج */
 export function useCreateProduct() {
   return useCreate((input: ProductInput) => productsApi.create(input), {
-    invalidateKeys: [productKeys.lists()],
+    invalidateKeys: [productKeys.lists(), dashboardKeys.summary],
     successMessage: "تم إضافة المنتج بنجاح",
     errorMessage: "فشل إضافة المنتج",
   })
@@ -52,7 +53,7 @@ export function useUpdateProduct(id: number) {
 /** تعطيل منتج (الباك ما يحذفه نهائياً) */
 export function useDeleteProduct() {
   return useDelete((id: number) => productsApi.delete(id), {
-    invalidateKeys: [productKeys.lists()],
+    invalidateKeys: [productKeys.lists(), productKeys.details(), dashboardKeys.summary],
     successMessage: "تم تعطيل المنتج",
     errorMessage: "فشل تعطيل المنتج",
   })

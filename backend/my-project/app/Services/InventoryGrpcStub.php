@@ -11,7 +11,7 @@ class InventoryGrpcStub extends BaseStub
         return $this->_simpleRequest(
             '/inventory.InventoryService/GetStock',
             new InventoryProtoMessage($argument, [InventoryProtoCodec::class, 'encodeGetStock']),
-            [InventoryProtoCodec::class, 'decodeGetStock'],
+            [InventoryStockResponse::class, 'decode'],
             $metadata,
             $options
         );
@@ -22,7 +22,7 @@ class InventoryGrpcStub extends BaseStub
         return $this->_simpleRequest(
             '/inventory.InventoryService/ReserveStock',
             new InventoryProtoMessage($argument, [InventoryProtoCodec::class, 'encodeReserveStock']),
-            [InventoryProtoCodec::class, 'decodeReserveStock'],
+            [InventoryReservationResponse::class, 'decode'],
             $metadata,
             $options
         );
@@ -33,7 +33,7 @@ class InventoryGrpcStub extends BaseStub
         return $this->_simpleRequest(
             '/inventory.InventoryService/ReleaseStock',
             new InventoryProtoMessage($argument, [InventoryProtoCodec::class, 'encodeReleaseStock']),
-            [InventoryProtoCodec::class, 'decodeReleaseStock'],
+            [InventoryReleaseResponse::class, 'decode'],
             $metadata,
             $options
         );

@@ -1,0 +1,17 @@
+{
+  "ecommerce-backend": {
+    "app/Services/OrderService.php": true,
+    "app/Services/ProductCache.php": true,
+    "app/Services/DashboardCache.php": true,
+    "app/Http/Controllers/ProductController.php": true,
+    "app/Http/Middleware/ConditionalGet.php": true
+  },
+  "ecommerce-scheduler": {
+    "app/Services/OrderService.php": true,
+    "app/Services/ProductCache.php": true,
+    "app/Services/DashboardCache.php": true,
+    "app/Http/Controllers/ProductController.php": true,
+    "app/Http/Middleware/ConditionalGet.php": true
+  },
+  "ui_passed": 3
+}

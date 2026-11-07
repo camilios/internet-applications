@@ -1,0 +1,5 @@
+store=redis
+cache_probe=1
+redis_cache_db=1
+phpredis=loaded
+opcache_cli=0

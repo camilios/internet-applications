@@ -1,0 +1,23 @@
+{
+  "synthetic_notification_delay_ms": 50,
+  "notification_transaction_levels": [
+    0,
+    0,
+    0
+  ],
+  "runs": [
+    {
+      "order_call_ms": 144.125698,
+      "order_persistence_transaction_body_ms": 21.27318
+    },
+    {
+      "order_call_ms": 83.598065,
+      "order_persistence_transaction_body_ms": 7.334035
+    },
+    {
+      "order_call_ms": 84.385254,
+      "order_persistence_transaction_body_ms": 7.240439
+    }
+  ],
+  "orders_persisted": 3
+}

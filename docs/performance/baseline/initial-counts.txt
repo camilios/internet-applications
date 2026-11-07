@@ -1,0 +1,4 @@
+users: 4
+products: 15
+orders: 4
+order_items: 7

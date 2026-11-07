@@ -21,7 +21,7 @@ export const ordersApi = {
    * الـ Idempotency-Key مطلوب من الباك (UUID v4).
    * مرّر نفس المفتاح عند إعادة المحاولة لنفس الطلب، عشان ما يتكرر الطلب.
    */
-  create: async (items: OrderItemInput[], idempotencyKey: string = crypto.randomUUID()) => {
+  create: async (items: OrderItemInput[], idempotencyKey: string) => {
     const { data } = await apiClient.post<ApiResponse<Order>>(
       endpoints.orders.create,
       { items },

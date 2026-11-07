@@ -1,0 +1,5 @@
+
+   INFO  Running migrations.  
+
+  2026_11_05_000001_add_performance_indexes ......................... 17s DONE
+

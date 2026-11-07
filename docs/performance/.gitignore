@@ -1,0 +1,2 @@
+# Preserve benchmark logs even though the project ignores general application logs.
+!*.log

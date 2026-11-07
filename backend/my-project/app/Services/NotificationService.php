@@ -14,7 +14,7 @@ class NotificationService
      */
     public function getUserNotifications(User $user): LengthAwarePaginator
     {
-        return $user->notifications()->latest()->paginate(15);
+        return $user->notifications()->orderByDesc('created_at')->orderByDesc('id')->paginate(15);
     }
 
     /**

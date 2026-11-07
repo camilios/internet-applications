@@ -1,0 +1,34 @@
+ backend/my-project/.env.example                    |  2 +-
+ backend/my-project/Dockerfile                      |  4 ++
+ .../app/Http/Controllers/DashboardController.php   | 60 +++++++++++++++-------
+ .../app/Http/Controllers/ProductController.php     | 20 ++++++--
+ .../app/Services/InventoryGrpcClient.php           |  4 ++
+ .../my-project/app/Services/InventoryGrpcStub.php  |  6 +--
+ .../app/Services/NotificationService.php           |  2 +-
+ backend/my-project/app/Services/OrderService.php   | 29 +++++++++--
+ backend/my-project/app/Services/ProductService.php | 30 ++++-------
+ backend/my-project/bootstrap/app.php               |  1 +
+ backend/my-project/composer.json                   |  1 +
+ backend/my-project/composer.lock                   | 49 +++++++++++++++++-
+ backend/my-project/routes/api.php                  |  4 +-
+ .../my-project/tests/Feature/ApiWorkflowTest.php   | 12 ++---
+ .../Integration/InventoryOrderIntegrationTest.php  | 24 ++++++---
+ .../tests/Unit/InventoryProtoCodecTest.php         | 14 +++++
+ docker-compose.yml                                 | 26 ++++++++++
+ frontend/src/features/orders/api/orders.api.ts     |  2 +-
+ frontend/src/features/orders/hooks/use-orders.ts   |  9 ++--
+ .../products/components/product-details.tsx        | 25 ++++++---
+ .../src/features/products/hooks/use-products.ts    |  5 +-
+ 21 files changed, 247 insertions(+), 82 deletions(-)
+warning: in the working copy of 'backend/my-project/.env.example', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/my-project/Dockerfile', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/my-project/app/Http/Controllers/DashboardController.php', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/my-project/app/Http/Controllers/ProductController.php', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/my-project/app/Services/NotificationService.php', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/my-project/app/Services/OrderService.php', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/my-project/app/Services/ProductService.php', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/my-project/bootstrap/app.php', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/my-project/routes/api.php', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/my-project/tests/Feature/ApiWorkflowTest.php', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/my-project/tests/Integration/InventoryOrderIntegrationTest.php', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'frontend/src/routeTree.gen.ts', LF will be replaced by CRLF the next time Git touches it

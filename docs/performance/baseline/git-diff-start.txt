@@ -1,0 +1,1 @@
+No content diff; git emitted an LF-to-CRLF warning for frontend/src/routeTree.gen.ts.

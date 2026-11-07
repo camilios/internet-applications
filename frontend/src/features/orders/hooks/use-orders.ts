@@ -3,6 +3,8 @@ import { useCreate, useGet, useGetAll, useUpdate } from "@/hooks/api"
 import type { OrderStatus } from "@/lib/constants/order-status"
 import { ordersApi } from "../api/orders.api"
 import type { OrderItemInput } from "../types"
+import { dashboardKeys } from "@/features/dashboard/hooks/use-dashboard"
+import { productKeys } from "@/features/products/hooks/use-products"
 
 export const orderKeys = {
   all: ["orders"] as const,
@@ -31,7 +33,7 @@ export function useUpdateOrderStatus(id: number) {
   return useUpdate(
     (status: OrderStatus) => ordersApi.adminUpdateStatus(id, status),
     {
-      invalidateKeys: [orderKeys.lists(), orderKeys.detail(id)],
+      invalidateKeys: [orderKeys.lists(), orderKeys.detail(id), dashboardKeys.summary, productKeys.details()],
       successMessage: "تم تحديث حالة الطلب",
       errorMessage: "تعذر تحديث حالة الطلب",
     }
@@ -40,9 +42,10 @@ export function useUpdateOrderStatus(id: number) {
 
 export function useCreateOrder() {
   return useCreate(
-    (items: OrderItemInput[]) => ordersApi.create(items),
+    (input: { items: OrderItemInput[]; idempotencyKey: string }) =>
+      ordersApi.create(input.items, input.idempotencyKey),
     {
-      invalidateKeys: [orderKeys.lists()],
+      invalidateKeys: [orderKeys.lists(), dashboardKeys.summary, productKeys.details()],
       successMessage: "تم إنشاء طلبك بنجاح",
       errorMessage: "تعذر إنشاء الطلب",
     }

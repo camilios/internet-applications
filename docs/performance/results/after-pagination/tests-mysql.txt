@@ -1,0 +1,13 @@
+PHPUnit 11.5.57 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.35
+Configuration: /var/www/html/phpunit.mysql.xml
+
+DASHBOARD_RESPONSE_CHECK {"before":{"data":{"total_products":1,"orders_today":0,"total_orders":0,"total_users":null,"total_sales":"0.00"}},"after":{"data":{"total_products":1,"orders_today":1,"total_orders":1,"total_users":null,"total_sales":"9.99"}}}
+..                                                                  2 / 2 (100%)
+
+Time: 00:04.259, Memory: 44.50 MB
+
+OK (2 tests, 16 assertions)
+
+Exit code: 0

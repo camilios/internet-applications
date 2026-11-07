@@ -2,46 +2,53 @@ openapi: 3.0.3
 info:
   title: E-Commerce API (For Frontend)
   version: 1.0.0
-  description: |
-    مواصفات واجهة برمجة التطبيقات (OpenAPI / Swagger) لمشروع الباك إند بالكامل، موجهة لفريق الفرونت إند.
+  description: 'مواصفات واجهة برمجة التطبيقات (OpenAPI / Swagger) لمشروع الباك إند
+    بالكامل، موجهة لفريق الفرونت إند.
+
     تشمل:
+
     - نظام المصادقة وإدارة الحسابات عبر JWT (Bearer Token).
+
     - إدارة وعرض التصنيفات (Categories).
-    - استعراض المنتجات وفلترتها وعرض تفاصيل المنتج مع المخزون المتاح لحظيًا من خدمة المخزون (gRPC).
+
+    - استعراض المنتجات وفلترتها وعرض تفاصيل المنتج مع المخزون المتاح لحظيًا من خدمة
+    المخزون (gRPC).
+
     - إنشاء الطلبات ومعالجتها بآلية منع التكرار (Idempotency) وتتبع حالات الطلبات.
+
     - إدارة وتتبع الإشعارات الخاصة بالمستخدمين.
+
     - لوحة إدارة المشرف (Admin Endpoints) للتصنيفات والمنتجات وحالات الطلبات.
 
+    '
 servers:
-  - url: http://localhost:8000/api
-    description: بيئة التطوير المحلية (Docker Compose)
-  - url: /api
-    description: مسار نسبي (عبر Vite Proxy أو Nginx)
-
+- url: http://localhost:8000/api
+  description: بيئة التطوير المحلية (Docker Compose)
+- url: /api
+  description: مسار نسبي (عبر Vite Proxy أو Nginx)
 tags:
-  - name: Authentication
-    description: تسجيل الدخول، إنشاء الحساب، الملف الشخصي، وتسجيل الخروج
-  - name: Categories
-    description: استعراض وإدارة تصنيفات المنتجات
-  - name: Products
-    description: تصفح المنتجات، البحث، الفلترة، تفاصيل المنتج مع المخزون، وعمليات المشرف
-  - name: Orders
-    description: إنشاء الطلبات مع مفتاح Idempotency، سجل الطلبات، وتعديل حالات الطلبات
-  - name: Notifications
-    description: قراءة وإدارة إشعارات المستخدمين
-
+- name: Authentication
+  description: تسجيل الدخول، إنشاء الحساب، الملف الشخصي، وتسجيل الخروج
+- name: Categories
+  description: استعراض وإدارة تصنيفات المنتجات
+- name: Products
+  description: تصفح المنتجات، البحث، الفلترة، تفاصيل المنتج مع المخزون، وعمليات المشرف
+- name: Orders
+  description: إنشاء الطلبات مع مفتاح Idempotency، سجل الطلبات، وتعديل حالات الطلبات
+- name: Notifications
+  description: قراءة وإدارة إشعارات المستخدمين
 paths:
-  # ==========================================================
-  # Authentication
-  # ==========================================================
   /register:
     post:
       tags:
-        - Authentication
+      - Authentication
       summary: إنشاء حساب مستخدم جديد
-      description: |
-        تسجيل مستخدم جديد بدور `customer`. يتم تعيين الدور تلقائيًا ولا يُقبل من المدخلات.
+      description: 'تسجيل مستخدم جديد بدور `customer`. يتم تعيين الدور تلقائيًا ولا
+        يُقبل من المدخلات.
+
         العملية مقيدة بمعدل طلبات (Rate Limited: 10 requests / 1 min).
+
+        '
       operationId: register
       requestBody:
         required: true
@@ -68,15 +75,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-
   /login:
     post:
       tags:
-        - Authentication
+      - Authentication
       summary: تسجيل الدخول
-      description: |
-        تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور والحصول على JWT Bearer Token.
+      description: 'تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور والحصول على
+        JWT Bearer Token.
+
         معدل الطلبات محدد بـ (10 requests / 1 min).
+
+        '
       operationId: login
       requestBody:
         required: true
@@ -98,7 +107,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
               example:
-                message: "Invalid credentials."
+                message: Invalid credentials.
         '422':
           description: بيانات غير صالحة
           content:
@@ -107,16 +116,15 @@ paths:
                 $ref: '#/components/schemas/ValidationError'
         '429':
           description: تجاوز الحد المسموح للطلبات (Too Many Requests)
-
   /logout:
     post:
       tags:
-        - Authentication
+      - Authentication
       summary: تسجيل الخروج
       description: إبطال رمز JWT الحالي وإنهاء الجلسة.
       operationId: logout
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: تم تسجيل الخروج بنجاح
@@ -125,19 +133,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
               example:
-                message: "Logged out successfully."
+                message: Logged out successfully.
         '401':
           description: غير مصرح (رمز الدخول غير صالح أو غير موجود)
-
   /me:
     get:
       tags:
-        - Authentication
+      - Authentication
       summary: بيانات المستخدم الحالي
       description: جلب بيانات المستخدم صاحب الرمز الحالي (Profile).
       operationId: getCurrentUser
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: بيانات المستخدم
@@ -150,24 +157,21 @@ paths:
                     $ref: '#/components/schemas/User'
         '401':
           description: غير مصرح
-
-  # ==========================================================
-  # Categories
-  # ==========================================================
   /categories:
     get:
       tags:
-        - Categories
+      - Categories
       summary: قائمة التصنيفات
-      description: استعراض جميع التصنيفات مرتبة أبجديًا ومقسمة إلى صفحات (30 تصنيف لكل صفحة).
+      description: استعراض جميع التصنيفات مرتبة أبجديًا ومقسمة إلى صفحات (30 تصنيف
+        لكل صفحة).
       operationId: getCategories
       parameters:
-        - name: page
-          in: query
-          description: رقم الصفحة
-          schema:
-            type: integer
-            default: 1
+      - name: page
+        in: query
+        description: رقم الصفحة
+        schema:
+          type: integer
+          default: 1
       responses:
         '200':
           description: قائمة التصنيفات بنجاح
@@ -175,15 +179,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedCategories'
-
     post:
       tags:
-        - Categories
+      - Categories
       summary: إضافة تصنيف جديد (Admin)
-      description: "يتطلب صلاحية المشرف (role: admin)."
+      description: 'يتطلب صلاحية المشرف (role: admin).'
       operationId: createCategory
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -206,21 +209,20 @@ paths:
           description: غير مسموح (يتطلب صلاحية المشرف)
         '422':
           description: خطأ في التحقق من صحة البيانات
-
   /categories/{category}:
     get:
       tags:
-        - Categories
+      - Categories
       summary: تفاصيل تصنيف محدد
       description: عرض بيانات تصنيف واحد بواسطة المعرّف (ID).
       operationId: getCategoryById
       parameters:
-        - name: category
-          in: path
-          required: true
-          description: معرّف التصنيف (Category ID)
-          schema:
-            type: integer
+      - name: category
+        in: path
+        required: true
+        description: معرّف التصنيف (Category ID)
+        schema:
+          type: integer
       responses:
         '200':
           description: بيانات التصنيف
@@ -233,22 +235,21 @@ paths:
                     $ref: '#/components/schemas/Category'
         '404':
           description: التصنيف غير موجود
-
     put:
       tags:
-        - Categories
+      - Categories
       summary: تعديل تصنيف (Admin)
-      description: "يتطلب صلاحية المشرف (role: admin)."
+      description: 'يتطلب صلاحية المشرف (role: admin).'
       operationId: updateCategory
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: category
-          in: path
-          required: true
-          description: معرّف التصنيف
-          schema:
-            type: integer
+      - name: category
+        in: path
+        required: true
+        description: معرّف التصنيف
+        schema:
+          type: integer
       requestBody:
         required: true
         content:
@@ -273,23 +274,24 @@ paths:
           description: التصنيف غير موجود
         '422':
           description: خطأ في البيانات المدخلة
-
     delete:
       tags:
-        - Categories
+      - Categories
       summary: حذف تصنيف (Admin)
-      description: |
-        حذف تصنيف محدد. إذا كان التصنيف يحتوي على منتجات مرتبطة به، سيتم رفض الحذف وإرجاع خطأ `409 Conflict`.
+      description: 'حذف تصنيف محدد. إذا كان التصنيف يحتوي على منتجات مرتبطة به، سيتم
+        رفض الحذف وإرجاع خطأ `409 Conflict`.
+
+        '
       operationId: deleteCategory
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: category
-          in: path
-          required: true
-          description: معرّف التصنيف
-          schema:
-            type: integer
+      - name: category
+        in: path
+        required: true
+        description: معرّف التصنيف
+        schema:
+          type: integer
       responses:
         '200':
           description: تم حذف التصنيف بنجاح
@@ -298,7 +300,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
               example:
-                message: "Category deleted."
+                message: Category deleted.
         '401':
           description: غير مصرح
         '403':
@@ -312,48 +314,92 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
               example:
-                message: "Categories containing products cannot be deleted."
-
-  # ==========================================================
-  # Products
-  # ==========================================================
+                message: Categories containing products cannot be deleted.
+    patch:
+      tags:
+      - Categories
+      summary: تعديل تصنيف (Admin)
+      description: 'يتطلب صلاحية المشرف (role: admin).'
+      operationId: updateCategoryPartial
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: category
+        in: path
+        required: true
+        description: معرّف التصنيف
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreCategoryRequest'
+      responses:
+        '200':
+          description: تم تحديث التصنيف بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Category'
+        '401':
+          description: غير مصرح
+        '403':
+          description: غير مسموح
+        '404':
+          description: التصنيف غير موجود
+        '422':
+          description: خطأ في البيانات المدخلة
   /products:
     get:
       tags:
-        - Products
+      - Products
       summary: قائمة المنتجات
-      description: |
-        استعراض المنتجات النشطة (`is_active = true`) مع دعم البحث النصي والفلترة حسب التصنيف والترقيم.
+      description: 'استعراض المنتجات النشطة (`is_active = true`) مع دعم البحث النصي
+        والفلترة حسب التصنيف والترقيم.
+
+        '
       operationId: getProducts
       parameters:
-        - name: search
-          in: query
-          required: false
-          description: بحث باسم المنتج (مطابقة جزئية)
-          schema:
-            type: string
-        - name: category_id
-          in: query
-          required: false
-          description: تصفية حسب معرّف التصنيف
-          schema:
-            type: integer
-        - name: per_page
-          in: query
-          required: false
-          description: عدد المنتجات في كل صفحة (الافتراضي 15، الأدنى 1، الأقصى 100)
-          schema:
-            type: integer
-            default: 15
-            minimum: 1
-            maximum: 100
-        - name: page
-          in: query
-          required: false
-          description: رقم الصفحة
-          schema:
-            type: integer
-            default: 1
+      - name: search
+        in: query
+        required: false
+        description: بحث باسم المنتج (مطابقة جزئية)
+        schema:
+          type: string
+      - name: category_id
+        in: query
+        required: false
+        description: تصفية حسب معرّف التصنيف
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: عدد المنتجات في كل صفحة (الافتراضي 15، الأدنى 1، الأقصى 100)
+        schema:
+          type: integer
+          default: 15
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: رقم الصفحة
+        schema:
+          type: integer
+          default: 1
+      - name: If-None-Match
+        in: header
+        required: false
+        schema:
+          type: string
+        description: Previously received ETag; a matching current representation returns
+          304.
       responses:
         '200':
           description: قائمة المنتجات مقسمة لصفحات
@@ -361,15 +407,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedProducts'
-
+          headers:
+            ETag:
+              description: Hash of the final JSON representation, including current
+                stock on detail.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                example: private, no-cache
+        '304':
+          description: Representation unchanged; empty body. Product detail still
+            checks live inventory.
+          headers:
+            ETag:
+              description: Hash of the final JSON representation, including current
+                stock on detail.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                example: private, no-cache
     post:
       tags:
-        - Products
+      - Products
       summary: إضافة منتج جديد (Admin)
-      description: "يتطلب صلاحية المشرف (role: admin). يدعم رفع صورة المنتج."
+      description: 'يتطلب صلاحية المشرف (role: admin). يدعم رفع صورة المنتج.'
       operationId: createProduct
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -395,25 +463,37 @@ paths:
           description: غير مسموح
         '422':
           description: خطأ في البيانات المدخلة
-
   /products/{product}:
     get:
       tags:
-        - Products
+      - Products
       summary: تفاصيل المنتج مع المخزون اللحظي
-      description: |
-        عرض بيانات المنتج الكاملة.
-        **مهم جدًا للفرونت إند**: يقوم هذا المسار باستعلام خدمة المخزون `inventory-service` لحظيًا عبر gRPC لجلب الكمية المتاحة `stock`.
-        - إذا كان المنتج غير نشط، يتاح عرضه للمشرف فقط؛ أما المستخدم العادي فيستقبل `404`.
+      description: 'عرض بيانات المنتج الكاملة.
+
+        **مهم جدًا للفرونت إند**: يقوم هذا المسار باستعلام خدمة المخزون `inventory-service`
+        لحظيًا عبر gRPC لجلب الكمية المتاحة `stock`.
+
+        - إذا كان المنتج غير نشط، يتاح عرضه للمشرف فقط؛ أما المستخدم العادي فيستقبل
+        `404`.
+
         - في حالة تعذر الاتصال بخدمة المخزون، يُرجع `503 Service Unavailable`.
+
+        '
       operationId: getProductById
       parameters:
-        - name: product
-          in: path
-          required: true
-          description: معرّف المنتج
-          schema:
-            type: integer
+      - name: product
+        in: path
+        required: true
+        description: معرّف المنتج
+        schema:
+          type: integer
+      - name: If-None-Match
+        in: header
+        required: false
+        schema:
+          type: string
+        description: Previously received ETag; a matching current representation returns
+          304.
       responses:
         '200':
           description: بيانات المنتج متضمنة المخزون الفعلي المتاح
@@ -424,6 +504,16 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/ProductDetail'
+          headers:
+            ETag:
+              description: Hash of the final JSON representation, including current
+                stock on detail.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                example: private, no-cache
         '404':
           description: المنتج غير موجود أو غير نشط
         '503':
@@ -433,24 +523,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
-                message: "Current inventory is unavailable. Please try again."
-                code: "INVENTORY_UNAVAILABLE"
-
+                message: Current inventory is unavailable. Please try again.
+                code: INVENTORY_UNAVAILABLE
+        '304':
+          description: Representation unchanged; empty body. Product detail still
+            checks live inventory.
+          headers:
+            ETag:
+              description: Hash of the final JSON representation, including current
+                stock on detail.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                example: private, no-cache
     put:
       tags:
-        - Products
+      - Products
       summary: تعديل بيانات المنتج (Admin)
       description: يتطلب صلاحية المشرف.
       operationId: updateProduct
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: product
-          in: path
-          required: true
-          description: معرّف المنتج
-          schema:
-            type: integer
+      - name: product
+        in: path
+        required: true
+        description: معرّف المنتج
+        schema:
+          type: integer
       requestBody:
         required: true
         content:
@@ -478,22 +580,21 @@ paths:
           description: المنتج غير موجود
         '422':
           description: خطأ في البيانات المدخلة
-
     delete:
       tags:
-        - Products
+      - Products
       summary: تعطيل/إلغاء تنشيط المنتج (Admin)
-      description: "يقوم بعمل Soft Delete / تعطيل للمنتج (is_active = false)."
+      description: يقوم بعمل Soft Delete / تعطيل للمنتج (is_active = false).
       operationId: deleteProduct
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: product
-          in: path
-          required: true
-          description: معرّف المنتج
-          schema:
-            type: integer
+      - name: product
+        in: path
+        required: true
+        description: معرّف المنتج
+        schema:
+          type: integer
       responses:
         '200':
           description: تم تعطيل المنتج بنجاح
@@ -502,42 +603,94 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
               example:
-                message: "Product deactivated."
+                message: Product deactivated.
         '401':
           description: غير مصرح
         '403':
           description: غير مسموح
         '404':
           description: المنتج غير موجود
-
-  # ==========================================================
-  # Orders
-  # ==========================================================
+    patch:
+      tags:
+      - Products
+      summary: تعديل بيانات المنتج (Admin)
+      description: يتطلب صلاحية المشرف.
+      operationId: updateProductPartial
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: product
+        in: path
+        required: true
+        description: معرّف المنتج
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+      responses:
+        '200':
+          description: تم تحديث المنتج بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '401':
+          description: غير مصرح
+        '403':
+          description: غير مسموح
+        '404':
+          description: المنتج غير موجود
+        '422':
+          description: خطأ في البيانات المدخلة
   /orders:
     post:
       tags:
-        - Orders
+      - Orders
       summary: إنشاء طلب جديد مع قفل المخزون (Durable Reservation)
-      description: |
-        يقوم العميل بإنشاء طلب جديد يحتوي على قائمة المنتجات والكميات المطلوبة.
-        
+      description: 'يقوم العميل بإنشاء طلب جديد يحتوي على قائمة المنتجات والكميات
+        المطلوبة.
+
+
         **قواعد هامة جدًا للفرونت إند**:
-        1. **ترويسة `Idempotency-Key` إجبارية**: يجب إرسال UUID v4 فريد لكل طلب في الـ Header لمنع تكرار الخصم أو تكرار الطلب عند انقطاع الاتصال.
-        2. **حساب الأسعار والإجمالي**: يتم حساب الأسعار وإجمالي الطلب في الباك إند استنادًا لبيانات قاعدة البيانات الحالية؛ أي أسعار تُرسل من العميل يتم تجاهلها بالكامل.
-        3. **آلية الحجز والتعويض (Saga / Compensation)**: يتصل الباك إند بخدمة المخزون لحجز الكميات. إذا تعذر حفظ الطلب في قاعدة البيانات بعد نجاح الحجز، يقوم النظام تلقائيًا بإطلاق عملية تعويضية (ReleaseStock) لإلغاء الحجز فورًا.
-        4. **في حالة الخطأ 503 مع كود `RESERVATION_OUTCOME_UNKNOWN`**: يجب على الفرونت إند إعادة المحاولة حصريًا باستخدام **نفس مفتاح `Idempotency-Key` ونفس البنود**، وسيقوم الباك إند باسترجاع الطلب المكتمل بأمان.
+
+        1. **ترويسة `Idempotency-Key` إجبارية**: يجب إرسال UUID v4 فريد لكل طلب في
+        الـ Header لمنع تكرار الخصم أو تكرار الطلب عند انقطاع الاتصال.
+
+        2. **حساب الأسعار والإجمالي**: يتم حساب الأسعار وإجمالي الطلب في الباك إند
+        استنادًا لبيانات قاعدة البيانات الحالية؛ أي أسعار تُرسل من العميل يتم تجاهلها
+        بالكامل.
+
+        3. **آلية الحجز والتعويض (Saga / Compensation)**: يتصل الباك إند بخدمة المخزون
+        لحجز الكميات. إذا تعذر حفظ الطلب في قاعدة البيانات بعد نجاح الحجز، يقوم النظام
+        تلقائيًا بإطلاق عملية تعويضية (ReleaseStock) لإلغاء الحجز فورًا.
+
+        4. **في حالة الخطأ 503 مع كود `RESERVATION_OUTCOME_UNKNOWN`**: يجب على الفرونت
+        إند إعادة المحاولة حصريًا باستخدام **نفس مفتاح `Idempotency-Key` ونفس البنود**،
+        وسيقوم الباك إند باسترجاع الطلب المكتمل بأمان.
+
+        '
       operationId: createOrder
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: Idempotency-Key
-          in: header
-          required: true
-          description: مفتاح منع التكرار (UUID v4)
-          schema:
-            type: string
-            format: uuid
-            example: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: مفتاح منع التكرار (UUID v4)
+        schema:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
       requestBody:
         required: true
         content:
@@ -563,10 +716,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
-                message: "Insufficient stock for product."
-                code: "INSUFFICIENT_STOCK"
+                message: Insufficient stock for product.
+                code: INSUFFICIENT_STOCK
         '422':
-          description: خطأ في التحقق من البيانات (مثلاً مفتاح Idempotency مفقود أو غير مطابق، أو بند غير نشط)
+          description: خطأ في التحقق من البيانات (مثلاً مفتاح Idempotency مفقود أو
+            غير مطابق، أو بند غير نشط)
           content:
             application/json:
               schema:
@@ -581,30 +735,31 @@ paths:
                 outcomeUnknown:
                   summary: نتيجة الحجز غير معروفة بعد (يجب إعادة المحاولة بنفس المفتاح)
                   value:
-                    message: "The reservation result is not yet known. Retry with the same Idempotency-Key."
-                    code: "RESERVATION_OUTCOME_UNKNOWN"
+                    message: The reservation result is not yet known. Retry with the
+                      same Idempotency-Key.
+                    code: RESERVATION_OUTCOME_UNKNOWN
                 inventoryUnavailable:
                   summary: خدمة المخزون غير متاحة مؤقتًا
                   value:
-                    message: "Inventory service is unavailable. Please retry."
-                    code: "INVENTORY_UNAVAILABLE"
-
+                    message: Inventory service is unavailable. Please retry.
+                    code: INVENTORY_UNAVAILABLE
     get:
       tags:
-        - Orders
+      - Orders
       summary: قائمة طلبات المستخدم الحالي
-      description: استعراض جميع الطلبات التي قام المستخدم الحالي بطلبها، مرتبة من الأحدث إلى الأقدم ومقسمة لصفحات (15 طلب بالصفحة).
+      description: استعراض جميع الطلبات التي قام المستخدم الحالي بطلبها، مرتبة من
+        الأحدث إلى الأقدم ومقسمة لصفحات (15 طلب بالصفحة).
       operationId: getUserOrders
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: page
-          in: query
-          required: false
-          description: رقم الصفحة
-          schema:
-            type: integer
-            default: 1
+      - name: page
+        in: query
+        required: false
+        description: رقم الصفحة
+        schema:
+          type: integer
+          default: 1
       responses:
         '200':
           description: قائمة طلبات المستخدم
@@ -614,25 +769,26 @@ paths:
                 $ref: '#/components/schemas/PaginatedOrders'
         '401':
           description: غير مصرح
-
   /orders/{order}:
     get:
       tags:
-        - Orders
+      - Orders
       summary: تفاصيل طلب محدد
-      description: |
-        عرض تفاصيل الطلب مع بنوده والمنتجات التابعة له.
+      description: 'عرض تفاصيل الطلب مع بنوده والمنتجات التابعة له.
+
         يُسمح فقط لصاحب الطلب أو للمشرف (`admin`) باستعراضه؛ خلاف ذلك يتم إرجاع `404`.
+
+        '
       operationId: getOrderById
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: order
-          in: path
-          required: true
-          description: معرّف الطلب (Order ID)
-          schema:
-            type: integer
+      - name: order
+        in: path
+        required: true
+        description: معرّف الطلب (Order ID)
+        schema:
+          type: integer
       responses:
         '200':
           description: بيانات الطلب وبنوده
@@ -647,24 +803,24 @@ paths:
           description: غير مصرح
         '404':
           description: الطلب غير موجود أو لا يتبع للمستخدم الحالي
-
   /admin/orders:
     get:
       tags:
-        - Orders
+      - Orders
       summary: استعراض جميع الطلبات للنظام (Admin)
-      description: "يتطلب صلاحية المشرف (role: admin). يستعرض كافة الطلبات لجميع المستخدمين مع بيانات صاحب الطلب."
+      description: 'يتطلب صلاحية المشرف (role: admin). يستعرض كافة الطلبات لجميع المستخدمين
+        مع بيانات صاحب الطلب.'
       operationId: getAdminOrders
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: page
-          in: query
-          required: false
-          description: رقم الصفحة
-          schema:
-            type: integer
-            default: 1
+      - name: page
+        in: query
+        required: false
+        description: رقم الصفحة
+        schema:
+          type: integer
+          default: 1
       responses:
         '200':
           description: قائمة كافة الطلبات
@@ -676,32 +832,41 @@ paths:
           description: غير مصرح
         '403':
           description: غير مسموح
-
   /admin/orders/{order}/status:
     patch:
       tags:
-        - Orders
+      - Orders
       summary: تحديث حالة الطلب (Admin)
-      description: |
-        تحديث حالة الطلب عبر المشرف مع تطبيق قواعد التحول الصارم (State Transitions):
+      description: 'تحديث حالة الطلب عبر المشرف مع تطبيق قواعد التحول الصارم (State
+        Transitions):
+
         - `pending` -> `confirmed`, `cancelled`
+
         - `confirmed` -> `processing`, `cancelled`
+
         - `processing` -> `shipped`, `cancelled`
+
         - `shipped` -> `delivered`
+
         - `delivered` -> (حالة نهائية)
+
         - `cancelled` -> (حالة نهائية)
 
-        **ملاحظة هامة**: عند التحويل إلى `cancelled`، يتصل النظام فورًا بخدمة المخزون لتحرير المخزون المحجوز وإرجاعه للبيع.
+
+        **ملاحظة هامة**: عند التحويل إلى `cancelled`، يتصل النظام فورًا بخدمة المخزون
+        لتحرير المخزون المحجوز وإرجاعه للبيع.
+
+        '
       operationId: updateOrderStatus
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: order
-          in: path
-          required: true
-          description: معرّف الطلب
-          schema:
-            type: integer
+      - name: order
+        in: path
+        required: true
+        description: معرّف الطلب
+        schema:
+          type: integer
       requestBody:
         required: true
         content:
@@ -731,32 +896,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
               example:
-                message: "Cannot transition from 'delivered' to 'cancelled'."
+                message: Cannot transition from 'delivered' to 'cancelled'.
         '422':
           description: قيمة الحالة غير صالحة
         '503':
           description: تعذر تأكيد تحرير المخزون عند الإلغاء
-
-  # ==========================================================
-  # Notifications
-  # ==========================================================
   /notifications:
     get:
       tags:
-        - Notifications
+      - Notifications
       summary: قائمة إشعارات المستخدم
       description: استعراض إشعارات المستخدم الحالي مقسمة إلى صفحات (15 إشعار لكل صفحة).
       operationId: getNotifications
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: page
-          in: query
-          required: false
-          description: رقم الصفحة
-          schema:
-            type: integer
-            default: 1
+      - name: page
+        in: query
+        required: false
+        description: رقم الصفحة
+        schema:
+          type: integer
+          default: 1
       responses:
         '200':
           description: قائمة الإشعارات
@@ -766,16 +927,15 @@ paths:
                 $ref: '#/components/schemas/PaginatedNotifications'
         '401':
           description: غير مصرح
-
   /notifications/read-all:
     patch:
       tags:
-        - Notifications
+      - Notifications
       summary: تحديد جميع الإشعارات كمقروءة
-      description: "تحديث حقل read_at لكافة إشعارات المستخدم الحالي غير المقروءة."
+      description: تحديث حقل read_at لكافة إشعارات المستخدم الحالي غير المقروءة.
       operationId: markAllNotificationsAsRead
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: تم تحديد جميع الإشعارات كمقروءة
@@ -784,28 +944,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
               example:
-                message: "Notifications marked as read."
+                message: Notifications marked as read.
         '401':
           description: غير مصرح
-
   /notifications/{notification}/read:
     patch:
       tags:
-        - Notifications
+      - Notifications
       summary: تحديد إشعار معين كمقروء
-      description: "تحديث حقل read_at لإشعار واحد محدد بواسطة معرّفه (UUID)."
+      description: تحديث حقل read_at لإشعار واحد محدد بواسطة معرّفه (UUID).
       operationId: markNotificationAsRead
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: notification
-          in: path
-          required: true
-          description: معرّف الإشعار (UUID)
-          schema:
-            type: string
-            format: uuid
-            example: "c4b9d031-7bfa-4c8d-8a5e-859e4b600f12"
+      - name: notification
+        in: path
+        required: true
+        description: معرّف الإشعار (UUID)
+        schema:
+          type: string
+          format: uuid
+          example: c4b9d031-7bfa-4c8d-8a5e-859e4b600f12
       responses:
         '200':
           description: تم تحديد الإشعار كمقروء
@@ -814,25 +973,69 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
               example:
-                message: "Notification marked as read."
+                message: Notification marked as read.
         '401':
           description: غير مصرح
         '404':
           description: الإشعار غير موجود أو لا يخص هذا المستخدم
-
-# ==========================================================
-# Components / Schemas
-# ==========================================================
+  /dashboard:
+    get:
+      tags:
+      - Dashboard
+      operationId: getDashboard
+      summary: Current user dashboard, cached up to 60 seconds
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Customer-scoped summary or administrator totals; decimal sales
+            string.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DashboardSummary'
+        '401':
+          description: Authentication required
+        '429':
+          description: Rate limited
+  /users:
+    get:
+      tags:
+      - Users
+      operationId: listUsers
+      summary: Administrator-only paginated users
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Paginated users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUsers'
+        '401':
+          description: Authentication required
+        '403':
+          description: Administrator role required
+        '429':
+          description: Rate limited
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: "أدخل رمز JWT بالصيغة: Bearer <token>"
-
+      description: 'أدخل رمز JWT بالصيغة: Bearer <token>'
   schemas:
-    # ── User & Auth ──────────────────────────────────────────
     User:
       type: object
       properties:
@@ -841,79 +1044,76 @@ components:
           example: 1
         name:
           type: string
-          example: "Ahmed Mohamed"
+          example: Ahmed Mohamed
         email:
           type: string
           format: email
-          example: "ahmed@example.com"
+          example: ahmed@example.com
         role:
           type: string
-          enum: [customer, admin]
-          example: "customer"
+          enum:
+          - customer
+          - admin
+          example: customer
         created_at:
           type: string
           format: date-time
-          example: "2026-10-27T12:00:00.000000Z"
-
+          example: '2026-10-27T12:00:00.000000Z'
     RegisterRequest:
       type: object
       required:
-        - name
-        - email
-        - password
-        - password_confirmation
+      - name
+      - email
+      - password
+      - password_confirmation
       properties:
         name:
           type: string
           maxLength: 255
-          example: "Ahmed Mohamed"
+          example: Ahmed Mohamed
         email:
           type: string
           format: email
-          example: "ahmed@example.com"
+          example: ahmed@example.com
         password:
           type: string
           format: password
           minLength: 8
-          example: "SecureP@ss123"
+          example: SecureP@ss123
         password_confirmation:
           type: string
           format: password
           minLength: 8
-          example: "SecureP@ss123"
-
+          example: SecureP@ss123
     LoginRequest:
       type: object
       required:
-        - email
-        - password
+      - email
+      - password
       properties:
         email:
           type: string
           format: email
-          example: "ahmed@example.com"
+          example: ahmed@example.com
         password:
           type: string
           format: password
-          example: "SecureP@ss123"
-
+          example: SecureP@ss123
     AuthTokenResponse:
       type: object
       properties:
         access_token:
           type: string
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         token_type:
           type: string
-          example: "bearer"
+          example: bearer
         expires_in:
           type: integer
           description: مدة صلاحية الرمز بالثواني (افتراضيًا 3600 ثانية = ساعة)
           example: 3600
         user:
           $ref: '#/components/schemas/User'
-
-    # ── Categories ───────────────────────────────────────────
     Category:
       type: object
       properties:
@@ -922,35 +1122,32 @@ components:
           example: 1
         name:
           type: string
-          example: "Smartphones"
+          example: Smartphones
         description:
           type: string
           nullable: true
-          example: "Latest iOS and Android devices"
+          example: Latest iOS and Android devices
         created_at:
           type: string
           format: date-time
-          example: "2026-10-27T12:00:00.000000Z"
+          example: '2026-10-27T12:00:00.000000Z'
         updated_at:
           type: string
           format: date-time
-          example: "2026-10-27T12:00:00.000000Z"
-
+          example: '2026-10-27T12:00:00.000000Z'
     StoreCategoryRequest:
       type: object
       required:
-        - name
+      - name
       properties:
         name:
           type: string
           maxLength: 255
-          example: "Smartphones"
+          example: Smartphones
         description:
           type: string
           nullable: true
-          example: "Latest mobile phones and gadgets"
-
-    # ── Products ─────────────────────────────────────────────
+          example: Latest mobile phones and gadgets
     Product:
       type: object
       properties:
@@ -959,19 +1156,19 @@ components:
           example: 1001
         name:
           type: string
-          example: "iPhone 15 Pro"
+          example: iPhone 15 Pro
         description:
           type: string
           nullable: true
-          example: "Titanium design with A17 Pro chip"
+          example: Titanium design with A17 Pro chip
         price:
           type: string
-          example: "999.00"
+          example: '999.00'
         image_url:
           type: string
           nullable: true
           format: uri
-          example: "http://localhost:8000/storage/products/iphone15.jpg"
+          example: http://localhost:8000/storage/products/iphone15.jpg
         category:
           $ref: '#/components/schemas/Category'
         is_active:
@@ -980,41 +1177,40 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-10-27T12:00:00.000000Z"
+          example: '2026-10-27T12:00:00.000000Z'
         updated_at:
           type: string
           format: date-time
-          example: "2026-10-27T12:00:00.000000Z"
-
+          example: '2026-10-27T12:00:00.000000Z'
     ProductDetail:
       allOf:
-        - $ref: '#/components/schemas/Product'
-        - type: object
-          properties:
-            stock:
-              type: integer
-              description: المخزون الفعلي المتاح حاليًا والمجلب مباشرة من خدمة المخزون (gRPC)
-              example: 45
-
+      - $ref: '#/components/schemas/Product'
+      - type: object
+        properties:
+          stock:
+            type: integer
+            description: المخزون الفعلي المتاح حاليًا والمجلب مباشرة من خدمة المخزون
+              (gRPC)
+            example: 45
     StoreProductRequest:
       type: object
       required:
-        - name
-        - price
-        - category_id
+      - name
+      - price
+      - category_id
       properties:
         name:
           type: string
           maxLength: 255
-          example: "iPhone 15 Pro"
+          example: iPhone 15 Pro
         description:
           type: string
           nullable: true
-          example: "Flagship phone"
+          example: Flagship phone
         price:
           type: number
           minimum: 0.01
-          example: 999.00
+          example: 999
         category_id:
           type: integer
           example: 1
@@ -1026,22 +1222,21 @@ components:
           type: boolean
           default: true
           example: true
-
     UpdateProductRequest:
       type: object
       properties:
         name:
           type: string
           maxLength: 255
-          example: "iPhone 15 Pro Max"
+          example: iPhone 15 Pro Max
         description:
           type: string
           nullable: true
-          example: "Updated description"
+          example: Updated description
         price:
           type: number
           minimum: 0.01
-          example: 1099.00
+          example: 1099
         category_id:
           type: integer
           example: 1
@@ -1051,13 +1246,11 @@ components:
         is_active:
           type: boolean
           example: true
-
-    # ── Orders ───────────────────────────────────────────────
     OrderItemInput:
       type: object
       required:
-        - product_id
-        - quantity
+      - product_id
+      - quantity
       properties:
         product_id:
           type: integer
@@ -1068,18 +1261,16 @@ components:
           minimum: 1
           description: الكمية المطلوبة
           example: 2
-
     StoreOrderRequest:
       type: object
       required:
-        - items
+      - items
       properties:
         items:
           type: array
           minItems: 1
           items:
             $ref: '#/components/schemas/OrderItemInput'
-
     OrderItem:
       type: object
       properties:
@@ -1094,12 +1285,11 @@ components:
         unit_price:
           type: string
           description: سعر الوحدة المحسوب بدقة في الباك إند
-          example: "999.00"
+          example: '999.00'
         subtotal:
           type: string
           description: إجمالي البند (unit_price * quantity)
-          example: "1998.00"
-
+          example: '1998.00'
     Order:
       type: object
       properties:
@@ -1112,11 +1302,17 @@ components:
         total:
           type: string
           description: إجمالي قيمة الطلب بالكامل
-          example: "1998.00"
+          example: '1998.00'
         status:
           type: string
-          enum: [pending, confirmed, processing, shipped, delivered, cancelled]
-          example: "pending"
+          enum:
+          - pending
+          - confirmed
+          - processing
+          - shipped
+          - delivered
+          - cancelled
+          example: pending
         items:
           type: array
           items:
@@ -1124,31 +1320,33 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-10-27T12:00:00.000000Z"
+          example: '2026-10-27T12:00:00.000000Z'
         updated_at:
           type: string
           format: date-time
-          example: "2026-10-27T12:00:00.000000Z"
-
+          example: '2026-10-27T12:00:00.000000Z'
     OrderWithUser:
       allOf:
-        - $ref: '#/components/schemas/Order'
-        - type: object
-          properties:
-            user:
-              $ref: '#/components/schemas/User'
-
+      - $ref: '#/components/schemas/Order'
+      - type: object
+        properties:
+          user:
+            $ref: '#/components/schemas/User'
     UpdateOrderStatusRequest:
       type: object
       required:
-        - status
+      - status
       properties:
         status:
           type: string
-          enum: [pending, confirmed, processing, shipped, delivered, cancelled]
-          example: "processing"
-
-    # ── Notifications ────────────────────────────────────────
+          enum:
+          - pending
+          - confirmed
+          - processing
+          - shipped
+          - delivered
+          - cancelled
+          example: processing
     NotificationData:
       type: object
       properties:
@@ -1157,24 +1355,23 @@ components:
           example: 105
         status:
           type: string
-          example: "pending"
+          example: pending
         total:
           type: string
-          example: "1998.00"
+          example: '1998.00'
         message:
           type: string
-          example: "Your order #105 has been placed successfully."
-
+          example: 'Your order #105 has been placed successfully.'
     Notification:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          example: "c4b9d031-7bfa-4c8d-8a5e-859e4b600f12"
+          example: c4b9d031-7bfa-4c8d-8a5e-859e4b600f12
         type:
           type: string
-          example: "App\\Notifications\\OrderNotification"
+          example: App\Notifications\OrderNotification
         data:
           $ref: '#/components/schemas/NotificationData'
         read_at:
@@ -1185,20 +1382,18 @@ components:
         created_at:
           type: string
           format: date-time
-          example: "2026-10-27T12:00:00.000000Z"
-
-    # ── Common & Pagination ──────────────────────────────────
+          example: '2026-10-27T12:00:00.000000Z'
     PaginationLinks:
       type: object
       properties:
         first:
           type: string
           nullable: true
-          example: "http://localhost:8000/api/products?page=1"
+          example: http://localhost:8000/api/products?page=1
         last:
           type: string
           nullable: true
-          example: "http://localhost:8000/api/products?page=5"
+          example: http://localhost:8000/api/products?page=5
         prev:
           type: string
           nullable: true
@@ -1206,8 +1401,7 @@ components:
         next:
           type: string
           nullable: true
-          example: "http://localhost:8000/api/products?page=2"
-
+          example: http://localhost:8000/api/products?page=2
     PaginationMetaLink:
       type: object
       properties:
@@ -1218,7 +1412,6 @@ components:
           type: string
         active:
           type: boolean
-
     PaginationMeta:
       type: object
       properties:
@@ -1238,7 +1431,7 @@ components:
             $ref: '#/components/schemas/PaginationMetaLink'
         path:
           type: string
-          example: "http://localhost:8000/api/products"
+          example: http://localhost:8000/api/products
         per_page:
           type: integer
           example: 15
@@ -1249,7 +1442,6 @@ components:
         total:
           type: integer
           example: 72
-
     PaginatedCategories:
       type: object
       properties:
@@ -1261,7 +1453,6 @@ components:
           $ref: '#/components/schemas/PaginationLinks'
         meta:
           $ref: '#/components/schemas/PaginationMeta'
-
     PaginatedProducts:
       type: object
       properties:
@@ -1273,7 +1464,6 @@ components:
           $ref: '#/components/schemas/PaginationLinks'
         meta:
           $ref: '#/components/schemas/PaginationMeta'
-
     PaginatedOrders:
       type: object
       properties:
@@ -1285,7 +1475,6 @@ components:
           $ref: '#/components/schemas/PaginationLinks'
         meta:
           $ref: '#/components/schemas/PaginationMeta'
-
     PaginatedOrdersWithUser:
       type: object
       properties:
@@ -1297,7 +1486,6 @@ components:
           $ref: '#/components/schemas/PaginationLinks'
         meta:
           $ref: '#/components/schemas/PaginationMeta'
-
     PaginatedNotifications:
       type: object
       properties:
@@ -1309,30 +1497,27 @@ components:
           $ref: '#/components/schemas/PaginationLinks'
         meta:
           $ref: '#/components/schemas/PaginationMeta'
-
     MessageResponse:
       type: object
       properties:
         message:
           type: string
-          example: "Success message"
-
+          example: Success message
     ErrorResponse:
       type: object
       properties:
         message:
           type: string
-          example: "Error message"
+          example: Error message
         code:
           type: string
-          example: "ERROR_CODE"
-
+          example: ERROR_CODE
     ValidationError:
       type: object
       properties:
         message:
           type: string
-          example: "The email has already been taken."
+          example: The email has already been taken.
         errors:
           type: object
           additionalProperties:
@@ -1341,6 +1526,38 @@ components:
               type: string
           example:
             email:
-              - "The email has already been taken."
+            - The email has already been taken.
             password:
-              - "The password field confirmation does not match."
+            - The password field confirmation does not match.
+    DashboardSummary:
+      type: object
+      required:
+      - total_products
+      - orders_today
+      - total_orders
+      - total_users
+      - total_sales
+      properties:
+        total_products:
+          type: integer
+        orders_today:
+          type: integer
+        total_orders:
+          type: integer
+        total_users:
+          type: integer
+          nullable: true
+        total_sales:
+          type: string
+          pattern: ^\d+\.\d{2}$
+    PaginatedUsers:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'

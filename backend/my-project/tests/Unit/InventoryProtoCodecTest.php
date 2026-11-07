@@ -4,10 +4,24 @@ namespace Tests\Unit;
 
 use App\Services\InventoryProtoCodec;
 use App\Services\InventoryProtoMessage;
+use App\Services\InventoryStockResponse;
 use PHPUnit\Framework\TestCase;
 
 class InventoryProtoCodecTest extends TestCase
 {
+    public function test_stock_message_supports_the_grpc_library_deserializer(): void
+    {
+        $call = (new \ReflectionClass(\Grpc\UnaryCall::class))->newInstanceWithoutConstructor();
+        $property = new \ReflectionProperty(\Grpc\AbstractCall::class, 'deserialize');
+        $property->setValue($call, [InventoryStockResponse::class, 'decode']);
+        $method = new \ReflectionMethod(\Grpc\AbstractCall::class, '_deserializeResponse');
+        $response = $method->invoke($call, chr(8).chr(9).chr(32).chr(7).chr(40).chr(1));
+
+        $this->assertInstanceOf(InventoryStockResponse::class, $response);
+        $this->assertSame(7, $response->toArray()['available_quantity']);
+        $this->assertTrue($response->toArray()['found']);
+    }
+
     public function test_reserve_request_matches_the_proto_wire_format(): void
     {
         $message = new InventoryProtoMessage([

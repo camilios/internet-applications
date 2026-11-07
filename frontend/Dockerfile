@@ -12,6 +12,7 @@ COPY . .
 ARG VITE_API_URL=http://localhost:8000/api
 ENV VITE_API_URL=$VITE_API_URL
 
+ENV RAYON_NUM_THREADS=1 UV_THREADPOOL_SIZE=1 NODE_OPTIONS=--max-old-space-size=768
 RUN npm run build
 
 # ─── Production stage ───

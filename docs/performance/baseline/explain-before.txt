@@ -1,0 +1,206 @@
+SELECT * FROM products WHERE is_active = 1 ORDER BY created_at DESC LIMIT 15
+[
+    {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "products",
+        "partitions": null,
+        "type": "ALL",
+        "possible_keys": null,
+        "key": null,
+        "key_len": null,
+        "ref": null,
+        "rows": 15,
+        "filtered": 10,
+        "Extra": "Using where; Using filesort"
+    }
+]
+[
+    {
+        "EXPLAIN": "-> Limit: 15 row(s)  (cost=1.75 rows=15) (actual time=0.418..0.514 rows=15 loops=1)\n    -> Sort: products.created_at DESC, limit input to 15 row(s) per chunk  (cost=1.75 rows=15) (actual time=0.417..0.512 rows=15 loops=1)\n        -> Filter: (products.is_active = 1)  (cost=1.75 rows=15) (actual time=0.055..0.0862 rows=15 loops=1)\n            -> Table scan on products  (cost=1.75 rows=15) (actual time=0.0517..0.0804 rows=15 loops=1)\n"
+    }
+]
+SELECT * FROM products WHERE is_active = 1 AND category_id = 1 ORDER BY created_at DESC LIMIT 15
+[
+    {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "products",
+        "partitions": null,
+        "type": "ref",
+        "possible_keys": "products_category_id_foreign",
+        "key": "products_category_id_foreign",
+        "key_len": "8",
+        "ref": "const",
+        "rows": 3,
+        "filtered": 10,
+        "Extra": "Using where; Using filesort"
+    }
+]
+[
+    {
+        "EXPLAIN": "-> Limit: 15 row(s)  (cost=0.53 rows=3) (actual time=0.202..0.204 rows=3 loops=1)\n    -> Sort: products.created_at DESC, limit input to 15 row(s) per chunk  (cost=0.53 rows=3) (actual time=0.201..0.203 rows=3 loops=1)\n        -> Filter: (products.is_active = 1)  (cost=0.53 rows=3) (actual time=0.164..0.174 rows=3 loops=1)\n            -> Index lookup on products using products_category_id_foreign (category_id=1)  (cost=0.53 rows=3) (actual time=0.0498..0.0592 rows=3 loops=1)\n"
+    }
+]
+SELECT * FROM orders WHERE user_id = 3498 ORDER BY created_at DESC LIMIT 15
+[
+    {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "orders",
+        "partitions": null,
+        "type": "ref",
+        "possible_keys": "orders_user_id_foreign",
+        "key": "orders_user_id_foreign",
+        "key_len": "8",
+        "ref": "const",
+        "rows": 89,
+        "filtered": 100,
+        "Extra": "Using filesort"
+    }
+]
+[
+    {
+        "EXPLAIN": "-> Limit: 15 row(s)  (cost=47.5 rows=15) (actual time=2.2..2.21 rows=15 loops=1)\n    -> Sort: orders.created_at DESC, limit input to 15 row(s) per chunk  (cost=47.5 rows=89) (actual time=2.2..2.21 rows=15 loops=1)\n        -> Index lookup on orders using orders_user_id_foreign (user_id=3498)  (cost=47.5 rows=89) (actual time=0.634..2.03 rows=89 loops=1)\n"
+    }
+]
+SELECT * FROM orders WHERE status = 'shipped' ORDER BY created_at DESC LIMIT 15
+[
+    {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "orders",
+        "partitions": null,
+        "type": "ALL",
+        "possible_keys": null,
+        "key": null,
+        "key_len": null,
+        "ref": null,
+        "rows": 298201,
+        "filtered": 10,
+        "Extra": "Using where; Using filesort"
+    }
+]
+[
+    {
+        "EXPLAIN": "-> Limit: 15 row(s)  (cost=30652 rows=15) (actual time=303..303 rows=15 loops=1)\n    -> Sort: orders.created_at DESC, limit input to 15 row(s) per chunk  (cost=30652 rows=298201) (actual time=303..303 rows=15 loops=1)\n        -> Filter: (orders.`status` = 'shipped')  (cost=30652 rows=298201) (actual time=0.382..285 rows=45631 loops=1)\n            -> Table scan on orders  (cost=30652 rows=298201) (actual time=0.287..249 rows=300004 loops=1)\n"
+    }
+]
+SELECT * FROM orders ORDER BY created_at DESC LIMIT 15
+[
+    {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "orders",
+        "partitions": null,
+        "type": "ALL",
+        "possible_keys": null,
+        "key": null,
+        "key_len": null,
+        "ref": null,
+        "rows": 298201,
+        "filtered": 100,
+        "Extra": "Using filesort"
+    }
+]
+[
+    {
+        "EXPLAIN": "-> Limit: 15 row(s)  (cost=30309 rows=15) (actual time=333..333 rows=15 loops=1)\n    -> Sort: orders.created_at DESC, limit input to 15 row(s) per chunk  (cost=30309 rows=298201) (actual time=333..333 rows=15 loops=1)\n        -> Table scan on orders  (cost=30309 rows=298201) (actual time=0.0746..225 rows=300004 loops=1)\n"
+    }
+]
+SELECT COUNT(*) FROM orders WHERE status <> 'cancelled'
+[
+    {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "orders",
+        "partitions": null,
+        "type": "ALL",
+        "possible_keys": null,
+        "key": null,
+        "key_len": null,
+        "ref": null,
+        "rows": 298201,
+        "filtered": 90,
+        "Extra": "Using where"
+    }
+]
+[
+    {
+        "EXPLAIN": "-> Aggregate: count(0)  (cost=57147 rows=1) (actual time=159..159 rows=1 loops=1)\n    -> Filter: (orders.`status` <> 'cancelled')  (cost=30309 rows=268381) (actual time=0.0714..144 rows=285043 loops=1)\n        -> Table scan on orders  (cost=30309 rows=298201) (actual time=0.066..102 rows=300004 loops=1)\n"
+    }
+]
+INDEXES products
+[
+    {
+        "Table": "products",
+        "Non_unique": 0,
+        "Key_name": "PRIMARY",
+        "Seq_in_index": 1,
+        "Column_name": "id",
+        "Collation": "A",
+        "Cardinality": 15,
+        "Sub_part": null,
+        "Packed": null,
+        "Null": "",
+        "Index_type": "BTREE",
+        "Comment": "",
+        "Index_comment": "",
+        "Visible": "YES",
+        "Expression": null
+    },
+    {
+        "Table": "products",
+        "Non_unique": 1,
+        "Key_name": "products_category_id_foreign",
+        "Seq_in_index": 1,
+        "Column_name": "category_id",
+        "Collation": "A",
+        "Cardinality": 5,
+        "Sub_part": null,
+        "Packed": null,
+        "Null": "",
+        "Index_type": "BTREE",
+        "Comment": "",
+        "Index_comment": "",
+        "Visible": "YES",
+        "Expression": null
+    }
+]
+INDEXES orders
+[
+    {
+        "Table": "orders",
+        "Non_unique": 0,
+        "Key_name": "PRIMARY",
+        "Seq_in_index": 1,
+        "Column_name": "id",
+        "Collation": "A",
+        "Cardinality": 297201,
+        "Sub_part": null,
+        "Packed": null,
+        "Null": "",
+        "Index_type": "BTREE",
+        "Comment": "",
+        "Index_comment": "",
+        "Visible": "YES",
+        "Expression": null
+    },
+    {
+        "Table": "orders",
+        "Non_unique": 1,
+        "Key_name": "orders_user_id_foreign",
+        "Seq_in_index": 1,
+        "Column_name": "user_id",
+        "Collation": "A",
+        "Cardinality": 4539,
+        "Sub_part": null,
+        "Packed": null,
+        "Null": "",
+        "Index_type": "BTREE",
+        "Comment": "",
+        "Index_comment": "",
+        "Visible": "YES",
+        "Expression": null
+    }
+]

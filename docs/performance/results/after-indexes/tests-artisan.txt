@@ -1,0 +1,42 @@
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true
+
+   PASS  Tests\Unit\InventoryProtoCodecTest
+  ✓ stock message supports the grpc library deserializer                 0.11s  
+  ✓ reserve request matches the proto wire format                        0.03s  
+  ✓ stock response decodes inventory service fields
+  ✓ reservation response decodes repeated item results
+
+   WARN  Tests\Feature\ApiWorkflowTest
+  ✓ registration login and token protected identity                      0.85s  
+  ✓ protected identity rejects missing and invalid tokens                0.08s  
+  - grpc client does not fake a reservation when the extension is missi… 0.08s  
+  ✓ logout invalidates the bearer token                                  0.09s  
+  ✓ registration rejects duplicate and invalid data                      0.08s  
+  ✓ customers cannot manage products but admins can                      0.39s  
+  ✓ admin product management supports create update and deactivation     0.11s  
+  ✓ product images accept supported raster formats and reject svg        0.10s  
+  ✓ dashboard and user listing are connected and admin scoped            0.22s  
+  ✓ product detail uses confirmed inventory and reports inventory outag… 0.07s  
+  ✓ product detail never reports unavailable stock as current            0.08s  
+  ✓ order reserves once uses server price and is idempotent              0.13s  
+  ✓ unknown reservation outcome can be retried with the same idempotenc… 0.12s  
+  ✓ order rejects insufficient stock and another users order is hidden   0.10s  
+  ✓ notification endpoints are scoped to the authenticated user          0.14s  
+  ✓ admin status changes are authorized and cancellation releases stock  0.11s  
+  ✓ failed order save releases stock and persists retryable compensatio… 0.09s  
+  ✓ retry command recovers stale reservations and releases idempotently  0.09s  
+  ✓ order policy access control cases                                    0.08s  
+  ✓ rate limiting independent counters and no cross blocking             0.29s  
+  ✓ login failed attempts trigger 5 minute lockout across entire api     0.10s  
+  ✓ client ip resolution with trusted proxy                              0.07s  
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application returns a successful response                        0.10s  
+
+  Tests:    1 skipped, 27 passed (196 assertions)
+  Duration: 3.96s
+
+
+Exit code: 0

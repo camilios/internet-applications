@@ -13,10 +13,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->trustProxies(at: '*');
+        // Only explicitly configured reverse proxies may supply client IP headers.
+        $trustedProxies = array_values(array_filter(array_map('trim', explode(',', (string) env('TRUSTED_PROXIES', '')))));
+        $middleware->trustProxies(at: $trustedProxies);
+
+        // Run before route-model binding so product price and visibility use the verified connection.
+        $middleware->prependToGroup('api', \App\Http\Middleware\ReadReplicaConsistency::class);
 
         $middleware->alias([
             'admin' => EnsureAdmin::class,
+            'conditional.get' => \App\Http\Middleware\ConditionalGet::class,
             'check.ip.lockout' => \App\Http\Middleware\CheckIpLockout::class,
         ]);
     })

@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "scope": "jsdom DOM and script verification; no visual browser check",
+  "language": "ar",
+  "direction": "rtl",
+  "matchingSourceFiles": 59,
+  "checks": [
+    "local links",
+    "unique anchors",
+    "exact embedded source",
+    "search and empty state",
+    "expand and collapse",
+    "copy fallback",
+    "print state restore",
+    "no external resources",
+    "no script errors"
+  ]
+}

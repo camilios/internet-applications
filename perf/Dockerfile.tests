@@ -1,0 +1,5 @@
+# Reuse the existing PHP/gRPC runtime; only install development dependencies.
+FROM internet-applications-backend:latest
+RUN composer install --no-interaction --no-scripts --prefer-dist \
+    && composer dump-autoload --no-scripts
+RUN php artisan package:discover --no-ansi

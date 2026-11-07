@@ -1,0 +1,37 @@
+ M backend/my-project/.env.example
+ M backend/my-project/Dockerfile
+ M backend/my-project/app/Http/Controllers/DashboardController.php
+ M backend/my-project/app/Http/Controllers/ProductController.php
+ M backend/my-project/app/Services/InventoryGrpcClient.php
+ M backend/my-project/app/Services/InventoryGrpcStub.php
+ M backend/my-project/app/Services/NotificationService.php
+ M backend/my-project/app/Services/OrderService.php
+ M backend/my-project/app/Services/ProductService.php
+ M backend/my-project/bootstrap/app.php
+ M backend/my-project/composer.json
+ M backend/my-project/composer.lock
+ M backend/my-project/routes/api.php
+ M backend/my-project/tests/Feature/ApiWorkflowTest.php
+ M backend/my-project/tests/Integration/InventoryOrderIntegrationTest.php
+ M backend/my-project/tests/Unit/InventoryProtoCodecTest.php
+ M docker-compose.yml
+ M frontend/src/features/orders/api/orders.api.ts
+ M frontend/src/features/orders/hooks/use-orders.ts
+ M frontend/src/features/products/components/product-details.tsx
+ M frontend/src/features/products/hooks/use-products.ts
+ M frontend/src/routeTree.gen.ts
+?? AGENT_INSTRUCTIONS_REQUIREMENT_3.md
+?? REPORT.md
+?? backend/my-project/app/Http/Middleware/ConditionalGet.php
+?? backend/my-project/app/Services/DashboardCache.php
+?? backend/my-project/app/Services/InventoryProtoResponse.php
+?? backend/my-project/app/Services/InventoryReleaseResponse.php
+?? backend/my-project/app/Services/InventoryReservationResponse.php
+?? backend/my-project/app/Services/InventoryStockResponse.php
+?? backend/my-project/app/Services/ProductCache.php
+?? backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php
+?? backend/my-project/database/seeders/BulkOrderSeeder.php
+?? backend/my-project/tests/Feature/PerformanceCachingTest.php
+?? backend/my-project/tests/Integration/NotificationAfterCommitTest.php
+?? docs/
+?? perf/

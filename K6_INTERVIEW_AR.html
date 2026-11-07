@@ -1,0 +1,382 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>دليل المقابلة — تشغيل k6 وشرح قبل وبعد</title><meta name="description" content="خطة عرض عملية بالعربية لتشغيل k6 وشرح قياسات المشروع والكود قبل وبعد التحسينات"><style>*{box-sizing:border-box}:root{--ink:#152c35;--muted:#526771;--accent:#096b6a;--line:#d8e3e6}html{scroll-behavior:smooth;scroll-padding-top:20px}body{margin:0;background:#f2f5f5;color:var(--ink);font:16px/1.95 Tahoma,"Segoe UI",Arial,sans-serif}a{color:var(--accent)}.wrap{max-width:1160px;margin:auto;padding:28px}.hero{background:#122f3a;color:#f2f8f7;padding:40px;border-radius:18px}.hero h1{font-size:clamp(29px,4vw,44px);margin:12px 0;line-height:1.4}.hero p{max-width:870px;color:#cedfe1}.label{color:#a8d8ce;font-size:12px;letter-spacing:.1em}.badge{display:inline-block;padding:4px 12px;border:1px solid #4b747b;border-radius:20px;font-size:12px;color:#e2efea}.tools{display:flex;gap:10px;margin:18px 0}.tools button{background:white;border:1px solid var(--line);padding:10px 16px;color:var(--accent);border-radius:8px;font:inherit;font-size:12px;cursor:pointer}.nav{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0}.nav a{font-size:12px;text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:20px;padding:5px 13px}section{background:#fff;padding:28px 32px;border:1px solid var(--line);border-radius:13px;margin:22px 0}h2{font-size:23px;margin:0 0 16px}h3{font-size:18px}p{margin:13px 0}.muted{font-size:13px;color:var(--muted)}.notice{background:#fff7e8;border-right:4px solid #c48e2d;padding:15px 18px;margin:18px 0;font-size:14px}.say{background:#eaf4ee;border-right:4px solid #4b9274;padding:15px 18px;margin:20px 0;font-size:14px}.say strong{color:#24654d}.say p{margin:7px 0}.code{direction:ltr;text-align:left;unicode-bidi:isolate;border:1px solid #29414d;border-radius:9px;overflow:hidden;margin:18px 0}.bar{background:#264350;color:#d8e9e7;padding:7px 13px;direction:rtl;display:flex;justify-content:space-between;gap:12px;font-size:11px}.copy{background:transparent;border:1px solid #6d939a;color:#fff;border-radius:5px;padding:3px 12px;cursor:pointer;font:inherit}.code pre{margin:0;padding:19px;background:#132b37;color:#e2eeeb;font:13px/1.8 Consolas,"Courier New",monospace;white-space:pre;overflow:auto;max-height:570px;tab-size:4}code.inline{direction:ltr;unicode-bidi:isolate;background:#eef3f4;border-radius:4px;font-size:14px}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:8px;margin:18px 0}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:12px 13px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}thead{background:#edf4f4}tbody th{font-weight:normal}caption{text-align:right;padding:12px;font-size:12px;color:var(--muted)}.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.flow div{padding:16px;background:#eff5f5;border:1px solid var(--line);border-radius:8px;font-size:13px}.flow strong{display:block;color:var(--accent)}details{padding:12px 0;border-bottom:1px solid var(--line)}summary{cursor:pointer;color:var(--accent);font-size:14px}.checklist li{margin:10px 0}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #c48e2d;outline-offset:3px}footer{color:var(--muted);font-size:12px;padding:15px 5px}.quick{background:#e6efef;border:1px solid #cbdcde;padding:24px;border-radius:12px;margin-top:22px}.quick h2{font-size:20px}.quick .code{margin-bottom:0}@media(max-width:650px){.wrap{padding:12px}.hero{padding:28px 22px}section{padding:23px 18px}h2{font-size:20px}.flow{grid-template-columns:1fr}.code pre{font-size:11px}.tools button{flex:1;padding:8px}.quick{padding:18px}}@media print{body{background:white;font-size:11px}.wrap{max-width:none;padding:0}.hero{background:white;color:black;padding:15px;border:1px solid #bbb}.hero p,.label,.badge{color:black}.tools,.nav,.copy{display:none}section{padding:16px;border:1px solid #ccc;break-inside:auto}.code pre{background:#f1f3f3;color:black;max-height:none;white-space:pre-wrap;overflow-wrap:anywhere;font-size:8px}.bar{background:#eee;color:black}.tablewrap{overflow:visible}h2,summary{break-after:avoid}.hero h1{font-size:28px}a{color:inherit}.quick{padding:14px}details:not([open]){display:none}}</style></head><body><main class="wrap"><header class="hero"><div class="label" dir="ltr">INTERVIEW PLAYBOOK · K6</div><h1>شغّل الاختبار.<br>اشرح الفرق بالدليل.</h1><p>دليل المقابلة لمشروع internet-applications: ماذا تنفّذ في الطرفية، ماذا تقرأ من النتائج، وماذا تقول للدكتور عن التغييرات وحدود القياس.</p><span class="badge">عرض API حي + أدلة قبل/بعد محفوظة</span> <span class="badge">Ubuntu / WSL · Docker · k6</span></header><div class="tools"><button id="print" type="button">طباعة / PDF</button><button id="open" type="button">فتح الشروح والكود</button><button id="close" type="button">طي التفاصيل</button></div><div class="quick"><h2>الأمر الرئيسي — بعد تجهيز الخدمات</h2><div class="code"><div class="bar"><span>أوامر Ubuntu / WSL</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>cd /mnt/e/projects/internet-applications
+bash perf/interview_run.sh dashboard</code></pre></div><p class="muted">اقرأ قسم «قبل وبعد» أولًا حتى تميّز القياس الحي من الأرشيف.</p></div><nav class="nav" aria-label="فهرس المقابلة"><a href="#honesty">قبل وبعد</a><a href="#terminal">تجهيز الطرفية</a><a href="#run">الأمر الحي</a><a href="#metrics">قراءة k6</a><a href="#numbers">الأرقام</a><a href="#changes">شرح الكود</a><a href="#sql">EXPLAIN</a><a href="#others">سيناريوهات إضافية</a><a href="#questions">أسئلة الدكتور</a><a href="#fixes">حل الأخطاء</a><a href="#source">مصدر السكربت</a><a href="#checklist">ورقة التذكير</a></nav><section id="honesty"><h2>01 · ما المقصود بـ«قبل وبعد» في هذا العرض؟</h2>
+<p>المشروع الحالي يحتوي الفهارس وRedis والكاش وبقية التحسينات. تشغيل k6 عليه الآن يقيس <strong>الحالة الحالية بعد التحسين</strong>. قياسات «قبل» الأصلية محفوظة من تشغيلات سابقة قبل التحسينات، وليست أرقامًا مفترضة.</p>
+<div class="notice"><strong>لا تقل إنك شغّلت النسخة القديمة الآن.</strong> أمر المقابلة سيعرض ثلاثة عناوين واضحة: <bdi>ARCHIVED BEFORE</bdi> و<bdi>ARCHIVED AFTER</bdi> و<bdi>LIVE CURRENT (AFTER)</bdi>. الأولان أدلة سابقة، والثالث نتيجة حية وقت العرض.</div>
+<div class="say"><strong>قل للدكتور:</strong><p>«قست قبل التعديلات وبعدها على البيانات نفسها وبنفس إعداد k6. هذه ملفات التشغيل الأصلية. سأشغّل الآن النسخة المحسّنة أمامك، وأقارن النتيجة الجديدة بالأدلة المحفوظة، مع توضيح أن ظروف اللابتوب قد تختلف.»</p></div>
+<p class="muted">إذا طلب الدكتور تشغيل النسخة القديمة والجديدة كلتيهما مباشرة، تحتاج بيئتين معزولتين ونسخة قاعدة متطابقة قبل الفهارس. ذلك لم يُجهّز في هذا العرض. تعطيل Redis أو مسح الكاش لا يعيد جميع التحسينات، وعمل git checkout وحده لا يزيل الفهارس. لا تغيّر قاعدة المشروع أو تتراجع عن migrations أثناء المقابلة.</p></section><section id="terminal"><h2>02 · افتح Linux Terminal وجهّز الخدمات</h2>
+<ol><li>افتح مجلد <bdi>E:\projects\internet-applications</bdi> في VS Code.</li><li>اختر <bdi>Terminal → New Terminal</bdi> ثم <bdi>Ubuntu (WSL)</bdi> من قائمة الطرفية.</li><li>إذا كانت الطرفية PowerShell، اكتب <code class="inline">wsl -d Ubuntu</code> أولًا. بعد ظهور موجه Linux استخدم الأوامر التالية.</li></ol>
+<div class="code"><div class="bar"><span>أوامر Ubuntu / WSL</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>cd /mnt/e/projects/internet-applications
+docker compose up -d --no-build --wait backend inventory-service scheduler redis
+docker compose ps
+curl -fsS http://localhost:8000/up
+docker run --rm grafana/k6:latest version</code></pre></div>
+<p>المتوقع: خدمات backend وMySQL والمخزون وRedis سليمة؛ scheduler يعمل. فحص <bdi>/up</bdi> ينجح، ويظهر إصدار k6 المثبت داخل صورة Docker. قد يظهر HTML طويل من فحص الصحة؛ هذا طبيعي. لا تحتاج تثبيت k6 على Windows أو تشغيل الواجهة الأمامية لهذا الاختبار.</p>
+<p class="muted">الأوامر تستخدم الصورة المحلية الموجودة؛ لا تحدّث grafana/k6:latest قبل المقابلة. اسم latest وحده لا يضمن الإصدار نفسه على جهاز آخر. أبقِ جلسة Ubuntu مفتوحة حتى لا تتوقف بيئة WSL.</p>
+<div class="say"><strong>قل للدكتور:</strong><p>«أداة k6 تعمل داخل حاوية Docker، وترسل HTTP إلى Laravel عبر شبكة المشروع. Laravel يتعامل مع MySQL وRedis، ويستخدم gRPC للمخزون عند طلب تفاصيل المنتج. إذن أختبر API مباشرة، وليس سرعة رسم صفحات React.»</p></div></section><section id="run"><h2>03 · نفّذ العرض الحي بأمر واحد</h2>
+<div class="code"><div class="bar"><span>أوامر Ubuntu / WSL</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>bash perf/interview_run.sh dashboard</code></pre></div>
+<p>هذا الأمر يستعمل <bdi>perf/interview_run.sh</bdi> الذي أُضيف لهذا العرض. يشغّل السيناريو نفسه <strong>ثلاث مرات متتالية</strong>؛ مدة الحمل لكل مرة 30 ثانية تقريبًا، ثم توجد كلفة بدء الحاوية والمقارنة. يعرض تقدم k6 ثم جدول المقارنة تلقائيًا.</p>
+<div class="flow"><div><strong>5 ثوانٍ</strong>صعود تدريجي إلى 5 مستخدمين افتراضيين</div><div><strong>20 ثانية</strong>ثبات عند 5 VUs</div><div><strong>5 ثوانٍ</strong>هبوط تدريجي إلى صفر</div></div>
+<p>كل مستخدم ينتظر ثانية بين الطلبات. السكربت يسجّل الدخول بحساب bulk تجريبي، ثم يقيس <bdi>GET /api/dashboard</bdi>. لا ينشئ طلبات شراء ولا يعيد البذر. يسجل أعداد الجداول قبل الحمل وينبّه إذا اختلفت عن خط الأساس.</p>
+<p class="muted">النتائج الجديدة تحفظ تحت <bdi>docs/performance/interview/&lt;وقت-ومعرّف-التشغيل&gt;/dashboard/</bdi>. لا تُستبدل ملفات baseline أو النتائج التاريخية. تُحفظ JSON وlog وcomparison.txt وإصدار k6 وأعداد الصفوف.</p>
+<div class="say"><strong>قل للدكتور:</strong><p>«أكرر كل اختبار ثلاث مرات وأستخدم وسيط نتائج التشغيلات لتقليل تأثير التذبذب. هذا وسيط p95 لكل تشغيل، وليس p95 محسوبًا من دمج جميع عينات التشغيلات. وأفحص الأخطاء قبل أن أقول إن النتيجة أسرع.»</p></div>
+<details><summary>ما الذي ينفذه Docker فعليًا؟ مثال لمرة واحدة فقط</summary><p>الأمر التالي يشغّل مرة واحدة ويحفظها منفصلة. العرض الموصى به يستخدم الأمر الأعلى لأنه يشغّل ثلاث مرات ويحسب المقارنة.</p><div class="code"><div class="bar"><span>أوامر Ubuntu / WSL</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>demo=&quot;docs/performance/interview/manual-$(date +%Y%m%d-%H%M%S)-$$&quot;
+mkdir -p &quot;$demo&quot;
+docker run --rm --network internet-applications_ecommerce-network --user 0 \
+  -v &quot;$PWD/perf/k6:/scripts:ro&quot; \
+  -v &quot;$PWD/$demo:/evidence&quot; \
+  -e RUN_ID=210 \
+  grafana/k6:latest run --no-thresholds \
+  --summary-export /evidence/k6-dashboard-1.json \
+  /scripts/dashboard.js</code></pre></div></details></section><section id="metrics"><h2>04 · اقرأ شاشة k6 بطريقة صحيحة</h2>
+<div class="tablewrap"><table><thead><tr><th>المصطلح</th><th>التفسير الذي تقوله</th><th>ما تنتبه له</th></tr></thead><tbody>
+<tr><th><bdi>endpoint_duration</bdi></th><td>مدة طلب نقطة النهاية فقط؛ نقيسها من response.timings.duration.</td><td>هذا هو أساس جداولنا. تسجيل الدخول في setup لا يدخل هذا المقياس المخصص.</td></tr>
+<tr><th><bdi>p50 / p95 / p99</bdi></th><td>50٪ / 95٪ / 99٪ من مدد العينات لا تتجاوز القيمة تقريبًا. الوحدة ms.</td><td>p95 يوضح الطرف البطيء للتوزيع، وليس المتوسط. الأقل أسرع عند ثبات الحمل والأخطاء.</td></tr>
+<tr><th><bdi>endpoint_errors</bdi></th><td>نسبة الاستجابات التي ليست 200 أو 304 في سيناريوهات القراءة هذه.</td><td>قيمة 0٪ تعني عدم رصد هذا النوع من الأخطاء في التشغيل. السكربت يرفض المقارنة إذا وجد أخطاء في أي تشغيل.</td></tr>
+<tr><th><bdi>http_reqs / req/s</bdi></th><td>عدد طلبات HTTP ومعدلها في الثانية.</td><td>يتضمن تسجيل الدخول. وجود sleep وثبات عدد VUs يجعل RPS محدودًا؛ لا أقدمه كسعة النظام القصوى.</td></tr>
+<tr><th><bdi>data_received</bdi></th><td>إجمالي البيانات المستقبلة أثناء التشغيل.</td><td>يُفيد في شرح ETag، لكن مقدارَه يتأثر بعدد الطلبات والردود؛ ليس حجم JSON واحد.</td></tr>
+<tr><th><bdi>checks</bdi></th><td>تحققنا من حالة HTTP المتوقعة.</td><td>نجاحه لا يثبت كل صحة العمل التجاري. لدينا اختبارات مستقلة لصحة الطلبات والمخزون.</td></tr>
+<tr><th><bdi>thresholds</bdi></th><td>أهداف يمكن أن تجعل الاختبار يفشل عند تجاوزها.</td><td>تشغيل المقارنة هنا يستخدم --no-thresholds مثل القياسات السابقة؛ نجاح خروج k6 ليس دليلًا على اجتياز أهداف الأداء.</td></tr>
+</tbody></table></div>
+<p class="muted">http_req_duration يشمل إرسال الطلب وانتظار الاستجابة واستقبالها، ولا يشمل DNS وبدء الاتصال. iteration_duration يتضمن sleep؛ لذلك لا تخلطه مع مدة طلب API. حدود الأداء المعرّفة في المصدر موجودة، لكنها غير مطبقة كبوابة نجاح في تشغيلنا هذا.</p></section><section id="numbers"><h2>05 · أظهر الفرق بالأرقام الأصلية</h2>
+<div class="code"><div class="bar"><span>أوامر Ubuntu / WSL</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>python3 perf/interview_compare.py --scenario dashboard</code></pre></div>
+<p>هذا الأمر لا يشغّل حملًا جديدًا: يقرأ ملفات JSON الثلاثة الأصلية لكل جانب ويطبع قيم كل تشغيل والوسيط. الأمر الحي في الخطوة 03 ينفذ المقارنة نفسها ويضيف نتيجة التشغيل الجديد.</p>
+<div class="tablewrap"><table><caption>لوحة التحكم — وسيط 3 تشغيلات لكل مرحلة، الأزمان بالمللي ثانية</caption><thead><tr><th>المرحلة</th><th>p50</th><th>p95</th><th>p99</th><th>req/s</th><th>أخطاء</th></tr></thead><tbody><tr><th>قبل التحسينات</th><td>43.596</td><td>152.890</td><td>187.190</td><td>3.878</td><td>0.000%</td></tr><tr><th>بعد الفهارس</th><td>49.037</td><td>111.483</td><td>143.243</td><td>3.903</td><td>0.000%</td></tr><tr><th>بعد تعديل الداشبورد</th><td>44.070</td><td>79.435</td><td>107.052</td><td>3.944</td><td>0.000%</td></tr><tr><th>بعد Redis</th><td>17.430</td><td>27.884</td><td>32.988</td><td>4.086</td><td>0.000%</td></tr><tr><th>بعد تنظيم الكود</th><td>17.439</td><td>28.011</td><td>50.854</td><td>4.083</td><td>0.000%</td></tr></tbody></table></div>
+<p>الفرق التاريخي في p95 من <bdi>152.890</bdi> إلى <bdi>28.011 ms</bdi>. نسبة انخفاض p95 المحسوبة من القياسات ≈ <strong>81.68٪</strong> وفق <bdi>(قبل − بعد) ÷ قبل × 100</bdi>. هذه نسبة لهذا المقياس في هذه التجربة، وليست وعدًا بتسريع كل جزء بالنسبة نفسها.</p>
+<div class="say"><strong>قل للدكتور:</strong><p>«التحسن جاء عبر خطوات: فهارس، ثم تجميع استعلام الداشبورد وكاش لمدة 60 ثانية، ثم Redis، ثم تنظيم الكود. لا أنسب الفرق الكامل إلى Redis وحده. نرى كذلك أن p50 بعد الفهارس وحدها لم يتحسن؛ النتائج ليست كلها إيجابية.»</p></div>
+<p class="muted">أعداد البيانات التاريخية: 5,004 مستخدمين، 15 منتجًا، 300,004 طلبات و749,372 عنصر طلب. المستخدم bulk-customer-1 يرى نطاق طلباته، لا جميع 300 ألف طلب. يظهر الحمل الكبير بوضوح أيضًا في خطط قوائم المدير؛ لا تصف اختبار الداشبورد هذا بأنه اختبار مدير إن كنت تستخدم السكربت الحالي.</p><div class="notice"><strong>تجربة فعلية للأمر أثناء تجهيز هذا الدليل:</strong> اكتملت ثلاث تشغيلات، وكان وسيط p95 الجديد <bdi>32.226 ms</bdi>، وأقصى نسبة أخطاء بين التشغيلات <bdi>0.000٪</bdi>. هذا رقم جديد منفصل عن AFTER التاريخي <bdi>28.011 ms</bdi>. <a href="docs/performance/interview/20261107-092535-61565/dashboard/comparison.txt">مخرجات التجربة ومصادرها</a>. لا تحفظ الرقم الجديد بوصفه وعدًا لنتيجة المقابلة.</div></section><section id="changes"><h2>06 · اربط كل نتيجة بالكود الذي تغيّر</h2>
+<div class="tablewrap"><table><thead><tr><th>التغيير</th><th>قبل</th><th>بعد</th><th>الشرح أمام الدكتور</th></tr></thead><tbody>
+<tr><th>فهارس MySQL</th><td>بعض قوائم الطلبات تفحص عددًا كبيرًا من الصفوف وتفرزها.</td><td>فهارس user/date وstatus/date وcreated_at، وفهارس للمنتجات.</td><td>تساعد التصفية والترتيب؛ اختيار الفهرس يعود للمحسن. جدول المنتجات صغير وقد يختار مسحًا.</td></tr>
+<tr><th>استعلام الداشبورد</th><td>استعلامات count/sum منفصلة للطلبات في كل طلب HTTP.</td><td>تجميع COUNT وSUM وCASE، مع شرط العميل.</td><td>قلّلنا تكرار العمل مع حفظ نفس مفاتيح JSON ونوع المبيعات العشري.</td></tr>
+<tr><th>كاش الداشبورد</th><td>حساب الأرقام عند كل قراءة.</td><td>Cache::remember لمدة 60 ثانية؛ مفتاح لكل عميل ومفتاح للمدير.</td><td>القراءة الدافئة تعيد نتيجة سابقة؛ الكتابة تبطلها فورًا للعميل المعني والمدير.</td></tr>
+<tr><th>Redis</th><td>مخزن الكاش السابق database.</td><td>خدمة Redis مشتركة للخادم والمجدول وعميل phpredis.</td><td>قلّلنا الاعتماد على قاعدة البيانات لقراءة الكاش؛ Redis يستهلك ذاكرة وله حدود وسياسة إخلاء.</td></tr>
+<tr><th>بيانات المنتج</th><td>تحميل التصنيف عند كل قراءة.</td><td>لقطة 300 ثانية نعيد منها علاقة التصنيف فقط؛ stock مستبعد.</td><td>السعر والظهور من قاعدة التطبيق والمخزون حي عبر gRPC؛ لا نعرض مخزونًا قديمًا لتجميل الأداء.</td></tr>
+<tr><th>ETag</th><td>إرسال JSON كاملًا كل مرة.</td><td>هاش للاستجابة النهائية و304 عند عدم التغيير.</td><td>يقلل النقل أساسًا؛ لا يلغي استدعاء المخزون. قياسنا لم يثبت تقليل زمن details في هذه الخطوة.</td></tr>
+<tr><th>ثبات الصفحات</th><td>ترتيب created_at وحده يلتبس عند تساويه.</td><td>created_at ثم id تنازليًا.</td><td>تغيير صحة وترتيب، مع الحفاظ على إجماليات pagination.</td></tr>
+<tr><th>الإشعار والواجهة</th><td>الإشعار داخل معاملة الإنشاء، ومفاتيح جديدة عند إعادة المحاولة، ونقص تحديث الاستعلامات.</td><td>الإشعار بعد commit مع logging؛ مفتاح ثابت لنفس المحاولة وإبطال استعلامات الواجهة.</td><td>هذه صحة عمل وتقليل زمن داخل المعاملة، وليست السبب المباشر لتحسن GET dashboard في k6.</td></tr>
+</tbody></table></div>
+<div class="code"><div class="bar"><span>أظهر الكود الحالي في الطرفية</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>sed -n &#x27;15,80p&#x27; backend/my-project/app/Http/Controllers/DashboardController.php
+cat backend/my-project/app/Services/DashboardCache.php</code></pre></div>
+<details><summary>كود DashboardController قبل التحسين — من Git الأصلي</summary><div class="code"><div class="bar"><span>PHP · النسخة الأصلية</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>&lt;?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+
+class DashboardController extends Controller
+{
+    public function __invoke(): JsonResponse
+    {
+        $user = Auth::guard(&#x27;api&#x27;)-&gt;user();
+        $orders = Order::query();
+
+        if ($user-&gt;role !== &#x27;admin&#x27;) {
+            $orders-&gt;where(&#x27;user_id&#x27;, $user-&gt;id);
+        }
+
+        return response()-&gt;json([
+            &#x27;data&#x27; =&gt; [
+                &#x27;total_products&#x27; =&gt; Product::query()-&gt;where(&#x27;is_active&#x27;, true)-&gt;count(),
+                &#x27;orders_today&#x27; =&gt; (clone $orders)-&gt;whereDate(&#x27;created_at&#x27;, today())-&gt;count(),
+                &#x27;total_orders&#x27; =&gt; (clone $orders)-&gt;count(),
+                &#x27;total_users&#x27; =&gt; $user-&gt;role === &#x27;admin&#x27; ? User::query()-&gt;count() : null,
+                &#x27;total_sales&#x27; =&gt; number_format(
+                    (float) (clone $orders)-&gt;where(&#x27;status&#x27;, &#x27;!=&#x27;, &#x27;cancelled&#x27;)-&gt;sum(&#x27;total&#x27;),
+                    2,
+                    &#x27;.&#x27;,
+                    &#x27;&#x27;
+                ),
+            ],
+        ]);
+    }
+}</code></pre></div></details>
+<details><summary>كود DashboardController بعد التحسين — النسخة الحالية</summary><div class="code"><div class="bar"><span>PHP · النسخة الحالية</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>&lt;?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use App\Models\User;
+use App\Services\DashboardCache;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+
+class DashboardController extends Controller
+{
+    /**
+     * Dashboard numbers may be up to this many seconds old.
+     * Services that change orders should call DashboardCache::forgetCache() so the
+     * affected user sees fresh numbers immediately.
+     */
+    private const CACHE_TTL_SECONDS = 60;
+
+    public function __invoke(): JsonResponse
+    {
+        $user = Auth::guard(&#x27;api&#x27;)-&gt;user();
+        $isAdmin = $user-&gt;role === &#x27;admin&#x27;;
+
+        $data = Cache::remember(
+            DashboardCache::cacheKey($user-&gt;id, $isAdmin),
+            self::CACHE_TTL_SECONDS,
+            fn () =&gt; $this-&gt;buildStats($user-&gt;id, $isAdmin)
+        );
+
+        return response()-&gt;json([&#x27;data&#x27; =&gt; $data]);
+    }
+
+    private function buildStats(int $userId, bool $isAdmin): array
+    {
+        // One pass over the orders table instead of three separate queries.
+        // created_at is compared as a range, not with whereDate(), so an index can still be used.
+        $orders = DB::table(&#x27;orders&#x27;);
+        if (! $isAdmin) {
+            $orders-&gt;where(&#x27;user_id&#x27;, $userId);
+        }
+
+        $orderStats = $orders-&gt;selectRaw(
+            &#x27;COUNT(*) AS total_orders,
+             COALESCE(SUM(CASE WHEN created_at &gt;= ? THEN 1 ELSE 0 END), 0) AS orders_today,
+             COALESCE(SUM(CASE WHEN status &lt;&gt; ? THEN total ELSE 0 END), 0) AS total_sales&#x27;,
+            [now()-&gt;startOfDay(), &#x27;cancelled&#x27;]
+        )-&gt;first();
+
+        return [
+            &#x27;total_products&#x27; =&gt; Product::query()-&gt;where(&#x27;is_active&#x27;, true)-&gt;count(),
+            &#x27;orders_today&#x27; =&gt; (int) $orderStats-&gt;orders_today,
+            &#x27;total_orders&#x27; =&gt; (int) $orderStats-&gt;total_orders,
+            &#x27;total_users&#x27; =&gt; $isAdmin ? User::query()-&gt;count() : null,
+            // bcmath keeps money as a decimal string, consistent with OrderService.
+            &#x27;total_sales&#x27; =&gt; bcadd((string) $orderStats-&gt;total_sales, &#x27;0&#x27;, 2),
+        ];
+    }
+}</code></pre></div></details>
+<div class="say"><strong>قل للدكتور:</strong><p>«عند عدم وجود كاش نحسب القيم ونحفظها. عند وجوده نقرأها حتى 60 ثانية. بعد إنشاء طلب أو تغيير حالته نمسح كاش المستخدم والمدير. إذن لم أضحِّ بعرض الطلب الجديد من أجل سرعة القراءة.»</p></div>
+<p><a href="CHANGES_EXPLAINED_AR.html">الشرح التفصيلي السابق لكل الملفات مع الكود الكامل</a> متاح إذا طلب الدكتور تفاصيل أوسع.</p></section><section id="sql"><h2>07 · اختياري: أظهر أثر الفهرس في EXPLAIN</h2>
+<p>بعد عرض k6، يمكنك تشغيل هذا الاستعلام القرائي على <strong>الحالة الحالية</strong>. لا يغير قاعدة البيانات، ولا يعرض كلمات المرور.</p><div class="code"><div class="bar"><span>أوامر Ubuntu / WSL</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>docker exec -i ecommerce-backend php &lt;&lt;&#x27;PHP&#x27;
+&lt;?php
+require &#x27;/var/www/html/vendor/autoload.php&#x27;;
+$app = require &#x27;/var/www/html/bootstrap/app.php&#x27;;
+$app-&gt;make(Illuminate\Contracts\Console\Kernel::class)-&gt;bootstrap();
+$sql = &#x27;EXPLAIN ANALYZE SELECT * FROM orders ORDER BY created_at DESC LIMIT 15&#x27;;
+foreach (Illuminate\Support\Facades\DB::select($sql) as $row) {
+    echo $row-&gt;EXPLAIN, PHP_EOL;
+}
+PHP</code></pre></div>
+<p>ابحث عن اسم فهرس <bdi>orders_created_idx</bdi> وعدد الصفوف الفعلي في خطة هذا الاستعلام. الأوقات الجديدة قد تختلف عن المحفوظة؛ لا تستبدل قياس «قبل» بوقت جديد من قاعدة مفهرسة.</p>
+<div class="code"><div class="bar"><span>عرض ملخص EXPLAIN الأصلي قبل/بعد</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>cat docs/performance/results/explain-summary.json</code></pre></div>
+<div class="say"><strong>قل للدكتور:</strong><p>«في القياس المحفوظ لقائمة الطلبات غير المصفاة، انخفضت الصفوف الخارجة من مسح المصدر من 300,004 إلى 15 مع الفهرس وLIMIT. هذا ليس عدد الصفوف المقدّر؛ فرّقت في التقرير بين estimates وactual rows. العدّ الشامل لم يتحسن في قياسنا، ولذلك لا أقول إن كل استعلام صار أسرع.»</p></div></section><section id="others"><h2>08 · اختياري: اعرض سيناريو آخر</h2>
+<p>اختر سيناريو إضافيًا فقط إذا توفر وقت؛ كل أمر يشغّل ثلاث مرات ويحفظ مجلدًا جديدًا. لا تشغلها بالتوازي أثناء العرض.</p>
+<div class="code"><div class="bar"><span>أوامر Ubuntu / WSL</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code># Product details: live stock plus metadata cache and ETag
+bash perf/interview_run.sh product-detail
+
+# Product list: pagination and conditional GET
+bash perf/interview_run.sh products-list
+
+# Customer order history: indexes and stable ordering
+bash perf/interview_run.sh customer-orders</code></pre></div>
+<p>في تفاصيل المنتج، قارن <bdi>data_received</bdi> و<bdi>conditional_hits</bdi> أيضًا. استجابة 304 تعني أن الجسم لم يُرسل مجددًا، وليس أن PHP أو gRPC لم يُنفذا. جميع الطلبات في هذه السيناريوهات قرائية بعد تسجيل الدخول.</p>
+<p class="muted">للمنتجات تُختار صفحات وتصنيفات ومعرّفات ببذرة ثابتة. بعض صفحات المنتجات قد تكون فارغة في هذا الكتالوج الصغير؛ هذا من حدود الحمل المستخدم، فلا تصفه بأنه تغطية شاملة لكتالوج كبير. latest measured after stage ليس بالضرورة نفسه لجميع السيناريوهات.</p></section><section id="questions"><h2>09 · أسئلة متوقعة وإجابات قصيرة</h2>
+<details open><summary>لماذا ثلاث مرات؟ ولماذا p95 بدل المتوسط فقط؟</summary><p>لأن تشغيلًا واحدًا يتأثر بتذبذب الجهاز. نعرض الوسيط عبر ثلاث تشغيلات، وp95 يوضح الطلبات الأبطأ التي يخفيها المتوسط. لا تكفي ثلاث تجارب قصيرة لإثبات دلالة إحصائية أو سعة إنتاجية.</p></details>
+<details><summary>هل كنت تختبر كاش دافئًا أم باردًا؟</summary><p>هذا الحمل يكرر القراءة ولا يمسح Redis بين التشغيلات. قد يحتوي أول تشغيل على misses، ثم يصبح الكاش دافئًا. النتائج تصف هذا المزيج وغلبة القراءات الدافئة، وليست قياسًا معزولًا لـcold start. لا نستخدم cache:clear لتمثيل جميع التحسينات السابقة.</p></details>
+<details><summary>هل 5 VUs تعني 5 طلبات في الثانية أو 5 أنوية؟</summary><p>لا. VU مستخدم افتراضي ينفذ حلقة طلب وانتظار. معدل الطلبات ينتج عن عدد VUs والزمن وsleep. هذا سكربت يستخدم طلبات HTTP متزامنة لكل VU، وليس نموذج معدل وصول ثابتًا.</p></details>
+<details><summary>لماذا لا نرفع الحمل كثيرًا أمام الدكتور؟</summary><p>للحفاظ على المقارنة مع الحمل المقاس على هذا اللابتوب. تغيير VUs أو المدة يجعلها تجربة أخرى، ويمكن أن يختبر حدود المعدل أو خادم التطوير بدل أثر التحسين نفسه. العناوين المحاكية توزع VUs كما في الأصل دون تغيير middleware.</p></details>
+<details><summary>كيف نعرف أن السرعة لم تأتِ من بيانات ناقصة أو أخطاء؟</summary><p>المشغل يحفظ counts ويطبع نسبة endpoint_errors ويرفض المقارنة عند رصد أخطاء. نراجع كذلك الملفات والاختبارات. نفس الأعداد وحدها لا تثبت تطابق محتوى القاعدتين؛ للحالة التاريخية احتفظنا بالبيانات نفسها أثناء جميع مراحل القياس.</p></details>
+<details><summary>هل الكاش يجعل النتائج خاطئة؟</summary><p>قديمة مؤقتًا ضمن TTL، لذلك فصلنا مفاتيح العملاء وأبطلناها عند الكتابة. لا نخزن stock. TTL الداشبورد 60 ثانية، والتصنيف 300 ثانية. هذه مقايضة موثقة، وليست اتساقًا لحظيًا لكل عميل في كل حقل.</p></details>
+<details><summary>لماذا ليس هناك read replica أو nginx؟</summary><p>راجعنا القياسات ثم اخترنا تأجيل replica وتقليل خدمات اللابتوب، والإبقاء على خادم التطوير وإجماليات الصفحات. هذه قرارات النطاق الحالي، ولا تعني أن artisan serve مناسب للإنتاج.</p></details>
+<details><summary>ماذا لو كانت النتيجة الحية أبطأ؟</summary><p>أعرض النتيجة كما هي. أفحص الأخطاء والحمل الآخر وحالة الخدمات ودفء الكاش واختلاف البيانات. لا أكرر حتى أحصل على الرقم الذي يعجبني ولا أسمّي ملفًا من النسخة المحسنة «قبل».</p></details>
+<details><summary>هل k6 يثبت أن واجهة المستخدم صحيحة؟</summary><p>لا. هذا السكربت يختبر HTTP وحالة الاستجابة، وليس رسم React أو مسار المتصفح الكامل. لدينا اختبارات PHP وMySQL ومكوّنات وAPI مستقلة؛ اختبار Brave الكامل لم ينفذ بسبب منع التحكم عن بُعد.</p></details></section><section id="fixes"><h2>10 · إذا تعطل العرض</h2>
+<div class="tablewrap"><table><thead><tr><th>المشكلة</th><th>ما تفعله</th></tr></thead><tbody><tr><th>docker: command not found</th><td>تأكد أنك داخل Ubuntu/WSL. لا تبدل إلى Docker Desktop؛ المشروع مضبوط على Docker الأصلي في Linux.</td></tr><tr><th>permission denied / docker.sock</th><td>تأكد من عضوية المستخدم في مجموعة docker وأعد فتح جلسة Ubuntu بعد تطبيق الإعداد الأصلي. لا تستخدم chmod 666 للمقبس.</td></tr><tr><th>401 أو Setup login failed</th><td>تحقق من وجود حساب bulk التجريبي الذي يستخدمه common.js. لا تعِد seed تلقائيًا ولا تعمل migrate:fresh.</td></tr><tr><th>429</th><td>هذا حد الطلبات، لا استجابة ناجحة. انتظر تجدد النافذة وأوقف الاختبارات المتوازية؛ لا تعطل middleware لتبدو النتائج أسرع.</td></tr><tr><th>503 في تفاصيل المنتج</th><td>افحص inventory-service وقاعدة مخزونه. عرض خطأ هنا صحيح عند تعذر خدمة المخزون، وليس مبررًا لتخزين stock.</td></tr><tr><th>Network أو image غير موجود</th><td>نفّذ تجهيز الخطوة 02. تحتاج الصورة المحلية نفسها وشبكة compose؛ لا تسحب إصدارًا جديدًا عشوائيًا قبل المقارنة.</td></tr><tr><th>Connection refused بعد غلق Linux</th><td>أعد فتح Ubuntu وتشغيل الخدمات، وأبقِ الجلسة مفتوحة؛ WSL قد يتوقف بعد آخر جلسة.</td></tr></tbody></table></div>
+<div class="code"><div class="bar"><span>أوامر Ubuntu / WSL</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>docker compose ps
+docker compose logs --tail=60 backend inventory-service redis</code></pre></div>
+<p>إذا فشل العرض الحي، أظهر الملفات الأصلية واشرح الخطأ بصراحة. لا تدّعِ أن المخرجات القديمة ناتجة من تشغيل نجح الآن.</p></section><section id="source"><h2>11 · ملف k6 الذي تستطيع شرحه سطرًا بسطر</h2>
+<p><bdi>dashboard.js</bdi> يختار السيناريو، و<bdi>common.js</bdi> يضبط الحمل وتسجيل الدخول والقياسات. القيم p95&lt;500 وerror&lt;1% أهداف موجودة في الكود لكنها غير مفعلة في التشغيل المقارن بسبب --no-thresholds.</p>
+<div class="code"><div class="bar"><span>JavaScript · perf/k6/dashboard.js</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>import { options, setup, request } from &#x27;./common.js&#x27;;
+export { options, setup };
+export default function (auth) { request(&#x27;dashboard&#x27;, auth); }</code></pre></div>
+<details><summary>عرض perf/k6/common.js كاملًا</summary><div class="code"><div class="bar"><span>JavaScript · السكربت المشترك</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>import http from &#x27;k6/http&#x27;;
+import { check, sleep } from &#x27;k6&#x27;;
+import { randomSeed } from &#x27;k6&#x27;;
+import { Trend, Rate, Counter } from &#x27;k6/metrics&#x27;;
+
+export const options = {
+  scenarios: {
+    fixed: {
+      executor: &#x27;ramping-vus&#x27;, startVUs: 0,
+      stages: [{ duration: &#x27;5s&#x27;, target: 5 }, { duration: &#x27;20s&#x27;, target: 5 }, { duration: &#x27;5s&#x27;, target: 0 }],
+      gracefulRampDown: &#x27;1s&#x27;, gracefulStop: &#x27;2s&#x27;,
+    },
+  },
+  summaryTrendStats: [&#x27;p(50)&#x27;, &#x27;p(95)&#x27;, &#x27;p(99)&#x27;],
+  // The runner passes --no-thresholds: these targets are informational, never deployment gates.
+  thresholds: { endpoint_duration: [&#x27;p(95)&lt;500&#x27;], endpoint_errors: [&#x27;rate&lt;0.01&#x27;] },
+};
+
+const duration = new Trend(&#x27;endpoint_duration&#x27;, true);
+const errors = new Rate(&#x27;endpoint_errors&#x27;);
+const conditionalHits = new Counter(&#x27;conditional_hits&#x27;);
+const etags = {};
+const base = __ENV.BASE_URL || &#x27;http://ecommerce-backend:8000/api&#x27;;
+let initialized = false;
+
+function headers(token) {
+  const result = {
+    Accept: &#x27;application/json&#x27;,
+    // Simulate separate clients without disabling or changing the application&#x27;s rate limits.
+    // RUN_ID is deterministic and each VU stays below 60 requests/minute.
+    &#x27;X-Forwarded-For&#x27;: `198.18.${__ENV.RUN_ID || 0}.${__VU || 250}`,
+  };
+  if (token) result.Authorization = `Bearer ${token}`;
+  return result;
+}
+
+export function setup() {
+  const result = http.post(`${base}/login`, JSON.stringify({
+    email: &#x27;bulk-customer-1@example.test&#x27;, password: &#x27;password123&#x27;,
+  }), { headers: { ...headers(), &#x27;Content-Type&#x27;: &#x27;application/json&#x27; } });
+  if (result.status !== 200) throw new Error(`Setup login failed: HTTP ${result.status}`);
+  return { token: result.json(&#x27;access_token&#x27;) };
+}
+
+export function request(scenario, auth) {
+  if (!initialized) { randomSeed(12345 + __VU); initialized = true; }
+  let path;
+  if (scenario === &#x27;products-list&#x27;) {
+    const page = 1 + Math.floor(Math.random() * 20);
+    const category = 1 + Math.floor(Math.random() * 5);
+    path = `/products?page=${page}&amp;category_id=${category}`;
+  } else if (scenario === &#x27;product-detail&#x27;) {
+    path = `/products/${1 + Math.floor(Math.random() * 15)}`;
+  } else if (scenario === &#x27;customer-orders&#x27;) {
+    path = &#x27;/orders&#x27;;
+  } else {
+    path = &#x27;/dashboard&#x27;;
+  }
+  const requestHeaders = headers(auth?.token);
+  if (etags[path]) requestHeaders[&#x27;If-None-Match&#x27;] = etags[path];
+  const response = http.get(base + path, { headers: requestHeaders, tags: { endpoint: scenario } });
+  if (response.headers.Etag) etags[path] = response.headers.Etag;
+  conditionalHits.add(response.status === 304 ? 1 : 0);
+  duration.add(response.timings.duration);
+  errors.add(response.status !== 200 &amp;&amp; response.status !== 304);
+  check(response, { &#x27;HTTP 200 or valid revalidation&#x27;: r =&gt; r.status === 200 || r.status === 304 });
+  sleep(1);
+}</code></pre></div></details>
+<details><summary>عرض مشغّل المقابلة perf/interview_run.sh</summary><div class="code"><div class="bar"><span>Bash · ثلاث تشغيلات دون تغيير التطبيق</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>#!/usr/bin/env bash
+# Read-only HTTP load against the current optimized app; never resets the database.
+set -Eeuo pipefail
+cd -- &quot;$(dirname -- &quot;${BASH_SOURCE[0]}&quot;)/..&quot;
+scenario=&quot;${1:-dashboard}&quot;
+case &quot;$scenario&quot; in
+  dashboard|products-list|product-detail|customer-orders) ;;
+  *) printf &#x27;Use: bash perf/interview_run.sh [dashboard|products-list|product-detail|customer-orders]\n&#x27; &gt;&amp;2; exit 1 ;;
+esac
+command -v python3 &gt;/dev/null
+docker image inspect grafana/k6:latest &gt;/dev/null
+docker network inspect internet-applications_ecommerce-network &gt;/dev/null
+stamp=&quot;$(date +%Y%m%d-%H%M%S)-$$&quot;
+folder=&quot;docs/performance/interview/$stamp/$scenario&quot;
+mkdir -p -- &quot;$folder&quot;
+docker run --rm grafana/k6:latest version | tee &quot;$folder/k6-version.txt&quot;
+docker exec -i ecommerce-backend php &gt; &quot;$folder/dataset-counts.json&quot; &lt;&lt;&#x27;PHP&#x27;
+&lt;?php
+require &#x27;/var/www/html/vendor/autoload.php&#x27;;
+$app = require &#x27;/var/www/html/bootstrap/app.php&#x27;;
+$app-&gt;make(Illuminate\Contracts\Console\Kernel::class)-&gt;bootstrap();
+$counts = [];
+foreach ([&#x27;users&#x27;, &#x27;products&#x27;, &#x27;orders&#x27;, &#x27;order_items&#x27;] as $table) {
+    $counts[$table] = Illuminate\Support\Facades\DB::table($table)-&gt;count();
+}
+echo json_encode($counts, JSON_PRETTY_PRINT), PHP_EOL;
+PHP
+run_base=$(( $(date +%s) % 200 ))
+for run in 1 2 3; do
+  printf &#x27;\n=== LIVE CURRENT (AFTER): %s | run %s/3 ===\n&#x27; &quot;$scenario&quot; &quot;$run&quot;
+  docker run --rm --network internet-applications_ecommerce-network --user 0 \
+    --volume &quot;$PWD/perf/k6:/scripts:ro&quot; \
+    --volume &quot;$PWD/$folder:/evidence&quot; \
+    --env &quot;RUN_ID=$(( run_base + run ))&quot; \
+    grafana/k6:latest run --no-thresholds \
+    --summary-export &quot;/evidence/k6-$scenario-$run.json&quot; \
+    &quot;/scripts/$scenario.js&quot; 2&gt;&amp;1 | tee &quot;$folder/k6-$scenario-$run.log&quot;
+done
+python3 perf/interview_compare.py --scenario &quot;$scenario&quot; --live-dir &quot;$folder&quot; | tee &quot;$folder/comparison.txt&quot;
+printf &#x27;\nSaved fresh evidence to: %s\n&#x27; &quot;$folder&quot;</code></pre></div></details>
+<details><summary>عرض أداة حساب المقارنة perf/interview_compare.py</summary><div class="code"><div class="bar"><span>Python · قراءة JSON وحساب الوسيط</span><button type="button" class="copy">نسخ</button></div><pre dir="ltr"><code>&quot;&quot;&quot;Compare archived three-run k6 evidence with an optional fresh interview run.&quot;&quot;&quot;
+import argparse
+import json
+from pathlib import Path
+from statistics import median
+
+ROOT = Path(__file__).resolve().parents[1]
+SCENARIOS = (&#x27;dashboard&#x27;, &#x27;products-list&#x27;, &#x27;product-detail&#x27;, &#x27;customer-orders&#x27;)
+LAST = {&#x27;dashboard&#x27;: &#x27;after-refactor&#x27;, &#x27;products-list&#x27;: &#x27;after-refactor&#x27;,
+        &#x27;product-detail&#x27;: &#x27;after-etag&#x27;, &#x27;customer-orders&#x27;: &#x27;after-pagination&#x27;}
+
+def measurements(folder, scenario):
+    paths = [folder / f&#x27;k6-{scenario}-{run}.json&#x27; for run in range(1, 4)]
+    records = []
+    for path in paths:
+        metrics = json.loads(path.read_text(encoding=&#x27;utf-8-sig&#x27;))[&#x27;metrics&#x27;]
+        duration = metrics[&#x27;endpoint_duration&#x27;]
+        records.append({key: float(duration[key]) for key in (&#x27;p(50)&#x27;, &#x27;p(95)&#x27;, &#x27;p(99)&#x27;)} | {
+            &#x27;rps&#x27;: float(metrics[&#x27;http_reqs&#x27;][&#x27;rate&#x27;]),
+            &#x27;error_percent&#x27;: 100 * float(metrics[&#x27;endpoint_errors&#x27;][&#x27;value&#x27;]),
+            &#x27;received_bytes&#x27;: float(metrics[&#x27;data_received&#x27;][&#x27;count&#x27;]),
+        })
+    return records
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(&#x27;--scenario&#x27;, choices=SCENARIOS, default=&#x27;dashboard&#x27;)
+    parser.add_argument(&#x27;--live-dir&#x27;, type=Path)
+    args = parser.parse_args()
+    evidence = ROOT / &#x27;docs/performance&#x27;
+    stages = [(&#x27;ARCHIVED BEFORE&#x27;, evidence / &#x27;baseline&#x27;),
+              (&#x27;ARCHIVED AFTER&#x27;, evidence / &#x27;results&#x27; / LAST[args.scenario])]
+    if args.live_dir:
+        stages.append((&#x27;LIVE CURRENT (AFTER)&#x27;, args.live_dir.resolve()))
+    print(f&#x27;\nScenario: {args.scenario} | milliseconds | median of THREE run-level percentiles&#x27;)
+    print(&#x27;Historical after stage:&#x27;, LAST[args.scenario])
+    print(&#x27;Archived BEFORE is saved evidence, NOT a fresh run of the old application.\n&#x27;)
+    aggregate = {}
+    invalid = False
+    for label, folder in stages:
+        values = measurements(folder, args.scenario)
+        print(label, &#x27;\n  source:&#x27;, folder)
+        print(&#x27;  run    p50_ms    p95_ms    p99_ms    req/s   error%&#x27;)
+        for index, row in enumerate(values, 1):
+            print(f&quot;  {index:&gt;3} {row[&#x27;p(50)&#x27;]:&gt;9.3f} {row[&#x27;p(95)&#x27;]:&gt;9.3f} {row[&#x27;p(99)&#x27;]:&gt;9.3f} {row[&#x27;rps&#x27;]:&gt;8.3f} {row[&#x27;error_percent&#x27;]:&gt;8.3f}&quot;)
+        summary = {key: median(row[key] for row in values) for key in values[0]}
+        aggregate[label] = summary
+        print(f&quot;  MED {summary[&#x27;p(50)&#x27;]:&gt;9.3f} {summary[&#x27;p(95)&#x27;]:&gt;9.3f} {summary[&#x27;p(99)&#x27;]:&gt;9.3f} {summary[&#x27;rps&#x27;]:&gt;8.3f} {summary[&#x27;error_percent&#x27;]:&gt;8.3f}&quot;)
+        print(f&quot;  median received bytes: {summary[&#x27;received_bytes&#x27;]:.0f}\n&quot;)
+        invalid |= any(row[&#x27;error_percent&#x27;] &gt; 0 for row in values)
+    if invalid:
+        print(&#x27;INVALID COMPARISON: endpoint errors occurred. Diagnose errors before claiming improvement.&#x27;)
+        return 2
+    previous = aggregate[&#x27;ARCHIVED BEFORE&#x27;][&#x27;p(95)&#x27;]
+    archived = aggregate[&#x27;ARCHIVED AFTER&#x27;][&#x27;p(95)&#x27;]
+    if previous:
+        print(f&#x27;Historical p95 reduction: {(previous - archived) / previous * 100:.2f}% (derived from saved runs).&#x27;)
+    if args.live_dir:
+        print(&#x27;Live current timings are new observations; they need not equal historical AFTER.&#x27;)
+        dataset_path = args.live_dir / &#x27;dataset-counts.json&#x27;
+        if dataset_path.exists():
+            dataset = json.loads(dataset_path.read_text())
+            expected = {&#x27;users&#x27;: 5004, &#x27;products&#x27;: 15, &#x27;orders&#x27;: 300004, &#x27;order_items&#x27;: 749372}
+            print(&#x27;Current dataset:&#x27;, dataset)
+            if dataset != expected:
+                print(&#x27;DATASET DIFFERENT from recorded baseline. Do not claim a controlled before/after comparison.&#x27;)
+    print(&#x27;This paced laptop workload is not a maximum-capacity test. No deployment threshold gate was used.&#x27;)
+    return 0
+
+if __name__ == &#x27;__main__&#x27;:
+    raise SystemExit(main())</code></pre></div></details></section><section id="checklist"><h2>12 · ورقة تذكير قبل بدء المقابلة</h2>
+<ul class="checklist"><li>أفتح Ubuntu داخل VS Code وأتأكد أن الخدمات سليمة.</li><li>أقول إن BEFORE أرشيف أصلي وإن التشغيل الحي يقيس AFTER الحالي.</li><li>أشرح الحمل: 5 VUs تدريجيًا، 30 ثانية، sleep ثانية، وثلاث تشغيلات.</li><li>أنفذ bash perf/interview_run.sh dashboard وأراقب الأخطاء.</li><li>أقرأ endpoint_duration p95 وp99 ونسبة الأخطاء، ثم الوسيط والمصادر.</li><li>أشرح الكود: تجميع استعلام، Cache::remember، TTL وإبطال الكاش، وRedis مشترك.</li><li>أوضح أن لا stock في الكاش وأن ETag يوفر نقل البيانات.</li><li>أذكر حدود التجربة، ولا أعرض RPS بوصفه السعة القصوى.</li></ul>
+<div class="say"><strong>خاتمة مناسبة:</strong><p>«حافظت على صحة الطلبات وشكل API، ثم قست التغييرات تدريجيًا. التحسن موثق لهذا الحمل، وأي أرقام جديدة أعرضها كما هي. وإذا تغير الحمل أو الجهاز أو البيانات أتعامل معها كتجربة أخرى.»</p></div>
+<p class="muted">مصادر المشروع: <a href="REPORT.md">REPORT.md</a> · <a href="docs/performance/results/summary.json">ملخص النتائج</a> · <a href="docs/performance/baseline/k6-dashboard-1.json">مثال JSON قبل</a> · <a href="docs/performance/results/after-refactor/k6-dashboard-1.json">مثال JSON بعد</a>.</p>
+<p class="muted">مراجع تعريف المقاييس: <a href="https://grafana.com/docs/k6/latest/using-k6/metrics/reference/">مقاييس k6 الرسمية</a> · <a href="https://grafana.com/docs/k6/latest/using-k6/thresholds/">أهداف النجاح والفشل في k6</a>. كل أرقام المشروع مأخوذة من أدلته، وليست من أمثلة هذه المراجع.</p></section><footer>هذا المستند يعمل دون إنترنت؛ الأكواد مضمنة. الروابط المحلية تحتاج بقاءه في جذر المشروع. أرقام التاريخ من نتائج 7 نوفمبر 2026، وأي تشغيل جديد يحفظ أدلته منفصلة. لإنشاء الملف مجددًا: python perf/generate_interview_guide.py.</footer></main><script>document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',async()=>{const text=b.closest('.code').querySelector('code').textContent;try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text)}else{const t=document.createElement('textarea');t.value=text;t.style.position='fixed';t.style.opacity='0';document.body.append(t);t.select();const ok=document.execCommand('copy');t.remove();if(!ok)throw Error('copy')}b.textContent='تم النسخ'}catch{b.textContent='انسخ يدويًا'}setTimeout(()=>b.textContent='نسخ',2000)}));document.getElementById('print').onclick=()=>window.print();document.getElementById('open').onclick=()=>document.querySelectorAll('details').forEach(d=>d.open=true);document.getElementById('close').onclick=()=>document.querySelectorAll('details').forEach(d=>d.open=false);let state=[];window.addEventListener('beforeprint',()=>{state=[...document.querySelectorAll('details')].map(d=>[d,d.open]);state.forEach(([d])=>d.open=true)});window.addEventListener('afterprint',()=>state.forEach(([d,o])=>d.open=o));</script></body></html>

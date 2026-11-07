@@ -1,0 +1,190 @@
+{
+  "products-list": {
+    "baseline": {
+      "p(50)": 32.477309,
+      "p(95)": 101.05792189999997,
+      "p(99)": 513.2272886099969,
+      "rps": 3.9551885852856983,
+      "error_percent": 0,
+      "received_bytes": 130589,
+      "conditional_hits": 0
+    },
+    "after-indexes": {
+      "p(50)": 43.611528,
+      "p(95)": 110.22460524999998,
+      "p(99)": 136.58772339,
+      "rps": 3.943431899757842,
+      "error_percent": 0,
+      "received_bytes": 126100,
+      "conditional_hits": 0
+    },
+    "after-redis": {
+      "p(50)": 16.964439,
+      "p(95)": 25.572648199999996,
+      "p(99)": 29.6153012,
+      "rps": 4.089207307065385,
+      "error_percent": 0,
+      "received_bytes": 128907,
+      "conditional_hits": 0
+    },
+    "after-pagination": {
+      "p(50)": 17.222221,
+      "p(95)": 25.532996599999997,
+      "p(99)": 31.757069,
+      "rps": 4.085844865336803,
+      "error_percent": 0,
+      "received_bytes": 131127,
+      "conditional_hits": 0
+    },
+    "after-etag": {
+      "p(50)": 18.544193,
+      "p(95)": 26.932247399999998,
+      "p(99)": 31.687044560000004,
+      "rps": 4.0830860099608675,
+      "error_percent": 0,
+      "received_bytes": 132443,
+      "conditional_hits": 12
+    },
+    "after-refactor": {
+      "p(50)": 18.407089,
+      "p(95)": 28.017800599999994,
+      "p(99)": 32.641596320000005,
+      "rps": 4.08425938036717,
+      "error_percent": 0,
+      "received_bytes": 132439,
+      "conditional_hits": 12
+    }
+  },
+  "product-detail": {
+    "baseline": {
+      "p(50)": 44.681736,
+      "p(95)": 173.6071331,
+      "p(99)": 307.16249896999994,
+      "rps": 3.913804859576222,
+      "error_percent": 0,
+      "received_bytes": 174007,
+      "conditional_hits": 0
+    },
+    "after-indexes": {
+      "p(50)": 51.367467000000005,
+      "p(95)": 101.18747755,
+      "p(99)": 148.62101130000002,
+      "rps": 3.921286657594723,
+      "error_percent": 0,
+      "received_bytes": 175500,
+      "conditional_hits": 0
+    },
+    "after-redis": {
+      "p(50)": 20.699366,
+      "p(95)": 32.64949039999999,
+      "p(99)": 42.72237160000002,
+      "rps": 4.068299273186176,
+      "error_percent": 0,
+      "received_bytes": 182734,
+      "conditional_hits": 0
+    },
+    "after-product-cache": {
+      "p(50)": 20.477682,
+      "p(95)": 30.677154199999997,
+      "p(99)": 33.45236716000001,
+      "rps": 4.074767749532718,
+      "error_percent": 0,
+      "received_bytes": 182569,
+      "conditional_hits": 0
+    },
+    "after-etag": {
+      "p(50)": 20.650732,
+      "p(95)": 31.549622999999997,
+      "p(99)": 34.975992720000015,
+      "rps": 4.075785062280438,
+      "error_percent": 0,
+      "received_bytes": 112267,
+      "conditional_hits": 64
+    }
+  },
+  "customer-orders": {
+    "baseline": {
+      "p(50)": 53.096439000000004,
+      "p(95)": 105.15698135,
+      "p(99)": 142.56240545000003,
+      "rps": 3.8893502825843416,
+      "error_percent": 0,
+      "received_bytes": 3612060,
+      "conditional_hits": 0
+    },
+    "after-indexes": {
+      "p(50)": 65.235593,
+      "p(95)": 129.30878439999998,
+      "p(99)": 152.58749253999994,
+      "rps": 3.8845513249338763,
+      "error_percent": 0,
+      "received_bytes": 3581966,
+      "conditional_hits": 0
+    },
+    "after-redis": {
+      "p(50)": 37.553035,
+      "p(95)": 51.312640599999995,
+      "p(99)": 58.02515806,
+      "rps": 4.07930157726332,
+      "error_percent": 0,
+      "received_bytes": 3702342,
+      "conditional_hits": 0
+    },
+    "after-pagination": {
+      "p(50)": 35.915044,
+      "p(95)": 48.538330599999995,
+      "p(99)": 54.74192346,
+      "rps": 4.081593994669598,
+      "error_percent": 0,
+      "received_bytes": 3702342,
+      "conditional_hits": 0
+    }
+  },
+  "dashboard": {
+    "baseline": {
+      "p(50)": 43.59642,
+      "p(95)": 152.88963815,
+      "p(99)": 187.1903760100001,
+      "rps": 3.8782448510037115,
+      "error_percent": 0,
+      "received_bytes": 47460,
+      "conditional_hits": 0
+    },
+    "after-indexes": {
+      "p(50)": 49.036736,
+      "p(95)": 111.483493,
+      "p(99)": 143.2428083100001,
+      "rps": 3.902604953366849,
+      "error_percent": 0,
+      "received_bytes": 47460,
+      "conditional_hits": 0
+    },
+    "after-dashboard": {
+      "p(50)": 44.070037,
+      "p(95)": 79.43512824999998,
+      "p(99)": 107.05227926,
+      "rps": 3.9442366836152436,
+      "error_percent": 0,
+      "received_bytes": 47460,
+      "conditional_hits": 0
+    },
+    "after-redis": {
+      "p(50)": 17.430358,
+      "p(95)": 27.8836264,
+      "p(99)": 32.98805184000002,
+      "rps": 4.086074693159949,
+      "error_percent": 0,
+      "received_bytes": 49405,
+      "conditional_hits": 0
+    },
+    "after-refactor": {
+      "p(50)": 17.43923,
+      "p(95)": 28.0108124,
+      "p(99)": 50.85381116000002,
+      "rps": 4.08302457267119,
+      "error_percent": 0,
+      "received_bytes": 49405,
+      "conditional_hits": 0
+    }
+  }
+}
