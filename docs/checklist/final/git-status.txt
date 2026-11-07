@@ -1,0 +1,37 @@
+﻿ M API_DOCUMENTATION.md
+ M README.md
+ M REPORT.md
+ M backend/my-project/.dockerignore
+ M backend/my-project/app/Http/Controllers/CategoryController.php
+ M backend/my-project/app/Http/Controllers/NotificationController.php
+ M backend/my-project/app/Http/Controllers/ProductController.php
+ M backend/my-project/app/Services/OrderService.php
+ M backend/my-project/app/Services/ProductCache.php
+ M backend/my-project/app/Services/ReadReplicaRouter.php
+ M backend/my-project/bootstrap/app.php
+ M backend/my-project/docker-entrypoint.sh
+ M backend/my-project/routes/api.php
+ M backend/my-project/tests/Feature/PerformanceCachingTest.php
+ M backend/my-project/tests/Integration/InventoryOrderIntegrationTest.php
+ M backend/my-project/tests/Unit/ReadReplicaRouterTest.php
+ M backend/my-project/tests/mysql-integration-bootstrap.php
+ M docker-compose.yml
+ M "for frontend.json"
+ M "for frontend.yaml"
+ M perf/Dockerfile.final-runtime
+?? CHECKLIST_REPORT.md
+?? backend/my-project/app/Http/Middleware/SecurityHeaders.php
+?? backend/my-project/tests/Feature/ChecklistAcceptanceTest.php
+?? backend/my-project/tests/Feature/ChecklistSecurityTest.php
+?? backend/my-project/tests/Feature/NotificationEventsTest.php
+?? backend/my-project/tests/Integration/InventoryFailureIntegrationTest.php
+?? check.md
+?? docs/checklist/
+?? docs/performance/professor-fixes/replica/cleanup-counts.txt
+?? perf/checklist-cache.php
+?? perf/checklist-database.php
+?? perf/checklist-report.cjs
+?? perf/checklist-smoke.php
+?? perf/checklist-summary.cjs
+?? perf/mysql_replication.py
+?? perf/verify_replica.py

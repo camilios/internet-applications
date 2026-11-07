@@ -72,6 +72,10 @@ $verifyDatabase = static function (
 };
 
 $laravelPassword = $readPassword('DB_PASSWORD', 'DB_PASSWORD_FILE');
+// Direct PHPUnit invocation must pass the verified file secret to Laravel too.
+putenv('DB_PASSWORD='.$laravelPassword);
+$_ENV['DB_PASSWORD'] = $laravelPassword;
+$_SERVER['DB_PASSWORD'] = $laravelPassword;
 $inventoryPassword = $readPassword(
     'INVENTORY_TEST_DB_PASSWORD',
     'INVENTORY_TEST_DB_PASSWORD_FILE'

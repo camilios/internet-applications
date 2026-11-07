@@ -6,15 +6,27 @@ if [ -f "$DB_PASSWORD_FILE" ]; then
     export DB_PASSWORD=$(cat "$DB_PASSWORD_FILE")
 fi
 
+# Discard configuration generated before runtime secrets were mounted.
+php artisan config:clear
+
 # Wait for database to be ready
 echo "Waiting for database..."
 max_tries=30
 count=0
-while ! mysqladmin ping -h"$DB_HOST" --silent 2>/dev/null; do
+while ! php -r '
+    try {
+        new PDO(
+            "mysql:host=".getenv("DB_HOST").";port=".(getenv("DB_PORT") ?: "3306").";dbname=".getenv("DB_DATABASE"),
+            getenv("DB_USERNAME"), getenv("DB_PASSWORD"), [PDO::ATTR_TIMEOUT => 2]
+        );
+    } catch (Throwable $exception) {
+        exit(1);
+    }
+'; do
     count=$((count + 1))
     if [ $count -ge $max_tries ]; then
-        echo "Database not ready after $max_tries attempts, starting anyway..."
-        break
+        echo "Database not ready after $max_tries attempts; refusing to start."
+        exit 1
     fi
     echo "Waiting for database... ($count/$max_tries)"
     sleep 2
@@ -24,7 +36,8 @@ if [ "$SKIP_MIGRATIONS" = "true" ]; then
     echo "Skipping migrations for the scheduler process..."
 else
     echo "Running migrations..."
-    php artisan migrate --force
+    # Schema changes and migration-table reads must always use the primary.
+    DB_REPLICA_ENABLED=false php artisan migrate --force
 fi
 
 # Create storage link

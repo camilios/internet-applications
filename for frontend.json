@@ -742,23 +742,6 @@
               }
             }
           },
-          "404": {
-            "description": "المنتج غير موجود أو غير نشط"
-          },
-          "503": {
-            "description": "خدمة المخزون غير متاحة حاليًا",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "message": "Current inventory is unavailable. Please try again.",
-                  "code": "INVENTORY_UNAVAILABLE"
-                }
-              }
-            }
-          },
           "304": {
             "description": "Representation unchanged; empty body. Product detail still checks live inventory.",
             "headers": {
@@ -772,6 +755,23 @@
                 "schema": {
                   "type": "string",
                   "example": "private, no-cache"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "المنتج غير موجود أو غير نشط"
+          },
+          "503": {
+            "description": "خدمة المخزون غير متاحة حاليًا",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "Current inventory is unavailable. Please try again.",
+                  "code": "INVENTORY_UNAVAILABLE"
                 }
               }
             }
@@ -1488,6 +1488,39 @@
           },
           "429": {
             "description": "Rate limited"
+          }
+        }
+      }
+    },
+    "/notifications/events": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Private real-time notification snapshots",
+        "operationId": "notificationEvents",
+        "description": "Each authenticated SSE request emits the current notification page as a notifications event and closes. Reconnect with the bearer header after retry: 2000 milliseconds. Content-based event IDs identify snapshots. Responses are private and must not be cached. Use the paginated notifications API for older history.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A private server-sent notification snapshot",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "429": {
+            "description": "Notification request rate exceeded; honor Retry-After"
           }
         }
       }

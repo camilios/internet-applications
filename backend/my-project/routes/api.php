@@ -37,6 +37,7 @@ Route::middleware('check.ip.lockout')->group(function () {
         });
 
         Route::middleware('throttle:notifications')->group(function () {
+            Route::get('/notifications/events', [NotificationController::class, 'events']);
             Route::get('/notifications', [NotificationController::class, 'index']);
             Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
             Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);

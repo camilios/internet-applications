@@ -89,7 +89,7 @@ services:
       REDIS_PORT: 6379
       APP_NAME: "E-Commerce API"
       APP_ENV: local
-      APP_DEBUG: "true"
+      APP_DEBUG: "false"
       APP_URL: http://localhost:8000
       APP_KEY: ${APP_KEY}
       DB_REPLICA_ENABLED: "true"
@@ -140,7 +140,7 @@ services:
       REDIS_PORT: 6379
       APP_NAME: "E-Commerce API"
       APP_ENV: local
-      APP_DEBUG: "true"
+      APP_DEBUG: "false"
       APP_URL: http://localhost:8000
       APP_KEY: ${APP_KEY}
       DB_CONNECTION: mysql

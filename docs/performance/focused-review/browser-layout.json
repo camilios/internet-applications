@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "scope": "Actual integrated-browser layout probes after loading the standalone local HTML",
+  "desktop": {"viewport": 1440, "document_width": 1425, "direction": "rtl", "code_direction": "ltr", "chapters": 6, "containers_within_viewport": true, "sidebar_above_main": false},
+  "mobile": {"viewport": 390, "document_width": 375, "direction": "rtl", "code_direction": "ltr", "chapters": 6, "containers_within_viewport": true, "sidebar_above_main": true},
+  "horizontal_document_overflow": false
+}

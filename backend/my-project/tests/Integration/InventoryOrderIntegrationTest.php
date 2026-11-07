@@ -19,7 +19,7 @@ class InventoryOrderIntegrationTest extends TestCase
 
     private ?PDO $inventoryDatabase = null;
 
-    private ?int $inventoryProductId = null;
+    private array $inventoryProductIds = [];
 
     protected function setUp(): void
     {
@@ -29,8 +29,10 @@ class InventoryOrderIntegrationTest extends TestCase
 
     protected function tearDown(): void
     {
-        if ($this->inventoryDatabase && $this->inventoryProductId !== null) {
-            $this->removeInventoryFixtures($this->inventoryProductId);
+        if ($this->inventoryDatabase) {
+            foreach ($this->inventoryProductIds as $productId) {
+                $this->removeInventoryFixtures($productId);
+            }
         }
 
         $this->inventoryDatabase = null;
@@ -101,6 +103,72 @@ class InventoryOrderIntegrationTest extends TestCase
         $this->assertSame(0, (int) $this->inventoryQuantity($product->id)['reserved_quantity']);
     }
 
+    public function test_multi_product_orders_are_all_or_nothing(): void
+    {
+        $first = $this->makeProduct();
+        $second = $this->makeProduct();
+        $this->seedInventory($first->id, 2);
+        $this->seedInventory($second->id, 0);
+        $this->withToken(auth('api')->login(User::factory()->create(['role' => 'customer'])));
+        $payload = ['items' => [
+            ['product_id' => $first->id, 'quantity' => 1],
+            ['product_id' => $second->id, 'quantity' => 1],
+        ]];
+        $rejected = $this->withHeader('Idempotency-Key', (string) Str::uuid())
+            ->postJson('/api/orders', $payload)->assertStatus(409)
+            ->assertJsonPath('code', 'INSUFFICIENT_STOCK');
+        $this->assertDatabaseCount('orders', 0);
+        $this->assertSame(0, (int) $this->inventoryQuantity($first->id)['reserved_quantity']);
+
+        $this->seedInventory($second->id, 1);
+        $accepted = $this->withHeader('Idempotency-Key', (string) Str::uuid())
+            ->postJson('/api/orders', $payload)->assertCreated()->assertJsonCount(2, 'data.items');
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertSame(1, (int) $this->inventoryQuantity($first->id)['reserved_quantity']);
+        $this->assertSame(1, (int) $this->inventoryQuantity($second->id)['reserved_quantity']);
+        fwrite(STDOUT, 'MULTI_PRODUCT_EVIDENCE '.json_encode([
+            'rejected' => ['status' => $rejected->status(), 'response' => $rejected->json(), 'orders_created' => 0],
+            'accepted' => ['status' => $accepted->status(), 'items' => count($accepted->json('data.items'))],
+        ]).PHP_EOL);
+    }
+
+    public function test_simultaneous_real_grpc_reservations_cannot_oversell_the_last_unit(): void
+    {
+        $product = $this->makeProduct();
+        $this->seedInventory($product->id, 1);
+        $client = new \App\Services\InventoryGrpcStub(config('services.inventory.grpc_host'),
+            ['credentials' => \Grpc\ChannelCredentials::createInsecure()]);
+        $calls = [];
+        // Start every RPC before waiting for any response, bypassing the HTTP server.
+        for ($index = 0; $index < 30; $index++) {
+            $calls[] = $client->ReserveStock([
+                'items' => [['product_id' => $product->id, 'quantity' => 1]],
+                'idempotency_key' => (string) Str::uuid(),
+            ], [], ['timeout' => 10_000_000]);
+        }
+        $accepted = 0;
+        $rejected = 0;
+        foreach ($calls as $call) {
+            [$response, $status] = $call->wait();
+            $this->assertSame(\Grpc\STATUS_OK, $status->code);
+            $result = $response->toArray();
+            if ($result['success']) {
+                $accepted++;
+            } else {
+                $this->assertStringContainsString('Insufficient stock', $result['failure_reason']);
+                $rejected++;
+            }
+        }
+        $client->close();
+        $this->assertSame(1, $accepted);
+        $this->assertSame(29, $rejected);
+        $this->assertSame(1, (int) $this->inventoryQuantity($product->id)['reserved_quantity']);
+        fwrite(STDOUT, 'GRPC_CONCURRENCY_EVIDENCE '.json_encode([
+            'initial_stock' => 1, 'simultaneous_calls' => 30,
+            'accepted' => $accepted, 'rejected' => $rejected, 'remaining_stock' => 0,
+        ]).PHP_EOL);
+    }
+
     private function connectToDedicatedInventoryTestDatabase(): PDO
     {
         $host = (string) getenv('INVENTORY_TEST_DB_HOST');
@@ -147,7 +215,9 @@ class InventoryOrderIntegrationTest extends TestCase
 
     private function seedInventory(int $productId, int $quantity): void
     {
-        $this->inventoryProductId = $productId;
+        if (! in_array($productId, $this->inventoryProductIds, true)) {
+            $this->inventoryProductIds[] = $productId;
+        }
         $this->removeInventoryFixtures($productId);
         $statement = $this->inventoryDatabase->prepare(
             'INSERT INTO inventory_items (product_id, total_quantity, reserved_quantity) VALUES (?, ?, 0)'

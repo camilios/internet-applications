@@ -2,6 +2,8 @@
 FROM requirement3-runtime:redis-base
 WORKDIR /var/www/html
 COPY . .
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 RUN composer dump-autoload --no-dev --optimize --no-scripts \
     && composer run-script post-autoload-dump \
     && chown -R www-data:www-data storage bootstrap/cache

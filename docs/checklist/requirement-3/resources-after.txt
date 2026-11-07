@@ -1,0 +1,12 @@
+﻿ecommerce-scheduler CPU=0.11% Memory=30.8MiB / 5.788GiB
+ecommerce-backend CPU=0.12% Memory=66.83MiB / 5.788GiB
+ecommerce-mysql CPU=0.66% Memory=455.6MiB / 5.788GiB
+ecommerce-mysql-replica CPU=0.68% Memory=414.4MiB / 5.788GiB
+ecommerce-loadtest-proxy CPU=0.00% Memory=6.613MiB / 5.788GiB
+requirement3-tests CPU=0.00% Memory=19.16MiB / 5.788GiB
+ecommerce-redis CPU=5.09% Memory=8.359MiB / 5.788GiB
+ecommerce-inventory-test CPU=0.00% Memory=36.16MiB / 5.788GiB
+ecommerce-laravel-test-mysql CPU=5.94% Memory=395.1MiB / 5.788GiB
+ecommerce-inventory-test-mysql CPU=5.90% Memory=405.9MiB / 5.788GiB
+ecommerce-inventory CPU=0.00% Memory=83.27MiB / 5.788GiB
+ecommerce-inventory-mysql CPU=0.58% Memory=383.6MiB / 5.788GiB

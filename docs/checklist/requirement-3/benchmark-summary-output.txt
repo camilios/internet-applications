@@ -1,0 +1,176 @@
+﻿{
+  "aggregation": "Median of three run-level percentiles, milliseconds",
+  "counts": {
+    "users": 5004,
+    "products": 15,
+    "orders": 300004,
+    "order_items": 749372
+  },
+  "scenarios": {
+    "dashboard": {
+      "archived_before": {
+        "p50": 43.59642,
+        "p95": 152.88963815,
+        "p99": 187.1903760100001,
+        "requests_per_second": 3.8782448510037115,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/performance/baseline/k6-dashboard-1.json",
+          "docs/performance/baseline/k6-dashboard-2.json",
+          "docs/performance/baseline/k6-dashboard-3.json"
+        ]
+      },
+      "archived_after": {
+        "p50": 17.43923,
+        "p95": 28.0108124,
+        "p99": 50.85381116000002,
+        "requests_per_second": 4.08302457267119,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/performance/results/after-refactor/k6-dashboard-1.json",
+          "docs/performance/results/after-refactor/k6-dashboard-2.json",
+          "docs/performance/results/after-refactor/k6-dashboard-3.json"
+        ]
+      },
+      "current_backend": {
+        "p50": 29.663948,
+        "p95": 767.838569,
+        "p99": 901.2887144,
+        "requests_per_second": 3.5473183746301786,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/checklist/requirement-3/k6-dashboard-1.json",
+          "docs/checklist/requirement-3/k6-dashboard-2.json",
+          "docs/checklist/requirement-3/k6-dashboard-3.json"
+        ]
+      },
+      "warm_repeat": {
+        "p50": 26.863666,
+        "p95": 62.81066984999999,
+        "p99": 108.74400084,
+        "requests_per_second": 4.037652523472482,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/checklist/requirement-3/warm-dashboard/k6-dashboard-1.json",
+          "docs/checklist/requirement-3/warm-dashboard/k6-dashboard-2.json",
+          "docs/checklist/requirement-3/warm-dashboard/k6-dashboard-3.json"
+        ]
+      }
+    },
+    "products-list": {
+      "archived_before": {
+        "p50": 32.477309,
+        "p95": 101.05792189999997,
+        "p99": 513.2272886099969,
+        "requests_per_second": 3.9551885852856983,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/performance/baseline/k6-products-list-1.json",
+          "docs/performance/baseline/k6-products-list-2.json",
+          "docs/performance/baseline/k6-products-list-3.json"
+        ]
+      },
+      "archived_after": {
+        "p50": 18.407089,
+        "p95": 28.017800599999994,
+        "p99": 32.641596320000005,
+        "requests_per_second": 4.08425938036717,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/performance/results/after-refactor/k6-products-list-1.json",
+          "docs/performance/results/after-refactor/k6-products-list-2.json",
+          "docs/performance/results/after-refactor/k6-products-list-3.json"
+        ]
+      },
+      "current_backend": {
+        "p50": 23.674887,
+        "p95": 36.518073799999996,
+        "p99": 66.06201212000015,
+        "requests_per_second": 4.054288087987339,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/checklist/requirement-3/k6-products-list-1.json",
+          "docs/checklist/requirement-3/k6-products-list-2.json",
+          "docs/checklist/requirement-3/k6-products-list-3.json"
+        ]
+      }
+    },
+    "product-detail": {
+      "archived_before": {
+        "p50": 44.681736,
+        "p95": 173.6071331,
+        "p99": 307.16249896999994,
+        "requests_per_second": 3.913804859576222,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/performance/baseline/k6-product-detail-1.json",
+          "docs/performance/baseline/k6-product-detail-2.json",
+          "docs/performance/baseline/k6-product-detail-3.json"
+        ]
+      },
+      "archived_after": {
+        "p50": 20.650732,
+        "p95": 31.549622999999997,
+        "p99": 34.975992720000015,
+        "requests_per_second": 4.075785062280438,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/performance/results/after-etag/k6-product-detail-1.json",
+          "docs/performance/results/after-etag/k6-product-detail-2.json",
+          "docs/performance/results/after-etag/k6-product-detail-3.json"
+        ]
+      },
+      "current_backend": {
+        "p50": 29.909367,
+        "p95": 42.05370259999999,
+        "p99": 101.06650723999998,
+        "requests_per_second": 4.047184229045895,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/checklist/requirement-3/k6-product-detail-1.json",
+          "docs/checklist/requirement-3/k6-product-detail-2.json",
+          "docs/checklist/requirement-3/k6-product-detail-3.json"
+        ]
+      }
+    },
+    "customer-orders": {
+      "archived_before": {
+        "p50": 53.096439000000004,
+        "p95": 105.15698135,
+        "p99": 142.56240545000003,
+        "requests_per_second": 3.8893502825843416,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/performance/baseline/k6-customer-orders-1.json",
+          "docs/performance/baseline/k6-customer-orders-2.json",
+          "docs/performance/baseline/k6-customer-orders-3.json"
+        ]
+      },
+      "archived_after": {
+        "p50": 35.915044,
+        "p95": 48.538330599999995,
+        "p99": 54.74192346,
+        "requests_per_second": 4.081593994669598,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/performance/results/after-pagination/k6-customer-orders-1.json",
+          "docs/performance/results/after-pagination/k6-customer-orders-2.json",
+          "docs/performance/results/after-pagination/k6-customer-orders-3.json"
+        ]
+      },
+      "current_backend": {
+        "p50": 47.9165335,
+        "p95": 69.1399437,
+        "p99": 150.39795080000002,
+        "requests_per_second": 3.903134364197451,
+        "endpoint_error_percent": 0,
+        "sources": [
+          "docs/checklist/requirement-3/k6-customer-orders-1.json",
+          "docs/checklist/requirement-3/k6-customer-orders-2.json",
+          "docs/checklist/requirement-3/k6-customer-orders-3.json"
+        ]
+      }
+    }
+  },
+  "note": "Archived before/after are retained historical measurements. Current backend is a fresh run with the read replica and correctness fixes; it is not a new controlled historical baseline."
+}

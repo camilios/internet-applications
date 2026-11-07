@@ -285,7 +285,7 @@ class OrderService
             $query->where('status', $status);
         }
 
-        return $query->paginate(15);
+        return $query->paginate(15)->withQueryString();
     }
 
     /**
@@ -307,7 +307,7 @@ class OrderService
             $query->where('status', $status);
         }
 
-        return $query->paginate(15);
+        return $query->paginate(15)->withQueryString();
     }
 
     /**
@@ -315,41 +315,40 @@ class OrderService
      */
     public function updateStatus(Order $order, string $status): Order
     {
-        $validTransitions = [
-            'pending' => ['confirmed', 'cancelled'],
-            'confirmed' => ['processing', 'cancelled'],
-            'processing' => ['shipped', 'cancelled'],
-            'shipped' => ['delivered'],
-            'delivered' => [],
-            'cancelled' => [],
-        ];
+        $updated = DB::transaction(function () use ($order, $status): Order {
+            // Route-bound models may be stale after another request changes the order.
+            $order = Order::query()->whereKey($order->getKey())->lockForUpdate()->firstOrFail();
+            $validTransitions = [
+                'pending' => ['confirmed', 'cancelled'],
+                'confirmed' => ['processing', 'cancelled'],
+                'processing' => ['shipped', 'cancelled'],
+                'shipped' => ['delivered'],
+                'delivered' => [],
+                'cancelled' => [],
+            ];
+            $currentStatus = $order->status;
 
-        $currentStatus = $order->status;
-
-        if (! isset($validTransitions[$currentStatus]) ||
-            ! in_array($status, $validTransitions[$currentStatus])) {
-            throw new \InvalidArgumentException(
-                "Cannot transition from '{$currentStatus}' to '{$status}'."
-            );
-        }
-
-        if ($status === 'cancelled' && $order->reservation_id !== null) {
-            if (! $this->inventoryClient->releaseStock($order->reservation_id)) {
-                throw new InventoryUnavailableException('Stock release could not be confirmed.');
+            if (! isset($validTransitions[$currentStatus]) ||
+                ! in_array($status, $validTransitions[$currentStatus])) {
+                throw new \InvalidArgumentException(
+                    "Cannot transition from '{$currentStatus}' to '{$status}'."
+                );
             }
-        }
 
-        $order->update(['status' => $status]);
-        DashboardCache::forgetCache($order->user_id);
+            if ($status === 'cancelled' && $order->reservation_id !== null) {
+                if (! $this->inventoryClient->releaseStock($order->reservation_id)) {
+                    throw new InventoryUnavailableException('Stock release could not be confirmed.');
+                }
+            }
 
-        // Notify user of status change
-        $this->notifyAfterCommit(
-            $order->user,
-            $order,
-            'order_status_updated'
-        );
+            $order->update(['status' => $status]);
+            $this->notifyAfterCommit($order->user, $order, 'order_status_updated');
 
-        return $order->fresh('items.product');
+            return $order->fresh('items.product');
+        });
+        DashboardCache::forgetCache($updated->user_id);
+
+        return $updated;
     }
 
     private function notifyAfterCommit(User $user, Order $order, string $type): void

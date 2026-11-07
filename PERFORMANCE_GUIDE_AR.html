@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="دليل عربي مفصل لتحسين قواعد البيانات ونسخ القراءة وRedis وETag وgzip واختبارات k6، مع الكود الفعلي والأدلة من المشروع">
+<title>دليل أداء الخلفية — من الاستعلام إلى القياس</title><style>
+:root{--bg:#f4f5f0;--paper:#fff;--ink:#152c38;--muted:#546670;--line:#dce4df;--accent:#087b69;--nav:#152f3f;--soft:#e7f2eb;--note:#fff5dc}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.95 Tahoma,"Segoe UI",Arial,sans-serif}a{color:var(--accent);text-underline-offset:4px}button,input{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #c38b20;outline-offset:4px}[hidden]{display:none!important}.layout{max-width:1500px;margin:auto;padding:28px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:32px}.sidebar{position:sticky;top:24px;align-self:start;max-height:92vh;overflow:auto;background:var(--nav);color:#e4efef;padding:25px 20px;border-radius:16px}.sidebar .brand{font-size:11px;color:#93cbbc;letter-spacing:.08em}.sidebar h2{font-size:22px;line-height:1.7;margin:10px 0 24px}.sidebar a{display:block;color:#d1e2e2;text-decoration:none;border-bottom:1px solid #35505b;padding:12px 5px;font-size:13px}.sidebar a:hover{color:white;background:#284956}.sidebar p{font-size:11px;color:#a8bdc5;margin-top:26px}.main{min-width:0}.hero{background:var(--soft);border:1px solid #cbded1;padding:36px 38px;border-radius:18px}.eyebrow{font-size:12px;letter-spacing:.05em;color:var(--accent);font-weight:bold}.hero h1{font-size:clamp(29px,3.7vw,48px);line-height:1.55;margin:12px 0 18px;max-width:900px}.hero p{margin:10px 0;max-width:900px;color:#38534f}.meta{font-size:12px;color:var(--muted)}.pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:22px}.pills span,.badge{border:1px solid #c0d9cb;border-radius:20px;padding:4px 11px;background:#f9fcf9;color:#186755;font-size:11px}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:24px 0 8px}.toolbar input{flex:1;min-width:210px;border:1px solid var(--line);border-radius:9px;padding:11px;background:white;color:var(--ink)}button{border:1px solid var(--line);border-radius:8px;background:white;padding:8px 12px;color:var(--accent);font-size:12px}.search-status{min-height:24px;font-size:12px;color:var(--muted)}section{margin:44px 0;scroll-margin-top:24px}section>header{display:flex;gap:18px;margin-bottom:22px}.num{font:700 24px/1.3 Consolas,monospace;color:var(--accent);border-top:3px solid var(--accent);padding-top:12px;min-width:35px}h2{font-size:27px;line-height:1.6;margin:4px 0 10px}header p{font-size:14px;color:var(--muted);margin:0}h3{font-size:20px;line-height:1.8;margin:24px 0 10px}h4{font-size:16px;margin:22px 0 7px}.card{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:25px 28px;margin:18px 0;min-width:0}.card p{font-size:14px;margin:11px 0}.note{border-right:4px solid #bc8a28;background:var(--note);padding:14px 18px;margin:18px 0;border-radius:8px;font-size:13px}.good{border-color:var(--accent);background:#edf7f0}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.stat{background:white;border:1px solid var(--line);border-radius:10px;padding:18px}.stat strong{display:block;font:700 25px/1.5 Consolas,monospace;direction:ltr;text-align:right;color:var(--accent)}.stat span{font-size:12px;color:var(--muted)}code{font-family:Consolas,"Courier New",monospace;direction:ltr;unicode-bidi:isolate;display:inline-block;max-width:100%;overflow-wrap:anywhere;font-size:.88em;color:#115d64}pre{margin:0;background:#122935;color:#e6f0f1;direction:ltr;text-align:left;padding:20px;overflow:auto;border-radius:0 0 8px 8px;font:12.5px/1.8 Consolas,"Courier New",monospace;tab-size:4;unicode-bidi:isolate}pre code{color:inherit;display:block;max-width:none;white-space:pre;overflow-wrap:normal;font-size:inherit;unicode-bidi:plaintext}.source{border:1px solid #bdcfd2;border-radius:9px;overflow:hidden;margin:18px 0;background:#f6faf9}.source summary{cursor:pointer;font-size:13px;padding:14px 16px;font-weight:bold}.path{display:block;text-align:left;font:11px/1.8 Consolas,monospace;color:var(--muted);overflow-wrap:anywhere;unicode-bidi:isolate;margin-top:6px}.codebar{display:flex;justify-content:space-between;align-items:center;background:#25434d;color:#cfe1e1;padding:7px 12px;font-size:11px}.copy{padding:3px 11px;background:#1b3541;border-color:#5c7a83;color:#e1efec}.source-link{font-size:11px!important;padding:0 15px}.example{margin:16px 0;border-radius:8px;overflow:hidden;border:1px solid #d0d9d5}.example>p{padding:8px 16px;margin:0;background:#edf3ef;font-size:12px;font-weight:bold}.table-wrap{width:100%;overflow:auto;border:1px solid var(--line);border-radius:9px;margin:18px 0}table{border-collapse:collapse;width:100%;min-width:660px;background:white;font-size:12px}th,td{padding:11px 13px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}thead th{background:#e9f0ec;color:#29493f}tbody th{font-weight:normal}td.num,th.num{font:12px/1.9 Consolas,monospace;direction:ltr;white-space:nowrap;text-align:center;border:0;padding:11px 13px;min-width:0;color:var(--ink)}td code{font-size:11px}.caption{font-size:12px;color:var(--muted)}.flow{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:22px 0}.flow div{border:1px solid #a8cbbf;padding:15px 20px;border-radius:9px;background:#eef7f1;text-align:center;min-width:130px;font-size:13px}.flow b{color:var(--accent);font-size:24px}.flow small{display:block;font-size:11px;color:var(--muted)}.bar-row{display:grid;grid-template-columns:110px minmax(0,1fr) 110px;gap:14px;align-items:center;margin:14px 0;font-size:12px}.track{background:#e9efec;border-radius:7px;height:20px;overflow:hidden;direction:ltr}.bar{height:100%;background:#829eab}.bar.after{background:var(--accent)}.bar-row strong{direction:ltr;text-align:left;font:12px Consolas,monospace}.qa details{border-top:1px solid var(--line);padding:13px 0}.qa summary{cursor:pointer;font-size:14px;font-weight:bold}.qa p{font-size:13px}.evidence{font-size:12px;padding:10px 0;color:var(--muted)}ul,ol{padding-right:24px}li{margin:8px 0;font-size:14px}.footer{border-top:1px solid var(--line);padding:20px 5px 35px;color:var(--muted);font-size:12px}.empty{background:var(--note);padding:20px;border-radius:10px}body:has(#search:focus) .toolbar{outline:0}@media(max-width:1000px){.layout{grid-template-columns:1fr;padding:18px;gap:20px}.sidebar{position:static;max-height:none}.sidebar h2{margin-bottom:10px}.sidebar nav{display:flex;flex-wrap:wrap;gap:8px}.sidebar a{border:1px solid #40616b;padding:6px 10px;border-radius:6px;font-size:11px}.sidebar p{margin-bottom:0}.hero{padding:26px}.cards{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:600px){body{font-size:15px}.layout{padding:12px}.hero{padding:23px 20px}.card{padding:20px 17px}.hero h1{font-size:29px}h2{font-size:23px}h3{font-size:18px}.cards{grid-template-columns:1fr}.stat strong{text-align:right}.bar-row{grid-template-columns:85px minmax(0,1fr) 85px;gap:7px}pre{font-size:11.5px;padding:15px}.toolbar button{flex:1}.num{font-size:21px}.flow{gap:8px}.flow div{min-width:110px;padding:10px}th,td{padding:9px}.sidebar{padding:19px}.sidebar h2{font-size:20px}}@media print{body{background:white;font-size:11pt;color:black}.layout{display:block;max-width:none;padding:0}.sidebar,.toolbar,.search-status,.copy,.footer button{display:none!important}.hero,.card{border:1px solid #bbb;box-shadow:none;border-radius:0;padding:14px}.hero h1{font-size:25pt}section{break-before:page;margin-top:20px}h2,h3,h4{break-after:avoid}pre{white-space:pre-wrap;background:#f2f4f3;color:black;overflow:visible;font-size:8pt}pre code{white-space:pre-wrap;overflow-wrap:anywhere}.table-wrap{overflow:visible}table{min-width:0;font-size:8pt}a{color:black}.source{break-inside:auto}.codebar{background:#eee;color:black}.cards{grid-template-columns:repeat(3,1fr)}[hidden]{display:block!important}.empty{display:none!important}@page{size:A4;margin:15mm}}
+</style></head><body id="top"><div class="layout"><aside class="sidebar"><div class="brand">BACKEND PERFORMANCE · 2026</div><h2>من الاستعلام<br>إلى استجابة صحيحة</h2><nav aria-label="فهرس الدليل"><a href="#db">01 · تحسين قاعدة البيانات</a><a href="#replica">02 · نسخة القراءة والاتساق</a><a href="#redis">03 · Redis وCache Aside</a><a href="#http">04 · ETag وgzip والتحقق</a><a href="#load">05 · قياس الأداء بـk6</a><a href="#docs">06 · المشكلات والنتائج والتنظيف</a></nav><p>دليل مستقل يعمل دون اتصال. الكود مقتبس من الملفات الفعلية، والأرقام مرتبطة بملفات أدلة قابلة للمراجعة.</p></aside>
+<main class="main"><div class="hero"><div class="eyebrow">شرح عربي مفصل · كود فعلي · قياس قابل للتتبع</div><h1>كيف نجعل الخلفية أسرع،<br>مع الحفاظ على صحة البيانات؟</h1><p>هذا الدليل يراجع قائمتك بندًا بندًا داخل مشروع المتجر: Laravel وMySQL ونسخة قراءة وRedis وخدمة مخزون مستقلة عبر gRPC. الفكرة ليست تشغيل مكتبات فقط، بل معرفة موضع الكلفة، اختيار تحسين مناسب، ثم إثبات ما تغيّر وما لم يتغيّر.</p><p class="meta">تاريخ المراجعة: 7 نوفمبر 2026 · النطاق: الخلفية فقط · لا تعديل أو بناء للواجهة الأمامية</p><div class="pills"><span>300,004 طلب</span><span>749,372 بند طلب</span><span>54 اختبارًا ناجحًا + 7 تكامل</span><span>ستة تشغيلات k6 جديدة</span><span>قياس قبل وبعد الضغط</span></div></div>
+<div class="toolbar"><input id="search" type="search" placeholder="ابحث عن مفهوم أو اسم دالة، مثل GTID أو ETag..." aria-label="البحث في فصول الدليل"><button id="expand" type="button">فتح كل مقاطع الكود</button><button id="collapse" type="button">طي الكود</button><button id="print" type="button">طباعة الدليل</button></div><div id="search-status" class="search-status" role="status" aria-live="polite"></div><p id="empty" class="empty" hidden>لا توجد فصول مطابقة. جرّب كلمة أخرى.</p>
+<div class="cards"><div class="stat"><strong>18,176 → 2,465</strong><span>بايت لجسم الاستجابة قبل وبعد gzip</span></div><div class="stat"><strong>86.44%</strong><span>توفير نقل الجسم، مع تطابق JSON بعد الفك</span></div><div class="stat"><strong>0%</strong><span>أخطاء الحالة/بنية JSON في المقارنة الجديدة</span></div></div>
+
+<section id="db"><header><span class="num">01</span><div><h2>تحسين قاعدة البيانات</h2><p>ابدأ بالاستعلام المكلف، ثم خطة التنفيذ، ثم التعديل المناسب. لا تبدأ بإضافة فهارس إلى كل عمود.</p></div></header>
+<article class="card"><h3>1.1 كيف نعرف أي الاستعلامات بطيء؟</h3><p>زمن HTTP ليس زمن SQL وحده. طلب عرض المنتج قد يقضي وقتًا في توثيق المستخدم، وتحديد مصدر القراءة، وجلب العلاقات، وgRPC، وبناء JSON ثم نقله. لذلك نراقب الاستعلامات نفسها ونربطها بمسار محدد؛ لا نستنتج أن قاعدة البيانات هي السبب من بطء الصفحة فقط.</p><p>في الدليل التاريخي كان استعلام آخر الطلبات مع فلتر <code>status = 'shipped'</code> يمسح 300,004 صفوف ويحتاج 303 ms في اللقطة المسجلة. وكان عرض آخر الطلبات بلا فلتر يستغرق 333 ms. هذان مرشحان واضحان للفحص لأننا نطلب 15 صفًا فقط بينما نقرأ جدولًا كبيرًا ثم نفرزه.</p><p>أداة الفحص الحالية تنفّذ استعلامات محددة، وتحتفظ بمعاملاتها، وأعداد الصفوف، والفهارس والخطط. البيانات لم تُصفّر لإعادة الاختبار؛ بقيت 300,004 طلبات و749,372 بنود.</p>
+<details class="source"><summary>أداة الفحص: العدّ وخطط SQL الفعلية <span class="path" dir="ltr">perf/checklist-database.php · L1–31</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-1">نسخ الكود</button></div><pre><code id="source-1" dir="ltr" data-source="perf/checklist-database.php" data-first="0" data-last="31">&lt;?php
+
+// Read-only current dataset, schema and query-plan evidence.
+require &#39;/var/www/html/vendor/autoload.php&#39;;
+$app = require &#39;/var/www/html/bootstrap/app.php&#39;;
+$app-&gt;make(Illuminate\Contracts\Console\Kernel::class)-&gt;bootstrap();
+$db = Illuminate\Support\Facades\DB::connection();
+$db-&gt;useWriteConnectionWhenReading();
+$result = [];
+foreach ([&#39;users&#39;, &#39;products&#39;, &#39;orders&#39;, &#39;order_items&#39;] as $table) {
+    $result[&#39;counts&#39;][$table] = $db-&gt;table($table)-&gt;count();
+}
+$userId = $db-&gt;table(&#39;orders&#39;)-&gt;selectRaw(&#39;user_id, COUNT(*) AS n&#39;)-&gt;groupBy(&#39;user_id&#39;)-&gt;orderByDesc(&#39;n&#39;)-&gt;value(&#39;user_id&#39;);
+$queries = [
+    [&#39;SELECT * FROM products WHERE is_active = 1 ORDER BY created_at DESC LIMIT 15&#39;, []],
+    [&#39;SELECT * FROM products WHERE is_active = 1 AND category_id = ? ORDER BY created_at DESC LIMIT 15&#39;, [1]],
+    [&#39;SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 15&#39;, [$userId]],
+    [&#39;SELECT * FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT 15&#39;, [&#39;shipped&#39;]],
+    [&#39;SELECT * FROM orders ORDER BY created_at DESC LIMIT 15&#39;, []],
+    [&#39;SELECT COUNT(*) FROM orders WHERE status &lt;&gt; ?&#39;, [&#39;cancelled&#39;]],
+];
+foreach ($queries as [$sql, $bindings]) {
+    $result[&#39;queries&#39;][] = [&#39;sql&#39; =&gt; $sql, &#39;bindings&#39; =&gt; $bindings,
+        &#39;explain&#39; =&gt; $db-&gt;select(&#39;EXPLAIN &#39;.$sql, $bindings),
+        &#39;analyze&#39; =&gt; $db-&gt;select(&#39;EXPLAIN ANALYZE &#39;.$sql, $bindings)];
+}
+foreach ([&#39;products&#39;, &#39;orders&#39;] as $table) {
+    $result[&#39;indexes&#39;][$table] = $db-&gt;select(&#39;SHOW INDEX FROM &#39;.$table);
+}
+echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL;</code></pre><p class="source-link"><a href="perf/checklist-database.php">فتح الملف الأصلي</a></p></details>
+<h3>1.2 الفرق بين EXPLAIN وEXPLAIN ANALYZE</h3><p><code>EXPLAIN</code> يعرض خطة المحسّن وتقديراته. أما <code>EXPLAIN ANALYZE</code> فينفّذ الاستعلام ويضيف أزمنة فعلية وعدد الصفوف والتكرارات. لهذا نستخدمه هنا مع استعلامات قراءة مقصودة، ثم نحتفظ بالمخرجات بدل الاكتفاء بعبارة «أصبح أسرع».</p>
+<div class="example"><p>مثال تعليمي لنفس شكل الاستعلام المستخدم في القياس</p><pre dir="ltr"><code>EXPLAIN ANALYZE
+SELECT * FROM orders
+WHERE status = &#39;shipped&#39;
+ORDER BY created_at DESC
+LIMIT 15;</code></pre></div>
+<ul><li><code>key</code>: الفهرس الذي اختير فعلًا، وليس كل فهرس موجود في الجدول.</li><li><code>rows</code> في EXPLAIN تقدير. أما <code>actual ... rows=... loops=...</code> فهو عمل حدث أثناء التنفيذ.</li><li>الأرقام في <code>actual time=a..b</code> تمثل زمن أول وآخر صف لكل تكرار بالعقدة؛ راقب أيضًا <code>loops</code> ولا تجمع أزمنة العقد جمعًا مباشرًا، لأنها متداخلة.</li><li>ابحث عن مسح عدد كبير، أو فرز لا نحتاجه، أو تكرار قراءة علاقة لكل صف. قراءة <code>LIMIT 15</code> من فهرس مناسب تختلف عن مسح الجدول وفرزه ثم أخذ أول 15.</li></ul>
+<h4>مقارنة الخطط التاريخية المسجلة</h4><div class="table-wrap"><table><thead><tr><th>الاستعلام</th><th>الفهرس بعد التعديل</th><th>قبل · ms</th><th>بعد · ms</th></tr></thead><tbody><tr><td><code>SELECT * FROM products WHERE is_active = 1 ORDER BY created_at DESC LIMIT 15</code></td><td>لا يوجد</td><td class="num">0.514</td><td class="num">0.202</td></tr><tr><td><code>SELECT * FROM products WHERE is_active = 1 AND category_id = 1 ORDER BY created_at DESC LIMIT 15</code></td><td>products_category_id_foreign</td><td class="num">0.204</td><td class="num">0.176</td></tr><tr><td><code>SELECT * FROM orders WHERE user_id = 3498 ORDER BY created_at DESC LIMIT 15</code></td><td>orders_user_created_idx</td><td class="num">2.21</td><td class="num">10.5</td></tr><tr><td><code>SELECT * FROM orders WHERE status = &#39;shipped&#39; ORDER BY created_at DESC LIMIT 15</code></td><td>orders_status_created_idx</td><td class="num">303</td><td class="num">5.04</td></tr><tr><td><code>SELECT * FROM orders ORDER BY created_at DESC LIMIT 15</code></td><td>orders_created_idx</td><td class="num">333</td><td class="num">10.4</td></tr><tr><td><code>SELECT COUNT(*) FROM orders WHERE status &lt;&gt; &#39;cancelled&#39;</code></td><td>orders_status_created_idx</td><td class="num">159</td><td class="num">718</td></tr></tbody></table></div><p class="caption">الأزمنة هنا لقطات EXPLAIN ANALYZE محفوظة، وليست متوسطات k6. المصدر: <a href="docs/performance/results/explain-summary.json">docs/performance/results/explain-summary.json</a>.</p>
+<div class="note">ليست كل نتيجة تحسّنًا: عدّ الطلبات غير الملغاة تغيّر تاريخيًا من 159 إلى 718 ms، وقراءة تاريخ مستخدم من 2.21 إلى 10.5 ms رغم انخفاض الصفوف المقروءة. نحتفظ بهذه الأرقام ولا ننتقي الخطط السريعة وحدها.</div>
+<h3>1.3 متى نضيف Index؟</h3><p>الفهرس المركّب <code>(status, created_at)</code> يخدم شرط المساواة أولًا ثم ترتيب التاريخ. و<code>(user_id, created_at)</code> يخدم تاريخ طلبات مستخدم محدد. أما <code>(created_at)</code> فيخدم قائمة الطلبات العامة. الاختيار مرتبط بـ<code>WHERE</code> و<code>ORDER BY</code> وبحجم البيانات، لا باسم العمود فقط.</p><p>للفهرس كلفة مساحة وتحديث عند الكتابة. لذلك لم نضف أي فهرس جديد في هذه الجولة: فهارس الطلبات المطلوبة موجودة ويؤكد الفحص استخدامها. كذلك لم نغيّر Migration قديمة؛ عند الحاجة إلى تغيير بنيوي مستقبلًا نضيف Migration جديدة مع قياس يبررها.</p>
+<details class="source"><summary>الفهارس الموجودة وعلاقتها بالاستعلامات <span class="path" dir="ltr">backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php · L1–45</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-2">نسخ الكود</button></div><pre><code id="source-2" dir="ltr" data-source="backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php" data-first="0" data-last="45">&lt;?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table(&#39;products&#39;, function (Blueprint $table) {
+            // Default product listing: WHERE is_active = 1 ORDER BY created_at DESC
+            $table-&gt;index([&#39;is_active&#39;, &#39;created_at&#39;], &#39;products_active_created_idx&#39;);
+
+            // Category listing: WHERE is_active = 1 AND category_id = ? ORDER BY created_at DESC
+            $table-&gt;index([&#39;is_active&#39;, &#39;category_id&#39;, &#39;created_at&#39;], &#39;products_active_category_created_idx&#39;);
+        });
+
+        Schema::table(&#39;orders&#39;, function (Blueprint $table) {
+            // Customer order history: WHERE user_id = ? ORDER BY created_at DESC
+            $table-&gt;index([&#39;user_id&#39;, &#39;created_at&#39;], &#39;orders_user_created_idx&#39;);
+
+            // Admin status filter: WHERE status = ? ORDER BY created_at DESC
+            $table-&gt;index([&#39;status&#39;, &#39;created_at&#39;], &#39;orders_status_created_idx&#39;);
+
+            // Admin unfiltered list: ORDER BY created_at DESC
+            $table-&gt;index(&#39;created_at&#39;, &#39;orders_created_idx&#39;);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table(&#39;orders&#39;, function (Blueprint $table) {
+            $table-&gt;dropIndex(&#39;orders_created_idx&#39;);
+            $table-&gt;dropIndex(&#39;orders_status_created_idx&#39;);
+            $table-&gt;dropIndex(&#39;orders_user_created_idx&#39;);
+        });
+
+        Schema::table(&#39;products&#39;, function (Blueprint $table) {
+            $table-&gt;dropIndex(&#39;products_active_category_created_idx&#39;);
+            $table-&gt;dropIndex(&#39;products_active_created_idx&#39;);
+        });
+    }
+};</code></pre><p class="source-link"><a href="backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php">فتح الملف الأصلي</a></p></details>
+<h4>ما الذي اختاره المحسّن في الفحص الحالي؟</h4><div class="table-wrap"><table><thead><tr><th>الاستعلام</th><th>key</th><th>rows المقدّرة</th></tr></thead><tbody><tr><td><code>SELECT * FROM products WHERE is_active = 1 ORDER BY created_at DESC LIMIT 15</code></td><td><code>NULL</code></td><td class="num">15</td></tr><tr><td><code>SELECT * FROM products WHERE is_active = 1 AND category_id = ? ORDER BY created_at DESC LIMIT 15</code></td><td><code>products_category_id_foreign</code></td><td class="num">3</td></tr><tr><td><code>SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 15</code></td><td><code>orders_user_created_idx</code></td><td class="num">89</td></tr><tr><td><code>SELECT * FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT 15</code></td><td><code>orders_status_created_idx</code></td><td class="num">93410</td></tr><tr><td><code>SELECT * FROM orders ORDER BY created_at DESC LIMIT 15</code></td><td><code>orders_created_idx</code></td><td class="num">15</td></tr><tr><td><code>SELECT COUNT(*) FROM orders WHERE status &lt;&gt; ?</code></td><td><code>orders_status_created_idx</code></td><td class="num">298201</td></tr></tbody></table></div><p>جدول المنتجات يحوي 15 صفًا فقط. مسحه أو استخدام فهرس التصنيف الموجود قد يكون أرخص من فهرس مركّب آخر. ظهور <code>key = NULL</code> هنا ليس فشلًا تلقائيًا؛ ولا نعتبر مجرد وجود فهرس المنتج دليلًا على فائدة مقاسة له. نعيد تقييمه بعينة منتجات أكبر إذا كبر الكتالوج.</p><p class="evidence">الدليل الحالي: <a href="docs/performance/focused-review/database.json">docs/performance/focused-review/database.json</a>. لا نخلط أزمنة هذه اللقطة مع الأزمنة التاريخية بوصفها اختبارًا مضبوطًا جديدًا للفهرسة.</p>
+<h3>1.4 مشكلة N+1 وكيف حلّها المشروع</h3><p>تظهر N+1 حين نجلب قائمة باستعلام واحد ثم نقرأ علاقة لكل عنصر داخل حلقة. عندها تزيد الاستعلامات مع عدد الصفوف؛ 15 منتجًا قد يسبب استعلامًا للقائمة ثم 15 استعلامًا للتصنيف، قبل أي عدّ أو توثيق.</p>
+<div class="example"><p>مثال تعليمي سيئ، وليس الكود الحالي للمشروع</p><pre dir="ltr"><code>$products = Product::all();
+foreach ($products as $product) {
+    echo $product-&gt;category-&gt;name; // Lazy load for each product
+}</code></pre></div>
+<p>الحل هو <code>with('category')</code> للقائمة، و<code>with('items.product')</code> للطلبات. تُجلب العلاقات دفعة واحدة بدل استدعائها لكل عنصر. نستخدم <code>whenLoaded</code> داخل الموارد حتى لا يتحول التسلسل إلى تحميل ضمني جديد للعلاقات.</p>
+<details class="source" open><summary>تحميل التصنيف مسبقًا مع فلترة وترقيم ثابتين <span class="path" dir="ltr">backend/my-project/app/Http/Controllers/ProductController.php · L25–44</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-3">نسخ الكود</button></div><pre><code id="source-3" dir="ltr" data-source="backend/my-project/app/Http/Controllers/ProductController.php" data-first="24" data-last="44">    public function index(Request $request): AnonymousResourceCollection
+    {
+        $query = Product::with(&#39;category&#39;)-&gt;where(&#39;is_active&#39;, true);
+
+        if ($request-&gt;filled(&#39;category_id&#39;)) {
+            $query-&gt;where(&#39;category_id&#39;, $request-&gt;integer(&#39;category_id&#39;));
+        }
+        if ($request-&gt;filled(&#39;search&#39;)) {
+            $query-&gt;where(&#39;name&#39;, &#39;like&#39;, &#39;%&#39;.$request-&gt;string(&#39;search&#39;)-&gt;toString().&#39;%&#39;);
+        }
+
+        $perPage = min(max($request-&gt;integer(&#39;per_page&#39;, 15), 1), 100);
+
+        return ProductResource::collection($query-&gt;orderByDesc(&#39;created_at&#39;)-&gt;orderByDesc(&#39;id&#39;)-&gt;paginate($perPage)-&gt;withQueryString());
+    }
+
+    public function show(Product $product): JsonResponse|ProductResource
+    {
+        if (! $product-&gt;is_active &amp;&amp; request()-&gt;user()?-&gt;role !== &#39;admin&#39;) {
+            abort(404);</code></pre><p class="source-link"><a href="backend/my-project/app/Http/Controllers/ProductController.php">فتح الملف الأصلي</a></p></details>
+<details class="source"><summary>تحميل بنود الطلب ومنتجاتها دفعة واحدة <span class="path" dir="ltr">backend/my-project/app/Services/OrderService.php · L280–291</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-4">نسخ الكود</button></div><pre><code id="source-4" dir="ltr" data-source="backend/my-project/app/Services/OrderService.php" data-first="279" data-last="291">    public function getUserOrders(User $user, ?string $status = null): LengthAwarePaginator
+    {
+        $query = $user-&gt;orders()-&gt;with(&#39;items.product&#39;)-&gt;orderByDesc(&#39;created_at&#39;)-&gt;orderByDesc(&#39;id&#39;);
+
+        if ($status !== null) {
+            $query-&gt;where(&#39;status&#39;, $status);
+        }
+
+        return $query-&gt;paginate(15)-&gt;withQueryString();
+    }
+
+    /**</code></pre><p class="source-link"><a href="backend/my-project/app/Services/OrderService.php">فتح الملف الأصلي</a></p></details>
+<details class="source"><summary>اختبار يقارن عدد الاستعلامات عند تكبير العينة <span class="path" dir="ltr">backend/my-project/tests/Feature/QueryScalingTest.php · L1–52</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-5">نسخ الكود</button></div><pre><code id="source-5" dir="ltr" data-source="backend/my-project/tests/Feature/QueryScalingTest.php" data-first="0" data-last="52">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Models\Category;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Tests\TestCase;
+
+class QueryScalingTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function queryCount(string $url): int
+    {
+        DB::enableQueryLog();
+        DB::flushQueryLog();
+        $this-&gt;getJson($url)-&gt;assertOk();
+        $count = count(DB::getQueryLog());
+        DB::disableQueryLog();
+        return $count;
+    }
+
+    public function test_product_and_order_lists_do_not_add_one_query_per_row(): void
+    {
+        $category = Category::create([&#39;name&#39; =&gt; &#39;Query scaling&#39;]);
+        $product = Product::create([&#39;name&#39; =&gt; &#39;First&#39;, &#39;price&#39; =&gt; &#39;2.00&#39;, &#39;category_id&#39; =&gt; $category-&gt;id, &#39;is_active&#39; =&gt; true]);
+        $smallProducts = $this-&gt;queryCount(&#39;/api/products?per_page=15&#39;);
+        for ($i = 0; $i &lt; 20; $i++) {
+            Product::create([&#39;name&#39; =&gt; &#39;Product &#39;.$i, &#39;price&#39; =&gt; &#39;2.00&#39;, &#39;category_id&#39; =&gt; $category-&gt;id, &#39;is_active&#39; =&gt; true]);
+        }
+        $largeProducts = $this-&gt;queryCount(&#39;/api/products?per_page=15&#39;);
+        $this-&gt;assertLessThanOrEqual($smallProducts + 1, $largeProducts);
+
+        $user = User::factory()-&gt;create();
+        $this-&gt;withToken(auth(&#39;api&#39;)-&gt;login($user));
+        $create = function () use ($user, $product): void {
+            $order = Order::create([&#39;user_id&#39; =&gt; $user-&gt;id, &#39;total&#39; =&gt; &#39;2.00&#39;, &#39;status&#39; =&gt; &#39;pending&#39;]);
+            $order-&gt;items()-&gt;create([&#39;product_id&#39; =&gt; $product-&gt;id, &#39;quantity&#39; =&gt; 1, &#39;unit_price&#39; =&gt; &#39;2.00&#39;, &#39;subtotal&#39; =&gt; &#39;2.00&#39;]);
+        };
+        $create();
+        $smallOrders = $this-&gt;queryCount(&#39;/api/orders&#39;);
+        for ($i = 0; $i &lt; 20; $i++) $create();
+        $largeOrders = $this-&gt;queryCount(&#39;/api/orders&#39;);
+        $this-&gt;assertLessThanOrEqual($smallOrders + 1, $largeOrders);
+        fwrite(STDOUT, &#39;QUERY_SCALING &#39;.json_encode(compact(&#39;smallProducts&#39;, &#39;largeProducts&#39;, &#39;smallOrders&#39;, &#39;largeOrders&#39;)).PHP_EOL);
+    }
+}</code></pre><p class="source-link"><a href="backend/my-project/tests/Feature/QueryScalingTest.php">فتح الملف الأصلي</a></p></details>
+<div class="note good">الاختبار الجديد نجح: المنتجات <code>3 → 3</code> استعلامات، والطلبات <code>4 → 4</code>. هذه أعداد في اختبار معزول؛ قد يضيف توثيق المستخدم وفحص GTID استعلامات ثابتة في التشغيل الفعلي. المطلوب هنا ألا يزيد العدد باستعلام لكل صف.</div></article></section>
+
+<section id="replica"><header><span class="num">02</span><div><h2>نسخة القراءة والاتساق</h2><p>نوزّع القراءة، لكن لا نسمح للمستخدم برؤية سجل قديم بعد نجاح كتابته.</p></div></header><article class="card"><h3>2.1 Primary وReplica: مسؤوليتان مختلفتان</h3><p>الـ<code>Primary</code> هو وجهة الكتابة، والـ<code>Replica</code> يطبّق تغييرات المصدر ويُستخدم لتوزيع قراءات التطبيق. النسخ غير المتزامن يعني أن نجاح الكتابة على المصدر لا يضمن أن النسخة طبّقتها في اللحظة نفسها.</p><div class="flow"><div>Laravel<small>قراءة / كتابة</small></div><b>⇄</b><div>Primary · server 1<small>كل الكتابات ومصدر الحقيقة</small></div><b>←</b><div>Replica · server 2<small>قراءات بعد التحقق من اللحاق</small></div></div><p>خدمة المخزون ليست نسخة من قاعدة Laravel؛ لها قاعدة مستقلة ومالك مختلف للبيانات. لا نستخدم Replica الكتالوج بديلًا عن سؤال خدمة المخزون عن كمية متاحة الآن.</p>
+<details class="source"><summary>خادم المصدر وخادم النسخة ومعرّفات GTID <span class="path" dir="ltr">docker-compose.yml · L3–54</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-6">نسخ الكود</button></div><pre><code id="source-6" dir="ltr" data-source="docker-compose.yml" data-first="2" data-last="54">  mysql:
+    image: mysql:8.0
+    container_name: ecommerce-mysql
+    command: [&quot;--server-id=1&quot;, &quot;--log-bin=mysql-bin&quot;, &quot;--binlog-format=ROW&quot;, &quot;--gtid-mode=ON&quot;, &quot;--enforce-gtid-consistency=ON&quot;]
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_password
+    ports:
+      - &quot;3307:3306&quot;
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;mysqladmin&quot;, &quot;ping&quot;, &quot;-h&quot;, &quot;localhost&quot;]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    secrets:
+      - mysql_root_password
+      - mysql_password
+
+  # Application read replica, provisioned from a consistent primary snapshot.
+  mysql-replica:
+    image: mysql:8.0
+    container_name: ecommerce-mysql-replica
+    restart: unless-stopped
+    command: [&quot;--server-id=2&quot;, &quot;--log-bin=mysql-bin&quot;, &quot;--relay-log=replica-relay&quot;, &quot;--binlog-format=ROW&quot;, &quot;--gtid-mode=ON&quot;, &quot;--enforce-gtid-consistency=ON&quot;, &quot;--read-only=ON&quot;]
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_replica_root_password
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_password
+    volumes:
+      - mysql_replica_data:/var/lib/mysql
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;mysqladmin&quot;, &quot;ping&quot;, &quot;-h&quot;, &quot;localhost&quot;]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    secrets:
+      - mysql_replica_root_password
+      - mysql_password
+
+  # ─── MySQL Database (Inventory Service) ───────────────────
+  inventory-mysql:
+    image: mysql:8.0</code></pre><p class="source-link"><a href="docker-compose.yml">فتح الملف الأصلي</a></p></details>
+<div class="note">تعريف خادم ثانٍ في Docker لا ينشئ نسخًا فعليًا وحده. الحالة الحالية مهيأة سابقًا من لقطة متسقة؛ النشر الجديد يحتاج أيضًا تهيئة بيانات النسخة وحساب النسخ واتصالها بالمصدر، ثم التحقق من حالتها.</div>
+<h3>2.2 تنظيم عمليات القراءة والكتابة</h3><p>إعداد <code>read</code> يشير إلى <code>mysql-replica</code> عندما تكون النسخة مفعّلة، و<code>write</code> يشير إلى <code>mysql</code>. استعلامات التعديل تتجه إلى اتصال الكتابة. داخل المعاملات وبعد الكتابة نقرأ من المصدر عندما نحتاج اتساقًا.</p>
+<details class="source" open><summary>توصيلات القراءة والكتابة وsticky <span class="path" dir="ltr">backend/my-project/config/database.php · L46–64</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-7">نسخ الكود</button></div><pre><code id="source-7" dir="ltr" data-source="backend/my-project/config/database.php" data-first="45" data-last="64">        &#39;mysql&#39; =&gt; [
+            &#39;read&#39; =&gt; [&#39;host&#39; =&gt; [env(&#39;DB_REPLICA_ENABLED&#39;, false) ? env(&#39;DB_READ_HOST&#39;, env(&#39;DB_HOST&#39;, &#39;127.0.0.1&#39;)) : env(&#39;DB_HOST&#39;, &#39;127.0.0.1&#39;)]],
+            &#39;write&#39; =&gt; [&#39;host&#39; =&gt; [env(&#39;DB_HOST&#39;, &#39;127.0.0.1&#39;)]],
+            &#39;sticky&#39; =&gt; true,
+            &#39;driver&#39; =&gt; &#39;mysql&#39;,
+            &#39;url&#39; =&gt; env(&#39;DB_URL&#39;),
+            &#39;host&#39; =&gt; env(&#39;DB_HOST&#39;, &#39;127.0.0.1&#39;),
+            &#39;port&#39; =&gt; env(&#39;DB_PORT&#39;, &#39;3306&#39;),
+            &#39;database&#39; =&gt; env(&#39;DB_DATABASE&#39;, &#39;laravel&#39;),
+            &#39;username&#39; =&gt; env(&#39;DB_USERNAME&#39;, &#39;root&#39;),
+            &#39;password&#39; =&gt; env(&#39;DB_PASSWORD&#39;, &#39;&#39;),
+            &#39;unix_socket&#39; =&gt; env(&#39;DB_SOCKET&#39;, &#39;&#39;),
+            &#39;charset&#39; =&gt; env(&#39;DB_CHARSET&#39;, &#39;utf8mb4&#39;),
+            &#39;collation&#39; =&gt; env(&#39;DB_COLLATION&#39;, &#39;utf8mb4_unicode_ci&#39;),
+            &#39;prefix&#39; =&gt; &#39;&#39;,
+            &#39;prefix_indexes&#39; =&gt; true,
+            &#39;strict&#39; =&gt; true,
+            &#39;engine&#39; =&gt; null,
+            &#39;options&#39; =&gt; extension_loaded(&#39;pdo_mysql&#39;) ? array_filter([</code></pre><p class="source-link"><a href="backend/my-project/config/database.php">فتح الملف الأصلي</a></p></details>
+<p><code>sticky = true</code> يساعد بعد كتابة داخل دورة الطلب نفسها. لكنه وحده لا يحمي قراءة تأتي في HTTP request جديد بعد إعادة تحميل الصفحة؛ لذلك توجد طبقة اتساق إضافية.</p>
+<h3>2.3 التأخير وRead-after-write</h3><p>المشروع يأخذ موضع <code>gtid_executed</code> من المصدر، ثم يسأل النسخة هل طبّقت هذه المجموعة باستخدام <code>GTID_SUBSET</code>. إن طبّقتها يمكن توجيه القراءة إليها. إن كانت متأخرة، أو تعذر التحقق، تُقرأ البيانات من المصدر. هذه معالجة لاتساق القراءة؛ ليست ادعاءً بأن تأخير النسخ اختفى دائمًا.</p>
+<details class="source" open><summary>الخوارزمية كاملة: فحص GTID والرجوع الآمن إلى المصدر <span class="path" dir="ltr">backend/my-project/app/Services/ReadReplicaRouter.php · L1–38</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-8">نسخ الكود</button></div><pre><code id="source-8" dir="ltr" data-source="backend/my-project/app/Services/ReadReplicaRouter.php" data-first="0" data-last="38">&lt;?php
+
+namespace App\Services;
+
+use Illuminate\Database\Connection;
+
+class ReadReplicaRouter
+{
+    public function route(Connection $connection, bool $recentWrite = false): string
+    {
+        $connection-&gt;useWriteConnectionWhenReading(false);
+        if ($recentWrite || $connection-&gt;transactionLevel() &gt; 0) {
+            $connection-&gt;useWriteConnectionWhenReading();
+            return &#39;primary&#39;;
+        }
+
+        try {
+            // A lightweight primary fence also protects anonymous product reads and evicted markers.
+            // sticky alone only protects reads within the same request.
+            $position = $connection-&gt;selectFromWriteConnection(&#39;SELECT @@GLOBAL.gtid_executed AS position&#39;);
+            $gtid = (string) ($position[0]-&gt;position ?? &#39;&#39;);
+            if ($gtid === &#39;&#39;) {
+                throw new \RuntimeException(&#39;A primary GTID fence is required.&#39;);
+            }
+            $statement = $connection-&gt;getReadPdo()-&gt;prepare(&#39;SELECT GTID_SUBSET(?, @@GLOBAL.gtid_executed)&#39;);
+            $statement-&gt;execute([$gtid]);
+            if ((string) $statement-&gt;fetchColumn() !== &#39;1&#39;) {
+                throw new \RuntimeException(&#39;Replica has not applied the primary fence.&#39;);
+            }
+            return &#39;replica&#39;;
+        } catch (\Throwable) {
+            // Lag, connection errors, or unverified state must never expose an older representation.
+            $connection-&gt;useWriteConnectionWhenReading();
+            return &#39;primary&#39;;
+        }
+    }
+}</code></pre><p class="source-link"><a href="backend/my-project/app/Services/ReadReplicaRouter.php">فتح الملف الأصلي</a></p></details>
+<p>يوجد أيضًا مفتاح <code>recent-write:user:{id}</code> لمدة خمس ثوانٍ لتفضيل المصدر للمستخدم الذي كتب مؤخرًا. هو تحسين للتوجيه، وليس أساس الصحة الوحيد؛ فحص GTID يحمي حتى بعد انتهاء المفتاح أو طرده من Redis، ويشمل القراء المجهولين.</p>
+<details class="source"><summary>تنفيذ التوجيه قبل ربط نماذج المسارات وتسجيل الكتابات <span class="path" dir="ltr">backend/my-project/app/Http/Middleware/ReadReplicaConsistency.php · L1–50</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-9">نسخ الكود</button></div><pre><code id="source-9" dir="ltr" data-source="backend/my-project/app/Http/Middleware/ReadReplicaConsistency.php" data-first="0" data-last="50">&lt;?php
+
+namespace App\Http\Middleware;
+
+use App\Services\ReadReplicaRouter;
+use Closure;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+
+class ReadReplicaConsistency
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        if (! config(&#39;database.replica_enabled&#39;) || config(&#39;database.default&#39;) !== &#39;mysql&#39;) {
+            return $next($request);
+        }
+
+        $connection = DB::connection(&#39;mysql&#39;);
+        app(ReadReplicaRouter::class)-&gt;route($connection);
+        $user = Auth::guard(&#39;api&#39;)-&gt;user();
+        if ($user !== null) {
+            try {
+                if (Cache::has(&#39;recent-write:user:&#39;.$user-&gt;id)) {
+                    $connection-&gt;useWriteConnectionWhenReading();
+                }
+            } catch (\Throwable) {
+                $connection-&gt;useWriteConnectionWhenReading();
+            }
+        }
+
+        $wrote = false;
+        DB::listen(function (QueryExecuted $query) use (&amp;$wrote): void {
+            if ($query-&gt;connectionName === &#39;mysql&#39; &amp;&amp; preg_match(&#39;/^\s*(insert|update|delete|replace|alter|create|drop|truncate)\b/i&#39;, $query-&gt;sql)) {
+                $wrote = true;
+            }
+        });
+        $response = $next($request);
+        $user = Auth::guard(&#39;api&#39;)-&gt;user();
+        if ($wrote &amp;&amp; $user !== null) {
+            // The GTID fence remains the safety net even if Redis evicts this optimization marker.
+            Cache::put(&#39;recent-write:user:&#39;.$user-&gt;id, true, 5);
+        }
+        return $response;
+    }
+}</code></pre><p class="source-link"><a href="backend/my-project/app/Http/Middleware/ReadReplicaConsistency.php">فتح الملف الأصلي</a></p></details>
+<p>تنفيذ الطبقة قبل Route Model Binding مهم: نريد أن يُحمّل المنتج وسعره وحالته من الاتصال الذي تحققنا منه، لا أن نصحح التوجيه بعد تحميل نسخة قديمة منه.</p>
+<div class="table-wrap"><table><thead><tr><th>الحالة</th><th>المصدر الذي أثبته الاختبار المحفوظ</th><th>المعنى</th></tr></thead><tbody><tr><td>النسخة لحقت بالمصدر</td><td class="num">server 2</td><td>تُستخدم Replica فعلًا للقراءة</td></tr><tr><td>إيقاف تطبيق تغييرات النسخة مؤقتًا ثم تعديل منتج</td><td class="num">server 1</td><td>القارئ يرى الإنشاء والسعر الجديد مباشرة</td></tr><tr><td>انتهاء مفتاح الكاتب بعد خمس ثوانٍ مع استمرار التأخير</td><td class="num">server 1</td><td>فحص GTID يمنع الرجوع إلى نسخة قديمة</td></tr><tr><td>استئناف النسخ ولحاق النسخة</td><td class="num">server 2</td><td>العودة إلى توزيع القراءات</td></tr></tbody></table></div>
+<p>اختبار إيقاف النسخ أعلاه دليل حقيقي محفوظ من المراجعة السابقة، ولم يُعد تشغيل الإيقاف في هذه الجولة. الفحص الحالي غير المغيّر أظهر <code>Replica_IO_Running=Yes</code> و<code>Replica_SQL_Running=Yes</code> وتأخيرًا قدره <code>0</code> ثانية وقت الفحص، ونجحت اختبارات التوجيه الثلاثة. الصفر لقطة زمنية وليس ضمانًا مستقبليًا.</p><p class="evidence"><a href="docs/performance/focused-review/replica-current.json">الحالة الحالية</a> · <a href="docs/performance/focused-review/replica-router-tests.txt">اختبارات التوجيه</a> · <a href="docs/checklist/requirement-3/professor-fixes/replica/verification.json">دليل التأخير وRead-after-write المحفوظ</a></p></article></section>
+
+<section id="redis"><header><span class="num">03</span><div><h2>Redis وCache Aside</h2><p>الكاش يختصر قراءة قابلة لإعادة البناء، ولا يصبح مالكًا جديدًا للبيانات الحساسة للتزامن.</p></div></header><article class="card"><h3>3.1 ما الذي يعنيه إعداد Redis فعلًا؟</h3><p>تشغيل الحاوية ليس كل العمل. يجب أن تستخدم Laravel مخزن <code>redis</code>، وأن يتصل PHP بالمضيف الصحيح عبر <code>phpredis</code>، وأن تظهر المفاتيح ومدة بقائها فعلًا. المشروع يوجّه كاش التطبيق إلى اتصال <code>cache</code> الذي يستخدم قاعدة Redis رقم 1 افتراضيًا.</p>
+<details class="source"><summary>خادم Redis وحد الذاكرة وسياسة الطرد <span class="path" dir="ltr">docker-compose.yml · L112–123</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-10">نسخ الكود</button></div><pre><code id="source-10" dir="ltr" data-source="docker-compose.yml" data-first="111" data-last="123">      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    networks:
+      ecommerce-network: {}
+      performance-network:
+        aliases: [backend-performance]
+    secrets:
+      - mysql_password
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8000/up&quot;]</code></pre><p class="source-link"><a href="docker-compose.yml">فتح الملف الأصلي</a></p></details>
+<details class="source"><summary>مخزن Laravel واتصال Redis <span class="path" dir="ltr">backend/my-project/config/cache.php · L74–78</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-11">نسخ الكود</button></div><pre><code id="source-11" dir="ltr" data-source="backend/my-project/config/cache.php" data-first="73" data-last="78">        &#39;redis&#39; =&gt; [
+            &#39;driver&#39; =&gt; &#39;redis&#39;,
+            &#39;connection&#39; =&gt; env(&#39;REDIS_CACHE_CONNECTION&#39;, &#39;cache&#39;),
+            &#39;lock_connection&#39; =&gt; env(&#39;REDIS_CACHE_LOCK_CONNECTION&#39;, &#39;default&#39;),
+        ],</code></pre><p class="source-link"><a href="backend/my-project/config/cache.php">فتح الملف الأصلي</a></p></details>
+<details class="source"><summary>اتصال Redis الخاص بالكاش <span class="path" dir="ltr">backend/my-project/config/database.php · L167–175</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-12">نسخ الكود</button></div><pre><code id="source-12" dir="ltr" data-source="backend/my-project/config/database.php" data-first="166" data-last="175">        &#39;cache&#39; =&gt; [
+            &#39;url&#39; =&gt; env(&#39;REDIS_URL&#39;),
+            &#39;host&#39; =&gt; env(&#39;REDIS_HOST&#39;, &#39;127.0.0.1&#39;),
+            &#39;username&#39; =&gt; env(&#39;REDIS_USERNAME&#39;),
+            &#39;password&#39; =&gt; env(&#39;REDIS_PASSWORD&#39;),
+            &#39;port&#39; =&gt; env(&#39;REDIS_PORT&#39;, &#39;6379&#39;),
+            &#39;database&#39; =&gt; env(&#39;REDIS_CACHE_DB&#39;, &#39;1&#39;),
+        ],</code></pre><p class="source-link"><a href="backend/my-project/config/database.php">فتح الملف الأصلي</a></p></details>
+<p>الإعداد الحالي يضع حدًا قدره <code>512mb</code> مع <code>allkeys-lru</code>. معنى ذلك أن مفتاحًا قد يُطرد قبل TTL تحت ضغط الذاكرة. رقم قاعدة Redis يفصل أسماء البيانات منطقيًا، لكنه لا يعزل سياسة الذاكرة الخاصة بالخادم.</p>
+<h3>3.2 نمط Cache Aside خطوة بخطوة</h3><ol><li>يطلب التطبيق قيمة من Redis.</li><li>عند <code>Cache Hit</code> يعيد القيمة المسموح بإعادة استخدامها.</li><li>عند <code>Cache Miss</code> يقرأ من قاعدة البيانات ويحسب النتيجة.</li><li>يضع النتيجة في Redis مع TTL، ثم يعيدها للطالب.</li><li>عند تعديل المصدر يمسح المفتاح المتأثر، فتُعاد تعبئته في القراءة التالية.</li></ol>
+<div class="flow"><div>طلب القراءة</div><b>⇄</b><div>Redis<small>Hit: قيمة جاهزة</small></div><b>⇄</b><div>DB عند Miss<small>حساب ثم Put مع TTL</small></div></div>
+<p><code>Cache::remember</code> في لوحة الإحصاءات يعبّر عن هذا النمط: الدالة التي تبني الإحصاءات تعمل عند غياب القيمة، بينما يحافظ المفتاح على عزل بيانات كل مستخدم عن الآخر.</p>
+<details class="source" open><summary>Cache Aside الفعلي للوحة الإحصاءات <span class="path" dir="ltr">backend/my-project/app/Http/Controllers/DashboardController.php · L20–42</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-13">نسخ الكود</button></div><pre><code id="source-13" dir="ltr" data-source="backend/my-project/app/Http/Controllers/DashboardController.php" data-first="19" data-last="42">    private const CACHE_TTL_SECONDS = 60;
+
+    public function __invoke(): JsonResponse
+    {
+        $user = Auth::guard(&#39;api&#39;)-&gt;user();
+        $isAdmin = $user-&gt;role === &#39;admin&#39;;
+
+        $data = Cache::remember(
+            DashboardCache::cacheKey($user-&gt;id, $isAdmin),
+            self::CACHE_TTL_SECONDS,
+            fn () =&gt; $this-&gt;buildStats($user-&gt;id, $isAdmin)
+        );
+
+        return response()-&gt;json([&#39;data&#39; =&gt; $data]);
+    }
+
+    private function buildStats(int $userId, bool $isAdmin): array
+    {
+        // One pass over the orders table instead of three separate queries.
+        // created_at is compared as a range, not with whereDate(), so an index can still be used.
+        $orders = DB::table(&#39;orders&#39;);
+        if (! $isAdmin) {
+            $orders-&gt;where(&#39;user_id&#39;, $userId);</code></pre><p class="source-link"><a href="backend/my-project/app/Http/Controllers/DashboardController.php">فتح الملف الأصلي</a></p></details>
+<p>أما المنتج، فلا يُعاد من الكاش كاملًا بلا تحقق. Route Binding يقرأ حقوله الموثوقة من اتصال قاعدة البيانات المحدد، والكاش يعيد استخدام علاقة التصنيف. هذا يوفّر تحميل العلاقة، بينما يبقى السعر والحالة موثوقين والمخزون حيًا.</p>
+<details class="source"><summary>مسار المنتج: Metadata من الكاش وكمية من gRPC <span class="path" dir="ltr">backend/my-project/app/Http/Controllers/ProductController.php · L41–79</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-14">نسخ الكود</button></div><pre><code id="source-14" dir="ltr" data-source="backend/my-project/app/Http/Controllers/ProductController.php" data-first="40" data-last="79">    public function show(Product $product): JsonResponse|ProductResource
+    {
+        if (! $product-&gt;is_active &amp;&amp; request()-&gt;user()?-&gt;role !== &#39;admin&#39;) {
+            abort(404);
+        }
+
+        // Route binding remains authoritative for price, visibility and other product fields.
+        // Only the category relation is reused from the non-stock cache snapshot.
+        $cached = $this-&gt;productCache-&gt;get($product-&gt;id);
+        if ($cached === null) {
+            $product-&gt;load(&#39;category&#39;);
+            $this-&gt;productCache-&gt;put($product);
+        } else {
+            $category = $cached[&#39;category&#39;] ?? null;
+            $product-&gt;setRelation(&#39;category&#39;, $category === null ? null :
+                $product-&gt;category()-&gt;getRelated()-&gt;newFromBuilder($category, $product-&gt;getConnectionName()));
+        }
+
+        try {
+            $stock = $this-&gt;inventoryClient-&gt;getStock($product-&gt;id);
+        } catch (InventoryUnavailableException $exception) {
+            return response()-&gt;json([
+                &#39;message&#39; =&gt; &#39;Current inventory is unavailable. Please try again.&#39;,
+                &#39;code&#39; =&gt; $exception-&gt;getCodeName(),
+            ], 503);
+        }
+
+        $product-&gt;setAttribute(&#39;stock&#39;, $stock);
+
+        return new ProductResource($product);
+    }
+
+    public function store(StoreProductRequest $request): JsonResponse
+    {
+        $product = $this-&gt;products-&gt;create($request-&gt;validated());
+
+        return (new ProductResource($product-&gt;load(&#39;category&#39;)))-&gt;response()-&gt;setStatusCode(201);
+    }</code></pre><p class="source-link"><a href="backend/my-project/app/Http/Controllers/ProductController.php">فتح الملف الأصلي</a></p></details>
+<h3>3.3 TTL لكل نوع، وليس رقمًا عشوائيًا واحدًا</h3><div class="table-wrap"><table><thead><tr><th>النوع</th><th>المفتاح / النطاق</th><th>TTL</th><th>السبب وسلوك التحديث</th></tr></thead><tbody><tr><td>لقطة بيانات المنتج وعلاقة التصنيف</td><td><code>product:{id}:details</code></td><td class="num">300 s</td><td>بيانات عامة قابلة لإعادة البناء؛ تُمسح عند تعديل المنتج أو تصنيفه أو حذفه</td></tr><tr><td>إحصاءات العميل</td><td><code>dashboard:user:{id}</code></td><td class="num">60 s</td><td>عزل المستخدم، ومسحها بعد إنشاء طلبه أو تغيير حالته</td></tr><tr><td>إحصاءات المسؤول</td><td><code>dashboard:admin</code></td><td class="num">60 s</td><td>مفتاح منفصل؛ يُمسح عند تغييرات الطلبات والمنتجات المؤثرة</td></tr><tr><td>علامة كتابة حديثة</td><td><code>recent-write:user:{id}</code></td><td class="num">5 s</td><td>توجيه القراءة، وليست سجلًا للمنتج أو بديلًا عن GTID</td></tr><tr><td>عداد فشل الدخول / حظر IP</td><td>بيانات ضبط أمني، لا كاش منتجات</td><td class="num">60 / 300 s</td><td>سياسة مختلفة عن TTL بيانات العرض؛ لا تُخلط مع بيانات قابلة للتقادم</td></tr></tbody></table></div>
+<p>TTL يحدد صلاحية الكاش، لكنه لا يحقق وحده إظهار التعديل فورًا. وانتظار 300 ثانية لاختبار كل قراءة غير ضروري: فحص Redis أعطى TTL فعليًا قدره 300 للمنتج و60 للوحة، واختبار الزمن المعزول تحقق من انتهاء مدد التطبيق، ومفتاح تجريبي قصير انتهى فعلًا في Redis.</p><p>كما أن مشاركة مخزن ذاكرة قابل للطرد مع عدادات أمنية لها تبعات مختلفة عن ضياع كاش التصنيف. ينبغي عند تصميم نشر أكبر أن تكون سياسة هذا النوع من بيانات الضبط صريحة؛ فصل قواعد الأرقام داخل Redis وحده لا يغيّر <code>allkeys-lru</code>.</p>
+<h3>3.4 Cache Invalidation: ما الذي يُمسح ومتى؟</h3><p>بعد نجاح تعديل المنتج تُمسح لقطته. بعد تعديل التصنيف تُمسح لقطات المنتجات التابعة له على دفعات. بعد كتابة طلب تُمسح إحصاءات صاحبه والمسؤول. بقية الإحصاءات قد تبقى حتى انتهاء 60 ثانية وفق السياسة المعلنة؛ لا نزعم تحديث كل مفتاح في النظام عند أي كتابة.</p>
+<details class="source" open><summary>سياسة تخزين المنتج ومسحه ومسح منتجات التصنيف <span class="path" dir="ltr">backend/my-project/app/Services/ProductCache.php · L1–41</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-15">نسخ الكود</button></div><pre><code id="source-15" dir="ltr" data-source="backend/my-project/app/Services/ProductCache.php" data-first="0" data-last="41">&lt;?php
+
+namespace App\Services;
+
+use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
+
+class ProductCache
+{
+    public function get(int $id): ?array
+    {
+        $value = Cache::get(&quot;product:{$id}:details&quot;);
+
+        return is_array($value) ? $value : null;
+    }
+
+    public function put(Product $product): void
+    {
+        $product-&gt;loadMissing(&#39;category&#39;);
+        $attributes = $product-&gt;toArray();
+        // Stock must never enter this cache, even if a caller already loaded it.
+        unset($attributes[&#39;stock&#39;]);
+        Cache::put(&quot;product:{$product-&gt;id}:details&quot;, $attributes, 300);
+    }
+
+    public function forget(int $id): void
+    {
+        Cache::forget(&quot;product:{$id}:details&quot;);
+    }
+
+    public function forgetCategory(int $categoryId): void
+    {
+        Product::withTrashed()-&gt;where(&#39;category_id&#39;, $categoryId)-&gt;select(&#39;id&#39;)
+            -&gt;chunkById(100, function ($products): void {
+                foreach ($products as $product) {
+                    $this-&gt;forget($product-&gt;id);
+                }
+            });
+    }
+}</code></pre><p class="source-link"><a href="backend/my-project/app/Services/ProductCache.php">فتح الملف الأصلي</a></p></details>
+<details class="source"><summary>الكتابة ثم مسح كاش المنتج <span class="path" dir="ltr">backend/my-project/app/Services/ProductService.php · L38–59</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-16">نسخ الكود</button></div><pre><code id="source-16" dir="ltr" data-source="backend/my-project/app/Services/ProductService.php" data-first="37" data-last="59">    public function update(int $id, array $data): Product
+    {
+        $product = Product::findOrFail($id);
+
+        if (isset($data[&#39;image&#39;]) &amp;&amp; $data[&#39;image&#39;] instanceof \Illuminate\Http\UploadedFile) {
+            // Delete old image if exists
+            if ($product-&gt;image) {
+                Storage::disk(&#39;public&#39;)-&gt;delete($product-&gt;image);
+            }
+            $data[&#39;image&#39;] = $data[&#39;image&#39;]-&gt;store(&#39;products&#39;, &#39;public&#39;);
+        }
+
+        $product-&gt;update($data);
+        $this-&gt;cache-&gt;forget($id);
+        DashboardCache::forgetAdmin();
+
+        return $product-&gt;fresh(&#39;category&#39;);
+    }
+
+    /**
+     * Soft delete a product.
+     */</code></pre><p class="source-link"><a href="backend/my-project/app/Services/ProductService.php">فتح الملف الأصلي</a></p></details>
+<details class="source"><summary>تعديل التصنيف مع إبطال الكاش التابع <span class="path" dir="ltr">backend/my-project/app/Http/Controllers/CategoryController.php · L31–38</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-17">نسخ الكود</button></div><pre><code id="source-17" dir="ltr" data-source="backend/my-project/app/Http/Controllers/CategoryController.php" data-first="30" data-last="38">    public function update(StoreCategoryRequest $request, Category $category, ProductCache $cache): CategoryResource
+    {
+        $category-&gt;update($request-&gt;validated());
+        $cache-&gt;forgetCategory($category-&gt;id);
+
+        return new CategoryResource($category-&gt;refresh());
+    }</code></pre><p class="source-link"><a href="backend/my-project/app/Http/Controllers/CategoryController.php">فتح الملف الأصلي</a></p></details>
+<details class="source"><summary>مفاتيح منفصلة للعميل والمسؤول وإبطالها <span class="path" dir="ltr">backend/my-project/app/Services/DashboardCache.php · L1–25</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-18">نسخ الكود</button></div><pre><code id="source-18" dir="ltr" data-source="backend/my-project/app/Services/DashboardCache.php" data-first="0" data-last="25">&lt;?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\Cache;
+
+class DashboardCache
+{
+    public static function cacheKey(int $userId, bool $isAdmin): string
+    {
+        return $isAdmin ? &#39;dashboard:admin&#39; : &quot;dashboard:user:{$userId}&quot;;
+    }
+
+    public static function forgetCache(int $userId): void
+    {
+        Cache::forget(self::cacheKey($userId, false));
+        self::forgetAdmin();
+    }
+
+    public static function forgetAdmin(): void
+    {
+        Cache::forget(&#39;dashboard:admin&#39;);
+    }
+}</code></pre><p class="source-link"><a href="backend/my-project/app/Services/DashboardCache.php">فتح الملف الأصلي</a></p></details>
+<p>كُشف سابقًا خلل مهم: تعديل اسم التصنيف لم يمسح لقطة المنتج، فكان جسم المنتج القديم يُعاد كما هو، وETag القديم يُنتج <code>304</code> خاطئًا. الإصلاح ليس تغيير hash فقط؛ بل إبطال البيانات التابعة حتى يُحسب ETag من تمثيل جديد فعلًا.</p>
+<h3>3.5 ما الذي نخزّنه وما الذي لا نخزّنه؟</h3><p>البيانات العامة للمنتج وعلاقات عرضه، والتجميعات التي تقبل مدة تقادم معلنة، مناسبة للكاش مع حدود وعزل واضحين. حتى لو احتوت اللقطة على حقول عامة إضافية، فإن المسار الحالي يعيد استخدام التصنيف منها فقط؛ السعر والحالة يؤخذان من النموذج الموثوق.</p><p>لا نضع <strong>المخزون المتاح</strong> في Redis: الكمية ملك خدمة المخزون وتدخل في قرار حجز متزامن. كذلك لا نجعل قبول الحجز قرارًا من كاش قديم، ولا نشارك استجابات الطلبات الخاصة بين العملاء، ولا نخزن كلمات المرور أو JWT الخام بوصفها بيانات عرض. بيانات مثل قوائم إبطال الرموز هي حالة أمنية بسياسة مختلفة عن كاش الكتالوج.</p><p class="evidence">الدليل الفعلي: <a href="docs/performance/focused-review/cache-and-edit-after-gzip.json">docs/performance/focused-review/cache-and-edit-after-gzip.json</a> · <a href="backend/my-project/tests/Feature/PerformanceCachingTest.php">اختبارات TTL والعزل والإبطال والمخزون الحي</a></p></article></section>
+
+<section id="http"><header><span class="num">04</span><div><h2>HTTP: ETag و304 وgzip</h2><p>ETag يقلل إعادة إرسال المحتوى غير المتغيّر، وgzip يقلل حجم المحتوى الذي يجب إرساله. لكل منهما وظيفة مستقلة.</p></div></header><article class="card"><h3>4.1 ETag وIf-None-Match</h3><p>ETag مُعرّف لتمثيل المورد. يحتفظ العميل بالقيمة ثم يرسلها في <code>If-None-Match</code>. إذا لم يتغير التمثيل، يعود <code>304 Not Modified</code> بلا جسم. وإذا تغيّر السعر أو التصنيف أو المخزون الداخل في التمثيل، يجب أن تأتي استجابة <code>200</code> بجسم جديد ومعرّف جديد.</p>
+<div class="example"><p>تسلسل HTTP تعليمي؛ انسخ قيمة ETag الفعلية من الرد الأول</p><pre dir="ltr"><code>GET /api/products/1
+Accept: application/json
+
+HTTP/1.1 200 OK
+ETag: W/&quot;current-value&quot;
+
+GET /api/products/1
+If-None-Match: W/&quot;current-value&quot;
+
+HTTP/1.1 304 Not Modified
+[no response body]</code></pre></div>
+<details class="source" open><summary>حساب ETag بعد بناء التمثيل الحالي، ثم التحقق الشرطي <span class="path" dir="ltr">backend/my-project/app/Http/Middleware/ConditionalGet.php · L1–26</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-19">نسخ الكود</button></div><pre><code id="source-19" dir="ltr" data-source="backend/my-project/app/Http/Middleware/ConditionalGet.php" data-first="0" data-last="26">&lt;?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class ConditionalGet
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = $next($request);
+        if ($request-&gt;isMethod(&#39;GET&#39;) &amp;&amp; $response instanceof JsonResponse &amp;&amp; $response-&gt;getStatusCode() === 200) {
+            // Compute after rendering: the representation still includes live stock.
+            // A semantic validator remains valid for both gzip and identity bytes.
+            $response-&gt;setEtag(sha1($response-&gt;getContent()), true);
+            $response-&gt;headers-&gt;set(&#39;Cache-Control&#39;, &#39;private, no-cache&#39;);
+            $response-&gt;isNotModified($request);
+        }
+
+        return $response;
+    }
+}</code></pre><p class="source-link"><a href="backend/my-project/app/Http/Middleware/ConditionalGet.php">فتح الملف الأصلي</a></p></details>
+<p>في المشروع تُجلب كمية المخزون قبل قرار 304، حتى لا نثبت تمثيلًا قديمًا. إذن 304 يوفر نقل الجسم، لكنه لا يعني إلغاء كل استعلام SQL أو كل اتصال gRPC. و<code>private, no-cache</code> يسمح بتخزين خاص مع إعادة تحقق؛ وهو مختلف عن <code>no-store</code> الذي يمنع التخزين.</p>
+<h3>4.2 لماذا أصبح ETag ضعيفًا W/ عند إضافة gzip؟</h3><p>بايتات JSON العادية تختلف عن بايتات gzip، رغم تطابق المحتوى بعد الفك. لا يصح إعطاء التمثيلين معرّفًا <em>قويًا</em> واحدًا على أساس تطابق البايتات. اخترنا معرّفًا دلاليًا ضعيفًا <code>W/</code> صالحًا لمقارنة GET الشرطية عبر التمثيلين، مع <code>Vary: Accept-Encoding</code> لتمييز اختيار الترميز.</p><p>الضعف هنا وصف لقواعد المقارنة، لا لسوء البيانات أو غياب الأمان. كما أن hash المستخدم لتعريف المحتوى ليس توقيعًا أمنيًا ولا بديلًا عن JWT.</p>
+<h3>4.3 تشغيل gzip فعليًا على الخلفية</h3><p>قبل الإصلاح كان طلب gzip إلى API على المنفذ 8000 يُرجع JSON عاديًا بلا <code>Content-Encoding</code>. إعداد Nginx الخاص بملفات الواجهة لم يكن يضغط هذا المسار. أضفنا Middleware إلى Laravel نفسها دون بناء أو تعديل الواجهة.</p>
+<ul><li>تُضغط قراءات <code>GET</code> التي تنتج JSON ناجحًا ويقبل عميلها gzip.</li><li>الحد المعتاد 1,024 بايت؛ الرد الصغير أو الذي لا يستفيد من الضغط يبقى عاديًا إذا كان identity مقبولًا.</li><li><code>gzip;q=0</code> يمنع اختيار gzip؛ والتفضيل الصريح لـidentity يُحترم. إذا رفض العميل الترميزين المتاحين، يعود 406 برسالة JSON.</li><li>يضبط الرد <code>Content-Encoding: gzip</code> و<code>Content-Length</code> على حجم الجسم المضغوط، ويحافظ على Vary الموجود.</li><li>لا يُضغط 304 ولا يُرسل له جسم. ولا تُجمع استجابات SSE أو البث الحي داخل buffer بهدف ضغطها. الردود التي تطلب <code>no-transform</code> لا تُحوّل.</li><li>الكتابات والملفات والبث ليست ضمن هذه الطبقة؛ لا يتغير شكل JSON الذي يراه العميل بعد فك الضغط.</li></ul>
+<details class="source"><summary>تنفيذ الضغط والتفاوض كاملًا من المشروع <span class="path" dir="ltr">backend/my-project/app/Http/Middleware/CompressJsonResponse.php · L1–65</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-20">نسخ الكود</button></div><pre><code id="source-20" dir="ltr" data-source="backend/my-project/app/Http/Middleware/CompressJsonResponse.php" data-first="0" data-last="65">&lt;?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\AcceptHeader;
+use Symfony\Component\HttpFoundation\Response;
+
+class CompressJsonResponse
+{
+    private const MIN_BYTES = 1024;
+
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = $next($request);
+        // Limit compression to JSON reads; never buffer SSE or other streams.
+        if (! $request-&gt;is(&#39;api/*&#39;) || ! $request-&gt;isMethod(&#39;GET&#39;) || ! $response instanceof JsonResponse) {
+            return $response;
+        }
+        $response-&gt;setVary(&#39;Accept-Encoding&#39;, false);
+        if ($response-&gt;getStatusCode() !== 200 || $response-&gt;headers-&gt;has(&#39;Content-Encoding&#39;) ||
+            $response-&gt;headers-&gt;hasCacheControlDirective(&#39;no-transform&#39;)) {
+            return $response;
+        }
+
+        $accepted = AcceptHeader::fromString($request-&gt;header(&#39;Accept-Encoding&#39;, &#39;&#39;));
+        $wildcard = $accepted-&gt;get(&#39;*&#39;);
+        $gzip = $accepted-&gt;get(&#39;gzip&#39;) ?? $wildcard;
+        $identity = $accepted-&gt;get(&#39;identity&#39;);
+        $identityAllowed = $identity ? $identity-&gt;getQuality() &gt; 0 : ($wildcard === null || $wildcard-&gt;getQuality() &gt; 0);
+        $gzipAllowed = $gzip !== null &amp;&amp; $gzip-&gt;getQuality() &gt; 0 &amp;&amp; function_exists(&#39;gzencode&#39;);
+        if (! $gzipAllowed) {
+            return $identityAllowed ? $response : $this-&gt;notAcceptable();
+        }
+        if ($identity !== null &amp;&amp; $identity-&gt;getQuality() &gt; $gzip-&gt;getQuality()) {
+            return $response;
+        }
+
+        $content = $response-&gt;getContent();
+        if (strlen($content) &lt; self::MIN_BYTES &amp;&amp; $identityAllowed) {
+            return $response;
+        }
+        $compressed = gzencode($content, 6);
+        if ($compressed === false) {
+            return $identityAllowed ? $response : $this-&gt;notAcceptable();
+        }
+        if (strlen($compressed) &gt;= strlen($content) &amp;&amp; $identityAllowed) {
+            return $response;
+        }
+        $response-&gt;setContent($compressed);
+        $response-&gt;headers-&gt;set(&#39;Content-Encoding&#39;, &#39;gzip&#39;);
+        $response-&gt;headers-&gt;set(&#39;Content-Length&#39;, (string) strlen($compressed));
+
+        return $response;
+    }
+
+    private function notAcceptable(): JsonResponse
+    {
+        return new JsonResponse([&#39;message&#39; =&gt; &#39;No acceptable content encoding is available.&#39;], 406,
+            [&#39;Vary&#39; =&gt; &#39;Accept-Encoding&#39;]);
+    }
+}</code></pre><p class="source-link"><a href="backend/my-project/app/Http/Middleware/CompressJsonResponse.php">فتح الملف الأصلي</a></p></details>
+<details class="source"><summary>تسجيل طبقة الضغط مع طبقات الأمان <span class="path" dir="ltr">backend/my-project/bootstrap/app.php · L16–20</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-21">نسخ الكود</button></div><pre><code id="source-21" dir="ltr" data-source="backend/my-project/bootstrap/app.php" data-first="15" data-last="20">        $middleware-&gt;append(\App\Http\Middleware\SecurityHeaders::class);
+        $middleware-&gt;append(\App\Http\Middleware\CompressJsonResponse::class);
+        $middleware-&gt;redirectGuestsTo(fn (\Illuminate\Http\Request $request) =&gt;
+            $request-&gt;is(&#39;api/*&#39;) ? null : &#39;/&#39;);</code></pre><p class="source-link"><a href="backend/my-project/bootstrap/app.php">فتح الملف الأصلي</a></p></details>
+<h4>القياس الفعلي لجسم نفس الاستجابة</h4><div class="bar-row"><span>قبل gzip</span><div class="track"><div class="bar" style="width:100%"></div></div><strong>18176 B</strong></div><div class="bar-row"><span>بعد gzip</span><div class="track"><div class="bar after" style="width:13.56%"></div></div><strong>2465 B</strong></div><p>التوفير 86.44% من <strong>الجسم</strong>؛ لا يشمل هذا الرقم كل ترويسات HTTP. وبعد الفك عاد الحجم 18176 بايت، مطابقًا للجسم الأصلي. البداية الثنائية <code>1f8b</code> ووجود الترويسة وفك الضغط الناجح أدلة فعلية، وليست استنتاجًا من صغر ملف فقط.</p>
+<h3>4.4 التحقق من الاستجابة Response Validation</h3><p>اختبار ناجح لا يكتفي بالحالة 200. فحصنا أن JSON بعد فك gzip مطابق للنسخة العادية، وأن Content-Length صحيح، وأن ETag مشترك ضعيف، وأن Vary موجود حتى في 304، وأن طلب q=0 غير مضغوط. كما تحققت الاختبارات من الرد الصغير والبث الحي والترميزات غير المقبولة.</p>
+<details class="source"><summary>اختبارات بروتوكول HTTP والضغط <span class="path" dir="ltr">backend/my-project/tests/Feature/HttpCompressionTest.php · L1–73</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-22">نسخ الكود</button></div><pre><code id="source-22" dir="ltr" data-source="backend/my-project/tests/Feature/HttpCompressionTest.php" data-first="0" data-last="73">&lt;?php
+
+namespace Tests\Feature;
+
+use Illuminate\Support\Facades\Route;
+use Tests\TestCase;
+
+class HttpCompressionTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Route::get(&#39;/api/compression-fixture&#39;, fn () =&gt; response()-&gt;json([&#39;data&#39; =&gt; str_repeat(&#39;catalog &#39;, 1000)],
+            200, [&#39;Vary&#39; =&gt; &#39;Origin&#39;]))-&gt;middleware(&#39;conditional.get&#39;);
+        Route::get(&#39;/api/compression-small&#39;, fn () =&gt; response()-&gt;json([&#39;data&#39; =&gt; &#39;small&#39;]));
+        Route::get(&#39;/api/compression-events&#39;, fn () =&gt; response()-&gt;stream(static function (): void {
+            echo str_repeat(&quot;event: update\ndata: test\n\n&quot;, 200);
+        }, 200, [&#39;Content-Type&#39; =&gt; &#39;text/event-stream&#39;]));
+    }
+
+    public function test_gzip_decodes_to_the_same_json_and_preserves_vary(): void
+    {
+        $identity = $this-&gt;withHeader(&#39;Accept-Encoding&#39;, &#39;identity&#39;)-&gt;get(&#39;/api/compression-fixture&#39;)-&gt;assertOk();
+        $gzip = $this-&gt;withHeader(&#39;Accept-Encoding&#39;, &#39;gzip&#39;)-&gt;get(&#39;/api/compression-fixture&#39;)
+            -&gt;assertOk()-&gt;assertHeader(&#39;Content-Encoding&#39;, &#39;gzip&#39;);
+        $this-&gt;assertSame($identity-&gt;getContent(), gzdecode($gzip-&gt;getContent()));
+        $this-&gt;assertSame((string) strlen($gzip-&gt;getContent()), $gzip-&gt;headers-&gt;get(&#39;Content-Length&#39;));
+        $this-&gt;assertLessThan(strlen($identity-&gt;getContent()), strlen($gzip-&gt;getContent()));
+        $this-&gt;assertSame($identity-&gt;headers-&gt;get(&#39;ETag&#39;), $gzip-&gt;headers-&gt;get(&#39;ETag&#39;));
+        $this-&gt;assertStringStartsWith(&#39;W/&#39;, $gzip-&gt;headers-&gt;get(&#39;ETag&#39;));
+        $this-&gt;assertContains(&#39;Origin&#39;, $gzip-&gt;baseResponse-&gt;getVary());
+        $this-&gt;assertContains(&#39;Accept-Encoding&#39;, $gzip-&gt;baseResponse-&gt;getVary());
+    }
+
+    public function test_conditional_gzip_read_keeps_304_bodyless_and_varied(): void
+    {
+        $first = $this-&gt;withHeader(&#39;Accept-Encoding&#39;, &#39;gzip&#39;)-&gt;get(&#39;/api/compression-fixture&#39;)-&gt;assertOk();
+        $response = $this-&gt;withHeader(&#39;If-None-Match&#39;, $first-&gt;headers-&gt;get(&#39;ETag&#39;))
+            -&gt;get(&#39;/api/compression-fixture&#39;)-&gt;assertStatus(304)-&gt;assertContent(&#39;&#39;);
+        $response-&gt;assertHeaderMissing(&#39;Content-Encoding&#39;);
+        $this-&gt;assertContains(&#39;Accept-Encoding&#39;, $response-&gt;baseResponse-&gt;getVary());
+    }
+
+    public function test_zero_quality_and_explicit_identity_preference_are_respected(): void
+    {
+        foreach ([&#39;gzip;q=0, *;q=1&#39;, &#39;gzip;q=0.2, identity;q=1&#39;, &#39;br&#39;] as $header) {
+            $this-&gt;withHeader(&#39;Accept-Encoding&#39;, $header)-&gt;get(&#39;/api/compression-fixture&#39;)
+                -&gt;assertOk()-&gt;assertHeaderMissing(&#39;Content-Encoding&#39;)-&gt;assertJsonStructure([&#39;data&#39;]);
+        }
+    }
+
+    public function test_small_json_and_event_streams_are_not_buffered_or_compressed(): void
+    {
+        $this-&gt;withHeader(&#39;Accept-Encoding&#39;, &#39;gzip&#39;)-&gt;get(&#39;/api/compression-small&#39;)
+            -&gt;assertOk()-&gt;assertHeaderMissing(&#39;Content-Encoding&#39;)-&gt;assertJsonPath(&#39;data&#39;, &#39;small&#39;);
+        $stream = $this-&gt;get(&#39;/api/compression-events&#39;)-&gt;assertOk()-&gt;assertHeaderMissing(&#39;Content-Encoding&#39;);
+        $this-&gt;assertStringContainsString(&#39;event: update&#39;, $stream-&gt;streamedContent());
+    }
+
+    public function test_gzip_is_used_for_small_json_when_identity_is_forbidden(): void
+    {
+        $response = $this-&gt;withHeader(&#39;Accept-Encoding&#39;, &#39;gzip, identity;q=0&#39;)-&gt;get(&#39;/api/compression-small&#39;)
+            -&gt;assertOk()-&gt;assertHeader(&#39;Content-Encoding&#39;, &#39;gzip&#39;);
+        $this-&gt;assertSame([&#39;data&#39; =&gt; &#39;small&#39;], json_decode(gzdecode($response-&gt;getContent()), true));
+    }
+
+    public function test_unacceptable_encodings_return_a_consistent_406_error(): void
+    {
+        $this-&gt;withHeader(&#39;Accept-Encoding&#39;, &#39;gzip;q=0, identity;q=0&#39;)-&gt;get(&#39;/api/compression-fixture&#39;)
+            -&gt;assertStatus(406)-&gt;assertJsonStructure([&#39;message&#39;])-&gt;assertHeader(&#39;Vary&#39;, &#39;Accept-Encoding&#39;);
+    }
+}</code></pre><p class="source-link"><a href="backend/my-project/tests/Feature/HttpCompressionTest.php">فتح الملف الأصلي</a></p></details>
+<details class="source"><summary>فحص البايتات الفعلية دون فك ضغط تلقائي من العميل <span class="path" dir="ltr">perf/verify-compression.php · L1–60</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-23">نسخ الكود</button></div><pre><code id="source-23" dir="ltr" data-source="perf/verify-compression.php" data-first="0" data-last="60">&lt;?php
+
+// Read-only wire checks; PHP streams do not automatically decode Content-Encoding.
+$expectGzip = in_array(&#39;--expect-gzip&#39;, $argv, true);
+function compressionRequest(array $headers): array
+{
+    $started = microtime(true);
+    $raw = file_get_contents(&#39;http://127.0.0.1:8000/api/products?per_page=15&#39;, false,
+        stream_context_create([&#39;http&#39; =&gt; [&#39;header&#39; =&gt; implode(&quot;\r\n&quot;, array_merge([&#39;Accept: application/json&#39;], $headers)),
+            &#39;timeout&#39; =&gt; 15, &#39;ignore_errors&#39; =&gt; true]]));
+    if ($raw === false) {
+        throw new RuntimeException(&#39;Wire-check transport failed.&#39;);
+    }
+    preg_match(&#39;/\s(\d{3})\s/&#39;, $http_response_header[0], $status);
+    $responseHeaders = [];
+    foreach ($http_response_header as $header) {
+        if (str_contains($header, &#39;:&#39;)) {
+            [$name, $value] = explode(&#39;:&#39;, $header, 2);
+            $responseHeaders[strtolower($name)] = trim($value);
+        }
+    }
+    return [&#39;status&#39; =&gt; (int) $status[1], &#39;headers&#39; =&gt; $responseHeaders, &#39;raw&#39; =&gt; $raw,
+        &#39;elapsed_ms&#39; =&gt; (microtime(true) - $started) * 1000];
+}
+function compressionRequire(bool $condition, string $message): void
+{
+    if (! $condition) {
+        throw new RuntimeException($message);
+    }
+}
+$identity = compressionRequest([&#39;Accept-Encoding: identity&#39;]);
+$gzip = compressionRequest([&#39;Accept-Encoding: gzip&#39;]);
+$rejected = compressionRequest([&#39;Accept-Encoding: gzip;q=0, identity;q=1&#39;]);
+$etag = $gzip[&#39;headers&#39;][&#39;etag&#39;] ?? &#39;&#39;;
+$conditional = compressionRequest([&#39;Accept-Encoding: gzip&#39;, &#39;If-None-Match: &#39;.$etag]);
+compressionRequire($identity[&#39;status&#39;] === 200 &amp;&amp; $gzip[&#39;status&#39;] === 200, &#39;Product reads failed.&#39;);
+compressionRequire(! isset($rejected[&#39;headers&#39;][&#39;content-encoding&#39;]), &#39;gzip;q=0 must not be compressed.&#39;);
+compressionRequire($conditional[&#39;status&#39;] === 304 &amp;&amp; $conditional[&#39;raw&#39;] === &#39;&#39;, &#39;304 must be bodyless.&#39;);
+$compressed = ($gzip[&#39;headers&#39;][&#39;content-encoding&#39;] ?? &#39;&#39;) === &#39;gzip&#39;;
+$decoded = $compressed ? gzdecode($gzip[&#39;raw&#39;]) : $gzip[&#39;raw&#39;];
+compressionRequire(is_string($decoded) &amp;&amp; $decoded === $identity[&#39;raw&#39;], &#39;Decoded representation differs from identity.&#39;);
+$data = json_decode($decoded, true, flags: JSON_THROW_ON_ERROR);
+compressionRequire(isset($data[&#39;data&#39;]) &amp;&amp; is_array($data[&#39;data&#39;]), &#39;Decoded product schema is invalid.&#39;);
+if ($expectGzip) {
+    compressionRequire($compressed, &#39;Backend gzip is not active.&#39;);
+    compressionRequire(str_starts_with($etag, &#39;W/&#39;), &#39;Shared gzip/identity validator must be weak.&#39;);
+    compressionRequire($etag === $identity[&#39;headers&#39;][&#39;etag&#39;], &#39;Equivalent representations must share the weak validator.&#39;);
+    compressionRequire(str_contains(strtolower($conditional[&#39;headers&#39;][&#39;vary&#39;] ?? &#39;&#39;), &#39;accept-encoding&#39;), &#39;304 must retain Vary.&#39;);
+    compressionRequire((int) ($gzip[&#39;headers&#39;][&#39;content-length&#39;] ?? -1) === strlen($gzip[&#39;raw&#39;]), &#39;Compressed Content-Length is incorrect.&#39;);
+}
+echo json_encode([
+    &#39;gzip_active&#39; =&gt; $compressed, &#39;identity_body_bytes&#39; =&gt; strlen($identity[&#39;raw&#39;]),
+    &#39;gzip_requested_body_bytes&#39; =&gt; strlen($gzip[&#39;raw&#39;]), &#39;decoded_body_bytes&#39; =&gt; strlen($decoded),
+    &#39;saved_body_percent&#39; =&gt; 100 * (1 - strlen($gzip[&#39;raw&#39;]) / strlen($identity[&#39;raw&#39;])),
+    &#39;gzip_magic_hex&#39; =&gt; bin2hex(substr($gzip[&#39;raw&#39;], 0, 2)), &#39;etag&#39; =&gt; $etag,
+    &#39;vary&#39; =&gt; $gzip[&#39;headers&#39;][&#39;vary&#39;] ?? null, &#39;q_zero_respected&#39; =&gt; true,
+    &#39;conditional_status&#39; =&gt; $conditional[&#39;status&#39;], &#39;conditional_body_bytes&#39; =&gt; strlen($conditional[&#39;raw&#39;]),
+    &#39;valid_json&#39; =&gt; true, &#39;same_decoded_representation&#39; =&gt; true, &#39;passed&#39; =&gt; true,
+], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL;</code></pre><p class="source-link"><a href="perf/verify-compression.php">فتح الملف الأصلي</a></p></details>
+<p class="evidence"><a href="docs/performance/focused-review/before-gzip/wire.json">الرد قبل الضغط</a> · <a href="docs/performance/focused-review/after-gzip/wire.json">الرد بعد الضغط</a> · <a href="docs/performance/focused-review/tests-after-gzip.txt">نتائج الاختبارات</a></p></article></section>
+
+<section id="load"><header><span class="num">05</span><div><h2>اختبارات الأداء بـk6</h2><p>المقارنة المفيدة تجمع بين زمن الاستجابة والإنتاجية وصحة الرد، وتحافظ على شروط القياس ظاهرة.</p></div></header><article class="card"><h3>5.1 سيناريوهات تمثل مسارات حقيقية</h3><p>توجد أربعة سيناريوهات قراءة: قائمة المنتجات، تفاصيل منتج مع مخزون حي، تاريخ طلبات عميل، ولوحة الإحصاءات. لها نفس مراحل الحمل المحدود، وتتضمن اختبارات الحالة وسجلات p50 وp95 وp99. التجربة الجديدة أضافت سيناريوًا محددًا للضغط فوق قائمة كاملة من 15 منتجًا.</p>
+<details class="source"><summary>إعداد الحمل والـpercentiles للسيناريوهات الأصلية <span class="path" dir="ltr">perf/k6/common.js · L6–22</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-24">نسخ الكود</button></div><pre><code id="source-24" dir="ltr" data-source="perf/k6/common.js" data-first="5" data-last="22">export const options = {
+  scenarios: {
+    fixed: {
+      executor: &#39;ramping-vus&#39;, startVUs: 0,
+      stages: [{ duration: &#39;5s&#39;, target: 5 }, { duration: &#39;20s&#39;, target: 5 }, { duration: &#39;5s&#39;, target: 0 }],
+      gracefulRampDown: &#39;1s&#39;, gracefulStop: &#39;2s&#39;,
+    },
+  },
+  summaryTrendStats: [&#39;p(50)&#39;, &#39;p(95)&#39;, &#39;p(99)&#39;],
+  // The runner passes --no-thresholds: these targets are informational, never deployment gates.
+  thresholds: { endpoint_duration: [&#39;p(95)&lt;500&#39;], endpoint_errors: [&#39;rate&lt;0.01&#39;] },
+};
+
+const duration = new Trend(&#39;endpoint_duration&#39;, true);
+const errors = new Rate(&#39;endpoint_errors&#39;);
+const conditionalHits = new Counter(&#39;conditional_hits&#39;);
+const etags = {};</code></pre><p class="source-link"><a href="perf/k6/common.js">فتح الملف الأصلي</a></p></details>
+<p>سيناريو الضغط يطلب <code>Accept-Encoding: gzip</code> قبل التعديل وبعده، ويمنع استخدام طلبات شرطية قد تعيد 304 وتجعل حجم الجسم صفرًا. بذلك نقارن نقل محتوى كامل، لا اختلاف نسبة 304 بين التشغيلات. كما يتحقق من Array المنتجات وحقل السعر النصي، فلا يحسب HTML أو JSON خاطئًا نجاحًا لمجرد أنه 200.</p>
+<details class="source" open><summary>السيناريو الجديد كاملًا: زمن وإنتاجية وصحة JSON <span class="path" dir="ltr">perf/k6/compression.js · L1–31</span></summary><div class="codebar"><span>كود فعلي من المشروع</span><button class="copy" data-code="source-25">نسخ الكود</button></div><pre><code id="source-25" dir="ltr" data-source="perf/k6/compression.js" data-first="0" data-last="31">import http from &#39;k6/http&#39;;
+import { check, sleep } from &#39;k6&#39;;
+import { Trend, Rate } from &#39;k6/metrics&#39;;
+
+// Identical requests before/after gzip; no conditional GETs hiding body transfer.
+export const options = {
+  scenarios: { fixed: { executor: &#39;ramping-vus&#39;, startVUs: 0,
+    stages: [{ duration: &#39;5s&#39;, target: 5 }, { duration: &#39;20s&#39;, target: 5 }, { duration: &#39;5s&#39;, target: 0 }],
+    gracefulRampDown: &#39;1s&#39;, gracefulStop: &#39;2s&#39; } },
+  summaryTrendStats: [&#39;p(50)&#39;, &#39;p(95)&#39;, &#39;p(99)&#39;],
+  thresholds: { endpoint_errors: [&#39;rate==0&#39;] },
+};
+const duration = new Trend(&#39;endpoint_duration&#39;, true);
+const errors = new Rate(&#39;endpoint_errors&#39;);
+export default function () {
+  const response = http.get((__ENV.BASE_URL || &#39;http://loadtest-proxy/api&#39;) + &#39;/products?per_page=15&#39;, {
+    headers: { Accept: &#39;application/json&#39;, &#39;Accept-Encoding&#39;: &#39;gzip&#39;,
+      &#39;X-Forwarded-For&#39;: `198.18.${__ENV.RUN_ID || 210}.${__VU}` },
+  });
+  let valid = false;
+  try {
+    const payload = response.json();
+    valid = response.status === 200 &amp;&amp; Array.isArray(payload.data) &amp;&amp; payload.data.length &gt; 0 &amp;&amp;
+      payload.data.length &lt;= 15 &amp;&amp; payload.data.every(product =&gt; typeof product.price === &#39;string&#39;);
+  } catch (_) { valid = false; }
+  duration.add(response.timings.duration);
+  errors.add(!valid);
+  check(response, { &#39;200 with valid decoded product JSON&#39;: () =&gt; valid });
+  sleep(1);
+}</code></pre><p class="source-link"><a href="perf/k6/compression.js">فتح الملف الأصلي</a></p></details>
+<h3>5.2 قبل التحسين وبعده: لا نخلط تجربتين</h3><p><strong>المقارنة التاريخية</strong> أدناه محفوظة من العمل السابق قبل الفهارس والكاش وبعدهما. أُعيد استخراجها من JSON الأصلي؛ لم نرجع قاعدة البيانات الحالية إلى الوراء ولم ندّع إعادة تشغيل المصدر القديم الآن.</p><div class="table-wrap"><table><thead><tr><th>السيناريو</th><th>p50 قبل</th><th>p50 بعد</th><th>p95 قبل</th><th>p95 بعد</th><th>p99 قبل</th><th>p99 بعد</th></tr></thead><tbody><tr><th dir="ltr">dashboard</th><td class="num">43.596</td><td class="num">17.439</td><td class="num">152.890</td><td class="num">28.011</td><td class="num">187.190</td><td class="num">50.854</td></tr><tr><th dir="ltr">products-list</th><td class="num">32.477</td><td class="num">18.407</td><td class="num">101.058</td><td class="num">28.018</td><td class="num">513.227</td><td class="num">32.642</td></tr><tr><th dir="ltr">product-detail</th><td class="num">44.682</td><td class="num">20.651</td><td class="num">173.607</td><td class="num">31.550</td><td class="num">307.162</td><td class="num">34.976</td></tr><tr><th dir="ltr">customer-orders</th><td class="num">53.096</td><td class="num">35.915</td><td class="num">105.157</td><td class="num">48.538</td><td class="num">142.562</td><td class="num">54.742</td></tr></tbody></table></div><p class="caption">الوحدة ms. كل خانة وسيط قيمة المقياس في ثلاثة تشغيلات. مسارات كل JSON أصلي موجودة في <a href="docs/checklist/requirement-3/benchmark-summary.json">docs/checklist/requirement-3/benchmark-summary.json</a>.</p>
+<p><strong>المقارنة الجديدة</strong> تخص إضافة gzip والمعرّف الضعيف على الخلفية المحسّنة أصلًا. أجرينا ثلاثة تشغيلات قبلها وثلاثة بعدها، على نفس البيانات، بخمسة مستخدمين افتراضيين، ومراحل 5/20/5 ثانية، وانتظار ثانية بين الدورات. معرّفات الصورتين اللتين قيس عليهما محفوظة؛ لا نقدّم هذه التجربة باعتبارها baseline جديدًا قبل كل تحسينات قاعدة البيانات.</p><div class="table-wrap"><table><thead><tr><th>الجولة</th><th>p50 ms</th><th>p95 ms</th><th>p99 ms</th><th>req/s</th><th>بايت/طلب مع الترويسات</th><th>الأخطاء</th></tr></thead><tbody><tr><th>قبل gzip</th><td class="num">34.272</td><td class="num">53.192</td><td class="num">81.988</td><td class="num">4.086</td><td class="num">18686.363</td><td class="num">0%</td></tr><tr><th>بعد gzip</th><td class="num">29.012</td><td class="num">39.923</td><td class="num">48.917</td><td class="num">4.040</td><td class="num">2991.000</td><td class="num">0%</td></tr></tbody></table></div>
+<div class="note">نقل بايتات أقل لا يثبت وحده تحسن زمن كل طلب. الضغط يضيف عمل CPU، وزمن الشبكة والانتظار وحالة الذاكرة تؤثر أيضًا. نعرض القيم كما خرجت، حتى إذا كان مقياس ما أبطأ بعد التعديل. تجارب خمسة VUs مع think time ليست قياسًا للقدرة القصوى للخادم.</div>
+<h3>5.3 فهم p50 وp95 وp99</h3><p><code>p50</code> هو وسيط أزمنة الطلبات تقريبًا؛ نصفها أسرع منه ونصفها أبطأ. <code>p95</code> يصف ذيلًا أبطأ: نحو 95% من العينة تقع عنده أو تحته. و<code>p99</code> يركز على الطرف الأبطأ. المتوسط وحده قد يخفي عددًا صغيرًا من الطلبات البطيئة جدًا.</p><p>نأخذ هنا وسيط p95 من <em>ثلاثة تشغيلات</em> لتخفيف أثر جولة شاذة. هذا ليس p95 محسوبًا من دمج كل عينات التشغيلات في مجموعة واحدة. كما أن p99 من حمل قصير يظل مقياسًا محدود الثقة، وليس ضمانًا لكل مستخدم في كل وقت.</p>
+<h3>5.4 Throughput والأخطاء</h3><p><code>http_reqs.rate</code> يقيس الطلبات في الثانية عبر زمن التشغيل الفعلي. عدّ نجاحات HTTP وحده غير كافٍ: المقياس المخصص <code>endpoint_errors</code> في السيناريو الجديد يشمل أيضًا فشل بنية JSON بعد الفك. النتيجة في التشغيلات الستة الجديدة كانت صفر أخطاء.</p><p>أما <code>data_received</code> فيشمل بيانات مستقبلة، لا جسم JSON وحده. نقسمه على عدد الطلبات داخل كل تشغيل ثم نأخذ وسيط النسب؛ لأن التشغيل الذي ينجز طلبات أكثر قد يستقبل مجموع بايتات أكبر رغم أن كل رد أصغر. الرقم المباشر الدقيق لجسم الاستجابة هو الذي قاسه فاحص wire بصورة مستقلة.</p>
+<h4>النتائج المتذبذبة تبقى جزءًا من التقرير</h4><p>في مراجعة سابقة كانت p95 للوحة في أول دفعة حديثة <code>767.839 ms</code>، ثم أعطت إعادة الحمل نفسه بعد الاستقرار <code>62.811 ms</code>، بينما كان after التاريخي <code>28.011 ms</code>. احتُفظت كل هذه الجولات. دفء الكاش أو ازدحام الجهاز تفسيرات محتملة وليست أسبابًا أثبتناها بالتنميط؛ لا نختار أسرع تشغيل ونقدمه وحده على أنه النتيجة.</p>
+<h3>5.5 إثبات ظهور تعديل المنتج مباشرة</h3><ol><li>ننشئ منتج اختبار مملوكًا للأداة ونقرأه لملء الكاش وحفظ ETag.</li><li>نعدّل التصنيف أو السعر عبر API المسؤول، فيُبطل المفتاح المتأثر.</li><li>نرسل GET جديدًا مع ETag القديم؛ يجب أن يأتي <code>200</code> بالبيانات الجديدة، لا 304.</li><li>نكرر GET دون تغيير مع ETag الجديد؛ النتيجة <code>304</code> بلا جسم.</li><li>نحذف المنتج ونثبت أنه لا يظهر من الكاش، ثم نحذف فقط سجلات الاختبار المملوكة للأداة.</li></ol>
+<div class="example"><p>نتيجة حقيقية مختصرة من الفاحص بعد gzip</p><pre dir="ltr"><code>{
+  &quot;product_ttl_seconds&quot;: 300,
+  &quot;category_update&quot;: {
+    &quot;status&quot;: 200,
+    &quot;etag_changed&quot;: true
+  },
+  &quot;unchanged&quot;: {
+    &quot;status&quot;: 304,
+    &quot;body_bytes&quot;: 0
+  },
+  &quot;price_update&quot;: {
+    &quot;status&quot;: 200,
+    &quot;price&quot;: &quot;2.50&quot;
+  },
+  &quot;delete_invalidates&quot;: true,
+  &quot;passed&quot;: true
+}</code></pre></div>
+<p>المقصود بالفورية هنا صحة <strong>القراءة التالية للـAPI</strong> بعد نجاح الكتابة. صفحة مفتوحة أصلًا تحتاج refetch أو آلية تحديث في العميل كي تغيّر ما يعرضه DOM. لم نعدّل الواجهة، ولم ندّع أن إشعارات الطلبات هي قناة دفع لتغييرات أسعار المنتجات.</p><p class="evidence"><a href="docs/performance/focused-review/cache-and-edit-after-gzip.json">إثبات السعر والتصنيف والكاش والـETag</a> · <a href="docs/performance/focused-review/summary.json">الملخص ومصادر التشغيلات</a> · <a href="docs/performance/focused-review/environment.txt">بيئة القياس</a></p></article></section>
+
+<section id="docs"><header><span class="num">06</span><div><h2>التوثيق والمشكلات ونتائج التنظيف</h2><p>الشرح الجيد يذكر المشكلة، والتغيير، والدليل، والحدود؛ لا يكتفي بقائمة مكتبات.</p></div></header><article class="card"><h3>6.1 ما الذي وجدناه وما الذي تغيّر؟</h3><div class="table-wrap"><table><thead><tr><th>المشكلة</th><th>المعالجة</th><th>دليل التحقق</th></tr></thead><tbody><tr><td>gzip غير فعّال على API رغم وجود ضغط للواجهة</td><td>Middleware لضغط JSON GET مباشرة من Laravel</td><td>18176 → 2465 بايت، فك مطابق، وستة اختبارات HTTP جديدة</td></tr><tr><td>معرّف قوي واحد لا يعبّر عن اختلاف بايتات gzip وidentity</td><td>ETag ضعيف دلالي مع Vary: Accept-Encoding</td><td>نفس المحتوى بعد الفك، 304 بلا جسم، واحترام q=0</td></tr><tr><td>تصنيف مخزّن قديم يؤدي إلى 304 خاطئ بعد تعديله — كُشف وأُصلح سابقًا</td><td>إبطال لقطات منتجات التصنيف</td><td>تعديل فعلي أعاد 200 وETag جديدًا</td></tr><tr><td>روابط صفحات تفقد التصنيف أو حجم الصفحة أو حالة الطلب — أُصلحت سابقًا</td><td>withQueryString مع ترتيب ثابت</td><td>اختبارات تتبع الرابط التالي فعلًا</td></tr><tr><td>النظر إلى p50 فقط أو إخفاء نتائج أبطأ يعطي استنتاجًا مضللًا</td><td>حفظ p50/p95/p99 وthroughput والأخطاء ومصدر كل عينة</td><td>جداول منفصلة للتاريخي ولتجربة gzip الحالية، مع التذبذب ظاهرًا</td></tr></tbody></table></div>
+<p>لم نضف فهارس عشوائية، ولم ننسب إصلاح N+1 جديدًا إلى هذه الجولة؛ التحميل المسبق كان موجودًا وأُعيد التحقق منه. وكذلك لم نوقف النسخ مرة أخرى: الدليل السابق على التأخير معلّم بوضوح، والحالة الحالية واختبارات التوجيه معلّمة على أنها فحوص هذه الجولة.</p>
+<h3>6.2 أين توجد الأدلة والكود؟</h3><ul><li><a href="docs/performance/focused-review/REVIEW.md">تقرير المراجعة المركّز للبنود الستة</a> و<a href="docs/performance/focused-review/summary.json">الأرقام ومصادرها بصيغة JSON</a>.</li><li><a href="docs/performance/focused-review/before-gzip/wire.json">wire قبل الضغط</a> و<a href="docs/performance/focused-review/after-gzip/wire.json">wire بعد الضغط</a>، مع ملفات k6 الثلاثة في كل مجلد.</li><li><a href="docs/performance/focused-review/database.json">الخطط الحالية</a>، و<a href="docs/performance/baseline/explain-before.txt">خطط قبل الفهارس التاريخية</a> و<a href="docs/performance/results/after-indexes/explain-after.txt">خطط بعدها</a>.</li><li><a href="docs/performance/focused-review/tests-after-gzip.txt">نتائج الاختبارات العادية</a> و<a href="docs/performance/focused-review/mysql-after-gzip.txt">اختبارات MySQL/gRPC</a>.</li><li><a href="perf/verify-compression.php">فاحص الضغط</a> و<a href="perf/k6/compression.js">سيناريو المقارنة</a> و<a href="perf/checklist-cache.php">فاحص الكاش والتعديل الفوري</a>.</li></ul>
+<div class="note good"><strong>التحقق النهائي:</strong> <span dir="ltr">Tests:    1 skipped, 54 passed (413 assertions)</span><br><span dir="ltr">OK (7 tests, 109 assertions)</span><br>الاختبار المتجاوز يخص غياب امتداد gRPC، بينما الامتداد متاح في هذه البيئة. بيانات التطبيق بقيت 300,004 طلبات و749,372 بنود.</div>
+<h3>6.3 ماذا حُذف من المشروع؟</h3><p>اتُّبع تنظيف محافظ: حُذفت فقط ملفات Python bytecode المولّدة، مع التحقق من أن مساراتها داخل المشروع. لم تُحذف ملفات التطبيق أو اعتمادياته أو البيئة المحلية أو الأسرار أو اختبارات الواجهة أو التقارير والأدلة التاريخية؛ فهذه ملفات مرتبطة بالمشروع أو لازمة لفهم المقارنة، وليست فضلات مؤكدة.</p><p>عدد الملفات المولّدة المحذوفة: <strong>3</strong>. أُزيل أيضًا التكرار في قواعد التجاهل وأُضيف تجاهل دائم لملفات الكاش المولّدة. القائمة الدقيقة والأسباب في <a href="docs/performance/focused-review/cleanup.json">docs/performance/focused-review/cleanup.json</a>.</p>
+<h3>6.4 أسئلة مراجعة سريعة</h3><div class="qa"><details><summary>هل كل Table Scan يعني فشلًا؟</summary><p>لا. مسح 15 منتجًا قد يكون أرخص من مسار فهرس آخر. نربط القرار بحجم البيانات والخطة والقياس، لا بلون خانة في EXPLAIN.</p></details><details><summary>هل sticky يحل قراءة بعد كتابة في طلب جديد؟</summary><p>ليس وحده. لذلك يستعمل المشروع GTID fence وعلامة كتابة مؤقتة، مع الرجوع إلى Primary عند عدم لحاق النسخة.</p></details><details><summary>هل TTL يغني عن الإبطال؟</summary><p>لا إذا كنا نريد ظهور التعديل في القراءة التالية. TTL يحمي من بقاء قيمة بلا نهاية؛ والإبطال هو الذي يمنع الانتظار حتى انتهاء مدتها بعد تعديل المصدر.</p></details><details><summary>لماذا لا نخزّن stock لتسريع تفاصيل المنتج؟</summary><p>لأن قرار توفره يتغير مع حجوزات متزامنة وتملكه خدمة المخزون. الكاش القديم لا يصلح لمنع overselling؛ يبقى السؤال حيًا عبر gRPC.</p></details><details><summary>هل 304 يلغي العمل على الخادم؟</summary><p>يوفر الجسم المنقول، لكن المشروع يبني تمثيلًا حاليًا ويجلب stock قبل القرار. لا نزعم أن SQL وgRPC اختفيا.</p></details><details><summary>لماذا قد يقل حجم الرد ولا يتحسن p95؟</summary><p>لأن النقل جزء من الزمن، والضغط نفسه له كلفة، وقد تؤثر حالة الذاكرة وانتظار المعالجة. الأرقام المسجلة هي الحكم، ولا تكفي نسبة ضغط جيدة لاستنتاج سعة أعلى.</p></details><details><summary>هل req/s في هذه التجربة هو حد قدرة النظام؟</summary><p>لا. الحمل مقيد بخمسة VUs وthink time ومراحل صعود وهبوط. يلزم تصميم آخر للتشبع أو معدل وصول محدد إذا أردنا تقدير السعة.</p></details></div>
+<h3>6.5 مراجع أصلية للتوسع</h3><p>الكود والأرقام في هذا الدليل من المشروع. للمفاهيم العامة راجع الوثائق الأصلية التالية:</p><ul><li><a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html">MySQL: EXPLAIN وEXPLAIN ANALYZE</a>، و<a href="https://dev.mysql.com/doc/refman/8.0/en/gtid-functions.html">دوال GTID</a>.</li><li><a href="https://laravel.com/docs/12.x/cache#retrieve-store">Laravel: Cache::remember</a> و<a href="https://laravel.com/docs/12.x/eloquent-relationships#eager-loading">Eager Loading</a>.</li><li><a href="https://redis.io/docs/latest/commands/expire/">Redis: EXPIRE ومدة بقاء المفتاح</a>.</li><li><a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-8.8.3">RFC 9110: ETag</a>، و<a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-12.5.3">Accept-Encoding</a>، و<a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-15.4.5">304</a>.</li><li><a href="https://grafana.com/docs/k6/latest/using-k6/metrics/reference/">Grafana k6: المقاييس المدمجة</a>.</li></ul></article></section>
+<footer class="footer">ملف عربي مستقل باتجاه RTL، بمقاطع كود LTR وأدلة محلية. يمكن البحث والنسخ وفتح الكود والطباعة دون تحميل مكتبات خارجية. <a href="#top">العودة إلى البداية</a><p id="action-status" role="status" aria-live="polite"></p></footer></main></div>
+<script>
+(function(){
+  var search=document.getElementById('search'), sections=Array.from(document.querySelectorAll('main section'));
+  function normal(value){return value.toLowerCase().normalize('NFKD').replace(/[ً-ٟ]/g,'');}
+  search.addEventListener('input',function(){var term=normal(search.value.trim()), visible=0;sections.forEach(function(section){section.hidden=term!==''&&!normal(section.textContent).includes(term);if(!section.hidden)visible++;});document.getElementById('empty').hidden=visible!==0;document.getElementById('search-status').textContent=term?'الفصول المطابقة: '+visible+' من '+sections.length:'';});
+  document.getElementById('expand').addEventListener('click',function(){document.querySelectorAll('details.source').forEach(function(detail){detail.open=true;});});
+  document.getElementById('collapse').addEventListener('click',function(){document.querySelectorAll('details.source').forEach(function(detail){detail.open=false;});});
+  document.getElementById('print').addEventListener('click',function(){window.print();});
+  var printState=[];window.addEventListener('beforeprint',function(){printState=Array.from(document.querySelectorAll('details.source')).map(function(detail){var old=detail.open;detail.open=true;return old;});});window.addEventListener('afterprint',function(){document.querySelectorAll('details.source').forEach(function(detail,index){detail.open=printState[index]||false;});});
+  document.querySelectorAll('.copy').forEach(function(button){button.addEventListener('click',async function(){var value=document.getElementById(button.dataset.code).textContent, copied=false;try{if(navigator.clipboard){await navigator.clipboard.writeText(value);copied=true;}}catch(error){}if(!copied){var field=document.createElement('textarea');field.value=value;field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();try{copied=document.execCommand('copy');}catch(error){}field.remove();}button.textContent=copied?'تم النسخ':'نسخ يدوي';setTimeout(function(){button.textContent='نسخ الكود';},2000);document.getElementById('action-status').textContent=copied?'تم نسخ الكود.':'تعذر النسخ التلقائي؛ يمكنك تحديد الكود ونسخه يدويًا.';});});
+})();
+</script></body></html>

@@ -1,0 +1,4 @@
+﻿maxmemory
+536870912
+maxmemory-policy
+allkeys-lru

@@ -1,0 +1,47 @@
+﻿[
+    {
+        "matches":  true,
+        "sha256":  "e58cf4400c892d33db47ea36f52263403970fd7604efdd8381f3e64b449703e9",
+        "file":  "app/Http/Controllers/ProductController.php"
+    },
+    {
+        "matches":  true,
+        "sha256":  "3e35dac5c92a403d180f44d00a5d4e223675abd4a492f629031c79bb7478502e",
+        "file":  "app/Http/Controllers/CategoryController.php"
+    },
+    {
+        "matches":  true,
+        "sha256":  "d2d965c671bda4a4ec687afa0c81fe993965200fcfb4941698cb07a2ee7050c0",
+        "file":  "app/Http/Controllers/NotificationController.php"
+    },
+    {
+        "matches":  true,
+        "sha256":  "9a3cbcee2fcccb89177589f23dbf02b5f77b421ebf1f185f0e5f054825cff524",
+        "file":  "app/Services/OrderService.php"
+    },
+    {
+        "matches":  true,
+        "sha256":  "0e04255d1ef30ee9b70e8d330bc28033d60be30c7d8e8f5465fdf4eb34506506",
+        "file":  "app/Services/ProductCache.php"
+    },
+    {
+        "matches":  true,
+        "sha256":  "f50e8c2a1f12c45ee08145dedde8d30a86e77f90eed0f4c8669435369f8d649e",
+        "file":  "app/Http/Middleware/SecurityHeaders.php"
+    },
+    {
+        "matches":  true,
+        "sha256":  "00915353a3e1f86c5cedd7ba300382a572c12664a0d8bf025f33721dca880abd",
+        "file":  "bootstrap/app.php"
+    },
+    {
+        "matches":  true,
+        "sha256":  "f6348474dd79d902e5f2f3cf4fe0e19524b4ee8ad6b1ce43b2adce383a75c1fa",
+        "file":  "routes/api.php"
+    },
+    {
+        "matches":  true,
+        "sha256":  "ac882ddebd6b32aab6d9b143dceff2fda1ae71e30e339790d303bb488c392905",
+        "file":  "docker-entrypoint.sh"
+    }
+]

@@ -901,6 +901,31 @@ paths:
           description: قيمة الحالة غير صالحة
         '503':
           description: تعذر تأكيد تحرير المخزون عند الإلغاء
+  /notifications/events:
+    get:
+      tags:
+      - Notifications
+      summary: Private real-time notification snapshots
+      operationId: notificationEvents
+      description: >-
+        Each authenticated SSE request emits the current notification page as a
+        notifications event and closes. Reconnect with the bearer header after
+        the advertised retry interval of 2000 milliseconds. Content-based event
+        IDs identify snapshots. Responses are private and must not be cached.
+        Use the paginated notifications API for older history.
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: A private server-sent notification snapshot
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '401':
+          description: Authentication required
+        '429':
+          description: Notification request rate exceeded; honor Retry-After
   /notifications:
     get:
       tags:

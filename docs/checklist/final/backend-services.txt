@@ -1,0 +1,8 @@
+﻿NAME                        IMAGE                                     COMMAND                  SERVICE             CREATED          STATUS                       PORTS
+ecommerce-backend           internet-applications-backend             "docker-entrypoint.s…"   backend             11 minutes ago   Up 10 minutes (healthy)      0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+ecommerce-inventory         internet-applications-inventory-service   "docker-entrypoint.s…"   inventory-service   8 hours ago      Up About an hour (healthy)   50051/tcp
+ecommerce-inventory-mysql   mysql:8.0                                 "docker-entrypoint.s…"   inventory-mysql     8 hours ago      Up About an hour (healthy)   33060/tcp, 0.0.0.0:3308->3306/tcp, [::]:3308->3306/tcp
+ecommerce-mysql             mysql:8.0                                 "docker-entrypoint.s…"   mysql               2 hours ago      Up About an hour (healthy)   33060/tcp, 0.0.0.0:3307->3306/tcp, [::]:3307->3306/tcp
+ecommerce-mysql-replica     mysql:8.0                                 "docker-entrypoint.s…"   mysql-replica       2 hours ago      Up About an hour (healthy)   3306/tcp, 33060/tcp
+ecommerce-redis             redis:7-alpine                            "docker-entrypoint.s…"   redis               6 hours ago      Up About an hour (healthy)   6379/tcp
+ecommerce-scheduler         internet-applications-scheduler           "docker-entrypoint.s…"   scheduler           11 minutes ago   Up 10 minutes                8000/tcp

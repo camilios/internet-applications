@@ -22,9 +22,9 @@ class ReadReplicaRouter
             if ($gtid === '') {
                 throw new \RuntimeException('A primary GTID fence is required.');
             }
-            $statement = $connection->getReadPdo()->prepare('SELECT WAIT_FOR_EXECUTED_GTID_SET(?, 0)');
+            $statement = $connection->getReadPdo()->prepare('SELECT GTID_SUBSET(?, @@GLOBAL.gtid_executed)');
             $statement->execute([$gtid]);
-            if ((string) $statement->fetchColumn() !== '0') {
+            if ((string) $statement->fetchColumn() !== '1') {
                 throw new \RuntimeException('Replica has not applied the primary fence.');
             }
             return 'replica';

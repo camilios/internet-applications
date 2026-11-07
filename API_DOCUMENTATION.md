@@ -1,4 +1,18 @@
 # دليل واجهات برمجة التطبيقات الشامل (API Documentation)
+
+HTTP performance update: API JSON GET responses support negotiated gzip;
+product ETags now use weak validators shared across gzip/identity variants.
+Responses vary on Accept-Encoding, honor gzip quality exclusions, and keep 304
+responses bodyless. Small responses and SSE streams are excluded from ordinary
+compression. See [the Arabic performance guide](./PERFORMANCE_GUIDE_AR.html).
+
+Backend event feed: `GET /api/notifications/events` requires the JWT bearer
+header and returns `text/event-stream`. Each response emits a private
+`notifications` snapshot, a content-based event ID and `retry: 2000`, then
+closes. An SSE client reconnects after two seconds with the bearer header to
+observe new notifications and read-state updates. Responses use
+`Cache-Control: private, no-store`. The normal paginated notifications API
+remains available for older history. The OpenAPI contracts include this route.
 ### موجه لمطوري الواجهة الأمامية (Frontend Developers)
 
 ---
@@ -79,7 +93,7 @@ Authorization: Bearer <access_token>
 
 ## 2. نظام المصادقة وإدارة الجلسات (Authentication)
 
-يستخدم النظام مصادقة مبنية على **JWT (JSON Web Tokens)** عبر مكتبة `tymon/jwt-auth`. صلاحية الرمز تستمر لمدة **60 دقيقة** (3600 ثانية).
+يستخدم النظام مصادقة مبنية على **JWT (JSON Web Tokens)** عبر مكتبة `php-open-source-saver/jwt-auth`. صلاحية الرمز تستمر لمدة **60 دقيقة** (3600 ثانية).
 
 ---
 

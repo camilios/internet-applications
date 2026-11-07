@@ -35,7 +35,7 @@ class ProductController extends Controller
 
         $perPage = min(max($request->integer('per_page', 15), 1), 100);
 
-        return ProductResource::collection($query->orderByDesc('created_at')->orderByDesc('id')->paginate($perPage));
+        return ProductResource::collection($query->orderByDesc('created_at')->orderByDesc('id')->paginate($perPage)->withQueryString());
     }
 
     public function show(Product $product): JsonResponse|ProductResource

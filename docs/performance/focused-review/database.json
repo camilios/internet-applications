@@ -1,0 +1,395 @@
+﻿{
+    "counts": {
+        "users": 5004,
+        "products": 15,
+        "orders": 300004,
+        "order_items": 749372
+    },
+    "queries": [
+        {
+            "sql": "SELECT * FROM products WHERE is_active = 1 ORDER BY created_at DESC LIMIT 15",
+            "bindings": [],
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "products",
+                    "partitions": null,
+                    "type": "ALL",
+                    "possible_keys": "products_active_created_idx,products_active_category_created_idx",
+                    "key": null,
+                    "key_len": null,
+                    "ref": null,
+                    "rows": 15,
+                    "filtered": 100,
+                    "Extra": "Using where; Using filesort"
+                }
+            ],
+            "analyze": [
+                {
+                    "EXPLAIN": "-> Limit: 15 row(s)  (cost=2.5 rows=15) (actual time=0.215..0.226 rows=15 loops=1)\n    -> Sort: products.created_at DESC, limit input to 15 row(s) per chunk  (cost=2.5 rows=15) (actual time=0.214..0.224 rows=15 loops=1)\n        -> Filter: (products.is_active = 1)  (cost=2.5 rows=15) (actual time=0.0825..0.105 rows=15 loops=1)\n            -> Table scan on products  (cost=2.5 rows=15) (actual time=0.0793..0.1 rows=15 loops=1)\n"
+                }
+            ]
+        },
+        {
+            "sql": "SELECT * FROM products WHERE is_active = 1 AND category_id = ? ORDER BY created_at DESC LIMIT 15",
+            "bindings": [
+                1
+            ],
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "products",
+                    "partitions": null,
+                    "type": "ref",
+                    "possible_keys": "products_category_id_foreign,products_active_created_idx,products_active_category_created_idx",
+                    "key": "products_category_id_foreign",
+                    "key_len": "8",
+                    "ref": "const",
+                    "rows": 3,
+                    "filtered": 100,
+                    "Extra": "Using where; Using filesort"
+                }
+            ],
+            "analyze": [
+                {
+                    "EXPLAIN": "-> Limit: 15 row(s)  (cost=0.8 rows=3) (actual time=0.148..0.15 rows=3 loops=1)\n    -> Sort: products.created_at DESC, limit input to 15 row(s) per chunk  (cost=0.8 rows=3) (actual time=0.147..0.149 rows=3 loops=1)\n        -> Filter: (products.is_active = 1)  (cost=0.8 rows=3) (actual time=0.0264..0.126 rows=3 loops=1)\n            -> Index lookup on products using products_category_id_foreign (category_id=1)  (cost=0.8 rows=3) (actual time=0.0246..0.123 rows=3 loops=1)\n"
+                }
+            ]
+        },
+        {
+            "sql": "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 15",
+            "bindings": [
+                3498
+            ],
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "orders",
+                    "partitions": null,
+                    "type": "ref",
+                    "possible_keys": "orders_user_created_idx",
+                    "key": "orders_user_created_idx",
+                    "key_len": "8",
+                    "ref": "const",
+                    "rows": 89,
+                    "filtered": 100,
+                    "Extra": "Backward index scan"
+                }
+            ],
+            "analyze": [
+                {
+                    "EXPLAIN": "-> Limit: 15 row(s)  (cost=97.9 rows=15) (actual time=10.2..15.8 rows=15 loops=1)\n    -> Index lookup on orders using orders_user_created_idx (user_id=3498) (reverse)  (cost=97.9 rows=89) (actual time=10.2..15.8 rows=15 loops=1)\n"
+                }
+            ]
+        },
+        {
+            "sql": "SELECT * FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT 15",
+            "bindings": [
+                "shipped"
+            ],
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "orders",
+                    "partitions": null,
+                    "type": "ref",
+                    "possible_keys": "orders_status_created_idx",
+                    "key": "orders_status_created_idx",
+                    "key_len": "1022",
+                    "ref": "const",
+                    "rows": 93410,
+                    "filtered": 100,
+                    "Extra": "Backward index scan"
+                }
+            ],
+            "analyze": [
+                {
+                    "EXPLAIN": "-> Limit: 15 row(s)  (cost=15163 rows=15) (actual time=42.5..42.5 rows=15 loops=1)\n    -> Index lookup on orders using orders_status_created_idx (status='shipped') (reverse)  (cost=15163 rows=93410) (actual time=42.5..42.5 rows=15 loops=1)\n"
+                }
+            ]
+        },
+        {
+            "sql": "SELECT * FROM orders ORDER BY created_at DESC LIMIT 15",
+            "bindings": [],
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "orders",
+                    "partitions": null,
+                    "type": "index",
+                    "possible_keys": null,
+                    "key": "orders_created_idx",
+                    "key_len": "5",
+                    "ref": null,
+                    "rows": 15,
+                    "filtered": 100,
+                    "Extra": "Backward index scan"
+                }
+            ],
+            "analyze": [
+                {
+                    "EXPLAIN": "-> Limit: 15 row(s)  (cost=0.0952 rows=15) (actual time=0.753..5.72 rows=15 loops=1)\n    -> Index scan on orders using orders_created_idx (reverse)  (cost=0.0952 rows=15) (actual time=0.751..5.71 rows=15 loops=1)\n"
+                }
+            ]
+        },
+        {
+            "sql": "SELECT COUNT(*) FROM orders WHERE status <> ?",
+            "bindings": [
+                "cancelled"
+            ],
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "orders",
+                    "partitions": null,
+                    "type": "index",
+                    "possible_keys": "orders_status_created_idx",
+                    "key": "orders_status_created_idx",
+                    "key_len": "1027",
+                    "ref": null,
+                    "rows": 298201,
+                    "filtered": 50.00016784667969,
+                    "Extra": "Using where; Using index"
+                }
+            ],
+            "analyze": [
+                {
+                    "EXPLAIN": "-> Aggregate: count(0)  (cost=46614 rows=1) (actual time=220..220 rows=1 loops=1)\n    -> Filter: (orders.`status` <> 'cancelled')  (cost=31704 rows=149101) (actual time=13.3..206 rows=285043 loops=1)\n        -> Covering index scan on orders using orders_status_created_idx  (cost=31704 rows=298201) (actual time=0.0365..169 rows=300004 loops=1)\n"
+                }
+            ]
+        }
+    ],
+    "indexes": {
+        "products": [
+            {
+                "Table": "products",
+                "Non_unique": 0,
+                "Key_name": "PRIMARY",
+                "Seq_in_index": 1,
+                "Column_name": "id",
+                "Collation": "A",
+                "Cardinality": 15,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "products",
+                "Non_unique": 1,
+                "Key_name": "products_category_id_foreign",
+                "Seq_in_index": 1,
+                "Column_name": "category_id",
+                "Collation": "A",
+                "Cardinality": 5,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "products",
+                "Non_unique": 1,
+                "Key_name": "products_active_created_idx",
+                "Seq_in_index": 1,
+                "Column_name": "is_active",
+                "Collation": "A",
+                "Cardinality": 1,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "products",
+                "Non_unique": 1,
+                "Key_name": "products_active_created_idx",
+                "Seq_in_index": 2,
+                "Column_name": "created_at",
+                "Collation": "A",
+                "Cardinality": 2,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "YES",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "products",
+                "Non_unique": 1,
+                "Key_name": "products_active_category_created_idx",
+                "Seq_in_index": 1,
+                "Column_name": "is_active",
+                "Collation": "A",
+                "Cardinality": 1,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "products",
+                "Non_unique": 1,
+                "Key_name": "products_active_category_created_idx",
+                "Seq_in_index": 2,
+                "Column_name": "category_id",
+                "Collation": "A",
+                "Cardinality": 5,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "products",
+                "Non_unique": 1,
+                "Key_name": "products_active_category_created_idx",
+                "Seq_in_index": 3,
+                "Column_name": "created_at",
+                "Collation": "A",
+                "Cardinality": 6,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "YES",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            }
+        ],
+        "orders": [
+            {
+                "Table": "orders",
+                "Non_unique": 0,
+                "Key_name": "PRIMARY",
+                "Seq_in_index": 1,
+                "Column_name": "id",
+                "Collation": "A",
+                "Cardinality": 297201,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "orders",
+                "Non_unique": 1,
+                "Key_name": "orders_user_created_idx",
+                "Seq_in_index": 1,
+                "Column_name": "user_id",
+                "Collation": "A",
+                "Cardinality": 5071,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "orders",
+                "Non_unique": 1,
+                "Key_name": "orders_user_created_idx",
+                "Seq_in_index": 2,
+                "Column_name": "created_at",
+                "Collation": "A",
+                "Cardinality": 298201,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "YES",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "orders",
+                "Non_unique": 1,
+                "Key_name": "orders_status_created_idx",
+                "Seq_in_index": 1,
+                "Column_name": "status",
+                "Collation": "A",
+                "Cardinality": 5,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "orders",
+                "Non_unique": 1,
+                "Key_name": "orders_status_created_idx",
+                "Seq_in_index": 2,
+                "Column_name": "created_at",
+                "Collation": "A",
+                "Cardinality": 298201,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "YES",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            },
+            {
+                "Table": "orders",
+                "Non_unique": 1,
+                "Key_name": "orders_created_idx",
+                "Seq_in_index": 1,
+                "Column_name": "created_at",
+                "Collation": "A",
+                "Cardinality": 298201,
+                "Sub_part": null,
+                "Packed": null,
+                "Null": "YES",
+                "Index_type": "BTREE",
+                "Comment": "",
+                "Index_comment": "",
+                "Visible": "YES",
+                "Expression": null
+            }
+        ]
+    }
+}

@@ -7,6 +7,7 @@ use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class NotificationController extends Controller
 {
@@ -17,6 +18,24 @@ class NotificationController extends Controller
         return NotificationResource::collection(
             $this->notifications->getUserNotifications(Auth::guard('api')->user())
         );
+    }
+
+    public function events(): StreamedResponse
+    {
+        $payload = $this->index()->response()->getContent();
+
+        // Short SSE snapshots let clients reconnect without occupying a worker
+        // between updates. JWT authorization is checked on every connection.
+        return response()->stream(static function () use ($payload): void {
+            echo "retry: 2000\n";
+            echo 'id: '.hash('sha256', $payload)."\n";
+            echo "event: notifications\n";
+            echo 'data: '.$payload."\n\n";
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'private, no-store',
+            'X-Accel-Buffering' => 'no',
+        ]);
     }
 
     public function markAsRead(string $notification): JsonResponse

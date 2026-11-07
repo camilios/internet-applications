@@ -27,4 +27,14 @@ class ProductCache
     {
         Cache::forget("product:{$id}:details");
     }
+
+    public function forgetCategory(int $categoryId): void
+    {
+        Product::withTrashed()->where('category_id', $categoryId)->select('id')
+            ->chunkById(100, function ($products): void {
+                foreach ($products as $product) {
+                    $this->forget($product->id);
+                }
+            });
+    }
 }

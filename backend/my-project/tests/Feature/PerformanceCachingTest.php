@@ -12,6 +12,45 @@ class PerformanceCachingTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_category_edits_invalidate_cached_product_details_and_etags(): void
+    {
+        $category = \App\Models\Category::create(['name' => 'Original category']);
+        $product = \App\Models\Product::create(['name' => 'Category cache proof', 'price' => '5.00',
+            'category_id' => $category->id, 'is_active' => true]);
+        $inventory = \Mockery::mock(\App\Services\InventoryGrpcClient::class);
+        $inventory->shouldReceive('getStock')->twice()->with($product->id)->andReturn(1);
+        $this->app->instance(\App\Services\InventoryGrpcClient::class, $inventory);
+        $first = $this->getJson('/api/products/'.$product->id)->assertOk()
+            ->assertJsonPath('data.category.name', 'Original category');
+        $this->assertNotNull(app(\App\Services\ProductCache::class)->get($product->id));
+        $this->actingAs(User::factory()->create(['role' => 'admin']), 'api')
+            ->putJson('/api/categories/'.$category->id, ['name' => 'Updated category'])->assertOk();
+        $this->withHeader('If-None-Match', $first->headers->get('ETag'))
+            ->getJson('/api/products/'.$product->id)->assertOk()
+            ->assertJsonPath('data.category.name', 'Updated category');
+    }
+
+    public function test_product_and_dashboard_cache_expiry_matches_the_declared_policy(): void
+    {
+        $this->freezeTime();
+        try {
+            $category = \App\Models\Category::create(['name' => 'Expiry proof']);
+            $product = \App\Models\Product::create(['name' => 'Expiry proof', 'price' => '5.00',
+                'category_id' => $category->id, 'is_active' => true]);
+            $cache = app(\App\Services\ProductCache::class);
+            $cache->put($product);
+            $user = User::factory()->create(['role' => 'customer']);
+            $this->actingAs($user, 'api')->getJson('/api/dashboard')->assertOk();
+            $this->travel(61)->seconds();
+            $this->assertFalse(Cache::has('dashboard:user:'.$user->id));
+            $this->assertNotNull($cache->get($product->id));
+            $this->travel(240)->seconds();
+            $this->assertNull($cache->get($product->id));
+        } finally {
+            $this->travelBack();
+        }
+    }
+
     public function test_dashboard_cache_is_scoped_and_preserves_the_json_contract(): void
     {
         $first = User::factory()->create(['role' => 'customer']);

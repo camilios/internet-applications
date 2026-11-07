@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use App\Services\ProductCache;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -27,9 +28,10 @@ class CategoryController extends Controller
         return (new CategoryResource($category))->response()->setStatusCode(201);
     }
 
-    public function update(StoreCategoryRequest $request, Category $category): CategoryResource
+    public function update(StoreCategoryRequest $request, Category $category, ProductCache $cache): CategoryResource
     {
         $category->update($request->validated());
+        $cache->forgetCategory($category->id);
 
         return new CategoryResource($category->refresh());
     }

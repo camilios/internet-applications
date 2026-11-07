@@ -1,0 +1,22 @@
+﻿ API_DOCUMENTATION.md                               | 10 ++-
+ README.md                                          | 67 +++++++++++++++++--
+ REPORT.md                                          | 25 ++++++-
+ backend/my-project/.dockerignore                   |  1 +
+ .../app/Http/Controllers/CategoryController.php    |  4 +-
+ .../Http/Controllers/NotificationController.php    | 19 ++++++
+ .../app/Http/Controllers/ProductController.php     |  2 +-
+ backend/my-project/app/Services/OrderService.php   | 63 +++++++++--------
+ backend/my-project/app/Services/ProductCache.php   | 10 +++
+ .../my-project/app/Services/ReadReplicaRouter.php  |  4 +-
+ backend/my-project/bootstrap/app.php               |  7 ++
+ backend/my-project/docker-entrypoint.sh            | 21 ++++--
+ backend/my-project/routes/api.php                  |  1 +
+ .../tests/Feature/PerformanceCachingTest.php       | 39 +++++++++++
+ .../Integration/InventoryOrderIntegrationTest.php  | 78 ++++++++++++++++++++--
+ .../tests/Unit/ReadReplicaRouterTest.php           |  4 +-
+ .../tests/mysql-integration-bootstrap.php          |  4 ++
+ docker-compose.yml                                 |  4 +-
+ for frontend.json                                  | 67 ++++++++++++++-----
+ for frontend.yaml                                  | 25 +++++++
+ perf/Dockerfile.final-runtime                      |  2 +
+ 21 files changed, 383 insertions(+), 74 deletions(-)

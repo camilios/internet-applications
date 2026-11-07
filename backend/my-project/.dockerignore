@@ -4,6 +4,7 @@
 .git
 node_modules
 vendor
+bootstrap/cache/*.php
 database/*.sqlite
 storage/logs/*
 storage/framework/cache/*

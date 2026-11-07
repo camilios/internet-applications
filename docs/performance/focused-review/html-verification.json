@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "language": "ar",
+  "direction": "rtl",
+  "chapters": 6,
+  "exact_source_blocks": 25,
+  "checks": [
+    "local links",
+    "unique anchors",
+    "source matches",
+    "no external assets",
+    "search",
+    "expand/collapse",
+    "copy fallback",
+    "print state",
+    "no script errors"
+  ],
+  "scope": "DOM/script verification; browser layout checks are separate"
+}

@@ -9,3 +9,7 @@ secrets
 **/node_modules
 **/vendor
 **/dist
+.venv
+**/__pycache__
+**/*.pyc
+**/*.pyo

@@ -1,0 +1,110 @@
+{
+  "measured_at": "2026-11-07",
+  "dataset": {
+    "users": 5004,
+    "products": 15,
+    "orders": 300004,
+    "order_items": 749372
+  },
+  "compression": {
+    "before-gzip": {
+      "p50_ms": 34.272143,
+      "p95_ms": 53.192446999999994,
+      "p99_ms": 81.98774806000002,
+      "requests_per_second": 4.085548835663099,
+      "received_bytes_per_request": 18686.362903225807,
+      "endpoint_error_percent": 0,
+      "sources": [
+        "docs/performance/focused-review/before-gzip/k6-1.json",
+        "docs/performance/focused-review/before-gzip/k6-2.json",
+        "docs/performance/focused-review/before-gzip/k6-3.json"
+      ]
+    },
+    "after-gzip": {
+      "p50_ms": 29.011514,
+      "p95_ms": 39.9232064,
+      "p99_ms": 48.917406840000005,
+      "requests_per_second": 4.039684969297843,
+      "received_bytes_per_request": 2991,
+      "endpoint_error_percent": 0,
+      "sources": [
+        "docs/performance/focused-review/after-gzip/k6-1.json",
+        "docs/performance/focused-review/after-gzip/k6-2.json",
+        "docs/performance/focused-review/after-gzip/k6-3.json"
+      ]
+    }
+  },
+  "wire_before": {
+    "gzip_active": false,
+    "identity_body_bytes": 18176,
+    "gzip_requested_body_bytes": 18176,
+    "decoded_body_bytes": 18176,
+    "saved_body_percent": 0,
+    "gzip_magic_hex": "7b22",
+    "etag": "\"f7b9c56d8dc16c1e90822939d7fa06e6680661e1\"",
+    "vary": null,
+    "q_zero_respected": true,
+    "conditional_status": 304,
+    "conditional_body_bytes": 0,
+    "valid_json": true,
+    "same_decoded_representation": true,
+    "passed": true
+  },
+  "wire_after": {
+    "gzip_active": true,
+    "identity_body_bytes": 18176,
+    "gzip_requested_body_bytes": 2465,
+    "decoded_body_bytes": 18176,
+    "saved_body_percent": 86.4381602112676,
+    "gzip_magic_hex": "1f8b",
+    "etag": "W/\"f7b9c56d8dc16c1e90822939d7fa06e6680661e1\"",
+    "vary": "Accept-Encoding",
+    "q_zero_respected": true,
+    "conditional_status": 304,
+    "conditional_body_bytes": 0,
+    "valid_json": true,
+    "same_decoded_representation": true,
+    "passed": true
+  },
+  "replica_current": {
+    "Replica_IO_Running": "Yes",
+    "Replica_SQL_Running": "Yes",
+    "Seconds_Behind_Source": "0",
+    "Last_SQL_Errno": "0",
+    "Source_Host": "mysql"
+  },
+  "default_tests": "Tests:    1 skipped, 54 passed (413 assertions)",
+  "mysql_tests": "OK (7 tests, 109 assertions)",
+  "replication_lag_demo": "Retained real evidence from earlier audit; current review does not pause replication.",
+  "cleanup": {
+    "removed": [
+      {
+        "path": "perf/__pycache__/api_fixtures.cpython-314.pyc",
+        "reason": "Regenerated Python bytecode; not project source or measurement evidence"
+      },
+      {
+        "path": "perf/__pycache__/mysql_replication.cpython-314.pyc",
+        "reason": "Regenerated Python bytecode; not project source or measurement evidence"
+      },
+      {
+        "path": "perf/__pycache__/requirement3.cpython-314.pyc",
+        "reason": "Regenerated Python bytecode; not project source or measurement evidence"
+      }
+    ],
+    "policy": "Conservative cleanup; optional broader preference was not supplied",
+    "kept": [
+      "Application and frontend source",
+      "Tests and dependencies",
+      "Local .venv environment",
+      "Environment files and secrets",
+      "Historical guides, raw benchmark outputs and source archives"
+    ],
+    "database_data_removed": false,
+    "path_validation": "Resolved absolute target verified within workspace; reparse points and non-bytecode refused",
+    "changes": [
+      "Removed duplicate ignore rules",
+      ".gitignore and .dockerignore exclude regenerated Python bytecode and the local environment"
+    ]
+  },
+  "note": "Three run-level medians; latest paired workload isolates gzip/weak-validator addition on the already optimized backend. Historical pre-index/cache measurements are separate."
+}

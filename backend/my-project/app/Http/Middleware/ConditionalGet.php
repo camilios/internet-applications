@@ -14,7 +14,8 @@ class ConditionalGet
         $response = $next($request);
         if ($request->isMethod('GET') && $response instanceof JsonResponse && $response->getStatusCode() === 200) {
             // Compute after rendering: the representation still includes live stock.
-            $response->setEtag('"'.sha1($response->getContent()).'"');
+            // A semantic validator remains valid for both gzip and identity bytes.
+            $response->setEtag(sha1($response->getContent()), true);
             $response->headers->set('Cache-Control', 'private, no-cache');
             $response->isNotModified($request);
         }
