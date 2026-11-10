@@ -1,0 +1,627 @@
+﻿{
+    "verified_at_utc":  "2026-11-10T10:07:57.1512538Z",
+    "before_source":  "baseline",
+    "after_source":  "current-20261110-094614",
+    "baseline_rerun":  false,
+    "k6_version":  "k6 v2.3.0 (commit/e088784614, go1.27.1, linux/amd64)",
+    "dataset_counts":  {
+                           "users":  5004,
+                           "products":  15,
+                           "orders":  300004,
+                           "order_items":  749372
+                       },
+    "matching_recorded_row_counts":  true,
+    "current_row_counts_unchanged":  true,
+    "summary_files":  24,
+    "console_logs":  24,
+    "comparison":  [
+                       {
+                           "operation":  "products-list",
+                           "before":  {
+                                          "median_p50_ms":  32.477309,
+                                          "median_p95_ms":  101.05792189999997,
+                                          "median_p99_ms":  513.2272886099969,
+                                          "median_http_rps":  3.9551885852856983,
+                                          "total_http_requests":  355,
+                                          "successful_checks":  355
+                                      },
+                           "after":  {
+                                         "median_p50_ms":  27.747955,
+                                         "median_p95_ms":  53.35332435,
+                                         "median_p99_ms":  117.87081824000028,
+                                         "median_http_rps":  4.041478034631965,
+                                         "total_http_requests":  374,
+                                         "successful_checks":  374
+                                     }
+                       },
+                       {
+                           "operation":  "product-detail",
+                           "before":  {
+                                          "median_p50_ms":  44.681736,
+                                          "median_p95_ms":  173.6071331,
+                                          "median_p99_ms":  307.16249896999994,
+                                          "median_http_rps":  3.913804859576222,
+                                          "total_http_requests":  357,
+                                          "successful_checks":  357
+                                      },
+                           "after":  {
+                                         "median_p50_ms":  27.757679,
+                                         "median_p95_ms":  39.389655,
+                                         "median_p99_ms":  67.83379184000005,
+                                         "median_http_rps":  4.03268008305587,
+                                         "total_http_requests":  375,
+                                         "successful_checks":  375
+                                     }
+                       },
+                       {
+                           "operation":  "customer-orders",
+                           "before":  {
+                                          "median_p50_ms":  53.096439000000004,
+                                          "median_p95_ms":  105.15698135,
+                                          "median_p99_ms":  142.56240545000003,
+                                          "median_http_rps":  3.8893502825843416,
+                                          "total_http_requests":  363,
+                                          "successful_checks":  360
+                                      },
+                           "after":  {
+                                         "median_p50_ms":  46.980755,
+                                         "median_p95_ms":  81.91825244999998,
+                                         "median_p99_ms":  148.35753054000006,
+                                         "median_http_rps":  3.90379230968014,
+                                         "total_http_requests":  363,
+                                         "successful_checks":  360
+                                     }
+                       },
+                       {
+                           "operation":  "dashboard",
+                           "before":  {
+                                          "median_p50_ms":  43.59642,
+                                          "median_p95_ms":  152.88963815,
+                                          "median_p99_ms":  187.1903760100001,
+                                          "median_http_rps":  3.8782448510037115,
+                                          "total_http_requests":  363,
+                                          "successful_checks":  360
+                                      },
+                           "after":  {
+                                         "median_p50_ms":  24.430824,
+                                         "median_p95_ms":  45.1780202,
+                                         "median_p99_ms":  53.462478160000025,
+                                         "median_http_rps":  4.0401861232455865,
+                                         "total_http_requests":  378,
+                                         "successful_checks":  375
+                                     }
+                       }
+                   ],
+    "runs":  [
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "products-list",
+                     "run":  1,
+                     "p50_ms":  32.295368,
+                     "p95_ms":  89.006845,
+                     "p99_ms":  143.4452847999999,
+                     "http_requests":  121,
+                     "http_rps":  3.995143373757139,
+                     "successful_checks":  121,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "products-list",
+                     "run":  2,
+                     "p50_ms":  32.477309,
+                     "p95_ms":  101.05792189999997,
+                     "p99_ms":  513.2272886099969,
+                     "http_requests":  122,
+                     "http_rps":  3.9551885852856983,
+                     "successful_checks":  122,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "products-list",
+                     "run":  3,
+                     "p50_ms":  61.8797145,
+                     "p95_ms":  939.3210018999989,
+                     "p99_ms":  1145.0497777,
+                     "http_requests":  112,
+                     "http_rps":  3.612793826563506,
+                     "successful_checks":  112,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "product-detail",
+                     "run":  1,
+                     "p50_ms":  44.681736,
+                     "p95_ms":  149.26734704999998,
+                     "p99_ms":  228.07406378000005,
+                     "http_requests":  120,
+                     "http_rps":  3.893298109163392,
+                     "successful_checks":  120,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "product-detail",
+                     "run":  2,
+                     "p50_ms":  55.825115499999995,
+                     "p95_ms":  188.15023849999997,
+                     "p99_ms":  307.16249896999994,
+                     "http_requests":  118,
+                     "http_rps":  3.913804859576222,
+                     "successful_checks":  118,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "product-detail",
+                     "run":  3,
+                     "p50_ms":  36.910959,
+                     "p95_ms":  173.6071331,
+                     "p99_ms":  621.2916826799997,
+                     "http_requests":  119,
+                     "http_rps":  3.952323765534643,
+                     "successful_checks":  119,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "customer-orders",
+                     "run":  1,
+                     "p50_ms":  52.5996875,
+                     "p95_ms":  91.46971789999999,
+                     "p99_ms":  109.07196824000002,
+                     "http_requests":  121,
+                     "http_rps":  3.9055348619697057,
+                     "successful_checks":  120,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "customer-orders",
+                     "run":  2,
+                     "p50_ms":  53.096439000000004,
+                     "p95_ms":  105.15698135,
+                     "p99_ms":  153.71262799000004,
+                     "http_requests":  121,
+                     "http_rps":  3.886010561920359,
+                     "successful_checks":  120,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "customer-orders",
+                     "run":  3,
+                     "p50_ms":  57.179057,
+                     "p95_ms":  112.17603335000001,
+                     "p99_ms":  142.56240545000003,
+                     "http_requests":  121,
+                     "http_rps":  3.8893502825843416,
+                     "successful_checks":  120,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "dashboard",
+                     "run":  1,
+                     "p50_ms":  43.59642,
+                     "p95_ms":  99.7889073,
+                     "p99_ms":  187.1903760100001,
+                     "http_requests":  121,
+                     "http_rps":  3.904611157578069,
+                     "successful_checks":  120,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "dashboard",
+                     "run":  2,
+                     "p50_ms":  42.9524935,
+                     "p95_ms":  159.5990723,
+                     "p99_ms":  286.4280133700001,
+                     "http_requests":  121,
+                     "http_rps":  3.8689433231899075,
+                     "successful_checks":  120,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "baseline",
+                     "scenario":  "dashboard",
+                     "run":  3,
+                     "p50_ms":  54.031651499999995,
+                     "p95_ms":  152.88963815,
+                     "p99_ms":  177.82384843,
+                     "http_requests":  121,
+                     "http_rps":  3.8782448510037115,
+                     "successful_checks":  120,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "products-list",
+                     "run":  1,
+                     "p50_ms":  27.747955,
+                     "p95_ms":  59.07252619999996,
+                     "p99_ms":  128.92036724,
+                     "http_requests":  125,
+                     "http_rps":  4.0353272304002665,
+                     "successful_checks":  125,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "products-list",
+                     "run":  2,
+                     "p50_ms":  31.924441,
+                     "p95_ms":  53.35332435,
+                     "p99_ms":  85.64690841999997,
+                     "http_requests":  124,
+                     "http_rps":  4.13198240468749,
+                     "successful_checks":  124,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "products-list",
+                     "run":  3,
+                     "p50_ms":  25.790454,
+                     "p95_ms":  51.91027399999998,
+                     "p99_ms":  117.87081824000028,
+                     "http_requests":  125,
+                     "http_rps":  4.041478034631965,
+                     "successful_checks":  125,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "product-detail",
+                     "run":  1,
+                     "p50_ms":  28.57306,
+                     "p95_ms":  39.389655,
+                     "p99_ms":  67.83379184000005,
+                     "http_requests":  125,
+                     "http_rps":  4.032171823254543,
+                     "successful_checks":  125,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "product-detail",
+                     "run":  2,
+                     "p50_ms":  27.757679,
+                     "p95_ms":  57.08896259999999,
+                     "p99_ms":  92.4851345200001,
+                     "http_requests":  125,
+                     "http_rps":  4.03268008305587,
+                     "successful_checks":  125,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "product-detail",
+                     "run":  3,
+                     "p50_ms":  25.503999,
+                     "p95_ms":  39.113789,
+                     "p99_ms":  48.679995000000034,
+                     "http_requests":  125,
+                     "http_rps":  4.053793408241517,
+                     "successful_checks":  125,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "customer-orders",
+                     "run":  1,
+                     "p50_ms":  46.884929,
+                     "p95_ms":  81.91825244999998,
+                     "p99_ms":  119.05426571000002,
+                     "http_requests":  121,
+                     "http_rps":  3.926411827872213,
+                     "successful_checks":  120,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "customer-orders",
+                     "run":  2,
+                     "p50_ms":  46.980755,
+                     "p95_ms":  79.64491274999997,
+                     "p99_ms":  165.65960009000014,
+                     "http_requests":  121,
+                     "http_rps":  3.90379230968014,
+                     "successful_checks":  120,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "customer-orders",
+                     "run":  3,
+                     "p50_ms":  49.52472950000001,
+                     "p95_ms":  110.08508149999997,
+                     "p99_ms":  148.35753054000006,
+                     "http_requests":  121,
+                     "http_rps":  3.900920902287152,
+                     "successful_checks":  120,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "dashboard",
+                     "run":  1,
+                     "p50_ms":  26.429293,
+                     "p95_ms":  56.080365599999986,
+                     "p99_ms":  121.19980316,
+                     "http_requests":  126,
+                     "http_rps":  4.031775196730139,
+                     "successful_checks":  125,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "dashboard",
+                     "run":  2,
+                     "p50_ms":  24.430824,
+                     "p95_ms":  45.1780202,
+                     "p99_ms":  53.462478160000025,
+                     "http_requests":  126,
+                     "http_rps":  4.0401861232455865,
+                     "successful_checks":  125,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 },
+                 {
+                     "stage":  "current-20261110-094614",
+                     "scenario":  "dashboard",
+                     "run":  3,
+                     "p50_ms":  24.138065,
+                     "p95_ms":  39.75004839999999,
+                     "p99_ms":  51.779184920000056,
+                     "http_requests":  126,
+                     "http_rps":  4.04990399429213,
+                     "successful_checks":  125,
+                     "failed_checks":  0,
+                     "endpoint_error_rate":  0,
+                     "http_failure_rate":  0
+                 }
+             ],
+    "file_inventory":  [
+                           {
+                               "path":  "baseline/k6-products-list-1.json",
+                               "sha256":  "a09e90fd7e9a0be24cb63612c0e778309eb40ce4904c20d7227f87963a5f05e4"
+                           },
+                           {
+                               "path":  "baseline/k6-products-list-1.log",
+                               "sha256":  "6161a83086ce4eced68ee467c18c0512fd320081c269189d5882b9abea73027c"
+                           },
+                           {
+                               "path":  "baseline/k6-products-list-2.json",
+                               "sha256":  "b8df3fa712f40ceb69d2e3f5be5952725bc35b3dc9249480085d4cfabb5f7279"
+                           },
+                           {
+                               "path":  "baseline/k6-products-list-2.log",
+                               "sha256":  "aac487c9394722311f6978d688303af37547f7f4c2a12c95c52bece855838a0e"
+                           },
+                           {
+                               "path":  "baseline/k6-products-list-3.json",
+                               "sha256":  "54b03b8f4e15c6d8b7341e9f164ab66cd95470098b6386783305961ba2ffbfcd"
+                           },
+                           {
+                               "path":  "baseline/k6-products-list-3.log",
+                               "sha256":  "69ed1731b5d44be0902b6eebdda7ee1043a628a7d943ab1cdd367ca0fb8e9a0c"
+                           },
+                           {
+                               "path":  "baseline/k6-product-detail-1.json",
+                               "sha256":  "739086ba6127e0b22fa770a2f4ecc15467d1307fac7605efe07f5b13752c2935"
+                           },
+                           {
+                               "path":  "baseline/k6-product-detail-1.log",
+                               "sha256":  "aee5ce956274087b1c693981ffe179d3c74f6d16195a668236ee0c1509bef466"
+                           },
+                           {
+                               "path":  "baseline/k6-product-detail-2.json",
+                               "sha256":  "5dab75b9ddb7358254b3d80000971b800258fe854306ea7d3684a95c3a4df71d"
+                           },
+                           {
+                               "path":  "baseline/k6-product-detail-2.log",
+                               "sha256":  "422f78fe94450c570f76a3175a3ce2d607ad85faed6eb8483f923407865f6154"
+                           },
+                           {
+                               "path":  "baseline/k6-product-detail-3.json",
+                               "sha256":  "ac3e3cebaa1a52067999bcaa2608b32d930fab189c562481c3df7d31d867b8d9"
+                           },
+                           {
+                               "path":  "baseline/k6-product-detail-3.log",
+                               "sha256":  "8e67f76c3d2aee3c4529bae7d08c2b1288d8b40d1e33d67b1ca0be6e604b73d0"
+                           },
+                           {
+                               "path":  "baseline/k6-customer-orders-1.json",
+                               "sha256":  "aa5a2db5ab84afb6dee480bc72aa58fa8d577110b9a741bae2d23ac714e5b8e9"
+                           },
+                           {
+                               "path":  "baseline/k6-customer-orders-1.log",
+                               "sha256":  "d568c00a5eda5a31d778c86de37de16e99a70247be86347a4e7396a45f89fcd3"
+                           },
+                           {
+                               "path":  "baseline/k6-customer-orders-2.json",
+                               "sha256":  "999c84b59ab05d23717f1224d8174a73503a3cfe5036e57b6fea8d739acf3865"
+                           },
+                           {
+                               "path":  "baseline/k6-customer-orders-2.log",
+                               "sha256":  "2171e607b36583b49624241e79d3bc1f3422d6b347186529a1aec5d56644fc55"
+                           },
+                           {
+                               "path":  "baseline/k6-customer-orders-3.json",
+                               "sha256":  "74295fbaeec161534f85de9a46b627152d91a38471a15f249eafb2737f6f272d"
+                           },
+                           {
+                               "path":  "baseline/k6-customer-orders-3.log",
+                               "sha256":  "086ac5ed6c8a3493ab066b54733d45bf7f215c10641a3b6631a64945a63ae57e"
+                           },
+                           {
+                               "path":  "baseline/k6-dashboard-1.json",
+                               "sha256":  "d84e9f411f9691d5926684e69520c18921ddadb28b7f9ddd9a4e1f945aef3ad6"
+                           },
+                           {
+                               "path":  "baseline/k6-dashboard-1.log",
+                               "sha256":  "37269ed88ddaaacc386f52036ca67bc4120ae21b788dccedf9e9322a1b3a15b9"
+                           },
+                           {
+                               "path":  "baseline/k6-dashboard-2.json",
+                               "sha256":  "49738f8d9afe489f632b1ad88cda04936fe6228ff8dfaa3668aff3b011752d74"
+                           },
+                           {
+                               "path":  "baseline/k6-dashboard-2.log",
+                               "sha256":  "94720de0fc2df0bda06c5d0396395dde4db27a67d1ee18d56bc9c4d00375ea93"
+                           },
+                           {
+                               "path":  "baseline/k6-dashboard-3.json",
+                               "sha256":  "8e3cf950c34b8d2b0ddd36b36689098095b4df4dada80ac95d5778296ac9f4f6"
+                           },
+                           {
+                               "path":  "baseline/k6-dashboard-3.log",
+                               "sha256":  "d9a2744f2968f3244ba7589b87ae2b2c6f4260ad1a9e813a2c1deb79d130d00b"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-products-list-1.json",
+                               "sha256":  "b7758dd97dda58b0bfcfcb2410c01c2f2bdd2b34900b08c87c0f54e7cfbbe469"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-products-list-1.log",
+                               "sha256":  "72b9ee85dc5628476e8fa6cf010ced705657f4cc0c548816a2936c377b634235"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-products-list-2.json",
+                               "sha256":  "c0b2a01b023a0a7f1f735734386dd3e1023317288d5111700f87c9d0eaeda460"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-products-list-2.log",
+                               "sha256":  "8e09a555f8ff88aa2454b243b777691b665dc022fee7f18e8b7cfd8848594d88"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-products-list-3.json",
+                               "sha256":  "b2ec78f5943efd63232eaf54e073e2d579382acf9584c249ce35b27521721199"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-products-list-3.log",
+                               "sha256":  "a3f5239ac0109dede4f0e5eddf9c02eac533f4360a5ef66d0d5784f4ee48e823"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-product-detail-1.json",
+                               "sha256":  "be40922c6017f906eaf8da7770e36c1b0658038c9f12ffb3f3dfc83609d73f38"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-product-detail-1.log",
+                               "sha256":  "12478a78928e5497da7a09173ab2de25f8e623644f78efc769e7a01952d47021"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-product-detail-2.json",
+                               "sha256":  "9c94f1f0ae33d7c00fb017f5cfa23db896455ee0be4dcab7221ff1df6ad3f60f"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-product-detail-2.log",
+                               "sha256":  "bbc77abf38e93a210f2b2f77d201b015c0ebd9782c198d651ca19226c361bef8"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-product-detail-3.json",
+                               "sha256":  "3c084798561b499b44df3625963232e9682ea33b6f5f41af66f32fbe85f9ab78"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-product-detail-3.log",
+                               "sha256":  "98dae3145554ac7ed384e9972f3d7b15fd0d9e5421ae5321b9d6293e8e1932cf"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-customer-orders-1.json",
+                               "sha256":  "bdc4ea131f336d244ad6cae3d17063cadde31c17a19931c9ffa13c2e70d907ab"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-customer-orders-1.log",
+                               "sha256":  "74530b04aa1d4d813bd23ced661472c8b4946717a80a389305a7efd91616360e"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-customer-orders-2.json",
+                               "sha256":  "bc60f43691a31831df3a66e363a40dfd33b8b5e51b81d621f0c69c1fd17b30d9"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-customer-orders-2.log",
+                               "sha256":  "7f5bf350fd7781255bd4ce93063b671050ef97dc2ba52541f46a6e9b5c77ae4d"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-customer-orders-3.json",
+                               "sha256":  "863b7a838a1cca9e47b10aff7c888d3cf92c58bd7f96918743175b69b9c4a16f"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-customer-orders-3.log",
+                               "sha256":  "219f75bd1ffee4ec9c4922b940b3b91efb167bf662b22124999526643bbf27b7"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-dashboard-1.json",
+                               "sha256":  "cbbff05581b5159ab222fcca98fce99b0fb4a7514daa21c0e49b26e61f767bbf"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-dashboard-1.log",
+                               "sha256":  "a8e99a820cb2e44ce0a5c21c1831ba07c1d7d04c5282641ba3172bb02258d818"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-dashboard-2.json",
+                               "sha256":  "8d4c702d3d30adb8ebc44455ad36fee886062014ef56a1249a5c20bbdebc902f"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-dashboard-2.log",
+                               "sha256":  "812623fa210b902118d79a6ac10ccf81978f4cc148d10285d2b786064da9d80b"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-dashboard-3.json",
+                               "sha256":  "f0e7f19a554a86764c7c8fddb8a1216b14257a1a2b6421530d56aa389252a909"
+                           },
+                           {
+                               "path":  "current-20261110-094614/k6-dashboard-3.log",
+                               "sha256":  "a2e801f73e8f16c54e202260522ed64c2e711ac8a3cb2149f95c7d401e772a0e"
+                           }
+                       ]
+}

@@ -1,0 +1,33 @@
+﻿
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 125     4.035327/s
+    checks_succeeded...: 100.00% 125 out of 125
+    checks_failed......: 0.00%   0 out of 125
+
+    ✓ HTTP 200 or valid revalidation
+
+    CUSTOM
+    conditional_hits...............: 13     0.419674/s
+    endpoint_duration..............: p(50)=27.74ms p(95)=59.07ms p(99)=128.92ms
+    endpoint_errors................: 0.00%  0 out of 125
+
+    HTTP
+    http_req_duration..............: p(50)=27.74ms p(95)=59.07ms p(99)=128.92ms
+      { expected_response:true }...: p(50)=27.74ms p(95)=59.07ms p(99)=128.92ms
+    http_req_failed................: 0.00%  0 out of 125
+    http_reqs......................: 125    4.035327/s
+
+    EXECUTION
+    iteration_duration.............: p(50)=1.02s   p(95)=1.06s   p(99)=1.13s   
+    iterations.....................: 125    4.035327/s
+    vus............................: 1      min=0        max=5
+    vus_max........................: 5      min=5        max=5
+
+    NETWORK
+    data_received..................: 157 kB 5.1 kB/s
+    data_sent......................: 21 kB  673 B/s
+
+
+

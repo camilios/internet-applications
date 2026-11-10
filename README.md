@@ -1,5 +1,8 @@
 # E-Commerce API and Inventory Backend
 
+Database API benchmarks: [k6 before-and-after results](./docs/performance/BEFORE_AFTER.md),
+including the historical baseline and the current run measured on 2026-11-10.
+
 Latest performance review: [Arabic RTL explanation with actual code](./PERFORMANCE_GUIDE_AR.html)
 and [verification/results report](./docs/performance/focused-review/REVIEW.md).
 
