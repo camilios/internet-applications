@@ -1,0 +1,12 @@
+{
+    "captured_at": "2026-11-10T09:46:15+00:00",
+    "database": "ecommerce",
+    "cache_store": "redis",
+    "read_replica_enabled": true,
+    "counts": {
+        "users": 5004,
+        "products": 15,
+        "orders": 300004,
+        "order_items": 749372
+    }
+}
