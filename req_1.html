@@ -1,0 +1,572 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>تحسين قاعدة البيانات — شرح التنفيذ ملفًا بعد ملف</title><style>
+:root{--bg:#f4f5f0;--paper:#fff;--ink:#152c38;--muted:#546670;--line:#dce4df;--accent:#087b69;--nav:#152f3f;--soft:#e7f2eb;--note:#fff5dc}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.95 Tahoma,"Segoe UI",Arial,sans-serif}a{color:var(--accent);text-underline-offset:4px}button,input{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #c38b20;outline-offset:4px}[hidden]{display:none!important}.layout{max-width:1500px;margin:auto;padding:28px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:32px}.sidebar{position:sticky;top:24px;align-self:start;max-height:92vh;overflow:auto;background:var(--nav);color:#e4efef;padding:25px 20px;border-radius:16px}.sidebar .brand{font-size:11px;color:#93cbbc;letter-spacing:.08em}.sidebar h2{font-size:22px;line-height:1.7;margin:10px 0 24px}.sidebar a{display:block;color:#d1e2e2;text-decoration:none;border-bottom:1px solid #35505b;padding:12px 5px;font-size:13px}.sidebar a:hover{color:white;background:#284956}.sidebar p{font-size:11px;color:#a8bdc5;margin-top:26px}.main{min-width:0}.hero{background:var(--soft);border:1px solid #cbded1;padding:36px 38px;border-radius:18px}.eyebrow{font-size:12px;letter-spacing:.05em;color:var(--accent);font-weight:bold}.hero h1{font-size:clamp(29px,3.7vw,48px);line-height:1.55;margin:12px 0 18px;max-width:900px}.hero p{margin:10px 0;max-width:900px;color:#38534f}.meta{font-size:12px;color:var(--muted)}.pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:22px}.pills span,.badge{border:1px solid #c0d9cb;border-radius:20px;padding:4px 11px;background:#f9fcf9;color:#186755;font-size:11px}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:24px 0 8px}.toolbar input{flex:1;min-width:210px;border:1px solid var(--line);border-radius:9px;padding:11px;background:white;color:var(--ink)}button{border:1px solid var(--line);border-radius:8px;background:white;padding:8px 12px;color:var(--accent);font-size:12px}.search-status{min-height:24px;font-size:12px;color:var(--muted)}section{margin:44px 0;scroll-margin-top:24px}section>header{display:flex;gap:18px;margin-bottom:22px}.num{font:700 24px/1.3 Consolas,monospace;color:var(--accent);border-top:3px solid var(--accent);padding-top:12px;min-width:35px}h2{font-size:27px;line-height:1.6;margin:4px 0 10px}header p{font-size:14px;color:var(--muted);margin:0}h3{font-size:20px;line-height:1.8;margin:24px 0 10px}h4{font-size:16px;margin:22px 0 7px}.card{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:25px 28px;margin:18px 0;min-width:0}.card p{font-size:14px;margin:11px 0}.note{border-right:4px solid #bc8a28;background:var(--note);padding:14px 18px;margin:18px 0;border-radius:8px;font-size:13px}.good{border-color:var(--accent);background:#edf7f0}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.stat{background:white;border:1px solid var(--line);border-radius:10px;padding:18px}.stat strong{display:block;font:700 25px/1.5 Consolas,monospace;direction:ltr;text-align:right;color:var(--accent)}.stat span{font-size:12px;color:var(--muted)}code{font-family:Consolas,"Courier New",monospace;direction:ltr;unicode-bidi:isolate;display:inline-block;max-width:100%;overflow-wrap:anywhere;font-size:.88em;color:#115d64}pre{margin:0;background:#122935;color:#e6f0f1;direction:ltr;text-align:left;padding:20px;overflow:auto;border-radius:0 0 8px 8px;font:12.5px/1.8 Consolas,"Courier New",monospace;tab-size:4;unicode-bidi:isolate}pre code{color:inherit;display:block;max-width:none;white-space:pre;overflow-wrap:normal;font-size:inherit;unicode-bidi:plaintext}.source{border:1px solid #bdcfd2;border-radius:9px;overflow:hidden;margin:18px 0;background:#f6faf9}.source summary{cursor:pointer;font-size:13px;padding:14px 16px;font-weight:bold}.path{display:block;text-align:left;font:11px/1.8 Consolas,monospace;color:var(--muted);overflow-wrap:anywhere;unicode-bidi:isolate;margin-top:6px}.codebar{display:flex;justify-content:space-between;align-items:center;background:#25434d;color:#cfe1e1;padding:7px 12px;font-size:11px}.copy{padding:3px 11px;background:#1b3541;border-color:#5c7a83;color:#e1efec}.source-link{font-size:11px!important;padding:0 15px}.example{margin:16px 0;border-radius:8px;overflow:hidden;border:1px solid #d0d9d5}.example>p{padding:8px 16px;margin:0;background:#edf3ef;font-size:12px;font-weight:bold}.table-wrap{width:100%;overflow:auto;border:1px solid var(--line);border-radius:9px;margin:18px 0}table{border-collapse:collapse;width:100%;min-width:660px;background:white;font-size:12px}th,td{padding:11px 13px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}thead th{background:#e9f0ec;color:#29493f}tbody th{font-weight:normal}td.num,th.num{font:12px/1.9 Consolas,monospace;direction:ltr;white-space:nowrap;text-align:center;border:0;padding:11px 13px;min-width:0;color:var(--ink)}td code{font-size:11px}.caption{font-size:12px;color:var(--muted)}.flow{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:22px 0}.flow div{border:1px solid #a8cbbf;padding:15px 20px;border-radius:9px;background:#eef7f1;text-align:center;min-width:130px;font-size:13px}.flow b{color:var(--accent);font-size:24px}.flow small{display:block;font-size:11px;color:var(--muted)}.bar-row{display:grid;grid-template-columns:110px minmax(0,1fr) 110px;gap:14px;align-items:center;margin:14px 0;font-size:12px}.track{background:#e9efec;border-radius:7px;height:20px;overflow:hidden;direction:ltr}.bar{height:100%;background:#829eab}.bar.after{background:var(--accent)}.bar-row strong{direction:ltr;text-align:left;font:12px Consolas,monospace}.qa details{border-top:1px solid var(--line);padding:13px 0}.qa summary{cursor:pointer;font-size:14px;font-weight:bold}.qa p{font-size:13px}.evidence{font-size:12px;padding:10px 0;color:var(--muted)}ul,ol{padding-right:24px}li{margin:8px 0;font-size:14px}.footer{border-top:1px solid var(--line);padding:20px 5px 35px;color:var(--muted);font-size:12px}.empty{background:var(--note);padding:20px;border-radius:10px}body:has(#search:focus) .toolbar{outline:0}@media(max-width:1000px){.layout{grid-template-columns:1fr;padding:18px;gap:20px}.sidebar{position:static;max-height:none}.sidebar h2{margin-bottom:10px}.sidebar nav{display:flex;flex-wrap:wrap;gap:8px}.sidebar a{border:1px solid #40616b;padding:6px 10px;border-radius:6px;font-size:11px}.sidebar p{margin-bottom:0}.hero{padding:26px}.cards{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:600px){body{font-size:15px}.layout{padding:12px}.hero{padding:23px 20px}.card{padding:20px 17px}.hero h1{font-size:29px}h2{font-size:23px}h3{font-size:18px}.cards{grid-template-columns:1fr}.stat strong{text-align:right}.bar-row{grid-template-columns:85px minmax(0,1fr) 85px;gap:7px}pre{font-size:11.5px;padding:15px}.toolbar button{flex:1}.num{font-size:21px}.flow{gap:8px}.flow div{min-width:110px;padding:10px}th,td{padding:9px}.sidebar{padding:19px}.sidebar h2{font-size:20px}}@media print{body{background:white;font-size:11pt;color:black}.layout{display:block;max-width:none;padding:0}.sidebar,.toolbar,.search-status,.copy,.footer button{display:none!important}.hero,.card{border:1px solid #bbb;box-shadow:none;border-radius:0;padding:14px}.hero h1{font-size:25pt}section{break-before:page;margin-top:20px}h2,h3,h4{break-after:avoid}pre{white-space:pre-wrap;background:#f2f4f3;color:black;overflow:visible;font-size:8pt}pre code{white-space:pre-wrap;overflow-wrap:anywhere}.table-wrap{overflow:visible}table{min-width:0;font-size:8pt}a{color:black}.source{break-inside:auto}.codebar{background:#eee;color:black}.cards{grid-template-columns:repeat(3,1fr)}[hidden]{display:block!important}.empty{display:none!important}@page{size:A4;margin:15mm}}
+
+.main{min-width:0}.question{padding:14px 18px;background:#edf2f4;border-radius:8px;border-right:4px solid #487a8d;font-size:14px;margin:18px 0}.answer,.say{padding:17px 20px;background:#edf7f0;border-right:4px solid #267c5c;border-radius:8px;font-size:14px;line-height:2;margin:18px 0}.say b{color:#1c674e}.checkpoint{padding:14px 18px;background:#fff4db;border-right:4px solid #c68c28;border-radius:8px;font-size:13px;margin:23px 0}.section-number{font:700 24px/1.4 Consolas,monospace;color:#267c5c;min-width:38px}.intro{padding:25px 28px;background:#fff;border:1px solid var(--line);border-radius:12px;margin:20px 0}.intro p{font-size:14px}.filehead{padding:18px 20px;background:#f0f6f3;border:1px solid #c4d7ca;border-radius:9px;margin:28px 0 18px}.filehead h3{margin:6px 0 9px}.filehead>a{display:block;direction:ltr;text-align:left;font:12px/1.9 Consolas,monospace;overflow-wrap:anywhere}.kind{font-size:11px;font-weight:bold;background:#dfeee4;color:#1e634a;border-radius:5px;padding:4px 8px}.filepath{display:block;direction:ltr;text-align:left;unicode-bidi:isolate;font:11px/1.8 Consolas,monospace;color:var(--muted);overflow-wrap:anywhere;margin-top:6px}.changes{display:inline-block;font:11px Consolas,monospace;margin-right:12px;color:#4c6a66}.codebox{margin:18px 0;border-radius:8px;overflow:hidden;min-width:0}.source>.codebox{margin:0}.code-note{padding:11px 16px;background:#f4f7f4;font-size:12px!important;margin:0!important;line-height:1.9}.diff-key{display:flex;gap:14px;flex-wrap:wrap;padding:10px 15px;background:#edf4ef;font-size:11px}.removed{color:#a93848}.added{color:#157345}.del{color:#ffc6ce;background:#4d2838}.add{color:#c1f2ce;background:#153e35}.same{color:#d5e2e7}.source>.codebox>pre{border-radius:0}.number{direction:ltr;text-align:center!important;white-space:nowrap;font:12px/1.9 Consolas,monospace}.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}.two>div{min-width:0;background:#f6f9f7;border:1px solid #d6e1da;border-radius:9px;padding:17px}.two p{font-size:13px}.source summary{overflow-wrap:anywhere}.lesson-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0}.lesson-nav>a{padding:14px;background:#edf5f0;border:1px solid #c9dccd;border-radius:8px;font-size:13px;color:#20573f}.lesson-nav b{display:block;font:700 20px Consolas,monospace}.closing{padding:26px 29px;background:#173746;color:#e3f0ef;border-radius:12px}.closing h2{color:white}.closing p{font-size:15px}.small{font-size:12px!important;color:var(--muted)}[hidden]{display:none!important}@media(max-width:650px){.lesson-nav{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.intro,.closing{padding:21px 17px}.filehead{padding:15px}.filehead>a{font-size:10px}.code-note{font-size:11px!important}}@media print{.del{color:#8a1d2e;background:#ffe5e8}.add{color:#13502b;background:#e2f2e7}.same{color:black}.closing{background:white;color:black;border:1px solid #aaa}.closing h2{color:black}.filehead{break-after:avoid}.two{display:block}.lesson-nav{display:none}.code-note{font-size:8pt!important}}
+</style></head><body id="top"><div class="layout"><aside class="sidebar"><div class="brand">DATABASE OPTIMIZATION · FILE BY FILE</div><h2>افتح الملف،<br>واشرح التغيير،<br>ثم أثبت النتيجة.</h2><nav aria-label="فهرس الشرح"><a href="#start">خطة العرض والملفات</a><a href="#slow">1 · اختيار الاستعلامات البطيئة</a><a href="#analyze">2 · قراءة EXPLAIN ANALYZE</a><a href="#indexes">3 · الفهارس وتعديل الاستعلام</a><a href="#nplusone">4 · معالجة N+1 واختبارها</a><a href="#evidence">5 · قراءة before-after.json</a><a href="#defense">6 · إجابة المناقشة</a><a href="#sources">7 · المصادر</a></nav><p>ترتيب تعليمي مبني على الكود الفعلي؛ نميز بين ملف جديد وتغيير حقيقي وتصميم كان موجودًا أصلًا.</p></aside><main class="main">
+<div class="hero"><div class="eyebrow">شرح عربي RTL · تفصيل مبسط جدًا · كود قبل وبعد</div><h1>كيف حسّنّا قاعدة البيانات؟<br>من أول ملف إلى دليل الاختبار.</h1><p>هذا الدليل مخصص للشرح أمام الأستاذ: ما الملف الذي أفتحه أولًا؟ ماذا كان يفعل؟ ما الذي أضفناه أو غيّرناه؟ لماذا يفيد ذلك؟ وما الدليل الذي يسمح لي بالانتقال للخطوة التالية؟ لا تحتاج حفظ الكود؛ تحتاج فهم تسلسل القرار.</p><div class="pills"><span>اختيار الاستعلام</span><span>قياس الخطة</span><span>فهرس عند الحاجة</span><span>تحميل العلاقات مسبقًا</span><span>اختبار لا ادعاء</span></div><p class="meta">المقارنة البرمجية: <code>b9514cb</code> قبل تحسينات الأداء ← <code>d8023a7</code> الحالي. أُعدّ الشرح في 10 نوفمبر 2026. الأرقام من الملفات المحفوظة، ومنها الملف الذي أرسلته؛ لم نعد تشغيل قاعدة البيانات أو نغير backend عند إنشاء هذا المستند.</p></div>
+<div class="toolbar"><input id="search" type="search" placeholder="ابحث: اسم ملف، CASE، الفهرس، with، N+1..." aria-label="البحث في الدليل"><button id="expand" type="button">فتح كل الكود والفروقات</button><button id="collapse" type="button">طي الكود</button><button id="print" type="button">طباعة</button></div><div id="search-status" class="search-status" role="status" aria-live="polite"></div><p id="empty" class="empty" hidden>لا توجد أجزاء مطابقة للبحث.</p>
+<div id="start" class="intro"><h2>الجملة التي أبدأ بها</h2><div class="say"><b>ما أقوله للأستاذ:</b> «لم أبدأ بإضافة فهارس عشوائية. راجعت مسارات القراءة وحددت الاستعلامات التي تقرأ كثيرًا أو تعيد عملًا متكررًا، ثم قست خططها على بيانات كبيرة. أضفت فهارس تخدم البحث والترتيب، وعدلت تجميع الإحصاءات، وحافظت على تحميل العلاقات مسبقًا وأضفت اختبارًا يثبت أن عدد الاستعلامات لا ينمو مع عدد الصفوف.»</div><div class="lesson-nav"><a href="#slow"><b>01</b>أين المشكلة؟</a><a href="#analyze"><b>02</b>ماذا تقول الخطة؟</a><a href="#indexes"><b>03</b>ما التعديل المناسب؟</a><a href="#nplusone"><b>04</b>هل العلاقات تتكرر؟</a></div><div class="table-wrap"><table><thead><tr><th>الترتيب</th><th>الملف الذي أفتحه</th><th>حالته في القصة</th><th>لماذا الآن؟</th></tr></thead><tbody><tr><td>1</td><td><a href="backend/my-project/app/Http/Controllers/ProductController.php">ProductController.php</a> و<a href="backend/my-project/app/Services/OrderService.php">OrderService.php</a></td><td>مراجعة كود موجود</td><td>نعرف شكل الطلب والاستعلام الذي يهم المستخدم.</td></tr><tr><td>2</td><td><a href="backend/my-project/database/seeders/BulkOrderSeeder.php">BulkOrderSeeder.php</a></td><td>ملف أُضيف</td><td>أربعة طلبات لا تكشف كلفة جدول كبير.</td></tr><tr><td>3</td><td><a href="perf/checklist-database.php">checklist-database.php</a></td><td>أداة فحص أُضيفت لاحقًا</td><td>نقرأ الخطة والفهرس والصفوف والزمن، مع الرجوع لأرشيف ما قبل التعديل.</td></tr><tr><td>4</td><td><a href="backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php">Migration الفهارس</a></td><td>ملف أُضيف</td><td>نربط الأعمدة بنمط WHERE وORDER BY ثم نعيد فحص الخطة.</td></tr><tr><td>5</td><td><a href="backend/my-project/app/Http/Controllers/DashboardController.php">DashboardController.php</a></td><td>حساب أعيد تنظيمه</td><td>الفهرس ليس الحل الوحيد؛ نقلل تكرار التجميع.</td></tr><tr><td>6</td><td>Controllers / Services ثم Resources</td><td>تحميل مسبق موجود نحافظ عليه</td><td>نعرف لماذا العلاقات لا تنتج استعلامًا لكل صف.</td></tr><tr><td>7</td><td><a href="backend/my-project/tests/Feature/QueryScalingTest.php">QueryScalingTest.php</a></td><td>اختبار أُضيف</td><td>نثبت ثبات عدد الاستعلامات عند زيادة البيانات.</td></tr><tr><td>8</td><td><a href="docs/performance/before-after.json">before-after.json</a></td><td>دليل HTTP قبل وبعد</td><td>نرى أثر النظام ككل، ونفصله عن قياس SQL المباشر.</td></tr></tbody></table></div><p class="small">هذا ترتيب منطقي للشرح، وليس ادعاءً بأن كل أداة حالية كُتبت قبل كل قياس تاريخي. الفروقات مستخرجة من Git؛ وما كان موجودًا أصلًا موضح بوضوح.</p></div>
+
+<section id="slow" data-search><header><span class="section-number">01</span><div><h2>أولًا: نختار الاستعلامات البطيئة</h2><p>أقرأ مسار البيانات، وأختار ما يستحق القياس، وأجهز حجمًا يجعل الفرق ظاهرًا.</p></div></header><article class="card">
+<div class="filehead"><span class="kind">مراجعة ملف موجود</span><h3>الملف الأول: أين تتكوّن قراءة قائمة المنتجات؟</h3><a href="backend/my-project/app/Http/Controllers/ProductController.php">backend/my-project/app/Http/Controllers/ProductController.php</a></div><details class="source" open><summary>index() الحالية، كما هي في المشروع<span class="filepath" dir="ltr">backend/my-project/app/Http/Controllers/ProductController.php · L25–39</span></summary><div class="codebox" data-snapshot="evidence-8"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    public function index(Request $request): AnonymousResourceCollection
+    {
+        $query = Product::with(&#39;category&#39;)-&gt;where(&#39;is_active&#39;, true);
+
+        if ($request-&gt;filled(&#39;category_id&#39;)) {
+            $query-&gt;where(&#39;category_id&#39;, $request-&gt;integer(&#39;category_id&#39;));
+        }
+        if ($request-&gt;filled(&#39;search&#39;)) {
+            $query-&gt;where(&#39;name&#39;, &#39;like&#39;, &#39;%&#39;.$request-&gt;string(&#39;search&#39;)-&gt;toString().&#39;%&#39;);
+        }
+
+        $perPage = min(max($request-&gt;integer(&#39;per_page&#39;, 15), 1), 100);
+
+        return ProductResource::collection($query-&gt;orderByDesc(&#39;created_at&#39;)-&gt;orderByDesc(&#39;id&#39;)-&gt;paginate($perPage)-&gt;withQueryString());
+    }</code></pre></div></details>
+<div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>ماذا يفعل؟ ولماذا فعلناه هنا؟</th></tr></thead><tbody><tr><td><code>Product::with(&#39;category&#39;)</code></td><td>يبدأ استعلام المنتجات ويطلب تحميل علاقة التصنيف للمجموعة. سنشرح أثره على N+1 في الخطوة الرابعة؛ وجوده هنا قديم وليس إضافة نختلقها.</td></tr><tr><td><code>where(&#39;is_active&#39;, true)</code></td><td>قيد على المنتجات المتاحة. هذا أول عمود مرشح ضمن نمط البحث، لكن لا نضيف له فهرسًا قبل معرفة الحجم والخطة.</td></tr><tr><td><code>filled(&#39;category_id&#39;) / where(...)</code></td><td>إذا اختار المستخدم تصنيفًا نضيف مساواة على category_id؛ يصبح شكل الاستعلام مختلفًا عن القائمة العامة.</td></tr><tr><td><code>where(&#39;name&#39;, &#39;like&#39;, &#39;%...%&#39;)</code></td><td>فلتر بحث نصي جزئي. لا نخلطه مع استعلام category_id ونزعم أن الفهرس المركب المضاف يحل كل بحث نصي؛ هذه المراجعة لا تضيف full-text search.</td></tr><tr><td><code>min(max(integer(&#39;per_page&#39;, 15), 1), 100)</code></td><td>يحدد حجم الصفحة الافتراضي 15، ويمنع طلب عدد غير محدود أو قيمة أقل من 1 أو أكبر من 100. حجم الصفحة يؤثر في كمية البيانات والعلاقات.</td></tr><tr><td><code>orderByDesc(&#39;created_at&#39;)-&gt;orderByDesc(&#39;id&#39;)</code></td><td>ترتيب الأحدث أولًا، ومع تساوي created_at يكون id فاصلًا ثابتًا. هذا يعالج استقرار الصفحات، ولا يسمى وحده إصلاح N+1.</td></tr><tr><td><code>paginate($perPage)</code></td><td>يطلب صفحة ويجري أيضًا عدًا لتوفير total وروابط الصفحات؛ لذلك قراءة 15 صفًا قد تتضمن استعلام COUNT منفصلًا.</td></tr><tr><td><code>withQueryString()</code></td><td>يحافظ على category_id وsearch وper_page عند إنشاء روابط الصفحة التالية. هذا يحافظ على صحة التصفح، لا يثبت تقليل زمن SQL.</td></tr></tbody></table></div><div class="say"><b>ما أقوله للأستاذ:</b> «هنا أعرف شروط البحث والترتيب وحجم الصفحة. لا أرى كلمة paginate فأفترض أن قاعدة البيانات ستقرأ 15 صفًا فقط؛ قد تحتاج للعد أو المسح والفرز قبل إرجاع الصفحة.»</div>
+<div class="filehead"><span class="kind">مراجعة ملف موجود</span><h3>الملف الثاني: أين نقرأ قائمة طلبات المسؤول؟</h3><a href="backend/my-project/app/Services/OrderService.php">backend/my-project/app/Services/OrderService.php</a></div><details class="source"><summary>getAllOrders() الحالية<span class="filepath" dir="ltr">backend/my-project/app/Services/OrderService.php · L302–311</span></summary><div class="codebox" data-snapshot="evidence-9"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    public function getAllOrders(?string $status = null): LengthAwarePaginator
+    {
+        $query = Order::with(&#39;items.product&#39;, &#39;user&#39;)-&gt;orderByDesc(&#39;created_at&#39;)-&gt;orderByDesc(&#39;id&#39;);
+
+        if ($status !== null) {
+            $query-&gt;where(&#39;status&#39;, $status);
+        }
+
+        return $query-&gt;paginate(15)-&gt;withQueryString();
+    }</code></pre></div></details><p>الدالة تبني استعلام <code>orders</code>، وتحمل <code>items.product</code> و<code>user</code>، وقد تضيف <code>WHERE status = ...</code>، ثم ترتب بالتاريخ والرقم وتعيد صفحة من 15 طلبًا. هذا يوجهنا مباشرة إلى ثلاثة أنماط تستحق المقارنة:</p>
+<div class="codebox"><div class="codebar"><span>استعلامات تشخيصية بنفس فكرة القراءة، لا نسخ حرفي لكل SQL يصدره ORM</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>SELECT * FROM orders WHERE status = &#39;shipped&#39;
+ORDER BY created_at DESC LIMIT 15;
+
+SELECT * FROM orders
+ORDER BY created_at DESC LIMIT 15;
+
+SELECT * FROM orders WHERE user_id = 3498
+ORDER BY created_at DESC LIMIT 15;</code></pre></div>
+<p>الاستعلامات التشخيصية في الأدلة تستخدم ترتيب created_at فقط؛ الكود الحالي يضيف id لتثبيت الترتيب، وEloquent قد يضيف شروطًا مثل deleted_at للمنتجات. لذلك أعرض الخطة للـSQL المكتوب فعلًا ولا أدعي أنها خطة كل استعلام ORM الحالي بكل شروطه.</p><p>لماذا اخترنا هذه القراءات؟ لأن النتيجة المطلوبة صغيرة، لكن الخطة القديمة لقائمة shipped كانت تمسح <b>300,004 صفوف</b>، ولقائمة الطلبات العامة الحجم نفسه قبل أخذ 15. وهذه إشارة أوضح من افتراض أن جدول منتجات فيه 15 صفًا هو المشكلة الأكبر.</p>
+<div class="filehead"><span class="kind">إضافة ملف جديد</span><h3>الملف الثالث: تجهيز بيانات تجعل الكلفة قابلة للرؤية</h3><a href="backend/my-project/database/seeders/BulkOrderSeeder.php">backend/my-project/database/seeders/BulkOrderSeeder.php</a></div><details class="source diff"><summary>إضافة حقيقية: BulkOrderSeeder كاملًا<span class="changes" dir="ltr">+193 / −0</span><span class="filepath" dir="ltr">backend/my-project/database/seeders/BulkOrderSeeder.php</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-0"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ &lt;?php</span>
+<span class="add">+ </span>
+<span class="add">+ namespace Database\Seeders;</span>
+<span class="add">+ </span>
+<span class="add">+ use Illuminate\Database\Seeder;</span>
+<span class="add">+ use Illuminate\Support\Facades\DB;</span>
+<span class="add">+ use Illuminate\Support\Facades\Hash;</span>
+<span class="add">+ use Illuminate\Support\Str;</span>
+<span class="add">+ </span>
+<span class="add">+ /**</span>
+<span class="add">+  * Generates a large dataset for performance testing (Requirement 3).</span>
+<span class="add">+  *</span>
+<span class="add">+  * Run AFTER UserSeeder and ProductSeeder:</span>
+<span class="add">+  *   BULK_ORDER_COUNT=300000 php artisan db:seed --class=Database\\Seeders\\BulkOrderSeeder</span>
+<span class="add">+  *</span>
+<span class="add">+  * Inserts are chunked and use the query builder (no Eloquent events, no model hydration)</span>
+<span class="add">+  * so that hundreds of thousands of rows can be created in a reasonable time.</span>
+<span class="add">+  * The seeder refuses to run twice; run `php artisan migrate:fresh --seed` to regenerate.</span>
+<span class="add">+  */</span>
+<span class="add">+ class BulkOrderSeeder extends Seeder</span>
+<span class="add">+ {</span>
+<span class="add">+     private const DEFAULT_ORDER_COUNT = 300000;</span>
+<span class="add">+     private const BULK_CUSTOMERS = 5000;</span>
+<span class="add">+     private const ORDERS_PER_CHUNK = 1000;</span>
+<span class="add">+     private const ITEM_INSERT_BATCH = 1000;</span>
+<span class="add">+     private const HISTORY_SECONDS = 365 * 24 * 3600;</span>
+<span class="add">+ </span>
+<span class="add">+     // Weights are percentages and must add up to 100.</span>
+<span class="add">+     private const STATUS_WEIGHTS = [</span>
+<span class="add">+         &#39;pending&#39; =&gt; 5,</span>
+<span class="add">+         &#39;confirmed&#39; =&gt; 10,</span>
+<span class="add">+         &#39;processing&#39; =&gt; 10,</span>
+<span class="add">+         &#39;shipped&#39; =&gt; 15,</span>
+<span class="add">+         &#39;delivered&#39; =&gt; 55,</span>
+<span class="add">+         &#39;cancelled&#39; =&gt; 5,</span>
+<span class="add">+     ];</span>
+<span class="add">+ </span>
+<span class="add">+     public function run(): void</span>
+<span class="add">+     {</span>
+<span class="add">+         DB::disableQueryLog();</span>
+<span class="add">+ </span>
+<span class="add">+         if (DB::table(&#39;users&#39;)-&gt;where(&#39;email&#39;, &#39;like&#39;, &#39;bulk-customer-%&#39;)-&gt;exists()) {</span>
+<span class="add">+             $this-&gt;command?-&gt;warn(&#39;Bulk data already exists. Run migrate:fresh --seed to regenerate.&#39;);</span>
+<span class="add">+ </span>
+<span class="add">+             return;</span>
+<span class="add">+         }</span>
+<span class="add">+ </span>
+<span class="add">+         $products = DB::table(&#39;products&#39;)</span>
+<span class="add">+             -&gt;where(&#39;is_active&#39;, true)</span>
+<span class="add">+             -&gt;whereNull(&#39;deleted_at&#39;)</span>
+<span class="add">+             -&gt;get([&#39;id&#39;, &#39;price&#39;])</span>
+<span class="add">+             -&gt;all();</span>
+<span class="add">+ </span>
+<span class="add">+         if (count($products) === 0) {</span>
+<span class="add">+             $this-&gt;command?-&gt;error(&#39;No active products found. Run ProductSeeder first.&#39;);</span>
+<span class="add">+ </span>
+<span class="add">+             return;</span>
+<span class="add">+         }</span>
+<span class="add">+ </span>
+<span class="add">+         $targetOrders = (int) (getenv(&#39;BULK_ORDER_COUNT&#39;) ?: self::DEFAULT_ORDER_COUNT);</span>
+<span class="add">+         $customerIds = $this-&gt;createCustomers();</span>
+<span class="add">+ </span>
+<span class="add">+         $remaining = $targetOrders;</span>
+<span class="add">+         $generated = 0;</span>
+<span class="add">+ </span>
+<span class="add">+         while ($remaining &gt; 0) {</span>
+<span class="add">+             $size = min(self::ORDERS_PER_CHUNK, $remaining);</span>
+<span class="add">+             $this-&gt;insertOrderChunk($size, $customerIds, $products);</span>
+<span class="add">+ </span>
+<span class="add">+             $remaining -= $size;</span>
+<span class="add">+             $generated += $size;</span>
+<span class="add">+ </span>
+<span class="add">+             if ($generated % 50000 === 0 || $remaining === 0) {</span>
+<span class="add">+                 $this-&gt;command?-&gt;info(&quot;Generated {$generated} / {$targetOrders} orders&quot;);</span>
+<span class="add">+             }</span>
+<span class="add">+         }</span>
+<span class="add">+ </span>
+<span class="add">+         $this-&gt;command?-&gt;info(&#39;Bulk seeding finished.&#39;);</span>
+<span class="add">+     }</span>
+<span class="add">+ </span>
+<span class="add">+     /**</span>
+<span class="add">+      * @return array&lt;int, int&gt; customer user IDs</span>
+<span class="add">+      */</span>
+<span class="add">+     private function createCustomers(): array</span>
+<span class="add">+     {</span>
+<span class="add">+         // Hash once and reuse. Bcrypt per user would make seeding very slow.</span>
+<span class="add">+         $password = Hash::make(&#39;password123&#39;);</span>
+<span class="add">+         $now = now()-&gt;format(&#39;Y-m-d H:i:s&#39;);</span>
+<span class="add">+ </span>
+<span class="add">+         $rows = [];</span>
+<span class="add">+         for ($i = 1; $i &lt;= self::BULK_CUSTOMERS; $i++) {</span>
+<span class="add">+             $rows[] = [</span>
+<span class="add">+                 &#39;name&#39; =&gt; &quot;Bulk Customer {$i}&quot;,</span>
+<span class="add">+                 &#39;email&#39; =&gt; &quot;bulk-customer-{$i}@example.test&quot;,</span>
+<span class="add">+                 &#39;password&#39; =&gt; $password,</span>
+<span class="add">+                 &#39;role&#39; =&gt; &#39;customer&#39;,</span>
+<span class="add">+                 &#39;created_at&#39; =&gt; $now,</span>
+<span class="add">+                 &#39;updated_at&#39; =&gt; $now,</span>
+<span class="add">+             ];</span>
+<span class="add">+         }</span>
+<span class="add">+ </span>
+<span class="add">+         foreach (array_chunk($rows, 1000) as $chunk) {</span>
+<span class="add">+             DB::table(&#39;users&#39;)-&gt;insert($chunk);</span>
+<span class="add">+         }</span>
+<span class="add">+ </span>
+<span class="add">+         return DB::table(&#39;users&#39;)</span>
+<span class="add">+             -&gt;where(&#39;email&#39;, &#39;like&#39;, &#39;bulk-customer-%&#39;)</span>
+<span class="add">+             -&gt;pluck(&#39;id&#39;)</span>
+<span class="add">+             -&gt;map(fn ($id) =&gt; (int) $id)</span>
+<span class="add">+             -&gt;all();</span>
+<span class="add">+     }</span>
+<span class="add">+ </span>
+<span class="add">+     private function insertOrderChunk(int $size, array $customerIds, array $products): void</span>
+<span class="add">+     {</span>
+<span class="add">+         DB::transaction(function () use ($size, $customerIds, $products) {</span>
+<span class="add">+             $orderRows = [];</span>
+<span class="add">+             $itemsByReservation = [];</span>
+<span class="add">+ </span>
+<span class="add">+             for ($i = 0; $i &lt; $size; $i++) {</span>
+<span class="add">+                 $reservationId = (string) Str::uuid();</span>
+<span class="add">+                 $createdAt = now()-&gt;subSeconds(random_int(0, self::HISTORY_SECONDS))-&gt;format(&#39;Y-m-d H:i:s&#39;);</span>
+<span class="add">+ </span>
+<span class="add">+                 $total = &#39;0.00&#39;;</span>
+<span class="add">+                 $items = [];</span>
+<span class="add">+                 $itemCount = random_int(1, 4);</span>
+<span class="add">+ </span>
+<span class="add">+                 for ($j = 0; $j &lt; $itemCount; $j++) {</span>
+<span class="add">+                     $product = $products[array_rand($products)];</span>
+<span class="add">+                     $quantity = random_int(1, 3);</span>
+<span class="add">+                     $subtotal = bcmul((string) $product-&gt;price, (string) $quantity, 2);</span>
+<span class="add">+                     $total = bcadd($total, $subtotal, 2);</span>
+<span class="add">+ </span>
+<span class="add">+                     $items[] = [</span>
+<span class="add">+                         &#39;product_id&#39; =&gt; $product-&gt;id,</span>
+<span class="add">+                         &#39;quantity&#39; =&gt; $quantity,</span>
+<span class="add">+                         &#39;unit_price&#39; =&gt; $product-&gt;price,</span>
+<span class="add">+                         &#39;subtotal&#39; =&gt; $subtotal,</span>
+<span class="add">+                         &#39;created_at&#39; =&gt; $createdAt,</span>
+<span class="add">+                         &#39;updated_at&#39; =&gt; $createdAt,</span>
+<span class="add">+                     ];</span>
+<span class="add">+                 }</span>
+<span class="add">+ </span>
+<span class="add">+                 $orderRows[] = [</span>
+<span class="add">+                     &#39;user_id&#39; =&gt; $customerIds[array_rand($customerIds)],</span>
+<span class="add">+                     &#39;total&#39; =&gt; $total,</span>
+<span class="add">+                     &#39;status&#39; =&gt; $this-&gt;pickStatus(),</span>
+<span class="add">+                     &#39;reservation_id&#39; =&gt; $reservationId,</span>
+<span class="add">+                     &#39;created_at&#39; =&gt; $createdAt,</span>
+<span class="add">+                     &#39;updated_at&#39; =&gt; $createdAt,</span>
+<span class="add">+                 ];</span>
+<span class="add">+                 $itemsByReservation[$reservationId] = $items;</span>
+<span class="add">+             }</span>
+<span class="add">+ </span>
+<span class="add">+             // Remember the highest ID before this chunk. The new orders are exactly the rows above it.</span>
+<span class="add">+             // This avoids relying on auto-increment values being consecutive for multi-row inserts.</span>
+<span class="add">+             $maxIdBefore = (int) DB::table(&#39;orders&#39;)-&gt;max(&#39;id&#39;);</span>
+<span class="add">+ </span>
+<span class="add">+             DB::table(&#39;orders&#39;)-&gt;insert($orderRows);</span>
+<span class="add">+ </span>
+<span class="add">+             $orderIdByReservation = DB::table(&#39;orders&#39;)</span>
+<span class="add">+                 -&gt;where(&#39;id&#39;, &#39;&gt;&#39;, $maxIdBefore)</span>
+<span class="add">+                 -&gt;pluck(&#39;id&#39;, &#39;reservation_id&#39;);</span>
+<span class="add">+ </span>
+<span class="add">+             $itemRows = [];</span>
+<span class="add">+             foreach ($itemsByReservation as $reservationId =&gt; $items) {</span>
+<span class="add">+                 $orderId = $orderIdByReservation[$reservationId];</span>
+<span class="add">+                 foreach ($items as $item) {</span>
+<span class="add">+                     $item[&#39;order_id&#39;] = $orderId;</span>
+<span class="add">+                     $itemRows[] = $item;</span>
+<span class="add">+                 }</span>
+<span class="add">+             }</span>
+<span class="add">+ </span>
+<span class="add">+             foreach (array_chunk($itemRows, self::ITEM_INSERT_BATCH) as $batch) {</span>
+<span class="add">+                 DB::table(&#39;order_items&#39;)-&gt;insert($batch);</span>
+<span class="add">+             }</span>
+<span class="add">+         });</span>
+<span class="add">+     }</span>
+<span class="add">+ </span>
+<span class="add">+     private function pickStatus(): string</span>
+<span class="add">+     {</span>
+<span class="add">+         $roll = random_int(1, 100);</span>
+<span class="add">+         $cumulative = 0;</span>
+<span class="add">+ </span>
+<span class="add">+         foreach (self::STATUS_WEIGHTS as $status =&gt; $weight) {</span>
+<span class="add">+             $cumulative += $weight;</span>
+<span class="add">+             if ($roll &lt;= $cumulative) {</span>
+<span class="add">+                 return $status;</span>
+<span class="add">+             }</span>
+<span class="add">+         }</span>
+<span class="add">+ </span>
+<span class="add">+         return &#39;pending&#39;;</span>
+<span class="add">+     }</span>
+<span class="add">+ }</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. الملف غير موجود في commit القديم. الكود طويل لأنه يجهز عينة اختبار، وسنشرح دواله واحدة واحدة بعده؛ لا نحتاج حفظه حرفيًا.</p></details><h4>أ · الثوابت: ما حجم التجربة؟</h4>
+<div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>ماذا يفعل؟ ولماذا فعلناه هنا؟</th></tr></thead><tbody><tr><td><code>DEFAULT_ORDER_COUNT = 300000</code></td><td>عدد الطلبات الصناعية الجديدة، ويضاف إلى الطلبات الأربعة الموجودة؛ النتيجة المسجلة 300,004. يمكن تغييره بمتغير BULK_ORDER_COUNT في أداة التجهيز.</td></tr><tr><td><code>BULK_CUSTOMERS = 5000</code></td><td>عملاء صناعيون لتوزيع الطلبات بدل نسب كل الطلبات إلى مستخدم واحد. مع الأربعة الأصليين يصبح العدد المسجل 5,004.</td></tr><tr><td><code>ORDERS_PER_CHUNK = 1000</code></td><td>نجهز ألف طلب في دفعة بدل بناء 300 ألف سجل مرة واحدة في الذاكرة.</td></tr><tr><td><code>ITEM_INSERT_BATCH = 1000</code></td><td>بنود الطلبات نفسها تدخل أيضًا على دفعات؛ الطلب الواحد له عدة بنود.</td></tr><tr><td><code>HISTORY_SECONDS = 365 * 24 * 3600</code></td><td>ينشئ تواريخ موزعة على سنة تقريبًا، حتى توجد قراءة ترتيب وتاريخ ذات معنى.</td></tr><tr><td><code>STATUS_WEIGHTS</code></td><td>يوزع الحالات بنسب مجموعها 100. وجود نسبة shipped وcancelled يجعل فلاتر الحالة والتجميع أقرب إلى عينة متنوعة.</td></tr></tbody></table></div><h4>ب · run(): نتأكد من البيئة ونبدأ الدفعات</h4><ol><li><code>DB::disableQueryLog()</code> يمنع الاحتفاظ بمئات آلاف الاستعلامات في سجل ذاكرة أثناء تجهيز البيانات. هذا مختلف عن تفعيل Query Log لفترة صغيرة داخل اختبار N+1.</li><li>البحث عن <code>bulk-customer-%</code> يمنع تكرار التوليد في القاعدة نفسها. هذه علامة حماية، وليست طريقة استئناف توليد انقطع؛ حتى وجود جزء من العملاء سيؤدي إلى التوقف.</li><li>يقرأ المنتجات النشطة غير المحذوفة ويحصل على id وprice مرة، ثم يعيد استخدام هذه المصفوفة خلال التوليد. لا يستعلم عن كل منتج من قاعدة البيانات داخل كل بند.</li><li>إذا لم توجد منتجات يتوقف بدل إدخال طلبات بلا مصدر صالح للأسعار.</li><li>يحدد الهدف، وينشئ العملاء، ثم يكرر while حتى تنتهي الطلبات المتبقية. بعد كل دفعة ينقص remaining ويزيد generated ويطبع تقدمه دوريًا.</li></ol>
+<h4>ج · createCustomers(): لا نكرر عملًا ثقيلًا بلا حاجة</h4><p>يحسب Hash لكلمة المرور التجريبية مرة واحدة ويعيد استخدامه لعملاء بيانات الأداء، ثم يبني صفوفهم بأسماء وبريد اصطناعيين ودور customer، ويدخلها بألف صف كل مرة. أخيرًا يسترجع IDs العملاء الجدد. هذا تجهيز عينة، لا آلية إنشاء حسابات حقيقية للمستخدمين في API.</p>
+<h4>د · insertOrderChunk(): تفاصيل بناء الطلبات والبنود</h4><ol><li>يغلف الدفعة بـ<code>DB::transaction</code>؛ الطلبات وبنود هذه الدفعة تحفظ معًا أو تتراجع معًا. المعاملة تخص الدفعة، وليست معاملة واحدة لكل 300 ألف طلب.</li><li>ينشئ reservation UUID وتاريخًا سابقًا لكل طلب، ويختار 1 إلى 4 بنود، ولكل بند كمية 1 إلى 3 ومنتج من القائمة المحملة.</li><li><code>bcmul</code> يحسب subtotal و<code>bcadd</code> يجمع total كنص عشري بمنزلتين، بدل تراكم أخطاء float أثناء تجهيز المال.</li><li>يجمع صفوف الطلبات أولًا، ويحتفظ ببنود كل طلب تحت مفتاح UUID الخاص به.</li><li>يحفظ أعلى id قبل إدخال دفعة الطلبات، ثم يدخلها جماعيًا. بعد ذلك يسترجع خريطة <code>reservation_id → id</code> للصفوف الجديدة.</li><li>يضيف order_id الصحيح لكل بند اعتمادًا على UUID، بدل افتراض أن أرقام auto-increment متجاورة ويمكن استنتاجها من رقم البداية.</li><li>يدخل البنود على دفعات أيضًا، ثم تنتهي transaction الخاصة بهذه المجموعة.</li></ol><p>الأداة تستخدم Query Builder للإدخال المباشر، فتتجنب تكلفة إنشاء نموذج Eloquent وأحداثه لكل صف. كما أنها لا تنفذ حجز مخزون حقيقيًا عبر gRPC لهذه الطلبات الصناعية؛ الهدف هو عينة قراءة كبيرة لا طلبات عملاء فعلية.</p>
+<h4>هـ · pickStatus(): لماذا توزيع موزون؟</h4><p>يختار رقمًا عشوائيًا من 1 إلى 100، ثم يجمع أوزان الحالات حتى يصل إلى المجال الذي ينتمي إليه الرقم. بذلك لا تتوزع الحالات بالتساوي افتراضيًا. وعشوائية البيانات تعني أن إعادة التوليد من الصفر لا تضمن البيانات نفسها؛ المقارنة الأفضل تستعمل العينة نفسها بين المراحل.</p>
+<div class="table-wrap"><table><thead><tr><th>الجدول</th><th>قبل التوليد القديم</th><th>بعد التوليد المسجل</th></tr></thead><tbody><tr><td>users</td><td class="number">4</td><td class="number">5,004</td></tr><tr><td>products</td><td class="number">15</td><td class="number">15</td></tr><tr><td>orders</td><td class="number">4</td><td class="number">300,004</td></tr><tr><td>order_items</td><td class="number">7</td><td class="number">749,372</td></tr></tbody></table></div><p class="small">المصدر: <a href="docs/performance/baseline/initial-counts.txt">الأعداد القديمة</a> و<a href="docs/performance/baseline/dataset.txt">خرج التوليد</a>. لا يعيد هذا الشرح تشغيل Seeder أو أوامر تصفير بيانات.</p><div class="say"><b>ما أقوله للأستاذ:</b> «لم أحكم على الأداء بأربعة طلبات. أضفت تجهيز بيانات على دفعات حتى أرى أثر نمو orders، ثم قارنت القراءات المهمة على هذه العينة.»</div><div class="checkpoint"><b>قبل الانتقال:</b> استطع شرح: لماذا اخترت orders؟ ولماذا LIMIT 15 لا يكفي وحده؟ وما دور Seeder المختلف عن فهرس قاعدة البيانات؟</div>
+</article></section>
+
+<section id="analyze" data-search><header><span class="section-number">02</span><div><h2>ثانيًا: نستخدم EXPLAIN ANALYZE</h2><p>بعد اختيار الاستعلام، أريد أن أعرف كيف نُفذ فعلًا قبل أن أقرر العلاج.</p></div></header><article class="card">
+<div class="filehead"><span class="kind">إضافة أداة فحص</span><h3>الملف الرابع: نقرأ الاستعلام وخطته ونتيجته</h3><a href="perf/checklist-database.php">perf/checklist-database.php</a></div><details class="source diff" open><summary>إضافة حقيقية: أداة فحص الاستعلامات<span class="changes" dir="ltr">+30 / −0</span><span class="filepath" dir="ltr">perf/checklist-database.php</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-1"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ &lt;?php</span>
+<span class="add">+ </span>
+<span class="add">+ // Read-only current dataset, schema and query-plan evidence.</span>
+<span class="add">+ require &#39;/var/www/html/vendor/autoload.php&#39;;</span>
+<span class="add">+ $app = require &#39;/var/www/html/bootstrap/app.php&#39;;</span>
+<span class="add">+ $app-&gt;make(Illuminate\Contracts\Console\Kernel::class)-&gt;bootstrap();</span>
+<span class="add">+ $db = Illuminate\Support\Facades\DB::connection();</span>
+<span class="add">+ $db-&gt;useWriteConnectionWhenReading();</span>
+<span class="add">+ $result = [];</span>
+<span class="add">+ foreach ([&#39;users&#39;, &#39;products&#39;, &#39;orders&#39;, &#39;order_items&#39;] as $table) {</span>
+<span class="add">+     $result[&#39;counts&#39;][$table] = $db-&gt;table($table)-&gt;count();</span>
+<span class="add">+ }</span>
+<span class="add">+ $userId = $db-&gt;table(&#39;orders&#39;)-&gt;selectRaw(&#39;user_id, COUNT(*) AS n&#39;)-&gt;groupBy(&#39;user_id&#39;)-&gt;orderByDesc(&#39;n&#39;)-&gt;value(&#39;user_id&#39;);</span>
+<span class="add">+ $queries = [</span>
+<span class="add">+     [&#39;SELECT * FROM products WHERE is_active = 1 ORDER BY created_at DESC LIMIT 15&#39;, []],</span>
+<span class="add">+     [&#39;SELECT * FROM products WHERE is_active = 1 AND category_id = ? ORDER BY created_at DESC LIMIT 15&#39;, [1]],</span>
+<span class="add">+     [&#39;SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 15&#39;, [$userId]],</span>
+<span class="add">+     [&#39;SELECT * FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT 15&#39;, [&#39;shipped&#39;]],</span>
+<span class="add">+     [&#39;SELECT * FROM orders ORDER BY created_at DESC LIMIT 15&#39;, []],</span>
+<span class="add">+     [&#39;SELECT COUNT(*) FROM orders WHERE status &lt;&gt; ?&#39;, [&#39;cancelled&#39;]],</span>
+<span class="add">+ ];</span>
+<span class="add">+ foreach ($queries as [$sql, $bindings]) {</span>
+<span class="add">+     $result[&#39;queries&#39;][] = [&#39;sql&#39; =&gt; $sql, &#39;bindings&#39; =&gt; $bindings,</span>
+<span class="add">+         &#39;explain&#39; =&gt; $db-&gt;select(&#39;EXPLAIN &#39;.$sql, $bindings),</span>
+<span class="add">+         &#39;analyze&#39; =&gt; $db-&gt;select(&#39;EXPLAIN ANALYZE &#39;.$sql, $bindings)];</span>
+<span class="add">+ }</span>
+<span class="add">+ foreach ([&#39;products&#39;, &#39;orders&#39;] as $table) {</span>
+<span class="add">+     $result[&#39;indexes&#39;][$table] = $db-&gt;select(&#39;SHOW INDEX FROM &#39;.$table);</span>
+<span class="add">+ }</span>
+<span class="add">+ echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL;</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. أداة المراجعة الحالية أضيفت بعد المرجع القديم. ملفات EXPLAIN القديمة أُرشفت في مرحلة قبل الفهارس؛ لا نفترض أن الأداة الحالية أنشأت كل ملف تاريخي.</p></details>
+<div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>ماذا يفعل؟ ولماذا فعلناه هنا؟</th></tr></thead><tbody><tr><td><code>require ...vendor/autoload.php</code></td><td>تحميل classes الخاصة بـComposer؛ الملف أداة PHP داخل بيئة backend، وليس Controller يستقبل طلب مستخدم.</td></tr><tr><td><code>require ...bootstrap/app.php / Kernel::bootstrap()</code></td><td>تشغيل إعداد Laravel حتى يعرف الاتصال والإعدادات والخدمات؛ من دون ذلك لا تكفي كتابة DB::connection في ملف مستقل.</td></tr><tr><td><code>$db = DB::connection()</code></td><td>يحصل على اتصال قاعدة البيانات الافتراضي في البيئة التي تعمل فيها الأداة.</td></tr><tr><td><code>useWriteConnectionWhenReading()</code></td><td>يثبت قراءات الأداة على الأساسي، حتى لا نقارن استعلامًا من replica بآخر من primary من دون أن ننتبه. هذا اختيار خاص بالفحص، لا تغيير دائم لسياسة كل API.</td></tr><tr><td><code>foreach ([&#39;users&#39;, &#39;products&#39;, &#39;orders&#39;, &#39;order_items&#39;])</code></td><td>يسجل الحجم الحالي مع الخطة. الزمن وحده بلا حجم البيانات لا يصف تجربة قابلة للفهم.</td></tr><tr><td><code>groupBy(&#39;user_id&#39;)-&gt;orderByDesc(&#39;n&#39;)-&gt;value(&#39;user_id&#39;)</code></td><td>يختار مستخدمًا له طلبات كثيرة فعلًا. لا نضع id عشوائيًا قد يعيد قائمة فارغة ثم نعتبر السرعة تحسينًا. هذا استعلام تجهيز للفحص نفسه.</td></tr><tr><td><code>$queries = [[SQL, bindings], ...]</code></td><td>ستة أنماط: منتجات نشطة، منتجات تصنيف، طلبات مستخدم، طلبات حالة، آخر الطلبات، وعدّ غير الملغاة. الـbindings تحمل القيم المقابلة لعلامات ? بدل لصقها في النص من مدخلات المستخدم.</td></tr><tr><td><code>$db-&gt;select(&#39;EXPLAIN &#39;.$sql, $bindings)</code></td><td>الخطة المقدرة: الفهرس المحتمل والمختار وتقدير الصفوف ونوع الوصول.</td></tr><tr><td><code>$db-&gt;select(&#39;EXPLAIN ANALYZE &#39;.$sql, $bindings)</code></td><td>ينفذ SELECT المقصود ويعرض الزمن والصفوف والتكرارات الفعلية. ليس مجرد تقدير ولا قياس HTTP كامل.</td></tr><tr><td><code>SHOW INDEX FROM products / orders</code></td><td>يتحقق من الفهارس الموجودة، ثم نقارنها بما اختارته الخطة. وجود index لا يثبت أنه استُخدم.</td></tr><tr><td><code>json_encode(... JSON_PRETTY_PRINT ...)</code></td><td>يخرج نتيجة قابلة للحفظ والمراجعة، فيها SQL ومعاملاته وخطتاه والفهارس، بدل كتابة «الأداء أفضل» من الذاكرة.</td></tr></tbody></table></div><p>الأداة الحالية لا تضيف index ولا تغير row؛ استعلاماتها الستة للقراءة. لكنها تنفذ عملًا فعليًا قد يكون مكلفًا عند ANALYZE، لذلك نختار الاستعلامات وحجم العينة عن قصد. الخطة القديمة محفوظة في <a href="docs/performance/baseline/explain-before.txt">explain-before.txt</a> والجديدة في <a href="docs/performance/results/after-indexes/explain-after.txt">explain-after.txt</a>.</p>
+<h3>كيف أقرأ الخطة بطريقة بسيطة؟</h3><div class="table-wrap"><table><thead><tr><th>ما أراه</th><th>كيف أفسره؟</th><th>ما الخطأ الذي أتجنبه؟</th></tr></thead><tbody><tr><td><code>type = ALL</code></td><td>مسح للجدول في الخطة التقليدية.</td><td>لا أعتبره سيئًا تلقائيًا إذا كان الجدول 15 صفًا فقط.</td></tr><tr><td><code>key</code></td><td>الفهرس الذي اختير.</td><td>possible_keys مرشحات وليست إثبات استخدام.</td></tr><tr><td><code>rows</code> في EXPLAIN</td><td>تقدير المحسن.</td><td>لا أسميه العدد الفعلي لمجرد أنه مكتوب في جدول الخطة.</td></tr><tr><td><code>actual rows / loops</code></td><td>ما خرج من العقدة عند تنفيذها، وعدد تكراراتها.</td><td>أراقب عقدة المسح، لا عدد الصفوف في Limit فقط.</td></tr><tr><td><code>actual time=a..b</code></td><td>زمن أول وآخر صف بالعقدة، عادة لكل تكرار، بالمللي ثانية.</td><td>لا أجمع أزمنة العقد المتداخلة؛ نعرض زمن اكتمال الجذر.</td></tr><tr><td><code>Sort / Table scan / Index lookup</code></td><td>سلسلة العمل: قراءة، فلترة، ترتيب، أخذ أول الصفوف.</td><td>LIMIT لا يمحو تكلفة المراحل التي سبقته.</td></tr></tbody></table></div>
+<h3>الخطة التي أريها للأستاذ أولًا</h3><details class="source diff" open><summary>فرق خطة تنفيذ حقيقي للطلبات المشحونة<span class="changes" dir="ltr">+2 / −4</span><span class="filepath" dir="ltr">docs/performance/results/after-indexes/explain-after.txt</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-7"><div class="codebar"><span dir="ltr">plan-before → plan-after</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="del">- -&gt; Limit: 15 row(s)  (cost=30652 rows=15) (actual time=303..303 rows=15 loops=1)</span>
+<span class="del">-     -&gt; Sort: orders.created_at DESC, limit input to 15 row(s) per chunk  (cost=30652 rows=298201) (actual time=303..303 rows=15 loops=1)</span>
+<span class="del">-         -&gt; Filter: (orders.`status` = &#39;shipped&#39;)  (cost=30652 rows=298201) (actual time=0.382..285 rows=45631 loops=1)</span>
+<span class="del">-             -&gt; Table scan on orders  (cost=30652 rows=298201) (actual time=0.287..249 rows=300004 loops=1)</span>
+<span class="add">+ -&gt; Limit: 15 row(s)  (cost=10808 rows=15) (actual time=5.03..5.04 rows=15 loops=1)</span>
+<span class="add">+     -&gt; Index lookup on orders using orders_status_created_idx (status=&#39;shipped&#39;) (reverse)  (cost=10808 rows=93410) (actual time=5.03..5.04 rows=15 loops=1)</span>
+<span class="same">  </span></code></pre></div><p class="code-note">فرق نتائج EXPLAIN ANALYZE، لا فرق PHP. لم نعد تشغيل الاستعلام في مهمة إنشاء الشرح.</p></details><p><b>قبل:</b> مسح جدول orders، ثم فلترة shipped، ثم فرز، ثم إخراج 15 صفًا. عقدة المسح قرأت 300,004 صفوف، واكتمال الاستعلام 303 ms في هذه اللقطة.</p><p><b>بعد:</b> استعمل <code>orders_status_created_idx</code> للبحث عن الحالة والقراءة بالعكس وفق التاريخ، فأخرجت عقدة الفهرس 15 صفًا واكتمل في 5.04 ms في اللقطة المحفوظة.</p><p>أقرأ الخطة من العقد الداخلية إلى الأعلى لفهم العمل، وأنتبه أن كلمة <code>rows=15</code> عند Limit في الخطة القديمة لا تعني أن المسح قرأ 15 فقط. وسنرى الآن التغيير الذي يفسر انتقال الخطة إلى ذلك الفهرس.</p><div class="say"><b>ما أقوله للأستاذ:</b> «EXPLAIN يبين تقدير الطريق، وEXPLAIN ANALYZE يريني ما حدث عند التنفيذ. هنا المشكلة لم تكن عدد الصفوف المرسلة؛ كانت عدد الصفوف التي نقرأها ونفرزها للوصول إليها.»</div><div class="checkpoint"><b>قبل الانتقال:</b> استطع أن تشير إلى عقدة المسح القديمة وعقدة الفهرس الجديدة وتشرح الفرق بين estimated rows وactual rows وبين زمن SQL وزمن API.</div>
+<p class="small">مرجع معنى الخطة: <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html">MySQL EXPLAIN وEXPLAIN ANALYZE</a>. الدليل على تطبيق المشروع هو المخرجات المحلية أعلاه.</p>
+</article></section>
+
+<section id="indexes" data-search><header><span class="section-number">03</span><div><h2>ثالثًا: نضيف الفهرس عند الحاجة ونقلل العمل المتكرر</h2><p>أربط الفهرس بشكل الاستعلام، ثم أرجع إلى الخطة لأتحقق من فائدته.</p></div></header><article class="card">
+<div class="filehead"><span class="kind">إضافة Migration جديدة</span><h3>الملف الخامس: إضافة فهارس الأداء منفصلة عن إنشاء الجداول</h3><a href="backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php">backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php</a></div><details class="source diff" open><summary>إضافة حقيقية: Migration الفهارس كاملة<span class="changes" dir="ltr">+44 / −0</span><span class="filepath" dir="ltr">backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-2"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ &lt;?php</span>
+<span class="add">+ </span>
+<span class="add">+ use Illuminate\Database\Migrations\Migration;</span>
+<span class="add">+ use Illuminate\Database\Schema\Blueprint;</span>
+<span class="add">+ use Illuminate\Support\Facades\Schema;</span>
+<span class="add">+ </span>
+<span class="add">+ return new class extends Migration</span>
+<span class="add">+ {</span>
+<span class="add">+     public function up(): void</span>
+<span class="add">+     {</span>
+<span class="add">+         Schema::table(&#39;products&#39;, function (Blueprint $table) {</span>
+<span class="add">+             // Default product listing: WHERE is_active = 1 ORDER BY created_at DESC</span>
+<span class="add">+             $table-&gt;index([&#39;is_active&#39;, &#39;created_at&#39;], &#39;products_active_created_idx&#39;);</span>
+<span class="add">+ </span>
+<span class="add">+             // Category listing: WHERE is_active = 1 AND category_id = ? ORDER BY created_at DESC</span>
+<span class="add">+             $table-&gt;index([&#39;is_active&#39;, &#39;category_id&#39;, &#39;created_at&#39;], &#39;products_active_category_created_idx&#39;);</span>
+<span class="add">+         });</span>
+<span class="add">+ </span>
+<span class="add">+         Schema::table(&#39;orders&#39;, function (Blueprint $table) {</span>
+<span class="add">+             // Customer order history: WHERE user_id = ? ORDER BY created_at DESC</span>
+<span class="add">+             $table-&gt;index([&#39;user_id&#39;, &#39;created_at&#39;], &#39;orders_user_created_idx&#39;);</span>
+<span class="add">+ </span>
+<span class="add">+             // Admin status filter: WHERE status = ? ORDER BY created_at DESC</span>
+<span class="add">+             $table-&gt;index([&#39;status&#39;, &#39;created_at&#39;], &#39;orders_status_created_idx&#39;);</span>
+<span class="add">+ </span>
+<span class="add">+             // Admin unfiltered list: ORDER BY created_at DESC</span>
+<span class="add">+             $table-&gt;index(&#39;created_at&#39;, &#39;orders_created_idx&#39;);</span>
+<span class="add">+         });</span>
+<span class="add">+     }</span>
+<span class="add">+ </span>
+<span class="add">+     public function down(): void</span>
+<span class="add">+     {</span>
+<span class="add">+         Schema::table(&#39;orders&#39;, function (Blueprint $table) {</span>
+<span class="add">+             $table-&gt;dropIndex(&#39;orders_created_idx&#39;);</span>
+<span class="add">+             $table-&gt;dropIndex(&#39;orders_status_created_idx&#39;);</span>
+<span class="add">+             $table-&gt;dropIndex(&#39;orders_user_created_idx&#39;);</span>
+<span class="add">+         });</span>
+<span class="add">+ </span>
+<span class="add">+         Schema::table(&#39;products&#39;, function (Blueprint $table) {</span>
+<span class="add">+             $table-&gt;dropIndex(&#39;products_active_category_created_idx&#39;);</span>
+<span class="add">+             $table-&gt;dropIndex(&#39;products_active_created_idx&#39;);</span>
+<span class="add">+         });</span>
+<span class="add">+     }</span>
+<span class="add">+ };</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. لم نعدل Migration إنشاء الجداول القديمة؛ أضفنا ملفًا منفصلًا. وجود الفهرس لا يعني تلقائيًا أن الخطة اختارته أو أن الزمن تحسن.</p></details><h3>لماذا ملف جديد؟</h3><p>جداول المشروع كانت موجودة أصلًا ومعها primary keys وفهارس علاقات. لم نكتب تاريخًا جديدًا للمشروع بتغيير Migration إنشاء قديمة، بل أضفنا Migration مستقلة تشرح التغيير ويسهل تتبعه. <code>up()</code> تضيف، و<code>down()</code> تصف عكس هذا التغيير عند تراجع مقصود في بيئة مناسبة. هذا الشرح لا يشغل down على قاعدة المشروع.</p>
+<h3>نشرح كل فهرس حسب حاجة القراءة</h3><div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>ماذا يفعل؟ ولماذا فعلناه هنا؟</th></tr></thead><tbody><tr><td><code>products(is_active, created_at)</code></td><td>يرتبط بمنتجات نشطة وترتيب الأحدث: مساواة على is_active ثم تاريخ. لكنه أضيف ضمن التحسينات القديمة، ولم تختره الخطة في عينة 15 منتجًا؛ لا نزعم أن ضرورته مثبتة بهذه العينة.</td></tr><tr><td><code>products(is_active, category_id, created_at)</code></td><td>يرتبط بمساواة على النشاط والتصنيف ثم ترتيب التاريخ. الخطة المحفوظة فضلت فهرس category_id الموجود أصلًا لثلاثة صفوف؛ مجرد إضافته لا يثبت فائدة فعلية.</td></tr><tr><td><code>orders(user_id, created_at)</code></td><td>يعزل مجموعة المستخدم أولًا ثم يقرأها حسب التاريخ، بدل جلب طلباته بترتيب غير مناسب ثم فرزها. في اللقطة انخفضت صفوف القراءة من 89 إلى 15 لكن الزمن ساء، فنسجل الأمرين.</td></tr><tr><td><code>orders(status, created_at)</code></td><td>يجمع طلبات الحالة في ترتيب مناسب لقراءة آخرها. هذا هو الفهرس الذي أثبتته خطة shipped: 300,004 صفوف إلى 15.</td></tr><tr><td><code>orders(created_at)</code></td><td>يدعم ترتيب قائمة الطلبات العامة بلا user_id أو status؛ لا نتوقع أن يعوضه فهرس يبدأ بعمود آخر لا نحدد قيمته.</td></tr></tbody></table></div><h3>لماذا ترتيب الأعمدة مهم؟</h3><p>تخيل دليلًا يرتب بطاقات الطلبات بحسب الحالة أولًا ثم التاريخ داخل الحالة. عند طلب آخر shipped نستطيع الوصول لمجموعة shipped وقراءتها بالترتيب. أما البحث بالتاريخ وحده فلا يبدأ من أول دليل status بالطريقة نفسها. هذا تبسيط لفكرة الفهرس المركب وأجزائه اليسرى؛ راجعنا الخطة بدل الاعتماد على التشبيه وحده.</p><p class="small">مرجع القاعدة: <a href="https://dev.mysql.com/doc/refman/8.0/en/multiple-column-indexes.html">MySQL Multiple-Column Indexes</a>. خططنا التشخيصية لا تضيف id الموجود في ترتيب التطبيق الحالي، لذلك لا ندعي أن هذه اللقطات وحدها تقيس كل حالات ترتيب الصفحات الحالي.</p>
+<h3>الدليل الكامل: لا ننتقي الاستعلامين السريعين فقط</h3><div class="table-wrap"><table><thead><tr><th>القراءة</th><th>فهرس بعد</th><th>صفوف الورقة قبل / بعد</th><th>قبل ms</th><th>بعد ms</th></tr></thead><tbody><tr><td>منتجات نشطة</td><td><code>NULL</code></td><td class="number">15 / 15</td><td class="number">0.514</td><td class="number">0.202</td></tr><tr><td>منتجات تصنيف</td><td><code>products_category_id_foreign</code></td><td class="number">3 / 3</td><td class="number">0.204</td><td class="number">0.176</td></tr><tr><td>طلبات مستخدم</td><td><code>orders_user_created_idx</code></td><td class="number">89 / 15</td><td class="number">2.21</td><td class="number">10.5</td></tr><tr><td>طلبات shipped</td><td><code>orders_status_created_idx</code></td><td class="number">300004 / 15</td><td class="number">303</td><td class="number">5.04</td></tr><tr><td>آخر الطلبات عمومًا</td><td><code>orders_created_idx</code></td><td class="number">300004 / 15</td><td class="number">333</td><td class="number">10.4</td></tr><tr><td>عدّ غير الملغاة</td><td><code>orders_status_created_idx</code></td><td class="number">300004 / 300004</td><td class="number">159</td><td class="number">718</td></tr></tbody></table></div><p>هذه أزمنة تنفيذ منفردة، لا p95 ولا متوسطات k6. الفهرس ليس مجانيًا: يستهلك مساحة ويحتاج صيانة مع الكتابة. والعدّ العالمي قد يمسح كل الفهرس بدل قراءة 15 صفًا. لذلك لا أقول إن كل فهرس أضيف ضروري أو أن كل استعلام أسرع. وجود فهارس المنتجات مع عدم استعمالها بهذه العينة حد موثق، وليس سببًا لإضافة فهارس أخرى بالتخمين.</p>
+<div class="filehead"><span class="kind">تعديل حساب داخل ملف موجود</span><h3>الملف السادس: تقليل تكرار التجميع، وليس الاعتماد على الفهارس وحدها</h3><a href="backend/my-project/app/Http/Controllers/DashboardController.php">backend/my-project/app/Http/Controllers/DashboardController.php</a></div><details class="source"><summary>الحساب القديم: ثلاث عمليات مستقلة على orders<span class="filepath" dir="ltr">backend/my-project/app/Http/Controllers/DashboardController.php · L13–36</span></summary><div class="codebox" data-snapshot="evidence-10"><div class="codebar"><span>كود فعلي · b9514cb</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    public function __invoke(): JsonResponse
+    {
+        $user = Auth::guard(&#39;api&#39;)-&gt;user();
+        $orders = Order::query();
+
+        if ($user-&gt;role !== &#39;admin&#39;) {
+            $orders-&gt;where(&#39;user_id&#39;, $user-&gt;id);
+        }
+
+        return response()-&gt;json([
+            &#39;data&#39; =&gt; [
+                &#39;total_products&#39; =&gt; Product::query()-&gt;where(&#39;is_active&#39;, true)-&gt;count(),
+                &#39;orders_today&#39; =&gt; (clone $orders)-&gt;whereDate(&#39;created_at&#39;, today())-&gt;count(),
+                &#39;total_orders&#39; =&gt; (clone $orders)-&gt;count(),
+                &#39;total_users&#39; =&gt; $user-&gt;role === &#39;admin&#39; ? User::query()-&gt;count() : null,
+                &#39;total_sales&#39; =&gt; number_format(
+                    (float) (clone $orders)-&gt;where(&#39;status&#39;, &#39;!=&#39;, &#39;cancelled&#39;)-&gt;sum(&#39;total&#39;),
+                    2,
+                    &#39;.&#39;,
+                    &#39;&#39;
+                ),
+            ],
+        ]);
+    }</code></pre></div></details><p>كانت الدالة تنشئ نطاق الطلبات، وتقيّده بالمستخدم إذا لم يكن مسؤولًا، ثم تنفذ عدّ طلبات اليوم وعدّ كل الطلبات وجمع المبيعات. <code>clone $orders</code> يمنع تداخل شروط Query Builder بين العمليات، لكنه لا يجعلها عملية SQL واحدة.</p><details class="source diff" open><summary>من الحساب القديم في __invoke إلى buildStats الحالية<span class="changes" dir="ltr">+21 / −20</span><span class="filepath" dir="ltr">backend/my-project/app/Http/Controllers/DashboardController.php</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-3"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="del">-     public function __invoke(): JsonResponse</span>
+<span class="add">+     private function buildStats(int $userId, bool $isAdmin): array</span>
+<span class="same">      {</span>
+<span class="del">-         $user = Auth::guard(&#39;api&#39;)-&gt;user();</span>
+<span class="del">-         $orders = Order::query();</span>
+<span class="del">- </span>
+<span class="del">-         if ($user-&gt;role !== &#39;admin&#39;) {</span>
+<span class="del">-             $orders-&gt;where(&#39;user_id&#39;, $user-&gt;id);</span>
+<span class="add">+         // One pass over the orders table instead of three separate queries.</span>
+<span class="add">+         // created_at is compared as a range, not with whereDate(), so an index can still be used.</span>
+<span class="add">+         $orders = DB::table(&#39;orders&#39;);</span>
+<span class="add">+         if (! $isAdmin) {</span>
+<span class="add">+             $orders-&gt;where(&#39;user_id&#39;, $userId);</span>
+<span class="same">          }</span>
+<span class="same">  </span>
+<span class="del">-         return response()-&gt;json([</span>
+<span class="del">-             &#39;data&#39; =&gt; [</span>
+<span class="del">-                 &#39;total_products&#39; =&gt; Product::query()-&gt;where(&#39;is_active&#39;, true)-&gt;count(),</span>
+<span class="del">-                 &#39;orders_today&#39; =&gt; (clone $orders)-&gt;whereDate(&#39;created_at&#39;, today())-&gt;count(),</span>
+<span class="del">-                 &#39;total_orders&#39; =&gt; (clone $orders)-&gt;count(),</span>
+<span class="del">-                 &#39;total_users&#39; =&gt; $user-&gt;role === &#39;admin&#39; ? User::query()-&gt;count() : null,</span>
+<span class="del">-                 &#39;total_sales&#39; =&gt; number_format(</span>
+<span class="del">-                     (float) (clone $orders)-&gt;where(&#39;status&#39;, &#39;!=&#39;, &#39;cancelled&#39;)-&gt;sum(&#39;total&#39;),</span>
+<span class="del">-                     2,</span>
+<span class="del">-                     &#39;.&#39;,</span>
+<span class="del">-                     &#39;&#39;</span>
+<span class="del">-                 ),</span>
+<span class="del">-             ],</span>
+<span class="del">-         ]);</span>
+<span class="add">+         $orderStats = $orders-&gt;selectRaw(</span>
+<span class="add">+             &#39;COUNT(*) AS total_orders,</span>
+<span class="add">+              COALESCE(SUM(CASE WHEN created_at &gt;= ? THEN 1 ELSE 0 END), 0) AS orders_today,</span>
+<span class="add">+              COALESCE(SUM(CASE WHEN status &lt;&gt; ? THEN total ELSE 0 END), 0) AS total_sales&#39;,</span>
+<span class="add">+             [now()-&gt;startOfDay(), &#39;cancelled&#39;]</span>
+<span class="add">+         )-&gt;first();</span>
+<span class="add">+ </span>
+<span class="add">+         return [</span>
+<span class="add">+             &#39;total_products&#39; =&gt; Product::query()-&gt;where(&#39;is_active&#39;, true)-&gt;count(),</span>
+<span class="add">+             &#39;orders_today&#39; =&gt; (int) $orderStats-&gt;orders_today,</span>
+<span class="add">+             &#39;total_orders&#39; =&gt; (int) $orderStats-&gt;total_orders,</span>
+<span class="add">+             &#39;total_users&#39; =&gt; $isAdmin ? User::query()-&gt;count() : null,</span>
+<span class="add">+             // bcmath keeps money as a decimal string, consistent with OrderService.</span>
+<span class="add">+             &#39;total_sales&#39; =&gt; bcadd((string) $orderStats-&gt;total_sales, &#39;0&#39;, 2),</span>
+<span class="add">+         ];</span>
+<span class="same">      }</span></code></pre></div><p class="code-note">هذا فرق نطاق الحساب بين دالتين بعد إعادة التنظيم، وليس فرق DashboardController كاملًا. الجزء الخاص بالكاش موضح منفصلًا حتى لا ننسب أثره إلى SQL.</p></details>
+<div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>ماذا يفعل؟ ولماذا فعلناه هنا؟</th></tr></thead><tbody><tr><td><code>$orders = DB::table(&#39;orders&#39;)</code></td><td>يبني استعلام التجميع مباشرة. ما زال علينا ضبط نطاق المستخدم؛ النقل إلى Query Builder ليس تصريحًا بقراءة طلبات كل الناس.</td></tr><tr><td><code>if (! $isAdmin) where(&#39;user_id&#39;, $userId)</code></td><td>العميل يرى طلباته فقط. المسؤول يرى النطاق العام. لا نحسن الأداء بكسر فصل البيانات.</td></tr><tr><td><code>COUNT(*) AS total_orders</code></td><td>يعد كل الصفوف في النطاق داخل الاستعلام نفسه.</td></tr><tr><td><code>SUM(CASE WHEN created_at &gt;= ? THEN 1 ELSE 0 END)</code></td><td>لكل صف: واحد إذا كان التاريخ من بداية اليوم، وإلا صفر؛ جمع الواحدات يعطي orders_today. التاريخ قيمة binding منفصلة.</td></tr><tr><td><code>SUM(CASE WHEN status &lt;&gt; ? THEN total ELSE 0 END)</code></td><td>يجمع total لغير cancelled من دون استبعاد الصف الملغى من COUNT الكلي. لو وضعنا status في WHERE العام لتغير معنى total_orders.</td></tr><tr><td><code>COALESCE(..., 0)</code></td><td>عندما لا توجد صفوف قد تعيد SUM قيمة null، فنحولها إلى صفر ليستقر شكل النتيجة.</td></tr><tr><td><code>-&gt;first()</code></td><td>التجميع يعيد صفًا واحدًا فيه الأرقام الثلاثة؛ لا نحمل 300 ألف نموذج PHP ثم نجمعها في حلقة.</td></tr><tr><td><code>(int) ... / bcadd((string) ..., &#39;0&#39;, 2)</code></td><td>تحويل العدادات لأعداد صحيحة، وإبقاء المال نصًا عشريًا بمنزلتين بدل المرور بـfloat كما في القديم.</td></tr></tbody></table></div><h4>مثال حساب تعليمي من ثلاثة طلبات</h4><div class="table-wrap"><table><thead><tr><th>الطلب التعليمي</th><th>التاريخ</th><th>الحالة</th><th>total</th></tr></thead><tbody><tr><td>A</td><td>اليوم</td><td>pending</td><td class="number">10.25</td></tr><tr><td>B</td><td>اليوم</td><td>cancelled</td><td class="number">20.00</td></tr><tr><td>C</td><td>أمس</td><td>shipped</td><td class="number">80.25</td></tr></tbody></table></div><p>الناتج: <code>total_orders=3</code> و<code>orders_today=2</code> و<code>total_sales="90.50"</code>. أعد الطلب الملغى في العدد العام، لكن لا أدخله في المبيعات. الأرقام هنا مثال لفهم CASE، لا نتيجة مقاسة من قاعدة المشروع.</p><p class="small">شرط اليوم الحالي هو <code>&gt;= startOfDay</code>، لا حد أعلى لنهاية اليوم. يفترض الاستعمال المعتاد أن created_at ليس في المستقبل؛ لو أُدخلت تواريخ مستقبلية عمدًا فسيشملها الشرط، بخلاف whereDate القديم.</p>
+<h4>أين ينتهي تحسين SQL وأين يبدأ الكاش؟</h4><details class="source"><summary>الغلاف الحالي يستدعي الحساب عند غياب الكاش<span class="filepath" dir="ltr">backend/my-project/app/Http/Controllers/DashboardController.php · L22–34</span></summary><div class="codebox" data-snapshot="evidence-11"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    public function __invoke(): JsonResponse
+    {
+        $user = Auth::guard(&#39;api&#39;)-&gt;user();
+        $isAdmin = $user-&gt;role === &#39;admin&#39;;
+
+        $data = Cache::remember(
+            DashboardCache::cacheKey($user-&gt;id, $isAdmin),
+            self::CACHE_TTL_SECONDS,
+            fn () =&gt; $this-&gt;buildStats($user-&gt;id, $isAdmin)
+        );
+
+        return response()-&gt;json([&#39;data&#39; =&gt; $data]);
+    }</code></pre></div></details><p>الفائدة البنيوية المؤكدة في حساب orders: <b>ثلاث عمليات تجميع → عملية واحدة</b>. لكن التجميع قد يظل يقرأ نطاقًا واسعًا، ووجود CASE لا يجعله range scan على التاريخ تلقائيًا. أما remember بمدة 60 ثانية فيمنع تكرار الحساب في بعض الطلبات؛ هذا أثر كاش مستقل. لا ننسب p95 النهائي كله إلى تغيير SQL أو ندعي أن الحساب أصبح O(1).</p><div class="say"><b>ما أقوله للأستاذ:</b> «أضفت فهرسًا يخدم شرط الحالة والترتيب وأثبتت الخطة استعماله. وبالنسبة للإحصاءات لم أضف index آخر بالتخمين؛ قللت تكرار العمل إلى تجميع واحد، مع الحفاظ على نطاق المستخدم ومعنى المبيعات.»</div><div class="checkpoint"><b>قبل الانتقال:</b> استطع ربط كل فهرس بـWHERE وORDER BY، واذكر نتيجة لم تتحسن، ثم اشرح لماذا CASE داخل SUM يحافظ على عدّ الطلبات الملغاة مع استبعادها من المبيعات.</div>
+</article></section>
+
+<section id="nplusone" data-search><header><span class="section-number">04</span><div><h2>رابعًا: منع N+1 وإثباته</h2><p>الفهرس يعالج طريقة البحث، أما التحميل المسبق فيعالج تكرار الاستعلامات من كود التطبيق.</p></div></header><article class="card"><h3>أوضح المشكلة أولًا بمثال صغير</h3><div class="codebox"><div class="codebar"><span>مثال تعليمي للمشكلة فقط — ليس الكود القديم الحقيقي للمشروع</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>$products = Product::where(&#39;is_active&#39;, true)-&gt;get();
+foreach ($products as $product) {
+    echo $product-&gt;category-&gt;name; // Lazy loading may query for every product
+}
+
+// The project&#39;s eager-loading pattern:
+$products = Product::with(&#39;category&#39;)-&gt;where(&#39;is_active&#39;, true)-&gt;get();</code></pre></div><p>1 يمثل استعلام قائمة المنتجات، وN يمثل استعلام العلاقة الذي قد يتكرر لكل عنصر. إذا حملنا 15 منتجًا ثم قرأنا category لكل نموذج بلا تحميل مسبق، قد نضيف 15 قراءة علاقة. زيادة البيانات هنا تزيد <b>عدد الاستعلامات</b>، حتى لو جعل الفهرس كل استعلام منفرد أسرع.</p>
+<div class="filehead"><span class="kind">مراجعة آلية موجودة مع فرق حقيقي</span><h3>نعود إلى ProductController: with تحمّل تصنيفات المجموعة</h3><a href="backend/my-project/app/Http/Controllers/ProductController.php">backend/my-project/app/Http/Controllers/ProductController.php</a></div><details class="source diff" open><summary>الفرق الحقيقي في index: with موجودة قبل وبعد<span class="changes" dir="ltr">+1 / −1</span><span class="filepath" dir="ltr">backend/my-project/app/Http/Controllers/ProductController.php</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-4"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="same">      public function index(Request $request): AnonymousResourceCollection</span>
+<span class="same">      {</span>
+<span class="same">          $query = Product::with(&#39;category&#39;)-&gt;where(&#39;is_active&#39;, true);</span>
+<span class="same">  </span>
+<span class="same">          if ($request-&gt;filled(&#39;category_id&#39;)) {</span>
+<span class="same">              $query-&gt;where(&#39;category_id&#39;, $request-&gt;integer(&#39;category_id&#39;));</span>
+<span class="same">          }</span>
+<span class="same">          if ($request-&gt;filled(&#39;search&#39;)) {</span>
+<span class="same">              $query-&gt;where(&#39;name&#39;, &#39;like&#39;, &#39;%&#39;.$request-&gt;string(&#39;search&#39;)-&gt;toString().&#39;%&#39;);</span>
+<span class="same">          }</span>
+<span class="same">  </span>
+<span class="same">          $perPage = min(max($request-&gt;integer(&#39;per_page&#39;, 15), 1), 100);</span>
+<span class="same">  </span>
+<span class="del">-         return ProductResource::collection($query-&gt;latest()-&gt;paginate($perPage));</span>
+<span class="add">+         return ProductResource::collection($query-&gt;orderByDesc(&#39;created_at&#39;)-&gt;orderByDesc(&#39;id&#39;)-&gt;paginate($perPage)-&gt;withQueryString());</span>
+<span class="same">      }</span></code></pre></div><p class="code-note">السطر with(category) بلا + لأنه موجود فعلًا في الطرفين. الإضافة الأخيرة تخص ترتيب الصفحات وروابطها، وليست إضافة Eager Loading من الصفر.</p></details><p>علاقة <code>Product::category()</code> هي <code>belongsTo(Category::class)</code>. يستعمل Eloquent category_id في المنتجات، ثم يجلب التصنيفات ذات IDs المطلوبة دفعة واحدة. لا تعني with بالضرورة JOIN واحدًا؛ هذا النمط عادة يقرأ المنتجات ثم التصنيفات باستعلام آخر.</p><details class="source"><summary>العلاقة التي يعتمد عليها with(category)<span class="filepath" dir="ltr">backend/my-project/app/Models/Product.php · L33–36</span></summary><div class="codebox" data-snapshot="evidence-12"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    public function category()
+    {
+        return $this-&gt;belongsTo(Category::class);
+    }</code></pre></div></details><div class="codebox"><div class="codebar"><span>شكل SQL تعليمي مبسط لصفحة المنتجات، وليس log حرفيًا</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>SELECT COUNT(*) FROM products WHERE is_active = 1;
+SELECT * FROM products WHERE is_active = 1
+ORDER BY created_at DESC, id DESC LIMIT 15 OFFSET 0;
+SELECT * FROM categories WHERE id IN (1, 2, 3);</code></pre></div><p>لهذا نتيجة اختبار المنتجات المسجلة كانت ثلاثة: عدّ الصفحة، والمنتجات، والتصنيفات. العدد قد يختلف إذا كان auth أو routing أو مصدر البيانات يضيف عملًا آخر؛ الثابت المقصود هو أنه لا يزيد بعلاقة لكل منتج.</p><div class="note">التاريخ مهم: with(category) موجودة في المرجع القديم. لا أقول «حذفنا كود lazy loading القديم» لأن المثال السيئ أعلاه تعليمي. الموجود حديثًا في هذه المراجعة هو إثبات السلوك باختبار نمو العدد، مع الحفاظ على التصميم الموجود.</div>
+<div class="filehead"><span class="kind">مراجعة العلاقات المتداخلة في ملف موجود</span><h3>نعود إلى OrderService: الطلب ثم البنود ثم المنتجات</h3><a href="backend/my-project/app/Services/OrderService.php">backend/my-project/app/Services/OrderService.php</a></div><details class="source diff"><summary>الفرق الحقيقي في getUserOrders: التحميل المسبق محفوظ<span class="changes" dir="ltr">+2 / −2</span><span class="filepath" dir="ltr">backend/my-project/app/Services/OrderService.php</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-5"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="same">      public function getUserOrders(User $user, ?string $status = null): LengthAwarePaginator</span>
+<span class="same">      {</span>
+<span class="del">-         $query = $user-&gt;orders()-&gt;with(&#39;items.product&#39;)-&gt;latest();</span>
+<span class="add">+         $query = $user-&gt;orders()-&gt;with(&#39;items.product&#39;)-&gt;orderByDesc(&#39;created_at&#39;)-&gt;orderByDesc(&#39;id&#39;);</span>
+<span class="same">  </span>
+<span class="same">          if ($status !== null) {</span>
+<span class="same">              $query-&gt;where(&#39;status&#39;, $status);</span>
+<span class="same">          }</span>
+<span class="same">  </span>
+<span class="del">-         return $query-&gt;paginate(15);</span>
+<span class="add">+         return $query-&gt;paginate(15)-&gt;withQueryString();</span>
+<span class="same">      }</span></code></pre></div><p class="code-note">with(items.product) موجودة أصلًا؛ أُضيف ترتيب صريح وحفظ query string.</p></details><p>عند <code>with('items.product')</code> نطلب مستويين: items لكل الطلبات، ثم product لكل بنودها. <code>Order::items()</code> هي hasMany، و<code>OrderItem::product()</code> هي belongsTo. القراءة على مجموعات تمنع حلقة «كل طلب يجلب بنوده، وكل بند يجلب منتجه».</p><div class="two"><div><details class="source"><summary>Order → items<span class="filepath" dir="ltr">backend/my-project/app/Models/Order.php · L37–40</span></summary><div class="codebox" data-snapshot="evidence-13"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    public function items()
+    {
+        return $this-&gt;hasMany(OrderItem::class);
+    }</code></pre></div></details></div><div><details class="source"><summary>OrderItem → product<span class="filepath" dir="ltr">backend/my-project/app/Models/OrderItem.php · L40–43</span></summary><div class="codebox" data-snapshot="evidence-14"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    public function product()
+    {
+        return $this-&gt;belongsTo(Product::class);
+    }</code></pre></div></details></div></div><p>في قائمة العميل نتوقع عادة COUNT ثم orders ثم items ثم products، أي أربعة في بيئة الاختبار المسجلة. في قائمة المسؤول توجد أيضًا <code>with('user')</code> لأن Resource تعرض صاحب الطلب، فتوجد علاقة إضافية محملة على مستوى المجموعة. لا أعد مستخدم كل طلب باستعلام كسول داخل Resource.</p>
+<div class="filehead"><span class="kind">مراجعة Resources موجودة</span><h3>الملف المكمل: تسلسل JSON لا يبدأ تحميلًا خفيًا للعلاقة</h3><a href="backend/my-project/app/Http/Resources/ProductResource.php">backend/my-project/app/Http/Resources/ProductResource.php</a></div><details class="source"><summary>ProductResource يعرض category إذا حُمّلت<span class="filepath" dir="ltr">backend/my-project/app/Http/Resources/ProductResource.php · L18–18</span></summary><div class="codebox" data-snapshot="evidence-15"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>            &#39;category&#39; =&gt; new CategoryResource($this-&gt;whenLoaded(&#39;category&#39;)),</code></pre></div></details><details class="source"><summary>OrderResource يتعامل مع items وuser المحملتين<span class="filepath" dir="ltr">backend/my-project/app/Http/Resources/OrderResource.php · L10–22</span></summary><div class="codebox" data-snapshot="evidence-16"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    public function toArray(Request $request): array
+    {
+        return [
+            &#39;id&#39; =&gt; $this-&gt;id,
+            &#39;user_id&#39; =&gt; $this-&gt;user_id,
+            &#39;items&#39; =&gt; OrderItemResource::collection($this-&gt;whenLoaded(&#39;items&#39;)),
+            &#39;total&#39; =&gt; $this-&gt;total,
+            &#39;status&#39; =&gt; $this-&gt;status,
+            &#39;user&#39; =&gt; new UserResource($this-&gt;whenLoaded(&#39;user&#39;)),
+            &#39;created_at&#39; =&gt; $this-&gt;created_at,
+            &#39;updated_at&#39; =&gt; $this-&gt;updated_at,
+        ];
+    }</code></pre></div></details><details class="source"><summary>OrderItemResource يتعامل مع product المحمّلة<span class="filepath" dir="ltr">backend/my-project/app/Http/Resources/OrderItemResource.php · L10–19</span></summary><div class="codebox" data-snapshot="evidence-17"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    public function toArray(Request $request): array
+    {
+        return [
+            &#39;id&#39; =&gt; $this-&gt;id,
+            &#39;product&#39; =&gt; new ProductResource($this-&gt;whenLoaded(&#39;product&#39;)),
+            &#39;quantity&#39; =&gt; $this-&gt;quantity,
+            &#39;unit_price&#39; =&gt; $this-&gt;unit_price,
+            &#39;subtotal&#39; =&gt; $this-&gt;subtotal,
+        ];
+    }</code></pre></div></details><p><code>with</code> تعمل في مرحلة query وتطلب التحميل. <code>whenLoaded</code> تعمل في Resource وتتعامل مع العلاقة عندما تكون محملة، ولا تبدأ هي التحميل المسبق بنفسها. لذلك لا تكفي whenLoaded وحدها لإحضار البيانات، ولا نترك تصميم القراءة للصدفة أثناء بناء JSON.</p>
+<div class="filehead"><span class="kind">إضافة اختبار جديد</span><h3>الملف الأخير في التنفيذ: نختبر أن العدد لا ينمو مع الصفوف</h3><a href="backend/my-project/tests/Feature/QueryScalingTest.php">backend/my-project/tests/Feature/QueryScalingTest.php</a></div><details class="source diff" open><summary>إضافة حقيقية: اختبار QueryScalingTest كاملًا<span class="changes" dir="ltr">+51 / −0</span><span class="filepath" dir="ltr">backend/my-project/tests/Feature/QueryScalingTest.php</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-6"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ &lt;?php</span>
+<span class="add">+ </span>
+<span class="add">+ namespace Tests\Feature;</span>
+<span class="add">+ </span>
+<span class="add">+ use App\Models\Category;</span>
+<span class="add">+ use App\Models\Order;</span>
+<span class="add">+ use App\Models\Product;</span>
+<span class="add">+ use App\Models\User;</span>
+<span class="add">+ use Illuminate\Foundation\Testing\RefreshDatabase;</span>
+<span class="add">+ use Illuminate\Support\Facades\DB;</span>
+<span class="add">+ use Tests\TestCase;</span>
+<span class="add">+ </span>
+<span class="add">+ class QueryScalingTest extends TestCase</span>
+<span class="add">+ {</span>
+<span class="add">+     use RefreshDatabase;</span>
+<span class="add">+ </span>
+<span class="add">+     private function queryCount(string $url): int</span>
+<span class="add">+     {</span>
+<span class="add">+         DB::enableQueryLog();</span>
+<span class="add">+         DB::flushQueryLog();</span>
+<span class="add">+         $this-&gt;getJson($url)-&gt;assertOk();</span>
+<span class="add">+         $count = count(DB::getQueryLog());</span>
+<span class="add">+         DB::disableQueryLog();</span>
+<span class="add">+         return $count;</span>
+<span class="add">+     }</span>
+<span class="add">+ </span>
+<span class="add">+     public function test_product_and_order_lists_do_not_add_one_query_per_row(): void</span>
+<span class="add">+     {</span>
+<span class="add">+         $category = Category::create([&#39;name&#39; =&gt; &#39;Query scaling&#39;]);</span>
+<span class="add">+         $product = Product::create([&#39;name&#39; =&gt; &#39;First&#39;, &#39;price&#39; =&gt; &#39;2.00&#39;, &#39;category_id&#39; =&gt; $category-&gt;id, &#39;is_active&#39; =&gt; true]);</span>
+<span class="add">+         $smallProducts = $this-&gt;queryCount(&#39;/api/products?per_page=15&#39;);</span>
+<span class="add">+         for ($i = 0; $i &lt; 20; $i++) {</span>
+<span class="add">+             Product::create([&#39;name&#39; =&gt; &#39;Product &#39;.$i, &#39;price&#39; =&gt; &#39;2.00&#39;, &#39;category_id&#39; =&gt; $category-&gt;id, &#39;is_active&#39; =&gt; true]);</span>
+<span class="add">+         }</span>
+<span class="add">+         $largeProducts = $this-&gt;queryCount(&#39;/api/products?per_page=15&#39;);</span>
+<span class="add">+         $this-&gt;assertLessThanOrEqual($smallProducts + 1, $largeProducts);</span>
+<span class="add">+ </span>
+<span class="add">+         $user = User::factory()-&gt;create();</span>
+<span class="add">+         $this-&gt;withToken(auth(&#39;api&#39;)-&gt;login($user));</span>
+<span class="add">+         $create = function () use ($user, $product): void {</span>
+<span class="add">+             $order = Order::create([&#39;user_id&#39; =&gt; $user-&gt;id, &#39;total&#39; =&gt; &#39;2.00&#39;, &#39;status&#39; =&gt; &#39;pending&#39;]);</span>
+<span class="add">+             $order-&gt;items()-&gt;create([&#39;product_id&#39; =&gt; $product-&gt;id, &#39;quantity&#39; =&gt; 1, &#39;unit_price&#39; =&gt; &#39;2.00&#39;, &#39;subtotal&#39; =&gt; &#39;2.00&#39;]);</span>
+<span class="add">+         };</span>
+<span class="add">+         $create();</span>
+<span class="add">+         $smallOrders = $this-&gt;queryCount(&#39;/api/orders&#39;);</span>
+<span class="add">+         for ($i = 0; $i &lt; 20; $i++) $create();</span>
+<span class="add">+         $largeOrders = $this-&gt;queryCount(&#39;/api/orders&#39;);</span>
+<span class="add">+         $this-&gt;assertLessThanOrEqual($smallOrders + 1, $largeOrders);</span>
+<span class="add">+         fwrite(STDOUT, &#39;QUERY_SCALING &#39;.json_encode(compact(&#39;smallProducts&#39;, &#39;largeProducts&#39;, &#39;smallOrders&#39;, &#39;largeOrders&#39;)).PHP_EOL);</span>
+<span class="add">+     }</span>
+<span class="add">+ }</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. هذه هي الإضافة التي تقيس السلوك عند زيادة البيانات. سنشرح لماذا نضع إنشاء البيانات خارج فترة عد الاستعلامات.</p></details>
+<div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>ماذا يفعل؟ ولماذا فعلناه هنا؟</th></tr></thead><tbody><tr><td><code>use RefreshDatabase</code></td><td>يجعل بيانات الاختبار معزولة وقابلة للتجهيز من جديد وفق إعداد suite. ليس هذا وصفًا لتصفير قاعدة التطبيق الحية.</td></tr><tr><td><code>DB::enableQueryLog()</code></td><td>نفعّل التسجيل فقط أثناء القياس الصغير داخل helper؛ لا نتركه يعمل أثناء Seeder الكبير.</td></tr><tr><td><code>DB::flushQueryLog()</code></td><td>نبدأ عدًا فارغًا قبل GET، حتى لا نعد INSERTs التي جهزت fixtures على أنها تكلفة قراءة الصفحة.</td></tr><tr><td><code>$this-&gt;getJson($url)-&gt;assertOk()</code></td><td>ننفذ مسار HTTP داخل الاختبار ونشترط نجاحه، بدل عد استعلام Builder معزول لا يمر بمسار التطبيق.</td></tr><tr><td><code>count(DB::getQueryLog())</code></td><td>نسجل عدد SQL في الطلب. هذا عدد، وليس زمنًا أو p95.</td></tr><tr><td><code>DB::disableQueryLog()</code></td><td>نوقف التسجيل بعد العد؛ لا نواصل جمع الاستعلامات في الذاكرة بلا حاجة.</td></tr><tr><td><code>$smallProducts / $largeProducts</code></td><td>أول GET بعد منتج واحد، والثاني بعد إضافة 20 منتجًا. عدد الجدول يصبح 21، لكن الصفحة الكبيرة تعرض 15 وفق per_page.</td></tr><tr><td><code>$smallOrders / $largeOrders</code></td><td>ننشىء طلبًا مع بند منتج ثم نضيف 20 طلبًا أخرى. كل واحد له علاقة قابلة للعرض، فلا تكون المقارنة بقوائم بلا بنود.</td></tr><tr><td><code>assertLessThanOrEqual($small + 1, $large)</code></td><td>يسمح بزيادة ثابتة صغيرة، ويرفض الزيادة التي تقارب استعلامًا لكل عنصر. نختبر ميل النمو، لا رقمًا سحريًا لكل بيئة.</td></tr><tr><td><code>fwrite(... QUERY_SCALING ...)</code></td><td>يطبع الأعداد الأربعة حتى يظهر الدليل العددي، ولا يبقى النجاح مجرد كلمة PASS بلا تفسير.</td></tr></tbody></table></div><details class="source" open><summary>نتيجة الاختبار المحفوظة<span class="filepath" dir="ltr">docs/performance/focused-review/n-plus-one.txt · L1–7</span></summary><div class="codebox" data-snapshot="evidence-18"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>QUERY_SCALING {&quot;smallProducts&quot;:3,&quot;largeProducts&quot;:3,&quot;smallOrders&quot;:4,&quot;largeOrders&quot;:4}
+
+   PASS  Tests\Feature\QueryScalingTest
+  ✓ product and order lists do not add one query per row                 1.59s  
+
+  Tests:    1 passed (8 assertions)
+  Duration: 2.20s</code></pre></div></details><div class="table-wrap"><table><thead><tr><th>المسار</th><th>عدد السجلات في التجهيز</th><th>عناصر الصفحة الكبيرة</th><th>SQL الصغير → الكبير</th></tr></thead><tbody><tr><td>قائمة المنتجات</td><td class="number">1 → 21</td><td class="number">15</td><td class="number">3 → 3</td></tr><tr><td>طلبات العميل</td><td class="number">1 → 21</td><td class="number">15</td><td class="number">4 → 4</td></tr></tbody></table></div>
+<h4>ما حدود هذا الاختبار؟</h4><p>إعداد <a href="backend/my-project/phpunit.xml">phpunit.xml</a> الافتراضي يستخدم SQLite في الذاكرة وArray Cache. هذه أعداد داخل بيئة معزولة، وليست وعدًا بعدد SQL لكل طلب إنتاج فيه replica وauth. كما أن ثبات العدد لا يثبت وحده ظهور كل حقول العلاقة؛ لو أزيلت علاقة من JSON قد يبقى العدد قليلًا. لهذا نقرأ معها الكود واختبارات العقد مثل <a href="backend/my-project/tests/Feature/ChecklistAcceptanceTest.php">ChecklistAcceptanceTest</a> التي تتحقق من بيانات التصنيف داخل القوائم.</p><div class="say"><b>ما أقوله للأستاذ:</b> «منعنا N+1 بالتحميل المسبق للعلاقات على مستوى المجموعة، وهو موجود في التصميم أصلًا. الإضافة المثبتة هي اختبار يقارن قائمة صغيرة وكبيرة ويثبت أن عدد الاستعلامات بقي ثابتًا، مع عرض العلاقات المطلوبة في Resource.»</div><div class="checkpoint"><b>قبل الانتقال:</b> استطع شرح الفرق بين with وwhenLoaded وJOIN، ثم قل لماذا 3 و4 في الاختبار، وما الذي يعنيه ثبات العدد وما الذي لا يثبته.</div>
+<p class="small">مرجع مفهوم التحميل المسبق والمتداخل: <a href="https://laravel.com/docs/12.x/eloquent-relationships#eager-loading">توثيق Laravel Eager Loading</a>. التطبيق الفعلي موضح بالملفات والاختبار.</p>
+</article></section>
+
+<section id="evidence" data-search><header><span class="section-number">05</span><div><h2>أخيرًا: كيف أستعمل before-after.json الذي أرسلته؟</h2><p>أعرض النتيجة العامة بعد أن شرحت التغييرات، مع تمييزها عن برهان SQL وN+1.</p></div></header><article class="card"><div class="filehead"><span class="kind">قراءة دليل موجود</span><h3>ملف النتيجة: لا نجعله بديلًا عن شرح الكود</h3><a href="docs/performance/before-after.json">docs/performance/before-after.json</a></div><details class="source"><summary>بيانات المقارنة ومصدر كل طرف<span class="filepath" dir="ltr">docs/performance/before-after.json · L2–16</span></summary><div class="codebox" data-snapshot="evidence-19"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    &quot;verified_at_utc&quot;:  &quot;2026-11-10T10:07:57.1512538Z&quot;,
+    &quot;before_source&quot;:  &quot;baseline&quot;,
+    &quot;after_source&quot;:  &quot;current-20261110-094614&quot;,
+    &quot;baseline_rerun&quot;:  false,
+    &quot;k6_version&quot;:  &quot;k6 v2.3.0 (commit/e088784614, go1.27.1, linux/amd64)&quot;,
+    &quot;dataset_counts&quot;:  {
+                           &quot;users&quot;:  5004,
+                           &quot;products&quot;:  15,
+                           &quot;orders&quot;:  300004,
+                           &quot;order_items&quot;:  749372
+                       },
+    &quot;matching_recorded_row_counts&quot;:  true,
+    &quot;current_row_counts_unchanged&quot;:  true,
+    &quot;summary_files&quot;:  24,
+    &quot;console_logs&quot;:  24,</code></pre></div></details><p><code>before_source=baseline</code> يعني أن الطرف الأول نتائج محفوظة. و<code>after_source=current-20261110-094614</code> هو اسم مجموعة النتائج اللاحقة. وأهم سطر للدقة: <code>baseline_rerun=false</code>؛ الملف لا يقول إن baseline أعيد تشغيله الآن. الأعداد المسجلة تطابق عينة 5,004 مستخدمين و300,004 طلبات.</p>
+<div class="table-wrap"><table><thead><tr><th>المسار</th><th>p50 قبل / بعد ms</th><th>p95 قبل / بعد ms</th><th>p99 قبل / بعد ms</th><th>HTTP req/s قبل / بعد</th></tr></thead><tbody><tr><td>قائمة المنتجات</td><td class="number">32.477 / 27.748</td><td class="number">101.058 / 53.353</td><td class="number">513.227 / 117.871</td><td class="number">3.955 / 4.041</td></tr><tr><td>تفاصيل المنتج</td><td class="number">44.682 / 27.758</td><td class="number">173.607 / 39.390</td><td class="number">307.162 / 67.834</td><td class="number">3.914 / 4.033</td></tr><tr><td>طلبات العميل</td><td class="number">53.096 / 46.981</td><td class="number">105.157 / 81.918</td><td class="number">142.562 / 148.358</td><td class="number">3.889 / 3.904</td></tr><tr><td>الإحصاءات</td><td class="number">43.596 / 24.431</td><td class="number">152.890 / 45.178</td><td class="number">187.190 / 53.462</td><td class="number">3.878 / 4.040</td></tr></tbody></table></div><p>الملف يجمع ثلاث تشغيلات لكل مسار ولكل طرف. <code>median_p95_ms</code> وسيط ثلاثة مؤشرات p95، وليس p95 محسوبًا من دمج جميع عينات الطلبات. وفرق عدد HTTP عن checks في المسارات المحمية قد يأتي من login في setup؛ لا نعتبره تلقائيًا فشلًا.</p><p>نلاحظ أيضًا أن p99 لطلبات العميل في هذا الملف ارتفع من <code>142.562</code> إلى <code>148.358 ms</code> رغم تحسن p95؛ لا نخفيه. كما أن المقارنة تشمل النظام الحالي مع الكاش والتوجيه وHTTP، لذلك لا تثبت أن كل فرق زمني سببه index وحده. الدليل المباشر للفهرس هو خطة التنفيذ، والدليل المباشر لـN+1 هو عدد الاستعلامات مع نمو الصفوف.</p><div class="note good">عند إعداد هذا الشرح تحققت من SHA-256 للـ48 ملفًا المشار إليها، ومن المقاييس في 24 ملخص k6، ومن أزمنة خطط SQL الست قبل وبعد. هذا تدقيق للأدلة المحفوظة، وليس تشغيلًا جديدًا للأداء.</div><div class="say"><b>ما أقوله للأستاذ:</b> «هذا الملف يعرض نتيجة النظام ككل. أما لماذا أقول إن مسار shipped استفاد من الفهرس، فلأن EXPLAIN يظهر انتقاله من مسح 300 ألف صف إلى قراءة 15. ولماذا أقول إن N+1 مضبوطة؟ لأن اختبار نمو البيانات أبقى عدد SQL ثابتًا.»</div></article></section>
+
+<section id="defense" data-search><header><span class="section-number">06</span><div><h2>الترتيب الذي أمشي به أمام الأستاذ</h2><p>الآن أستطيع شرح العمل من دون القفز بين ملفات كثيرة أو خلط أسباب التحسن.</p></div></header><article class="closing"><h2>نص عرض مبسط ومتسلسل</h2><p>«أولًا أفتح ProductController وOrderService وأشرح شروط القراءة والترتيب والصفحات. اخترت قوائم orders لأننا نطلب 15 صفًا لكن الخطة القديمة كانت تقرأ جدولًا كبيرًا. ولإظهار الحجم أشرح BulkOrderSeeder الذي جهز البيانات على دفعات، لا كتحسين للاستعلام نفسه.</p><p>ثانيًا أفتح checklist-database.php وأشرح كيف يسجل العدد وSQL ومعاملاته، ويطلب EXPLAIN ثم EXPLAIN ANALYZE والفهارس. أري خطة shipped القديمة: مسح، فلترة، فرز، Limit.</p><p>ثالثًا أفتح Migration الفهارس وأربط status ثم created_at بشرط الحالة وترتيب الأحدث. أرجع إلى الخطة فأري استعمال الفهرس وقراءة 15 صفًا. ولا أخفي الفهارس أو الاستعلامات التي لم تثبت فائدتها. ثم أشرح DashboardController: قللنا ثلاث عمليات على orders إلى تجميع واحد بـCASE وCOUNT وSUM مع الحفاظ على نطاق العميل.</p><p>رابعًا أعود إلى with(category) وwith(items.product) والـResources. أوضح أن التحميل المسبق كان موجودًا، وأننا حافظنا عليه. أفتح QueryScalingTest وأشرح كيف عدّ SQL لقائمة صغيرة وكبيرة، وكانت النتيجة 3 إلى 3 للمنتجات و4 إلى 4 للطلبات.</p><p>وأخيرًا أفتح before-after.json لعرض أزمنة HTTP، مع التصريح أن baseline محفوظ ولم يُعد تشغيله، وأن الكاش وHTTP يؤثران أيضًا. بذلك أكون شرحت اختيار المشكلة، وقياسها، والتعديل، ثم إثبات صحته وحدود النتيجة.»</p></article><article class="card qa"><h3>أسئلة أختبر بها نفسي قبل المقابلة</h3><details><summary>لماذا لا أضيف index لكل عمود بحث؟</summary><p>لأن له كلفة مساحة وكتابة، والفائدة تعتمد على WHERE والترتيب وحجم البيانات. خطة المنتجات الصغيرة لم تختر بعض الفهارس المركبة، فلا أدعي ضرورتها من هذه العينة.</p></details><details><summary>هل عدد 15 بعد LIMIT يعني أننا قرأنا 15 فقط؟</summary><p>لا. أفتح عقدة المسح تحت Limit. قبل الفهرس قرأت 300,004 صفوف ثم فرزت؛ بعده قرأت عقدة الفهرس 15 في مثال shipped.</p></details><details><summary>هل count غير الملغاة في أداة الفحص هو استعلام Dashboard الجديد نفسه؟</summary><p>لا. هو استعلام تشخيصي ضمن الستة. Dashboard الجديد يجمع COUNT وSUM/CASE في نطاق واحد. لا أنقل زمن استعلام مختلف إليه.</p></details><details><summary>لماذا CASE بدل وضع status != cancelled في WHERE العام؟</summary><p>حتى نبقي الطلب الملغى داخل إجمالي العدد، ونستبعد قيمته من المبيعات فقط. تغيير WHERE العام يغير معنى بعض النتائج.</p></details><details><summary>هل أضفت with خلال هذه التحسينات؟</summary><p>كانت موجودة في المرجع القديم. أشرح التصميم الصحيح وأعرض فرق الكود الحقيقي، ثم الإضافة الفعلية لاختبار نمو عدد الاستعلامات.</p></details><details><summary>كيف أعرف أن الاختبار لا يعد INSERTs التي أنشأت البيانات؟</summary><p>التجهيز خارج helper، وflushQueryLog قبل GET يمسح ما سبق. ثم نعد سجل الاستعلامات لذلك الطلب فقط ونعطل التسجيل.</p></details><details><summary>هل before-after.json يثبت أن baseline أُعيد تشغيله الآن؟</summary><p>لا، baseline_rerun=false. هو مقارنة نتائج محفوظة قبل مع مجموعة لاحقة، ويجب أن أصفه بهذه الصفة.</p></details><details><summary>هل أثبتنا أن كل شيء أصبح أسرع؟</summary><p>لا. بعض أزمنة SQL ساءت، وp99 للطلبات في المقارنة المرفقة ارتفع قليلًا. نعرض كل نتيجة مع نوع العينة والحدود بدل تعميم النجاح.</p></details></article></section>
+
+<section id="sources" data-search><header><span class="section-number">07</span><div><h2>الملفات التي تجهزها كتَبويبات للمناقشة</h2><p>افتحها بترتيب الدليل، لا دفعة واحدة.</p></div></header><article class="card"><ul><li><a href="docs/performance/before-after.json">ملف المقارنة الذي أرسلته</a><span class="filepath">docs/performance/before-after.json</span></li><li><a href="backend/my-project/app/Http/Controllers/ProductController.php">اختيار قراءة المنتجات</a><span class="filepath">backend/my-project/app/Http/Controllers/ProductController.php</span></li><li><a href="backend/my-project/app/Services/OrderService.php">اختيار وقراءة الطلبات والعلاقات</a><span class="filepath">backend/my-project/app/Services/OrderService.php</span></li><li><a href="backend/my-project/database/seeders/BulkOrderSeeder.php">تجهيز حجم بيانات يكشف الكلفة</a><span class="filepath">backend/my-project/database/seeders/BulkOrderSeeder.php</span></li><li><a href="perf/checklist-database.php">EXPLAIN وEXPLAIN ANALYZE</a><span class="filepath">perf/checklist-database.php</span></li><li><a href="backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php">الفهارس الخمسة وdown</a><span class="filepath">backend/my-project/database/migrations/2026_11_05_000001_add_performance_indexes.php</span></li><li><a href="backend/my-project/app/Http/Controllers/DashboardController.php">تجميع إحصاءات الطلبات</a><span class="filepath">backend/my-project/app/Http/Controllers/DashboardController.php</span></li><li><a href="backend/my-project/tests/Feature/QueryScalingTest.php">اختبار نمو عدد الاستعلامات</a><span class="filepath">backend/my-project/tests/Feature/QueryScalingTest.php</span></li><li><a href="backend/my-project/app/Http/Resources/ProductResource.php">عرض تصنيف المنتج</a><span class="filepath">backend/my-project/app/Http/Resources/ProductResource.php</span></li><li><a href="backend/my-project/app/Http/Resources/OrderResource.php">عرض بنود الطلب ومستخدمه</a><span class="filepath">backend/my-project/app/Http/Resources/OrderResource.php</span></li><li><a href="backend/my-project/app/Http/Resources/OrderItemResource.php">عرض منتج بند الطلب</a><span class="filepath">backend/my-project/app/Http/Resources/OrderItemResource.php</span></li><li><a href="docs/performance/baseline/explain-before.txt">الخطط الأصلية قبل الفهارس</a><span class="filepath">docs/performance/baseline/explain-before.txt</span></li><li><a href="docs/performance/results/after-indexes/explain-after.txt">الخطط الأصلية بعد الفهارس</a><span class="filepath">docs/performance/results/after-indexes/explain-after.txt</span></li><li><a href="docs/performance/results/explain-summary.json">ملخص الخطط الست</a><span class="filepath">docs/performance/results/explain-summary.json</span></li><li><a href="docs/performance/focused-review/n-plus-one.txt">نتيجة QueryScaling المحفوظة</a><span class="filepath">docs/performance/focused-review/n-plus-one.txt</span></li><li><a href="backend/my-project/phpunit.xml">بيئة الاختبار المعزولة</a><span class="filepath">backend/my-project/phpunit.xml</span></li><li><a href="docs/performance/baseline/dataset.txt">خرج تجهيز العينة التاريخية</a><span class="filepath">docs/performance/baseline/dataset.txt</span></li></ul><p>الفروقات من <code>b9514cb</code> إلى <code>d8023a7</code>. علامة + إضافة فعلية وعلامة − حذف، والسطر بلا علامة مشترك. الأمثلة التعليمية مسماة كذلك، والمخرجات المنسوخة من الخطة ليست كودًا عدّلناه. بعض المصادر الإنجليزية مقتبسة كما هي ويشرحها النص العربي.</p></article></section>
+<footer class="footer">شرح عربي RTL مستقل، والكود LTR. الروابط المحلية تعمل عند بقاء الملف في جذر المشروع. <a href="#top">العودة إلى البداية</a><p id="copy-status" role="status" aria-live="polite"></p></footer></main></div>
+<script>(function(){var details=Array.from(document.querySelectorAll('details.source')),sections=Array.from(document.querySelectorAll('section[data-search]')),search=document.getElementById('search');function norm(t){return t.toLowerCase().normalize('NFKD').replace(/[ً-ٟ]/g,'');}search.addEventListener('input',function(){var term=norm(search.value.trim()),count=0;sections.forEach(function(section){section.hidden=term!==''&&!norm(section.textContent).includes(term);if(!section.hidden)count++;});document.getElementById('empty').hidden=count!==0;document.getElementById('search-status').textContent=term?'الأجزاء المطابقة: '+count:'';});document.getElementById('expand').onclick=function(){details.forEach(function(d){d.open=true;});};document.getElementById('collapse').onclick=function(){details.forEach(function(d){d.open=false;});};document.getElementById('print').onclick=function(){window.print();};var saved=[];window.addEventListener('beforeprint',function(){saved=details.map(function(d){var old=d.open;d.open=true;return old;});});window.addEventListener('afterprint',function(){details.forEach(function(d,i){d.open=saved[i]||false;});});document.querySelectorAll('.copy').forEach(function(button){button.onclick=async function(){var text=button.closest('.codebox').querySelector('code').textContent,ok=false;try{if(navigator.clipboard){await navigator.clipboard.writeText(text);ok=true;}}catch(error){}if(!ok){var field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();try{ok=document.execCommand('copy');}catch(error){}field.remove();}document.getElementById('copy-status').textContent=ok?'تم نسخ الكود.':'يمكنك تحديد الكود ونسخه يدويًا.';};});})();</script></body></html>

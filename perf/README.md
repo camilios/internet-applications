@@ -4,6 +4,35 @@ Use PowerShell from `E:\projects\internet-applications`, with Ubuntu WSL and nat
 
 The main database already has 300,004 orders. Do not repeat `seed`, `apply-*` or `stage-*` on this deployment. Apply commands are historical, one-time source transformations. Do not use `migrate:fresh` against the main database.
 
+## Run native Windows k6 through the benchmark proxy
+
+The product API allows 60 requests per minute per client IP. Five virtual users
+calling `localhost:8000` directly share one client IP, so the existing 30-second
+workload can exceed that limit. Laravel ignores their `X-Forwarded-For` headers
+because the direct connection does not come from the configured trusted proxy.
+
+With the backend stack already running, enable the optional loopback port for
+the existing benchmark proxy from PowerShell in the project root:
+
+```powershell
+wsl.exe -d Ubuntu -- docker compose -f docker-compose.yml -f perf/host-k6.compose.yml --profile performance up -d --no-deps loadtest-proxy
+& 'C:\Program Files\k6\k6.exe' run --no-thresholds -e BASE_URL=http://localhost:8086/api -e RUN_ID=94 .\perf\k6\compression.js
+```
+
+Port 8086 forwards through the trusted proxy at `172.29.30.10`. The existing
+script assigns one simulated client IP per VU; each VU stays below 60 requests
+in this short workload. The API rate limit remains unchanged. Use a different
+`RUN_ID` between back-to-back runs, or wait for the previous one-minute window
+to expire. Longer runs must also keep each client's rate within the limit.
+Use `http://` in PowerShell; no backslash before the colon is needed.
+
+The override publishes only `127.0.0.1:8086`. It is intended for local benchmark
+sessions. Keep normal API traffic on port 8000. Stop the proxy after testing:
+
+```powershell
+wsl.exe -d Ubuntu -- docker compose -f docker-compose.yml -f perf/host-k6.compose.yml --profile performance stop loadtest-proxy
+```
+
 ## Check the current deployment
 
 The final image contains the approved source changes. Start backend services from an Ubuntu terminal:

@@ -1,0 +1,869 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>اختبار الأداء — شرح التنفيذ ملفًا بعد ملف</title><style>
+:root{--bg:#f4f5f0;--paper:#fff;--ink:#152c38;--muted:#546670;--line:#dce4df;--accent:#087b69;--nav:#152f3f;--soft:#e7f2eb;--note:#fff5dc}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.95 Tahoma,"Segoe UI",Arial,sans-serif}a{color:var(--accent);text-underline-offset:4px}button,input{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #c38b20;outline-offset:4px}[hidden]{display:none!important}.layout{max-width:1500px;margin:auto;padding:28px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:32px}.sidebar{position:sticky;top:24px;align-self:start;max-height:92vh;overflow:auto;background:var(--nav);color:#e4efef;padding:25px 20px;border-radius:16px}.sidebar .brand{font-size:11px;color:#93cbbc;letter-spacing:.08em}.sidebar h2{font-size:22px;line-height:1.7;margin:10px 0 24px}.sidebar a{display:block;color:#d1e2e2;text-decoration:none;border-bottom:1px solid #35505b;padding:12px 5px;font-size:13px}.sidebar a:hover{color:white;background:#284956}.sidebar p{font-size:11px;color:#a8bdc5;margin-top:26px}.main{min-width:0}.hero{background:var(--soft);border:1px solid #cbded1;padding:36px 38px;border-radius:18px}.eyebrow{font-size:12px;letter-spacing:.05em;color:var(--accent);font-weight:bold}.hero h1{font-size:clamp(29px,3.7vw,48px);line-height:1.55;margin:12px 0 18px;max-width:900px}.hero p{margin:10px 0;max-width:900px;color:#38534f}.meta{font-size:12px;color:var(--muted)}.pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:22px}.pills span,.badge{border:1px solid #c0d9cb;border-radius:20px;padding:4px 11px;background:#f9fcf9;color:#186755;font-size:11px}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:24px 0 8px}.toolbar input{flex:1;min-width:210px;border:1px solid var(--line);border-radius:9px;padding:11px;background:white;color:var(--ink)}button{border:1px solid var(--line);border-radius:8px;background:white;padding:8px 12px;color:var(--accent);font-size:12px}.search-status{min-height:24px;font-size:12px;color:var(--muted)}section{margin:44px 0;scroll-margin-top:24px}section>header{display:flex;gap:18px;margin-bottom:22px}.num{font:700 24px/1.3 Consolas,monospace;color:var(--accent);border-top:3px solid var(--accent);padding-top:12px;min-width:35px}h2{font-size:27px;line-height:1.6;margin:4px 0 10px}header p{font-size:14px;color:var(--muted);margin:0}h3{font-size:20px;line-height:1.8;margin:24px 0 10px}h4{font-size:16px;margin:22px 0 7px}.card{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:25px 28px;margin:18px 0;min-width:0}.card p{font-size:14px;margin:11px 0}.note{border-right:4px solid #bc8a28;background:var(--note);padding:14px 18px;margin:18px 0;border-radius:8px;font-size:13px}.good{border-color:var(--accent);background:#edf7f0}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.stat{background:white;border:1px solid var(--line);border-radius:10px;padding:18px}.stat strong{display:block;font:700 25px/1.5 Consolas,monospace;direction:ltr;text-align:right;color:var(--accent)}.stat span{font-size:12px;color:var(--muted)}code{font-family:Consolas,"Courier New",monospace;direction:ltr;unicode-bidi:isolate;display:inline-block;max-width:100%;overflow-wrap:anywhere;font-size:.88em;color:#115d64}pre{margin:0;background:#122935;color:#e6f0f1;direction:ltr;text-align:left;padding:20px;overflow:auto;border-radius:0 0 8px 8px;font:12.5px/1.8 Consolas,"Courier New",monospace;tab-size:4;unicode-bidi:isolate}pre code{color:inherit;display:block;max-width:none;white-space:pre;overflow-wrap:normal;font-size:inherit;unicode-bidi:plaintext}.source{border:1px solid #bdcfd2;border-radius:9px;overflow:hidden;margin:18px 0;background:#f6faf9}.source summary{cursor:pointer;font-size:13px;padding:14px 16px;font-weight:bold}.path{display:block;text-align:left;font:11px/1.8 Consolas,monospace;color:var(--muted);overflow-wrap:anywhere;unicode-bidi:isolate;margin-top:6px}.codebar{display:flex;justify-content:space-between;align-items:center;background:#25434d;color:#cfe1e1;padding:7px 12px;font-size:11px}.copy{padding:3px 11px;background:#1b3541;border-color:#5c7a83;color:#e1efec}.source-link{font-size:11px!important;padding:0 15px}.example{margin:16px 0;border-radius:8px;overflow:hidden;border:1px solid #d0d9d5}.example>p{padding:8px 16px;margin:0;background:#edf3ef;font-size:12px;font-weight:bold}.table-wrap{width:100%;overflow:auto;border:1px solid var(--line);border-radius:9px;margin:18px 0}table{border-collapse:collapse;width:100%;min-width:660px;background:white;font-size:12px}th,td{padding:11px 13px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}thead th{background:#e9f0ec;color:#29493f}tbody th{font-weight:normal}td.num,th.num{font:12px/1.9 Consolas,monospace;direction:ltr;white-space:nowrap;text-align:center;border:0;padding:11px 13px;min-width:0;color:var(--ink)}td code{font-size:11px}.caption{font-size:12px;color:var(--muted)}.flow{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:22px 0}.flow div{border:1px solid #a8cbbf;padding:15px 20px;border-radius:9px;background:#eef7f1;text-align:center;min-width:130px;font-size:13px}.flow b{color:var(--accent);font-size:24px}.flow small{display:block;font-size:11px;color:var(--muted)}.bar-row{display:grid;grid-template-columns:110px minmax(0,1fr) 110px;gap:14px;align-items:center;margin:14px 0;font-size:12px}.track{background:#e9efec;border-radius:7px;height:20px;overflow:hidden;direction:ltr}.bar{height:100%;background:#829eab}.bar.after{background:var(--accent)}.bar-row strong{direction:ltr;text-align:left;font:12px Consolas,monospace}.qa details{border-top:1px solid var(--line);padding:13px 0}.qa summary{cursor:pointer;font-size:14px;font-weight:bold}.qa p{font-size:13px}.evidence{font-size:12px;padding:10px 0;color:var(--muted)}ul,ol{padding-right:24px}li{margin:8px 0;font-size:14px}.footer{border-top:1px solid var(--line);padding:20px 5px 35px;color:var(--muted);font-size:12px}.empty{background:var(--note);padding:20px;border-radius:10px}body:has(#search:focus) .toolbar{outline:0}@media(max-width:1000px){.layout{grid-template-columns:1fr;padding:18px;gap:20px}.sidebar{position:static;max-height:none}.sidebar h2{margin-bottom:10px}.sidebar nav{display:flex;flex-wrap:wrap;gap:8px}.sidebar a{border:1px solid #40616b;padding:6px 10px;border-radius:6px;font-size:11px}.sidebar p{margin-bottom:0}.hero{padding:26px}.cards{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:600px){body{font-size:15px}.layout{padding:12px}.hero{padding:23px 20px}.card{padding:20px 17px}.hero h1{font-size:29px}h2{font-size:23px}h3{font-size:18px}.cards{grid-template-columns:1fr}.stat strong{text-align:right}.bar-row{grid-template-columns:85px minmax(0,1fr) 85px;gap:7px}pre{font-size:11.5px;padding:15px}.toolbar button{flex:1}.num{font-size:21px}.flow{gap:8px}.flow div{min-width:110px;padding:10px}th,td{padding:9px}.sidebar{padding:19px}.sidebar h2{font-size:20px}}@media print{body{background:white;font-size:11pt;color:black}.layout{display:block;max-width:none;padding:0}.sidebar,.toolbar,.search-status,.copy,.footer button{display:none!important}.hero,.card{border:1px solid #bbb;box-shadow:none;border-radius:0;padding:14px}.hero h1{font-size:25pt}section{break-before:page;margin-top:20px}h2,h3,h4{break-after:avoid}pre{white-space:pre-wrap;background:#f2f4f3;color:black;overflow:visible;font-size:8pt}pre code{white-space:pre-wrap;overflow-wrap:anywhere}.table-wrap{overflow:visible}table{min-width:0;font-size:8pt}a{color:black}.source{break-inside:auto}.codebar{background:#eee;color:black}.cards{grid-template-columns:repeat(3,1fr)}[hidden]{display:block!important}.empty{display:none!important}@page{size:A4;margin:15mm}}
+
+.main{min-width:0}.question{padding:14px 18px;background:#edf2f4;border-radius:8px;border-right:4px solid #487a8d;font-size:14px;margin:18px 0}.answer,.say{padding:17px 20px;background:#edf7f0;border-right:4px solid #267c5c;border-radius:8px;font-size:14px;line-height:2;margin:18px 0}.say b{color:#1c674e}.checkpoint{padding:14px 18px;background:#fff4db;border-right:4px solid #c68c28;border-radius:8px;font-size:13px;margin:23px 0}.section-number{font:700 24px/1.4 Consolas,monospace;color:#267c5c;min-width:38px}.intro{padding:25px 28px;background:#fff;border:1px solid var(--line);border-radius:12px;margin:20px 0}.intro p{font-size:14px}.filehead{padding:18px 20px;background:#f0f6f3;border:1px solid #c4d7ca;border-radius:9px;margin:28px 0 18px}.filehead h3{margin:6px 0 9px}.filehead>a{display:block;direction:ltr;text-align:left;font:12px/1.9 Consolas,monospace;overflow-wrap:anywhere}.kind{font-size:11px;font-weight:bold;background:#dfeee4;color:#1e634a;border-radius:5px;padding:4px 8px}.filepath{display:block;direction:ltr;text-align:left;unicode-bidi:isolate;font:11px/1.8 Consolas,monospace;color:var(--muted);overflow-wrap:anywhere;margin-top:6px}.changes{display:inline-block;font:11px Consolas,monospace;margin-right:12px;color:#4c6a66}.codebox{margin:18px 0;border-radius:8px;overflow:hidden;min-width:0}.source>.codebox{margin:0}.code-note{padding:11px 16px;background:#f4f7f4;font-size:12px!important;margin:0!important;line-height:1.9}.diff-key{display:flex;gap:14px;flex-wrap:wrap;padding:10px 15px;background:#edf4ef;font-size:11px}.removed{color:#a93848}.added{color:#157345}.del{color:#ffc6ce;background:#4d2838}.add{color:#c1f2ce;background:#153e35}.same{color:#d5e2e7}.source>.codebox>pre{border-radius:0}.number{direction:ltr;text-align:center!important;white-space:nowrap;font:12px/1.9 Consolas,monospace}.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}.two>div{min-width:0;background:#f6f9f7;border:1px solid #d6e1da;border-radius:9px;padding:17px}.two p{font-size:13px}.source summary{overflow-wrap:anywhere}.lesson-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0}.lesson-nav>a{padding:14px;background:#edf5f0;border:1px solid #c9dccd;border-radius:8px;font-size:13px;color:#20573f}.lesson-nav b{display:block;font:700 20px Consolas,monospace}.closing{padding:26px 29px;background:#173746;color:#e3f0ef;border-radius:12px}.closing h2{color:white}.closing p{font-size:15px}.small{font-size:12px!important;color:var(--muted)}[hidden]{display:none!important}@media(max-width:650px){.lesson-nav{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.intro,.closing{padding:21px 17px}.filehead{padding:15px}.filehead>a{font-size:10px}.code-note{font-size:11px!important}}@media print{.del{color:#8a1d2e;background:#ffe5e8}.add{color:#13502b;background:#e2f2e7}.same{color:black}.closing{background:white;color:black;border:1px solid #aaa}.closing h2{color:black}.filehead{break-after:avoid}.two{display:block}.lesson-nav{display:none}.code-note{font-size:8pt!important}}
+
+.lesson-nav{grid-template-columns:repeat(3,minmax(0,1fr))}.flow span{padding:12px 16px;background:#f0f7f2;border:1px solid #b2ccbb;border-radius:8px;font-size:13px}.timeline{border-right:3px solid #b6d2c2;padding-right:20px;margin:22px 0}.timeline p{font-size:14px}.http-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:20px 0}.http-cards>div{background:#edf5f0;border:1px solid #c5d9cd;border-radius:9px;padding:17px;min-width:0}.http-cards b{display:block;color:#206b50}.http-cards p{font-size:13px}.boundary{padding:14px 18px;background:#fff5df;border-right:4px solid #cca153;border-radius:8px;font-size:13px}@media(max-width:650px){.lesson-nav,.http-cards{grid-template-columns:1fr}.flow span{font-size:12px}}
+
+.lesson-nav{grid-template-columns:repeat(5,minmax(0,1fr))}.metric-bars{display:grid;gap:16px;margin:20px 0}.metric-pair{padding:17px;border:1px solid #c5d9cd;border-radius:9px}.metric-pair h4{margin:0 0 12px}.barrow{display:grid;grid-template-columns:75px minmax(70px,1fr) 85px;gap:10px;align-items:center;font-size:12px;margin:8px 0}.track{background:#eef1ed;border-radius:5px;overflow:hidden;height:18px}.bar{background:#b27f56;height:100%}.bar.after{background:#27795a}.run-files{font-size:12px;overflow-wrap:anywhere}.boundary{padding:15px;background:#fff5df;border-right:4px solid #cca153;border-radius:8px}.flow span{padding:10px;background:#edf5ef;border:1px solid #c5d9cd;border-radius:8px;font-size:12px}.stepnote{border-right:3px solid #aac9b7;padding-right:18px}.qa{border:1px solid #d6dfd8;padding:15px;border-radius:8px;margin:9px 0}.qa summary{cursor:pointer;font-weight:700}.qa p{font-size:14px}@media(max-width:800px){.lesson-nav{grid-template-columns:1fr 1fr}}@media(max-width:500px){.lesson-nav{grid-template-columns:1fr}.barrow{grid-template-columns:55px minmax(40px,1fr) 76px}}
+</style></head><body id="top"><div class="layout"><aside class="sidebar"><div class="brand">PERFORMANCE TESTING · FILE BY FILE</div><h2>كيف أختبر؟<br>وماذا أقيس؟<br>وكيف أدافع عن النتيجة؟</h2><nav aria-label="فهرس الدليل"><a href="#start">خريطة الشرح</a><a href="#setup">1 · تجهيز بيئة القياس</a><a href="#scenarios">2 · سيناريوهات k6</a><a href="#runner">3 · التشغيل وحفظ الأدلة</a><a href="#metrics">4 · قراءة المقاييس</a><a href="#comparison">5 · نتائج قبل وبعد</a><a href="#edit">6 · ظهور تعديل المنتج</a><a href="#defense">7 · مناقشة الأستاذ</a><a href="#sources">8 · الملفات والمراجع</a></nav><p>ننتقل من تصميم التجربة إلى الكود، ثم التشغيل، ثم تفسير الأرقام، ثم إثبات أن البيانات الجديدة لا تختفي خلف الكاش.</p></aside><main class="main">
+<div class="hero"><div class="eyebrow">شرح عربي RTL · ترتيب ملفات حقيقي · تفاصيل الكود والأدلة</div><h1>كيف حققنا اختبار الأداء؟<br>من السيناريو إلى المقارنة والتحديث الفوري.</h1><p>هذا دليل للمناقشة أمام الأستاذ: نذكر الملف الذي أضفناه أو عدّلناه، نعرض الكود الفعلي، ونشرح لماذا كتبنا كل جزء وكيف نستدل على نتيجته. يغطي إعداد سيناريوهات k6، القياس قبل التحسين وبعده، p50 وp95 وp99، معدل الطلبات والأخطاء، والتحقق من ظهور تعديل المنتج في القراءة التالية.</p><div class="pills"><span>4 عمليات API</span><span>3 تشغيلات لكل عملية</span><span>p50 · p95 · p99</span><span>Requests/s + Errors</span><span>Read after edit</span></div><p class="meta">مرجع فروقات المصدر: <code>b9514cb</code> إلى <code>d8023a7</code>. إعداد المستند:10 نوفمبر2026. القياسات المعروضة من ملفات محفوظة؛ إعداد هذه الصفحة لم يشغّل k6 أو يعدّل backend أو يبنِ frontend.</p></div>
+<div class="toolbar"><input id="search" type="search" placeholder="ابحث: common.js، p95، baseline، تعديل المنتج..." aria-label="البحث في الدليل"><button id="expand" type="button">فتح الكود والفروقات</button><button id="collapse" type="button">طي الكود</button><button id="print" type="button">طباعة</button></div><div id="search-status" class="search-status" role="status" aria-live="polite"></div><div id="copy-status" class="search-status" role="status" aria-live="polite"></div><p id="empty" class="empty" hidden>لا توجد أجزاء مطابقة للبحث.</p>
+<div id="start" class="intro"><h2>ابدأ بهذه الفكرة أمام الأستاذ</h2><div class="say"><b>ما أقوله للأستاذ:</b> «لا أقول إن النظام أسرع لمجرد أنني أضفت Redis أو فهرسًا. أحدد عمليات API وحملًا واضحًا، أشغّل السيناريو نفسه ثلاث مرات لكل مرحلة، أحفظ الأدلة، ثم أقارن الزمن والأخطاء ومعدل الطلبات. وبعد ذلك أتحقق بشكل منفصل أن تحسين القراءة لم يجعل السعر القديم يستمر بعد التعديل.»</div><div class="lesson-nav"><a href="#scenarios"><b>01</b>إنشاء السيناريوهات</a><a href="#runner"><b>02</b>التشغيل قبل وبعد</a><a href="#metrics"><b>03</b>مؤشرات الزمن</a><a href="#metrics"><b>04</b>الطلبات والأخطاء</a><a href="#edit"><b>05</b>صحة التعديل الفوري</a></div>
+<div class="table-wrap"><table><thead><tr><th>ترتيب الفتح</th><th>الملف أو المجموعة</th><th>السؤال الذي يجيب عنه</th></tr></thead><tbody><tr><td>1</td><td>docker-compose.yml ثم perf/loadtest-proxy.conf</td><td>كيف تصل الطلبات إلى backend في شبكة القياس؟</td></tr><tr><td>2</td><td>perf/k6/common.js</td><td>ما شكل الحمل وكيف نختار الطلب ونحسب المقاييس؟</td></tr><tr><td>3</td><td>أربعة ملفات السيناريوهات في perf/k6</td><td>كيف نفصل قائمة المنتجات والتفاصيل والطلبات ولوحة الإحصاءات؟</td></tr><tr><td>4</td><td>perf/requirement3.py، فرع load ثم summary</td><td>كيف نكرر التشغيل ونحفظ الأدلة ونلخصها؟</td></tr><tr><td>5</td><td>perf/interview_run.sh ثم perf/interview_compare.py</td><td>كيف نعرض تجربة حالية للأستاذ ونقارنها بالأرشيف؟</td></tr><tr><td>6</td><td>before-after.json ثم ملفات k6 الخام</td><td>من أين أتت الأرقام؟ وما الذي تعنيه؟</td></tr><tr><td>7</td><td>ProductService.php ثم PerformanceCachingTest.php</td><td>ما آلية إبطال الكاش بعد الكتابة؟ وكيف نختبرها؟</td></tr><tr><td>8</td><td>perf/checklist-cache.php ثم دليل cache-and-edit</td><td>هل القراءة الفعلية التالية تعيد السعر الجديد؟</td></tr></tbody></table></div><p>هذا ترتيب تعليمي. الملفات ليست كلها أُنشئت اليوم أو في commit واحد. عندما يغيب ملف عن المرجع القديم نعرض إضافته الحقيقية، ولا نخترع نسخة قديمة لم تكن موجودة. ملفات المقارنة وأرشيف النتائج أدلة قياس وليست تغييرات في منطق التطبيق.</p></div>
+<section id="setup" data-search><header><span class="section-number">01</span><div><h2>أولًا: نضبط طريق الطلب وظروف التجربة</h2><p>قبل كتابة الحمل نعرف ماذا سنقيس وكيف نحتفظ بسياقه.</p></div></header><article class="card">
+<div class="filehead"><span class="kind">تعديل ملف إعداد موجود</span><h3>الملف الأول: خدمة loadtest-proxy الخاصة بالأداء</h3><a href="docker-compose.yml">docker-compose.yml</a></div><details class="source" open><summary>تعريف خدمة وسيطة لطلبات الاختبار<span class="filepath" dir="ltr">docker-compose.yml · L358–371</span></summary><div class="codebox" data-snapshot="evidence-0"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>  loadtest-proxy:
+    image: nginx:alpine
+    profiles: [performance]
+    container_name: ecommerce-loadtest-proxy
+    volumes:
+      - ./perf/loadtest-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      ecommerce-network: {}
+      performance-network:
+        ipv4_address: 172.29.30.10</code></pre></div></details>
+<p>أُضيفت خدمة proxy في Compose ضمن profile اسمها performance. الصورة nginx:alpine تستعمل ملف الإعداد المحلي المركّب للقراءة فقط. depends_on ينتظر صحة backend. الخدمة موصولة بشبكة التطبيق وشبكة الأداء، ولها عنوان ثابت في شبكة الأداء. هذا يتيح طريقًا معروفًا لاختبار API، من دون تشغيل frontend. المقتطف يعرض الخدمة الحالية؛ الملف القديم موجود لكن هذه الخدمة لم تكن ضمنه.</p>
+<div class="filehead"><span class="kind">إضافة إعداد جديد</span><h3>الملف الثاني: loadtest-proxy.conf</h3><a href="perf/loadtest-proxy.conf">perf/loadtest-proxy.conf</a></div><details class="source diff" open><summary>إضافة perf/loadtest-proxy.conf<span class="changes" dir="ltr">+15 / −0</span><span class="filepath" dir="ltr">perf/loadtest-proxy.conf</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-1"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ map $http_x_forwarded_for $benchmark_client {</span>
+<span class="add">+     default $remote_addr;</span>
+<span class="add">+     &quot;~^198\.18\.[0-9]{1,3}\.[0-9]{1,3}$&quot; $http_x_forwarded_for;</span>
+<span class="add">+ }</span>
+<span class="add">+ server {</span>
+<span class="add">+     listen 80;</span>
+<span class="add">+     location / {</span>
+<span class="add">+         proxy_pass http://backend-performance:8000;</span>
+<span class="add">+         proxy_set_header Host $host;</span>
+<span class="add">+         proxy_set_header X-Forwarded-For $benchmark_client;</span>
+<span class="add">+         proxy_set_header X-Forwarded-Proto http;</span>
+<span class="add">+         proxy_set_header Connection &quot;&quot;;</span>
+<span class="add">+         proxy_http_version 1.1;</span>
+<span class="add">+     }</span>
+<span class="add">+ }</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. إضافة الملف كاملة؛ معناه مسار تمرير طلبات القياس، لا تحسين استعلامات قاعدة البيانات.</p></details>
+<div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>التفسير بالتفصيل</th></tr></thead><tbody><tr><td><code>map $http_x_forwarded_for $benchmark_client</code></td><td>ينشئ قيمة عنوان عميل للقياس. افتراضيًا يأخذ remote_addr؛ ويقبل قيمة الاختبار التي تطابق النمط المحدد198.18.x.x. هذا النمط ليس تحققًا كاملًا من كل حدود octets، ولا آلية مصادقة.</td></tr><tr><td><code>proxy_pass http://backend-performance:8000</code></td><td>يمرر الطلب إلى اسم backend داخل الشبكة. وجود/api في BASE_URL يجعل المسار الذي نرسله يصل إلى API المطلوبة.</td></tr><tr><td><code>proxy_set_header Host / X-Forwarded-For / X-Forwarded-Proto</code></td><td>يحافظ على معلومات الطلب اللازمة في المسار الوسيط. توزيع عناوين مستخدمي الاختبار لا يكون ذا معنى إلا مع الثقة المضبوطة في proxy على backend.</td></tr><tr><td><code>Connection &quot;&quot; / proxy_http_version 1.1</code></td><td>يضبط اتصال التمرير بهذه السياسة. لا نستنتج من هذين السطرين وحدهما تحقيق عدد معين من الطلبات في الثانية.</td></tr></tbody></table></div>
+<p>لم نعطل rate limiter من داخل common.js. كل مستخدم افتراضي يرسل هوية اختبار حتمية مع فاصل ثانية. لكن صحة قبول هذه الهوية تعتمد على إعداد proxy الموثوق؛ لا يصلح اعتبار X-Forwarded-For إذنًا يسمح لأي عميل عام بتغيير هويته.</p>
+<h3>أي ظروف حفظناها مع القياسات؟</h3><p>نحفظ عدد صفوف الجداول وإصدار k6 وصورة backend ونسخة السيناريوهات. قبل القياس الحالي كان cache_store=redis وread_replica_enabled=true. أعداد الصفوف قبل القياس وبعده متساوية، وتطابق الأعداد المسجلة مع baseline:5004 مستخدمين،15 منتجًا،300004 طلبات،749372 عنصر طلب.</p>
+<details class="source"><summary>سياق البيانات قبل تشغيل10 نوفمبر<span class="filepath" dir="ltr">docs/performance/current-20261110-094614/dataset-before.json · L1–12</span></summary><div class="codebox" data-snapshot="evidence-2"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>{
+    &quot;captured_at&quot;: &quot;2026-11-10T09:46:15+00:00&quot;,
+    &quot;database&quot;: &quot;ecommerce&quot;,
+    &quot;cache_store&quot;: &quot;redis&quot;,
+    &quot;read_replica_enabled&quot;: true,
+    &quot;counts&quot;: {
+        &quot;users&quot;: 5004,
+        &quot;products&quot;: 15,
+        &quot;orders&quot;: 300004,
+        &quot;order_items&quot;: 749372
+    }
+}</code></pre></div></details><details class="source"><summary>سياق البيانات بعد التشغيل<span class="filepath" dir="ltr">docs/performance/current-20261110-094614/dataset-after.json · L1–12</span></summary><div class="codebox" data-snapshot="evidence-3"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>{
+    &quot;captured_at&quot;: &quot;2026-11-10T09:53:21+00:00&quot;,
+    &quot;database&quot;: &quot;ecommerce&quot;,
+    &quot;cache_store&quot;: &quot;redis&quot;,
+    &quot;read_replica_enabled&quot;: true,
+    &quot;counts&quot;: {
+        &quot;users&quot;: 5004,
+        &quot;products&quot;: 15,
+        &quot;orders&quot;: 300004,
+        &quot;order_items&quot;: 749372
+    }
+}</code></pre></div></details>
+<p>ثبات عدد الصفوف لا يثبت تطابق كل القيم أو ترتيبها أو دفء Redis في جلستين مختلفتين. وصورة التطبيق المسجلة في <a href="docs/performance/current-20261110-094614/backend-image.txt">backend-image.txt</a> تحدد التنفيذ المنشور الذي قيس؛ لا نفترض أن مجرد HEAD الحالية تعني أن الصورة المنشورة مطابقة لها سطرًا بسطر.</p>
+<div class="say"><b>ما أقوله للأستاذ:</b> «جهزت مسار قياس معروفًا وحفظت سياق البيئة والبيانات. هذا يسمح بفهم المقارنة ومراجعتها. لكنني أفرق بين تساوي أعداد الصفوف وبين تجربة معزولة لا يتغير فيها أي عامل.»</div><div class="checkpoint"><b>قبل الانتقال:</b> اعرف الفرق بين عميل k6 وproxy وbackend. ثم افتح ملفي dataset قبل وبعد، واذكر أن ثبات العدد لا يعني عزل أثر كل تحسين.</div>
+</article></section>
+<section id="scenarios" data-search><header><span class="section-number">02</span><div><h2>ثانيًا: ننشئ سيناريوهات k6 من ملف مشترك</h2><p>نضع المنطق المتكرر في مكان واحد، ونجعل كل عملية ملفًا صغيرًا مستقلًا.</p></div></header><article class="card">
+<div class="filehead"><span class="kind">إضافة منطق مشترك جديد</span><h3>الملف الثالث: common.js</h3><a href="perf/k6/common.js">perf/k6/common.js</a></div><details class="source diff" open><summary>إضافة perf/k6/common.js<span class="changes" dir="ltr">+68 / −0</span><span class="filepath" dir="ltr">perf/k6/common.js</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-4"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ import http from &#39;k6/http&#39;;</span>
+<span class="add">+ import { check, sleep } from &#39;k6&#39;;</span>
+<span class="add">+ import { randomSeed } from &#39;k6&#39;;</span>
+<span class="add">+ import { Trend, Rate, Counter } from &#39;k6/metrics&#39;;</span>
+<span class="add">+ </span>
+<span class="add">+ export const options = {</span>
+<span class="add">+   scenarios: {</span>
+<span class="add">+     fixed: {</span>
+<span class="add">+       executor: &#39;ramping-vus&#39;, startVUs: 0,</span>
+<span class="add">+       stages: [{ duration: &#39;5s&#39;, target: 5 }, { duration: &#39;20s&#39;, target: 5 }, { duration: &#39;5s&#39;, target: 0 }],</span>
+<span class="add">+       gracefulRampDown: &#39;1s&#39;, gracefulStop: &#39;2s&#39;,</span>
+<span class="add">+     },</span>
+<span class="add">+   },</span>
+<span class="add">+   summaryTrendStats: [&#39;p(50)&#39;, &#39;p(95)&#39;, &#39;p(99)&#39;],</span>
+<span class="add">+   // The runner passes --no-thresholds: these targets are informational, never deployment gates.</span>
+<span class="add">+   thresholds: { endpoint_duration: [&#39;p(95)&lt;500&#39;], endpoint_errors: [&#39;rate&lt;0.01&#39;] },</span>
+<span class="add">+ };</span>
+<span class="add">+ </span>
+<span class="add">+ const duration = new Trend(&#39;endpoint_duration&#39;, true);</span>
+<span class="add">+ const errors = new Rate(&#39;endpoint_errors&#39;);</span>
+<span class="add">+ const conditionalHits = new Counter(&#39;conditional_hits&#39;);</span>
+<span class="add">+ const etags = {};</span>
+<span class="add">+ const base = __ENV.BASE_URL || &#39;http://loadtest-proxy/api&#39;;</span>
+<span class="add">+ let initialized = false;</span>
+<span class="add">+ </span>
+<span class="add">+ function headers(token) {</span>
+<span class="add">+   const result = {</span>
+<span class="add">+     Accept: &#39;application/json&#39;,</span>
+<span class="add">+     // Simulate separate clients without disabling or changing the application&#39;s rate limits.</span>
+<span class="add">+     // RUN_ID is deterministic and each VU stays below 60 requests/minute.</span>
+<span class="add">+     &#39;X-Forwarded-For&#39;: `198.18.${__ENV.RUN_ID || 0}.${__VU || 250}`,</span>
+<span class="add">+   };</span>
+<span class="add">+   if (token) result.Authorization = `Bearer ${token}`;</span>
+<span class="add">+   return result;</span>
+<span class="add">+ }</span>
+<span class="add">+ </span>
+<span class="add">+ export function setup() {</span>
+<span class="add">+   const result = http.post(`${base}/login`, JSON.stringify({</span>
+<span class="add">+     email: &#39;bulk-customer-1@example.test&#39;, password: &#39;password123&#39;,</span>
+<span class="add">+   }), { headers: { ...headers(), &#39;Content-Type&#39;: &#39;application/json&#39; } });</span>
+<span class="add">+   if (result.status !== 200) throw new Error(`Setup login failed: HTTP ${result.status}`);</span>
+<span class="add">+   return { token: result.json(&#39;access_token&#39;) };</span>
+<span class="add">+ }</span>
+<span class="add">+ </span>
+<span class="add">+ export function request(scenario, auth) {</span>
+<span class="add">+   if (!initialized) { randomSeed(12345 + __VU); initialized = true; }</span>
+<span class="add">+   let path;</span>
+<span class="add">+   if (scenario === &#39;products-list&#39;) {</span>
+<span class="add">+     const page = 1 + Math.floor(Math.random() * 20);</span>
+<span class="add">+     const category = 1 + Math.floor(Math.random() * 5);</span>
+<span class="add">+     path = `/products?page=${page}&amp;category_id=${category}`;</span>
+<span class="add">+   } else if (scenario === &#39;product-detail&#39;) {</span>
+<span class="add">+     path = `/products/${1 + Math.floor(Math.random() * 15)}`;</span>
+<span class="add">+   } else if (scenario === &#39;customer-orders&#39;) {</span>
+<span class="add">+     path = &#39;/orders&#39;;</span>
+<span class="add">+   } else {</span>
+<span class="add">+     path = &#39;/dashboard&#39;;</span>
+<span class="add">+   }</span>
+<span class="add">+   const requestHeaders = headers(auth?.token);</span>
+<span class="add">+   if (etags[path]) requestHeaders[&#39;If-None-Match&#39;] = etags[path];</span>
+<span class="add">+   const response = http.get(base + path, { headers: requestHeaders, tags: { endpoint: scenario } });</span>
+<span class="add">+   if (response.headers.Etag) etags[path] = response.headers.Etag;</span>
+<span class="add">+   conditionalHits.add(response.status === 304 ? 1 : 0);</span>
+<span class="add">+   duration.add(response.timings.duration);</span>
+<span class="add">+   errors.add(response.status !== 200 &amp;&amp; response.status !== 304);</span>
+<span class="add">+   check(response, { &#39;HTTP 200 or valid revalidation&#39;: r =&gt; r.status === 200 || r.status === 304 });</span>
+<span class="add">+   sleep(1);</span>
+<span class="add">+ }</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. لا يوجد هذا الملف في b9514cb. نعرضه كاملًا ثم نشرح أجزاءه بالترتيب.</p></details>
+<h3>أ ـ الاستيرادات ودورة حياة الاختبار</h3><div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>التفسير بالتفصيل</th></tr></thead><tbody><tr><td><code>import http from &#39;k6/http&#39;</code></td><td>مكتبة إرسال HTTP في k6؛ لا نستخدم متصفحًا ولا نقيس زمن رسم واجهة المستخدم.</td></tr><tr><td><code>check / sleep / randomSeed</code></td><td>check تسجل تحققًا منطقيًا؛ sleep تضيف وقت تفكير بين الدورات؛ randomSeed تجعل الاختيار العشوائي قابلًا للتكرار لكل مستخدم افتراضي.</td></tr><tr><td><code>Trend / Rate / Counter</code></td><td>Trend لتوزيع مدد الطلبات، Rate لنسبة الحالات التي أضفنا إليها قيمة غير صفرية، وCounter لعد أحداث مثل304. كل نوع يجيب عن سؤال مختلف.</td></tr><tr><td><code>options / setup / default</code></td><td>options تحدد شكل الحمل. setup في السيناريوهات الخاصة تسجل الدخول مرة وتعيد token. default في ملفات السيناريوهات تستدعي request في كل دورة لكل VU.</td></tr></tbody></table></div>
+<h3>ب ـ لماذا5 مستخدمين و5/20/5 ثانية؟</h3><div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>التفسير بالتفصيل</th></tr></thead><tbody><tr><td><code>executor: &#39;ramping-vus&#39;, startVUs: 0</code></td><td>نبدأ بصفر مستخدم افتراضي ونغيّر التزامن عبر المراحل. VU تنفيذ مستقل يكرر الدالة؛ ليس طلبًا واحدًا ثابتًا ولا عدد مستخدمين حقيقيين سجلوا حسابات.</td></tr><tr><td><code>5s إلى5، ثم20s عند5، ثم5s إلى0</code></td><td>نصعد تدريجيًا ثم نثبت الحمل ثم ننزل. زمن المراحل الاسمي30 ثانية. هذا حمل صغير ومضبوط لتجربة المشروع، لا stress test يكتشف نقطة الانهيار.</td></tr><tr><td><code>gracefulRampDown:1s / gracefulStop:2s</code></td><td>مهل لإنهاء الدورات القائمة عند خفض المستخدمين أو إيقاف السيناريو. قد تؤثر على زمن انتهاء التشغيل وعدد الدورات المكتملة.</td></tr><tr><td><code>summaryTrendStats: p(50), p(95), p(99)</code></td><td>نطلب عرض هذه المئينات في ملخص Trend، حتى لا نحكم من المتوسط وحده. هذه الإعدادات لا تعني أن p99 تساوي أسوأ طلب على الإطلاق.</td></tr><tr><td><code>endpoint_duration: p(95)&lt;500 / endpoint_errors: rate&lt;0.01</code></td><td>أهداف محلية للتقرير: p95 أقل من500ms والأخطاء أقل من1%. ليست أرقامًا مفروضة من الواجب. المشغلات هنا تستعمل --no-thresholds؛ لذلك ليست بوابة نجاح نشر تلقائية.</td></tr></tbody></table></div>
+<p>النموذج مغلق يعتمد على عددVU: كل VU يرسل طلبًا، ينتظر الرد، ثم ينتظر ثانية. إذا تباطأ الرد ينخفض عدد الدورات الذي يستطيع إنجازه. لذلك لا نقول إن5VUs تعني5 طلبات في الثانية بالضبط أو إن هذا السيناريو يثبت أقصى throughput.</p>
+<h3>ج ـ المقاييس والحالة الخاصة بكل مستخدم افتراضي</h3><p>ننشىء endpoint_duration وendpoint_errors وconditional_hits على مستوى الملف كي تجمع k6 عيناتها. etags مصفوفة ربط بالمَسار ضمن سياق كل VU، تحفظ الوسوم التي استلمها أثناء اختبارها. initialized تمنع إعادة ضبط البذرة في كل دورة؛ أول request تضبط12345+__VU. البذرة تثبت تسلسل اختيارات كل VU، لكن اختلاف زمن الاستجابة قد يغيّر عدد الدورات التي ينفذها، فلا يضمن ذلك تطابق عدد كل URL بين تشغيلين.</p>
+<h3>د ـ headers وsetup: المصادقة خارج Trend الخاصة بالعملية</h3><div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>التفسير بالتفصيل</th></tr></thead><tbody><tr><td><code>BASE_URL أو http://loadtest-proxy/api</code></td><td>عنوان API قابل للضبط من البيئة؛ القيمة الافتراضية مناسبة لشبكة الاختبار الداخلية. لا يفترض هذا العنوان وجود proxy بنفس الاسم على نظام تشغيل المضيف.</td></tr><tr><td><code>Accept: application/json</code></td><td>نطلب صيغة JSON. هذه الترويسة ليست هي Accept-Encoding ولا تفعّل gzip صراحة في الملف المشترك. سيناريو الضغط المتخصص يفعل ذلك.</td></tr><tr><td><code>198.18.RUN_ID.__VU</code></td><td>RUN_ID يميز مجموعة التشغيل و__VU يميز المستخدم الافتراضي؛ القيمة250 بديل عندما يكون setup خارج سياقVU. الهدف محاكاة عملاء منفصلين وفق إعداد الشبكة، لا إلغاء حدود التطبيق.</td></tr><tr><td><code>Authorization عند وجود token</code></td><td>قراءات المنتجات عامة، بينما orders وdashboard تحتاج المصادقة. الدالة headers تضيف Bearer فقط عندما تمرر token.</td></tr><tr><td><code>setup() → POST /login</code></td><td>يسجل الدخول بحساب benchmark المحلي، ويرسل JSON وContent-Type المناسبتين. هذه بيانات اختبار في المصدر وليست دعوة لاستعمالها كحساب إنتاج.</td></tr><tr><td><code>status !== 200 → throw</code></td><td>إن فشل الدخول نوقف الإعداد بدل قياس401 من كل دورة ثم وصف زمنها بأنه أداء الطلبات الصحيحة.</td></tr><tr><td><code>return {token: access_token}</code></td><td>تصل النتيجة إلى default في السيناريو الخاص، ثم تُمرر إلى request. لا نسجل الدخول من جديد مع كل GET.</td></tr></tbody></table></div>
+<h3>هـ ـ اختيار العملية داخل request</h3><div class="table-wrap"><table><thead><tr><th>اسم السيناريو</th><th>المسار المختار</th><th>ما الذي يجب تفسيره؟</th></tr></thead><tbody><tr><td>products-list</td><td><code>/products?page=1..20&amp;category_id=1..5</code></td><td>صفحة وتصنيف عشوائيان حتميان حسب البذرة. مع15 منتجًا قد تكون صفحات كثيرة فارغة؛ هذا ليس حملًا ثابتًا على صفحات ممتلئة.</td></tr><tr><td>product-detail</td><td><code>/products/1..15</code></td><td>قراءة تفاصيل أحد المنتجات المختارة. الكود يعتمد على وجود هذه المعرفات في بيانات القياس.</td></tr><tr><td>customer-orders</td><td><code>/orders</code></td><td>طلبات المستخدم المصادق، وليس جميع300004 طلبات بالضرورة.</td></tr><tr><td>dashboard</td><td><code>/dashboard</code></td><td>إحصاءات حساب benchmark المستخدم؛ قد تختلف استجابة العميل عن استجابة مسؤول النظام.</td></tr></tbody></table></div>
+<p>في الشفرة يوجد else أخير يختار dashboard لأي اسم غير الفروع الثلاثة السابقة؛ الملفات المغلفة والمشغل المخصص يمرران أسماء معلومة. لا نصف هذه الدالة بأنها تتحقق بنفسها من قائمة أسماء مغلقة.</p>
+<h3>و ـ ETag ثم التسجيل ثم وقت التفكير</h3><div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>التفسير بالتفصيل</th></tr></thead><tbody><tr><td><code>If-None-Match عند وجود etags[path]</code></td><td>نرسل الوسم السابق لنفس المسار بالضبط. إذا تغيّر page أوcategory صار المفتاح مختلفًا، ولا نستعمل وسم صفحة أخرى.</td></tr><tr><td><code>http.get(... tags: {endpoint: scenario})</code></td><td>يرسل GET بترويساته، ويضع tag تصف العملية كي نستطيع تمييزها في بيانات المقاييس.</td></tr><tr><td><code>response.headers.Etag</code></td><td>إذا أعاد الخادم وسمًا نخزنه للقراءة التالية. الوصف مرتبط باسم الترويسة الذي يستعمله هذا السكربت في k6.</td></tr><tr><td><code>conditionalHits.add(status===304 ? 1 : 0)</code></td><td>يعدّ304 المسجلة؛ إضافة الصفر في الحالات الأخرى لا تزيد مجموعCounter. وجود hit لا يثبت وحده صحة الجسم القديم، بل يثبت الحالة التي رصدها الاختبار.</td></tr><tr><td><code>duration.add(response.timings.duration)</code></td><td>نسجل زمن GET داخل Trend المخصصة للعملية فقط. هذا الزمن لا يشمل setup login ولا sleep.</td></tr><tr><td><code>errors.add(status!==200 &amp;&amp; status!==304)</code></td><td>Rate تستقبل true عند الحالة غير المقبولة وfalse عند200 أو304؛ لذلك قيمتها نسبة أخطاء الحالة ضمن طلبات endpoint.</td></tr><tr><td><code>check: 200 أو304</code></td><td>هذا تحقق من الحالة فقط في common.js. عبارة valid revalidation في اسمcheck لا تعني أن الشفرة قارنت كل بيانات الجسم أو أثبتت خلو304 منه. الاختبارات المتخصصة تغطي ذلك.</td></tr><tr><td><code>sleep(1)</code></td><td>انتظار ثانية لكل دورة، لمحاكاة إيقاع قراءة محدود وإبقاء حمل كل مستخدم منخفضًا. لا يدخل هذا الانتظار في endpoint_duration.</td></tr></tbody></table></div>
+<div class="boundary">حدود common.js: لا يختبر POST إنشاء طلبات ولا حجز المخزون ولا تعديل المنتج، ولا يطابق schema كاملة لكل رد. ويمكنه استقبال304 في المنتجات، لذلك لا نقارنه بسيناريو يجبر كل الطلبات على حمل جسم كامل من دون ذكر الفرق.</div>
+<h3>الملفات الرابع إلى السابع: أربع واجهات صغيرة لمنطق واحد</h3><div class="filehead"><span class="kind">إضافة ملف سيناريو</span><h3>الملف 4: products-list.js</h3><a href="perf/k6/products-list.js">perf/k6/products-list.js</a></div><details class="source diff"><summary>إضافة perf/k6/products-list.js<span class="changes" dir="ltr">+3 / −0</span><span class="filepath" dir="ltr">perf/k6/products-list.js</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-5"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ import { options, request } from &#39;./common.js&#39;;</span>
+<span class="add">+ export { options };</span>
+<span class="add">+ export default function () { request(&#39;products-list&#39;); }</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. المصدر كامل؛ طول الملف الصغير مقصود لأن الحمل والمقاييس مشتركة.</p></details><p>يستورد options وrequest فقط، ويعيد تصدير options ثم ينفذ request باسم العملية. لا يحتاج setup تسجيل دخول لهذه القراءة العامة.</p><div class="filehead"><span class="kind">إضافة ملف سيناريو</span><h3>الملف 5: product-detail.js</h3><a href="perf/k6/product-detail.js">perf/k6/product-detail.js</a></div><details class="source diff"><summary>إضافة perf/k6/product-detail.js<span class="changes" dir="ltr">+3 / −0</span><span class="filepath" dir="ltr">perf/k6/product-detail.js</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-6"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ import { options, request } from &#39;./common.js&#39;;</span>
+<span class="add">+ export { options };</span>
+<span class="add">+ export default function () { request(&#39;product-detail&#39;); }</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. المصدر كامل؛ طول الملف الصغير مقصود لأن الحمل والمقاييس مشتركة.</p></details><p>يستورد options وrequest فقط، ويعيد تصدير options ثم ينفذ request باسم العملية. لا يحتاج setup تسجيل دخول لهذه القراءة العامة.</p><div class="filehead"><span class="kind">إضافة ملف سيناريو</span><h3>الملف 6: customer-orders.js</h3><a href="perf/k6/customer-orders.js">perf/k6/customer-orders.js</a></div><details class="source diff"><summary>إضافة perf/k6/customer-orders.js<span class="changes" dir="ltr">+3 / −0</span><span class="filepath" dir="ltr">perf/k6/customer-orders.js</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-7"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ import { options, setup, request } from &#39;./common.js&#39;;</span>
+<span class="add">+ export { options, setup };</span>
+<span class="add">+ export default function (auth) { request(&#39;customer-orders&#39;, auth); }</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. المصدر كامل؛ طول الملف الصغير مقصود لأن الحمل والمقاييس مشتركة.</p></details><p>يستورد options وsetup وrequest، ويعيد تصدير أول اثنتين لتتعرف عليهما k6، ثم يأخذ auth في default ويمررها إلى request. هذا الربط هو الذي يرسل Bearer token للقراءة الخاصة.</p><div class="filehead"><span class="kind">إضافة ملف سيناريو</span><h3>الملف 7: dashboard.js</h3><a href="perf/k6/dashboard.js">perf/k6/dashboard.js</a></div><details class="source diff"><summary>إضافة perf/k6/dashboard.js<span class="changes" dir="ltr">+3 / −0</span><span class="filepath" dir="ltr">perf/k6/dashboard.js</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-8"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ import { options, setup, request } from &#39;./common.js&#39;;</span>
+<span class="add">+ export { options, setup };</span>
+<span class="add">+ export default function (auth) { request(&#39;dashboard&#39;, auth); }</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. المصدر كامل؛ طول الملف الصغير مقصود لأن الحمل والمقاييس مشتركة.</p></details><p>يستورد options وsetup وrequest، ويعيد تصدير أول اثنتين لتتعرف عليهما k6، ثم يأخذ auth في default ويمررها إلى request. هذا الربط هو الذي يرسل Bearer token للقراءة الخاصة.</p>
+<div class="say"><b>ما أقوله للأستاذ:</b> «كتبت ملفًا مشتركًا للحمل والمقاييس والمصادقة والوسوم، ثم أربعة ملفات صغيرة لاختيار العملية. ثبّت شكل الحمل والبذرة، وفصلت زمن endpoint عن الدخول ووقت التفكير. والتحقق العام يراجع الحالة؛ صحة المحتوى والتحديث لها اختبارات مكملة.»</div><div class="checkpoint"><b>قبل الانتقال:</b> افتح ملف orders واشرح لماذا يصدر setup، ثم افتح common واشرح لماذا لا يدخل login في endpoint_duration رغم ظهوره ضمن http_reqs.</div>
+</article></section>
+<section id="runner" data-search><header><span class="section-number">03</span><div><h2>ثالثًا: نكرر التشغيل ونحفظ ما يمكن مراجعته</h2><p>ملف السيناريو يعرّف الطلب؛ المشغّل يحدد المرحلة والتكرارات ومكان الدليل.</p></div></header><article class="card">
+<div class="filehead"><span class="kind">إضافة أداة تشغيل — نعرض الجزء المعني فقط</span><h3>الملف الثامن: requirement3.py، فرع load</h3><a href="perf/requirement3.py">perf/requirement3.py</a></div><details class="source diff" open><summary>إضافة perf/requirement3.py<span class="changes" dir="ltr">+22 / −0</span><span class="filepath" dir="ltr">perf/requirement3.py</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-9"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+     elif command == &#39;load&#39;:</span>
+<span class="add">+         stage=sys.argv[2]</span>
+<span class="add">+         stages=[&#39;baseline&#39;,&#39;after-indexes&#39;,&#39;after-dashboard&#39;,&#39;after-redis&#39;,&#39;after-pagination&#39;,&#39;after-product-cache&#39;,&#39;after-etag&#39;,&#39;after-refactor&#39;]</span>
+<span class="add">+         scenarios=sys.argv[3:] or [&#39;products-list&#39;,&#39;product-detail&#39;,&#39;customer-orders&#39;,&#39;dashboard&#39;]</span>
+<span class="add">+         folder=&#39;baseline&#39; if stage==&#39;baseline&#39; else &#39;results/&#39;+stage</span>
+<span class="add">+         (OUT/folder).mkdir(parents=True,exist_ok=True)</span>
+<span class="add">+         save(folder+&#39;/dataset-counts.txt&#39;,counts())</span>
+<span class="add">+         for scenario in scenarios:</span>
+<span class="add">+             index=[&#39;products-list&#39;,&#39;product-detail&#39;,&#39;customer-orders&#39;,&#39;dashboard&#39;].index(scenario)</span>
+<span class="add">+             for run in range(1,4):</span>
+<span class="add">+                 run_id=stages.index(stage)*12+index*3+run</span>
+<span class="add">+                 output=f&#39;/evidence/{folder}/k6-{scenario}-{run}.json&#39;</span>
+<span class="add">+                 r=docker(&#39;run&#39;,&#39;--rm&#39;,&#39;--network&#39;,&#39;internet-applications_ecommerce-network&#39;,&#39;--user&#39;,&#39;0&#39;,</span>
+<span class="add">+                     &#39;-v&#39;,LINUX_ROOT+&#39;/perf/k6:/scripts:ro&#39;,&#39;-v&#39;,LINUX_ROOT+&#39;/docs/performance:/evidence&#39;,</span>
+<span class="add">+                     &#39;-e&#39;,f&#39;RUN_ID={run_id}&#39;,&#39;grafana/k6:latest&#39;,&#39;run&#39;,&#39;--no-thresholds&#39;,&#39;--summary-export&#39;,output,</span>
+<span class="add">+                     &#39;/scripts/&#39;+scenario+&#39;.js&#39;,check=False)</span>
+<span class="add">+                 save(folder+f&#39;/k6-{scenario}-{run}.log&#39;,r.stdout+r.stderr+f&#39;\nExit code: {r.returncode}\n&#39;)</span>
+<span class="add">+                 print(stage,scenario,run,&#39;exit&#39;,r.returncode,flush=True)</span>
+<span class="add">+                 if r.returncode:</span>
+<span class="add">+                     print((r.stdout+r.stderr)[-2500:]);sys.exit(r.returncode)</span>
+<span class="add">+         print(&#39;Load stage complete&#39;,stage,flush=True)</span>
+<span class="add">+         subprocess.run([sys.executable,__file__,&#39;summary&#39;],check=True)</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. الملف لم يكن في المرجع القديم. المعروض فرع الحمل من الأداة الكبيرة، وليس فرق جميع أوامرها.</p></details>
+<h3>أ ـ وظائف مساعدة قبل فرع الحمل</h3><details class="source"><summary>docker وcompose وحفظ الأدلة<span class="filepath" dir="ltr">perf/requirement3.py · L16–38</span></summary><div class="codebox" data-snapshot="evidence-10"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>def docker(*args, input=None, check=True):
+    raw = subprocess.run([&#39;wsl.exe&#39;, &#39;-d&#39;, &#39;Ubuntu&#39;, &#39;--&#39;, &#39;docker&#39;, *args],
+                         input=input.encode(&#39;utf-8&#39;) if input is not None else None, capture_output=True)
+    result = subprocess.CompletedProcess(raw.args, raw.returncode,
+        raw.stdout.decode(&#39;utf-8&#39;, errors=&#39;replace&#39;), raw.stderr.decode(&#39;utf-8&#39;, errors=&#39;replace&#39;))
+    if check and result.returncode:
+        raise RuntimeError(f&#39;Docker {args[0]} exited {result.returncode}: &#39;+result.stdout + result.stderr)
+    return result
+
+def compose(*args, **kwargs):
+    return docker(&#39;compose&#39;, &#39;--project-directory&#39;, LINUX_ROOT, *args, **kwargs)
+
+def redact(text):
+    for secret in (ROOT/&#39;secrets&#39;).glob(&#39;*password*.txt&#39;):
+        value=secret.read_text(encoding=&#39;utf-8&#39;).strip()
+        if len(value)&gt;4: text=text.replace(value, &#39;[REDACTED TEST SECRET]&#39;)
+    return text
+
+def save(path, text):
+    path = OUT / path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(redact(text), encoding=&#39;utf-8&#39;)</code></pre></div></details>
+<p>docker تستدعي Docker عبر Ubuntu WSL بواسطة subprocess، وتجمع stdout وstderr وتفكهما UTF-8. إذا كان check مفعلًا وفشل الأمر ترفع خطأ. compose تضيف مجلد المشروع لمسار التشغيل. save تنشئ المجلد وتكتب النص بعد redact الذي يستبدل قيم ملفات كلمات المرور المعروفة بنص محجوب. هذه سياسة محلية لحفظ الأدلة وليست ضمانًا عامًا لاكتشاف كل سر محتمل في أي نص.</p>
+<p>OUT يشير إلى مجلد docs/performance، وLINUX_ROOT إلى مسار المشروع داخل WSL. هذا يجعل الأداة مرتبطة ببيئة المشروع الحالية. في فرع load تستدعي counts قبل التشغيل فتسجل عدد صفوف الجداول؛ الأداة المساعدة php تقرأ primary عند MySQL لتوثيق الأعداد، بينما الطلبات المقاسة تسير عبر API وسياسة replica الخاصة بها.</p>
+<h3>ب ـ شرح load سطرًا بعد سطر</h3><div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>التفسير بالتفصيل</th></tr></thead><tbody><tr><td><code>stage = sys.argv[2]</code></td><td>اسم المرحلة يأتي من الوسيطة، مثل baseline أوafter-indexes. كتابة اسمbaseline لا تعيد البرنامج القديم تلقائيًا؛ المشغل يقيس التطبيق الذي يعمل أمامه.</td></tr><tr><td><code>stages = [...]</code></td><td>ترتيب مراحل التحسين التاريخية يستخدم أيضًا لحسابRUN_ID. الأداة ليست مشغلًا يقبل أي اسم مرحلة بلا قيد، لأن stages.index يحتاج اسمًا موجودًا في القائمة.</td></tr><tr><td><code>scenarios = argv[3:] أو العمليات الأربع</code></td><td>يمكن اختيار عملية أو أكثر، أو تشغيل الأربع افتراضيًا. لهذا قد لا توجد قياسات لكل عملية في كل خطوة تاريخية.</td></tr><tr><td><code>folder = baseline أوresults/stage</code></td><td>تحدد أسماء المجلدات أين تذهب الأدلة. تشغيل نفس المرحلة مرة أخرى قد يكتب فوق الأسماء نفسها؛ الاحتفاظ بالأدلة القديمة مهم قبل إعادة الاستخدام.</td></tr><tr><td><code>save(dataset-counts.txt, counts())</code></td><td>يسجل سياق عدد الصفوف قبل حمل المرحلة. وجود الملف لا يعني أن كل هذه الصفوف قُرئت في كل طلب.</td></tr><tr><td><code>for scenario ثمfor run in range(1,4)</code></td><td>يقيس العمليات بالتتابع، ولكل عملية ثلاث تشغيلات كاملة. ليست أربع عمليات متزامنة داخل نفس تشغيلk6.</td></tr><tr><td><code>run_id = stage_index*12 + scenario_index*3 + run</code></td><td>يميز المجموعات بطريقة حتمية، ويرسل القيمة إلى البيئة التي تستعملها headers في common.js.</td></tr><tr><td><code>/scripts:ro و/evidence</code></td><td>نركب سيناريوهات المشروع للقراءة فقط داخل حاويةk6، ونركب مجلد الأدلة لكتابة النتائج في المشروع. تشغيل الحاوية لا يعني نسخ backend إلى نسخةقديمة.</td></tr><tr><td><code>grafana/k6:latest run --no-thresholds</code></td><td>يستخدم الصورة المحلية المسماةlatest. لذلك نسجل الإصدار الفعلي ولا نكتفي باسم الوسم المتغير. --no-thresholds تعطل تقييم العتبات أثناء التشغيل.</td></tr><tr><td><code>--summary-export ثم ملف السيناريو</code></td><td>تخرج مقاييس مجمعة إلى JSON، ويمرر المشغّل أحد الملفات الأربعة بامتداد.js. هذا مختلف عن --out csv الذي يسجل نقاط مقاييس مفصلة.</td></tr><tr><td><code>stdout + stderr + Exit code → .log</code></td><td>يحفظ خرج الطرفية مع كود خروج الأمر. هذا يساعد في كشف setup فاشل أو خطأ تشغيل بدل الاكتفاء بجدول منسوخ.</td></tr><tr><td><code>if returncode → sys.exit</code></td><td>فشل عملية التشغيل يوقف التسلسل. لكن مع --no-thresholds قد تنتهي عملية k6 بنجاح رغم check فاشلة؛ لهذا يجب مراجعة المقاييس أيضًا.</td></tr><tr><td><code>subprocess.run(... summary, check=True)</code></td><td>بعد اكتمال الحمل يستدعي الأداة نفسها بفرع summary لتجميع القياسات المحفوظة.</td></tr></tbody></table></div>
+<h3>ج ـ كيف جُمعت المقاييس التاريخية؟</h3><details class="source"><summary>فرعsummary: وسيط ثلاث تشغيلات وكتابة التقرير<span class="filepath" dir="ltr">perf/requirement3.py · L697–725</span></summary><div class="codebox" data-snapshot="evidence-11"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    elif command == &#39;summary&#39;:
+        stages=[&#39;baseline&#39;,&#39;after-indexes&#39;,&#39;after-dashboard&#39;,&#39;after-redis&#39;,&#39;after-pagination&#39;,&#39;after-product-cache&#39;,&#39;after-etag&#39;,&#39;after-refactor&#39;]
+        summaries={}
+        lines=[&#39;Medians of three runs. Endpoint latency excludes setup login; request rate includes all HTTP requests. Units are milliseconds, requests/second, percent errors and received bytes. `not measured` means that scenario was not rerun at that step.&#39;,&#39;&#39;]
+        for scenario in [&#39;products-list&#39;,&#39;product-detail&#39;,&#39;customer-orders&#39;,&#39;dashboard&#39;]:
+            summaries[scenario]={}
+            for stage in stages:
+                folder=OUT/(&#39;baseline&#39; if stage==&#39;baseline&#39; else &#39;results/&#39;+stage)
+                paths=[folder/f&#39;k6-{scenario}-{run}.json&#39; for run in range(1,4)]
+                if not all(p.exists() for p in paths): continue
+                metrics=[json.loads(p.read_text(encoding=&#39;utf-8&#39;))[&#39;metrics&#39;] for p in paths]
+                values={key:statistics.median(m[&#39;endpoint_duration&#39;][key] for m in metrics) for key in [&#39;p(50)&#39;,&#39;p(95)&#39;,&#39;p(99)&#39;]}
+                values.update({&#39;rps&#39;:statistics.median(m[&#39;http_reqs&#39;][&#39;rate&#39;] for m in metrics),
+                    &#39;error_percent&#39;:100*statistics.median(m[&#39;endpoint_errors&#39;][&#39;value&#39;] for m in metrics),
+                    &#39;received_bytes&#39;:statistics.median(m[&#39;data_received&#39;][&#39;count&#39;] for m in metrics),
+                    &#39;conditional_hits&#39;:statistics.median(m.get(&#39;conditional_hits&#39;,{}).get(&#39;count&#39;,0) for m in metrics)})
+                summaries[scenario][stage]=values
+            lines.extend([f&#39;**{scenario}**&#39;,&#39;&#39;, &#39;| Metric | &#39;+&#39; | &#39;.join(stages)+&#39; |&#39;,&#39;|---|&#39;+&#39;---|&#39;*len(stages)])
+            for key in [&#39;p(50)&#39;,&#39;p(95)&#39;,&#39;p(99)&#39;,&#39;rps&#39;,&#39;error_percent&#39;,&#39;received_bytes&#39;,&#39;conditional_hits&#39;]:
+                cells=[f&quot;{summaries[scenario][stage][key]:.3f}&quot; if stage in summaries[scenario] else &#39;not measured&#39; for stage in stages]
+                lines.append(&#39;| &#39;+key+&#39; | &#39;+&#39; | &#39;.join(cells)+&#39; |&#39;)
+            lines.append(&#39;&#39;)
+        save(&#39;results/summary.json&#39;,json.dumps(summaries,indent=2))
+        report=ROOT/&#39;REPORT.md&#39;
+        content=report.read_text(encoding=&#39;utf-8&#39;)
+        start=content.index(&#39;## Measurements\n&#39;)+len(&#39;## Measurements\n&#39;)
+        end=content.index(&#39;## EXPLAIN evidence&#39;,start)
+        report.write_text(content[:start]+&#39;\n&#39;+&#39;\n&#39;.join(lines)+&#39;\n&#39;+content[end:],encoding=&#39;utf-8&#39;)
+        print(json.dumps(summaries,indent=2))</code></pre></div></details>
+<p>يمر فرع summary على كل عملية وكل مرحلة، ويتأكد من وجود ملفات1 و2 و3. إذا غابت مجموعة كاملة يتجاوزها وتظهر لاحقًا not measured، ولا يستبدل الغياب بصفر. يقرأ metrics، ويحسب statistics.median لكل p50 وp95 وp99، ولـhttp_reqs.rate وendpoint_errors.value وdata_received.count وconditional_hits.count. ثم يكتب results/summary.json وجدولًا في REPORT.</p>
+<p>هنا error_percent التاريخية هي وسيط معدلات التشغيلات، وليست قسمة مجموع الأخطاء على مجموع الطلبات. وحقل received_bytes هنا وسيط مجموع البايتات في تشغيل، وليس بايتات لكل طلب. لهذا نقرأ أسماء ومنهج كل تقرير قبل نقل أرقامه. المقارنة الأحدث في before-after.json موثقة بشكل منفصل.</p>
+<div class="boundary">الأداة التاريخية تحتوي أيضًا أوامر seed وapply وstage لتعديل النظام. لا نحتاج تشغيلها لشرح النتائج أو لإعادة حمل على النسخة الحالية. اسم مرحلة baseline ليس بديلًا عن تشغيل نسخة قديمة مع بيئتها وبياناتها المنفصلة.</div>
+<div class="filehead"><span class="kind">إضافة مشغّل للعرض أمام الأستاذ</span><h3>الملف التاسع: interview_run.sh</h3><a href="perf/interview_run.sh">perf/interview_run.sh</a></div><details class="source diff"><summary>إضافة perf/interview_run.sh<span class="changes" dir="ltr">+41 / −0</span><span class="filepath" dir="ltr">perf/interview_run.sh</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-12"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ #!/usr/bin/env bash</span>
+<span class="add">+ # Read-only HTTP load against the current optimized app; never resets the database.</span>
+<span class="add">+ set -Eeuo pipefail</span>
+<span class="add">+ cd -- &quot;$(dirname -- &quot;${BASH_SOURCE[0]}&quot;)/..&quot;</span>
+<span class="add">+ scenario=&quot;${1:-dashboard}&quot;</span>
+<span class="add">+ case &quot;$scenario&quot; in</span>
+<span class="add">+   dashboard|products-list|product-detail|customer-orders) ;;</span>
+<span class="add">+   *) printf &#39;Use: bash perf/interview_run.sh [dashboard|products-list|product-detail|customer-orders]\n&#39; &gt;&amp;2; exit 1 ;;</span>
+<span class="add">+ esac</span>
+<span class="add">+ command -v python3 &gt;/dev/null</span>
+<span class="add">+ docker compose --profile performance up -d --no-build --wait loadtest-proxy</span>
+<span class="add">+ docker image inspect grafana/k6:latest &gt;/dev/null</span>
+<span class="add">+ docker network inspect internet-applications_ecommerce-network &gt;/dev/null</span>
+<span class="add">+ stamp=&quot;$(date +%Y%m%d-%H%M%S)-$$&quot;</span>
+<span class="add">+ folder=&quot;docs/performance/interview/$stamp/$scenario&quot;</span>
+<span class="add">+ mkdir -p -- &quot;$folder&quot;</span>
+<span class="add">+ docker run --rm grafana/k6:latest version | tee &quot;$folder/k6-version.txt&quot;</span>
+<span class="add">+ docker exec -i ecommerce-backend php &gt; &quot;$folder/dataset-counts.json&quot; &lt;&lt;&#39;PHP&#39;</span>
+<span class="add">+ &lt;?php</span>
+<span class="add">+ require &#39;/var/www/html/vendor/autoload.php&#39;;</span>
+<span class="add">+ $app = require &#39;/var/www/html/bootstrap/app.php&#39;;</span>
+<span class="add">+ $app-&gt;make(Illuminate\Contracts\Console\Kernel::class)-&gt;bootstrap();</span>
+<span class="add">+ $counts = [];</span>
+<span class="add">+ foreach ([&#39;users&#39;, &#39;products&#39;, &#39;orders&#39;, &#39;order_items&#39;] as $table) {</span>
+<span class="add">+     $counts[$table] = Illuminate\Support\Facades\DB::table($table)-&gt;count();</span>
+<span class="add">+ }</span>
+<span class="add">+ echo json_encode($counts, JSON_PRETTY_PRINT), PHP_EOL;</span>
+<span class="add">+ PHP</span>
+<span class="add">+ run_base=$(( $(date +%s) % 200 ))</span>
+<span class="add">+ for run in 1 2 3; do</span>
+<span class="add">+   printf &#39;\n=== LIVE CURRENT (AFTER): %s | run %s/3 ===\n&#39; &quot;$scenario&quot; &quot;$run&quot;</span>
+<span class="add">+   docker run --rm --network internet-applications_ecommerce-network --user 0 \</span>
+<span class="add">+     --volume &quot;$PWD/perf/k6:/scripts:ro&quot; \</span>
+<span class="add">+     --volume &quot;$PWD/$folder:/evidence&quot; \</span>
+<span class="add">+     --env &quot;RUN_ID=$(( run_base + run ))&quot; \</span>
+<span class="add">+     grafana/k6:latest run --no-thresholds \</span>
+<span class="add">+     --summary-export &quot;/evidence/k6-$scenario-$run.json&quot; \</span>
+<span class="add">+     &quot;/scripts/$scenario.js&quot; 2&gt;&amp;1 | tee &quot;$folder/k6-$scenario-$run.log&quot;</span>
+<span class="add">+ done</span>
+<span class="add">+ python3 perf/interview_compare.py --scenario &quot;$scenario&quot; --live-dir &quot;$folder&quot; | tee &quot;$folder/comparison.txt&quot;</span>
+<span class="add">+ printf &#39;\nSaved fresh evidence to: %s\n&#39; &quot;$folder&quot;</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. مشغّل نسخة حالية مع مجلد جديد لكل عرض؛ لا يعود إلى commit قديم.</p></details>
+<div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>التفسير بالتفصيل</th></tr></thead><tbody><tr><td><code>set -Eeuo pipefail</code></td><td>يجعل أخطاء الأوامر والمتغيرات غير المعرفة وأخطاء داخل pipeline ظاهرة. عند tee يجب ألا يخفي نجاح الكتابة فشل k6.</td></tr><tr><td><code>cd إلى جذر المشروع / case scenario</code></td><td>يضبط المسار، ويسمح بالعمليات الأربع فقط. القيمة الافتراضية dashboard، والاسم غير المقبول يعطي طريقة الاستخدام ويخرج.</td></tr><tr><td><code>فحص python3 ثم proxy وصورة k6 والشبكة</code></td><td>يتحقق من متطلبات بيئة WSL/Linux ويشغل خدمة التمرير ضمن performance دون بناء. لا يبني frontend. فحص وجود Python هو شرط لتشغيل أداة المقارنة لاحقًا.</td></tr><tr><td><code>stamp = date + PID</code></td><td>ينشئ مجلد interview بتاريخ ومعرف عملية، لتقليل خطر الكتابة فوق جلسة سابقة. هذا المجلد يمثل قياسًا AFTER حاليًا، لا baseline.</td></tr><tr><td><code>حفظ k6-version وdataset-counts</code></td><td>يسجل الإصدار وأعداد الجداول للمناقشة. تعداد الجداول في هذا السكربت من داخل Laravel لا يحتوي نصًا على فرض primary مثل php المساعدة التاريخية؛ لذلك نقرأ السياق الذي يعرضه كما هو.</td></tr><tr><td><code>for run in 1 2 3</code></td><td>يعيد السيناريو ثلاث مرات، ويحفظ JSON وlog لكل واحدة باستخدام summary-export وtee. يمرر --no-thresholds أيضًا فيكون فحص المقاييس ضروريًا.</td></tr><tr><td><code>interview_compare.py --live-dir</code></td><td>يمرر مجلد الجلسة إلى المقارن. هذا لا يشغّل baseline؛ يضيف عمود نسخة حالية إلى أرشيف قبل وبعد.</td></tr></tbody></table></div>
+<div class="filehead"><span class="kind">إضافة محلل نتائج للعرض</span><h3>الملف العاشر: interview_compare.py</h3><a href="perf/interview_compare.py">perf/interview_compare.py</a></div><details class="source diff"><summary>إضافة perf/interview_compare.py<span class="changes" dir="ltr">+71 / −0</span><span class="filepath" dir="ltr">perf/interview_compare.py</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-13"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ &quot;&quot;&quot;Compare archived three-run k6 evidence with an optional fresh interview run.&quot;&quot;&quot;</span>
+<span class="add">+ import argparse</span>
+<span class="add">+ import json</span>
+<span class="add">+ from pathlib import Path</span>
+<span class="add">+ from statistics import median</span>
+<span class="add">+ </span>
+<span class="add">+ ROOT = Path(__file__).resolve().parents[1]</span>
+<span class="add">+ SCENARIOS = (&#39;dashboard&#39;, &#39;products-list&#39;, &#39;product-detail&#39;, &#39;customer-orders&#39;)</span>
+<span class="add">+ LAST = {&#39;dashboard&#39;: &#39;after-refactor&#39;, &#39;products-list&#39;: &#39;after-refactor&#39;,</span>
+<span class="add">+         &#39;product-detail&#39;: &#39;after-etag&#39;, &#39;customer-orders&#39;: &#39;after-pagination&#39;}</span>
+<span class="add">+ </span>
+<span class="add">+ def measurements(folder, scenario):</span>
+<span class="add">+     paths = [folder / f&#39;k6-{scenario}-{run}.json&#39; for run in range(1, 4)]</span>
+<span class="add">+     records = []</span>
+<span class="add">+     for path in paths:</span>
+<span class="add">+         metrics = json.loads(path.read_text(encoding=&#39;utf-8-sig&#39;))[&#39;metrics&#39;]</span>
+<span class="add">+         duration = metrics[&#39;endpoint_duration&#39;]</span>
+<span class="add">+         records.append({key: float(duration[key]) for key in (&#39;p(50)&#39;, &#39;p(95)&#39;, &#39;p(99)&#39;)} | {</span>
+<span class="add">+             &#39;rps&#39;: float(metrics[&#39;http_reqs&#39;][&#39;rate&#39;]),</span>
+<span class="add">+             &#39;error_percent&#39;: 100 * float(metrics[&#39;endpoint_errors&#39;][&#39;value&#39;]),</span>
+<span class="add">+             &#39;received_bytes&#39;: float(metrics[&#39;data_received&#39;][&#39;count&#39;]),</span>
+<span class="add">+         })</span>
+<span class="add">+     return records</span>
+<span class="add">+ </span>
+<span class="add">+ def main():</span>
+<span class="add">+     parser = argparse.ArgumentParser(description=__doc__)</span>
+<span class="add">+     parser.add_argument(&#39;--scenario&#39;, choices=SCENARIOS, default=&#39;dashboard&#39;)</span>
+<span class="add">+     parser.add_argument(&#39;--live-dir&#39;, type=Path)</span>
+<span class="add">+     args = parser.parse_args()</span>
+<span class="add">+     evidence = ROOT / &#39;docs/performance&#39;</span>
+<span class="add">+     stages = [(&#39;ARCHIVED BEFORE&#39;, evidence / &#39;baseline&#39;),</span>
+<span class="add">+               (&#39;ARCHIVED AFTER&#39;, evidence / &#39;results&#39; / LAST[args.scenario])]</span>
+<span class="add">+     if args.live_dir:</span>
+<span class="add">+         stages.append((&#39;LIVE CURRENT (AFTER)&#39;, args.live_dir.resolve()))</span>
+<span class="add">+     print(f&#39;\nScenario: {args.scenario} | milliseconds | median of THREE run-level percentiles&#39;)</span>
+<span class="add">+     print(&#39;Historical after stage:&#39;, LAST[args.scenario])</span>
+<span class="add">+     print(&#39;Archived BEFORE is saved evidence, NOT a fresh run of the old application.\n&#39;)</span>
+<span class="add">+     aggregate = {}</span>
+<span class="add">+     invalid = False</span>
+<span class="add">+     for label, folder in stages:</span>
+<span class="add">+         values = measurements(folder, args.scenario)</span>
+<span class="add">+         print(label, &#39;\n  source:&#39;, folder)</span>
+<span class="add">+         print(&#39;  run    p50_ms    p95_ms    p99_ms    req/s   error%&#39;)</span>
+<span class="add">+         for index, row in enumerate(values, 1):</span>
+<span class="add">+             print(f&quot;  {index:&gt;3} {row[&#39;p(50)&#39;]:&gt;9.3f} {row[&#39;p(95)&#39;]:&gt;9.3f} {row[&#39;p(99)&#39;]:&gt;9.3f} {row[&#39;rps&#39;]:&gt;8.3f} {row[&#39;error_percent&#39;]:&gt;8.3f}&quot;)</span>
+<span class="add">+         summary = {key: median(row[key] for row in values) for key in values[0]}</span>
+<span class="add">+         aggregate[label] = summary</span>
+<span class="add">+         print(f&quot;  MED {summary[&#39;p(50)&#39;]:&gt;9.3f} {summary[&#39;p(95)&#39;]:&gt;9.3f} {summary[&#39;p(99)&#39;]:&gt;9.3f} {summary[&#39;rps&#39;]:&gt;8.3f} {summary[&#39;error_percent&#39;]:&gt;8.3f}&quot;)</span>
+<span class="add">+         print(f&quot;  median received bytes: {summary[&#39;received_bytes&#39;]:.0f}\n&quot;)</span>
+<span class="add">+         invalid |= any(row[&#39;error_percent&#39;] &gt; 0 for row in values)</span>
+<span class="add">+     if invalid:</span>
+<span class="add">+         print(&#39;INVALID COMPARISON: endpoint errors occurred. Diagnose errors before claiming improvement.&#39;)</span>
+<span class="add">+         return 2</span>
+<span class="add">+     previous = aggregate[&#39;ARCHIVED BEFORE&#39;][&#39;p(95)&#39;]</span>
+<span class="add">+     archived = aggregate[&#39;ARCHIVED AFTER&#39;][&#39;p(95)&#39;]</span>
+<span class="add">+     if previous:</span>
+<span class="add">+         print(f&#39;Historical p95 reduction: {(previous - archived) / previous * 100:.2f}% (derived from saved runs).&#39;)</span>
+<span class="add">+     if args.live_dir:</span>
+<span class="add">+         print(&#39;Live current timings are new observations; they need not equal historical AFTER.&#39;)</span>
+<span class="add">+         dataset_path = args.live_dir / &#39;dataset-counts.json&#39;</span>
+<span class="add">+         if dataset_path.exists():</span>
+<span class="add">+             dataset = json.loads(dataset_path.read_text())</span>
+<span class="add">+             expected = {&#39;users&#39;: 5004, &#39;products&#39;: 15, &#39;orders&#39;: 300004, &#39;order_items&#39;: 749372}</span>
+<span class="add">+             print(&#39;Current dataset:&#39;, dataset)</span>
+<span class="add">+             if dataset != expected:</span>
+<span class="add">+                 print(&#39;DATASET DIFFERENT from recorded baseline. Do not claim a controlled before/after comparison.&#39;)</span>
+<span class="add">+     print(&#39;This paced laptop workload is not a maximum-capacity test. No deployment threshold gate was used.&#39;)</span>
+<span class="add">+     return 0</span>
+<span class="add">+ </span>
+<span class="add">+ if __name__ == &#39;__main__&#39;:</span>
+<span class="add">+     raise SystemExit(main())</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. يقرأ JSON المحفوظة ويحسب المقارنة؛ ليس مولّد حمل.</p></details>
+<p><code>measurements()</code> تبني أسماء الملفات الثلاثة، ثم تقرأ endpoint_duration للمئينات وhttp_reqs.rate للمعدل وendpoint_errors.value للأخطاء وتضربه في100، وتقرأ إجمالي data_received. <code>LAST</code> تربط كل عملية بآخر مرحلة تاريخية اختيرت لها: after-refactor للقائمة والإحصاءات، وafter-etag للتفاصيل، وafter-pagination للطلبات. لا يشير ARCHIVED AFTER هنا تلقائيًا إلى مجلد10 نوفمبر.</p>
+<p>في main نعرض ARCHIVED BEFORE وARCHIVED AFTER، وإذا وصل live-dir نضيف LIVE CURRENT. نحسب وسيط كل عمود ونطبع صفوف التشغيلات. إن وجدت endpoint_errors في أي واحدة نطبع INVALID COMPARISON ونرجع2. هذا الحارس يراجع أخطاء الحالة المخصصة؛ لا يماثل فحصًا كاملًا للمحتوى ولكل سبب فشل.</p>
+<p>مع وجود p95 قديمة غير صفرية نحسب <code>(before − after) / before × 100</code>. ومع live-dir يقرأ عدادات البيانات إن وجدت ويحذر عند اختلافها. هذا الاختلاف مطبوع كتحذير، ولا يغيّر كود الخروج إلى فشل إلزامي. كذلك الأداة تصرح بأن الحمل ليس أقصى سعة، وأن baseline المعروضة ليست تشغيلًا جديدًا للنسخة القديمة.</p>
+<h3>هل استعملنا الأمرين baseline.csv وpost_edit.csv؟</h3><p>الأدلة التي تعرضها هذه الصفحة هي ملخصات JSON وسجلات log بأسماء السيناريوهات والتكرارات؛ لم نجد ضمن مجموعة المقارنة الموثقة ملفي baseline.csv وpost_edit.csv لتلك الأوامر. لا ننشئ CSV من الملخص ونسميها عينات خامًا. تشغيل النص نفسه مرتين على نفس التطبيق مع اسم إخراج مختلف لا ينتج مقارنة حقيقية قبل التحسين وبعده.</p>
+<div class="codebox"><div class="codebar"><span>صيغة المستخدم السابقة — أمثلة توضيحية، لا سجل تنفيذ هنا</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>k6 run --out csv=baseline.csv script.js
+k6 run --out csv=post_edit.csv script.js</code></pre><p class="code-note">script.js اسم عام في المثال، وليس ملف سيناريو موجودًا بهذا الاسم ضمن المشروع. الأسماء الفعلية موضحة أعلاه.</p></div>
+<p>CSV تسجل نقاط مقاييس مع وقت وقيمة واسم metric؛ السطر ليس دائمًا طلبًا واحدًا، لأن الطلب الواحد يولد عدة مقاييس. أما summary-export في المشغّل فيصدر ملخصًا مجمعًا. لا يمكن تحويل p95 واحدة إلى قائمة أزمنة الطلبات الأصلية. مرجع الصيغة: <a href="https://grafana.com/docs/k6/latest/results-output/real-time/csv/">توثيق CSV الرسمي</a>.</p>
+<div class="say"><b>ما أقوله للأستاذ:</b> «السيناريو لا يكفي وحده؛ المشغّل ينشئ ثلاثة قياسات ويحفظ JSON وlog وبيانات السياق. المشغّل الخاص بالمناقشة يقيس التطبيق الحالي ويستعمل baseline المؤرشفة، ولا يعيد النسخة القديمة. والعتبات هنا معلومات تقرير لأننا نمرر no-thresholds.»</div><div class="checkpoint"><b>قبل الانتقال:</b> تتبع ملف JSON من summary-export إلى أداة المقارنة. ثم قل أين تُحفظ baseline وأين تُحفظ جلسة عرض جديدة، ولماذا اسم CSV لا يثبت تغيير نسخة التطبيق.</div>
+</article></section>
+<section id="metrics" data-search><header><span class="section-number">04</span><div><h2>رابعًا: نفهم p50 وp95 وp99 والمعدل والأخطاء</h2><p>قبل نقل الجدول نعرف وحدة كل رقم، ومصدره، والطلبات الداخلة فيه.</p></div></header><article class="card">
+<div class="filehead"><span class="kind">ملف نتيجة ينشئه k6</span><h3>الملف الحادي عشر: نقرأ ملخص تشغيل واحد</h3><a href="docs/performance/current-20261110-094614/k6-dashboard-1.json">docs/performance/current-20261110-094614/k6-dashboard-1.json</a></div><details class="source"><summary>مثال خام كامل حتى نستطيع مراجعة المقاييس<span class="filepath" dir="ltr">docs/performance/current-20261110-094614/k6-dashboard-1.json · L1–117</span></summary><div class="codebox" data-snapshot="evidence-14"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>{
+    &quot;metrics&quot;: {
+        &quot;endpoint_errors&quot;: {
+            &quot;passes&quot;: 0,
+            &quot;fails&quot;: 125,
+            &quot;value&quot;: 0
+        },
+        &quot;http_reqs&quot;: {
+            &quot;count&quot;: 126,
+            &quot;rate&quot;: 4.031775196730139
+        },
+        &quot;http_req_waiting&quot;: {
+            &quot;p(50)&quot;: 26.3874225,
+            &quot;p(95)&quot;: 57.4690535,
+            &quot;p(99)&quot;: 122.18708724999999
+        },
+        &quot;http_req_connecting&quot;: {
+            &quot;p(50)&quot;: 0,
+            &quot;p(95)&quot;: 0,
+            &quot;p(99)&quot;: 0.5870235
+        },
+        &quot;data_received&quot;: {
+            &quot;count&quot;: 72934,
+            &quot;rate&quot;: 2333.7578745898095
+        },
+        &quot;http_req_duration&quot;: {
+            &quot;p(99)&quot;: 122.48221925,
+            &quot;p(50)&quot;: 26.561801000000003,
+            &quot;p(95)&quot;: 57.668901000000005
+        },
+        &quot;http_req_receiving&quot;: {
+            &quot;p(50)&quot;: 0.1752305,
+            &quot;p(95)&quot;: 0.2771575,
+            &quot;p(99)&quot;: 0.44240450000000003
+        },
+        &quot;endpoint_duration&quot;: {
+            &quot;p(50)&quot;: 26.429293,
+            &quot;p(95)&quot;: 56.080365599999986,
+            &quot;p(99)&quot;: 121.19980316
+        },
+        &quot;iterations&quot;: {
+            &quot;count&quot;: 125,
+            &quot;rate&quot;: 3.999776980883075
+        },
+        &quot;http_req_sending&quot;: {
+            &quot;p(50)&quot;: 0.0305135,
+            &quot;p(95)&quot;: 0.103936,
+            &quot;p(99)&quot;: 0.15729025
+        },
+        &quot;vus_max&quot;: {
+            &quot;min&quot;: 5,
+            &quot;max&quot;: 5,
+            &quot;value&quot;: 5
+        },
+        &quot;conditional_hits&quot;: {
+            &quot;count&quot;: 0,
+            &quot;rate&quot;: 0
+        },
+        &quot;data_sent&quot;: {
+            &quot;count&quot;: 63256,
+            &quot;rate&quot;: 2024.0791416219183
+        },
+        &quot;http_req_tls_handshaking&quot;: {
+            &quot;p(50)&quot;: 0,
+            &quot;p(95)&quot;: 0,
+            &quot;p(99)&quot;: 0
+        },
+        &quot;vus&quot;: {
+            &quot;value&quot;: 1,
+            &quot;min&quot;: 0,
+            &quot;max&quot;: 5
+        },
+        &quot;http_req_duration{expected_response:true}&quot;: {
+            &quot;p(50)&quot;: 26.561801000000003,
+            &quot;p(95)&quot;: 57.668901000000005,
+            &quot;p(99)&quot;: 122.48221925
+        },
+        &quot;http_req_failed&quot;: {
+            &quot;passes&quot;: 0,
+            &quot;fails&quot;: 126,
+            &quot;value&quot;: 0
+        },
+        &quot;iteration_duration&quot;: {
+            &quot;p(50)&quot;: 1027.537433,
+            &quot;p(95)&quot;: 1057.6736,
+            &quot;p(99)&quot;: 1122.44228896
+        },
+        &quot;checks&quot;: {
+            &quot;fails&quot;: 0,
+            &quot;passes&quot;: 125,
+            &quot;value&quot;: 1
+        },
+        &quot;http_req_blocked&quot;: {
+            &quot;p(50)&quot;: 0.008426,
+            &quot;p(95)&quot;: 0.06620875,
+            &quot;p(99)&quot;: 1.04912575
+        }
+    },
+    &quot;setup_data&quot;: {
+        &quot;token&quot;: &quot;eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9hZHRlc3QtcHJveHkvYXBpL2xvZ2luIiwiaWF0IjoxNzk0MzA0Mjk2LCJleHAiOjE3OTQzMDc4OTYsIm5iZiI6MTc5NDMwNDI5NiwianRpIjoiNEJCUlNnUDM2ZUpBcHBIcCIsInN1YiI6IjUiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6ImN1c3RvbWVyIn0.lhWMx3terpR-NcMsSNqqCO42ubNstRw_RKx1656uQt0&quot;
+    },
+    &quot;root_group&quot;: {
+        &quot;groups&quot;: {},
+        &quot;checks&quot;: {
+                &quot;HTTP 200 or valid revalidation&quot;: {
+                    &quot;name&quot;: &quot;HTTP 200 or valid revalidation&quot;,
+                    &quot;path&quot;: &quot;::HTTP 200 or valid revalidation&quot;,
+                    &quot;id&quot;: &quot;0f1c7cc184010e068f83c186b8cb26dc&quot;,
+                    &quot;passes&quot;: 125,
+                    &quot;fails&quot;: 0
+                }
+            },
+        &quot;name&quot;: &quot;&quot;,
+        &quot;path&quot;: &quot;&quot;,
+        &quot;id&quot;: &quot;d41d8cd98f00b204e9800998ecf8427e&quot;
+    }
+}</code></pre></div></details>
+<h3>أ ـ لماذا نعرض ثلاثة مئينات بدل متوسط واحد؟</h3><p>نتخيل100 طلب مرتب من الأسرع إلى الأبطأ. p50 تصف وسط التوزيع؛ p95 تصف حدًا تقع عنده أو تحته قرابة95% من القيم؛ p99 تركز على طرف أبطأ. هذا مثال للفهم، أما طريقة التقدير الفعلية للمئين فقد تتضمن استيفاء بين قيم العينة. ليست p95 متوسط أبطأ5%، ولا تعني تحسن95%، ولا تساوي أسوأ طلب.</p>
+<p>قد يكون معظم الطلبات سريعًا مع عدد قليل بطيء؛ المتوسط وحده لا يصف تجربة هؤلاء المستخدمين جيدًا. لذلك نقرأ الوسط والطرف معًا. ومع عدد طلبات صغير تكون p99 أكثر حساسية لعدد قليل من الملاحظات، فلا نحول فرقًا محدودًا إلى ضمان لجميع الظروف.</p>
+<div class="table-wrap"><table><thead><tr><th>الرقم في المصدر</th><th>ماذا يقيس؟</th><th>ما الذي لا يدخل فيه أو لا يثبته؟</th></tr></thead><tbody>
+<tr><td><code>endpoint_duration.p(50/95/99)</code></td><td>توزيع response.timings.duration لقراءات العملية، بالميلي ثانية.</td><td>لا يشمل setup login ولا sleep ولا زمن رسم الواجهة. زمن HTTP هذا يجمع الإرسال والانتظار والاستقبال، ولا يضم DNS والاتصال الأولي.</td></tr>
+<tr><td><code>http_req_duration</code></td><td>مقياس HTTP المدمج، وقد يشمل أيضًا طلب الدخول.</td><td>لا نخلطه بالمقياس المخصص للعملية عندما نقارن زمن قراءتها وحدها.</td></tr>
+<tr><td><code>http_reqs.count / rate</code></td><td>عدد كل طلبات HTTP ومعدلها المسجل في التشغيل.</td><td>يتضمن تسجيل الدخول في السيناريوهات الخاصة؛ ومعدل التشغيل لا يساوي أقصى سعة الخادم.</td></tr>
+<tr><td><code>endpoint_errors.value</code></td><td>نسبة الحالات غير200 وغير304 التي سجلها common.js.</td><td>ليست تحققًا كاملًا من صحة بيانات الجسم. true يضاف للخطأ؛ الصفر يعني عدم رصد تلك الأخطاء في العينة.</td></tr>
+<tr><td><code>http_req_failed.value</code></td><td>نسبة إخفاق HTTP حسب سياسة k6 للاستجابات المتوقعة.</td><td>مختلفة عن check مخصصة؛ قد نحتاج فحص المحتوى حتى مع حالة ناجحة.</td></tr>
+<tr><td><code>checks.passes / fails</code></td><td>عدد تحقق الحالات المقبولة أو المرفوضة في السيناريو.</td><td>اسمcheck لا يضيف شروطًا غير مكتوبة في دالتها.</td></tr>
+<tr><td><code>conditional_hits.count</code></td><td>عدد ردود304 المرصودة في قراءات العملية.</td><td>لا يعني أن الخادم تجاوز كل عمل قاعدة البيانات أو نداء المخزون.</td></tr>
+<tr><td><code>data_received.count</code></td><td>إجمالي البايتات المستقبلة في التشغيل.</td><td>ليس حجم JSON واحدة، وقد يتأثر بعدد الطلبات والترويسات و304 والمصادقة.</td></tr>
+<tr><td><code>iteration_duration</code></td><td>زمن دورة المستخدم الافتراضي بما فيها العمل وsleep.</td><td>ارتفاعها إلى نحو ثانية ليس دليلًا أن GET نفسها استغرقت ثانية.</td></tr>
+</tbody></table></div><p>تعريف مدة HTTP ومقاييسها: <a href="https://grafana.com/docs/k6/latest/using-k6/metrics/reference/">مرجع مقاييس k6 الرسمي</a>. وتعريف أنواع المقاييس المخصصة: <a href="https://grafana.com/docs/k6/latest/using-k6/metrics/">Metrics</a>.</p>
+<h3>ب ـ قراءة العينة الحالية خطوة خطوة</h3><p>في تشغيل dashboard الأول نجد endpoint p50=26.429ms وp95=56.080ms وp99=121.200ms. عدد HTTP هو126 بينما عددcheck الناجحة125: الفارق طلب الدخول المنفذ في setup. لا نحذفه من http_reqs، لكننا لا نضيف زمنه إلى Trend الخاصة بقراءة dashboard.</p>
+<p>في Rate مثل endpoint_errors، نقرأ value والنص المطبوع لنسبة الأخطاء؛ لا نفسر كل حقل اسمه fails في تمثيل Rate كما لو كان check فاشلة. بعض مخرجات Rate تعرض عدد قيم false وtrue في حقول passes/fails بحسب تمثيل التصدير. الدليل هنا value=0 ونص endpoint_errors:0 out of125، بينما checks.fails=0 يعبر عن فحوص check الفاشلة.</p>
+<details class="source"><summary>نص المقاييس في سجل التشغيل نفسه<span class="filepath" dir="ltr">docs/performance/current-20261110-094614/k6-dashboard-1.log · L11–26</span></summary><div class="codebox" data-snapshot="evidence-15"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    CUSTOM
+    conditional_hits...............: 0     0/s
+    endpoint_duration..............: p(50)=26.42ms p(95)=56.08ms p(99)=121.19ms
+    endpoint_errors................: 0.00% 0 out of 125
+
+    HTTP
+    http_req_duration..............: p(50)=26.56ms p(95)=57.66ms p(99)=122.48ms
+      { expected_response:true }...: p(50)=26.56ms p(95)=57.66ms p(99)=122.48ms
+    http_req_failed................: 0.00% 0 out of 126
+    http_reqs......................: 126   4.031775/s
+
+    EXECUTION
+    iteration_duration.............: p(50)=1.02s   p(95)=1.05s   p(99)=1.12s   
+    iterations.....................: 125   3.999777/s
+    vus............................: 1     min=0        max=5
+    vus_max........................: 5     min=5        max=5</code></pre></div></details>
+<h3>ج ـ checks ليست thresholds</h3><p>check تسجل true أوfalse وتتابع الاختبار. لا يكفي وجودcheck كي تصبح نتيجة عمليةk6 فشلًا عند إخفاقها. thresholds تجعل معايير المقاييس تؤثر على حكم التشغيل عندما تكون مفعلة؛ لكن المشغّل هنا يمرر--no-thresholds. لذلك نراجع قيم p95 والأخطاء منJSON، ونص informational targets يصف تحقق الأرقام المحفوظة لا بوابة نشر. <a href="https://grafana.com/docs/k6/latest/using-k6/checks/">مرجعchecks</a> و<a href="https://grafana.com/docs/k6/latest/using-k6/thresholds/">مرجعthresholds</a>.</p>
+<h3>د ـ كيف نلخص ثلاث تشغيلات دون خلط؟</h3><p>إذا كانت p95 في ثلاث تشغيلات10 و20 و100ms، فإن وسيط هذه القيم20ms. لا نأخذ المتوسط43.33ms، ولا نقول إن20 هي p95 لجميع الطلبات لو دمجناها. الجدول الحالي يستعمل وسيط p50 للتشغيلات، ووسيط p95 للتشغيلات، ووسيط p99 للتشغيلات مستقلًا؛ قد تأتي هذه القيم من تشغيلات مختلفة.</p>
+<p>لحساب نسبة أخطاء مجمعة من تشغيلات ذات أحجام مختلفة نحتاج مجموع أعداد الأخطاء على مجموع الطلبات ذات الصلة، لا متوسطًا عشوائيًا للنسب. الأدلة المعروضة هنا لا تسجل أخطاء في أي تشغيل من24، لذلك النتيجة صفر أيا كان هذا التجميع في هذه العينة. هذا لا يعفينا من فهم المقام عند وجود أخطاء مستقبلًا.</p>
+<div class="say"><b>ما أقوله للأستاذ:</b> «أقرأ زمن endpoint من Trend المخصصة كي أستبعد login وsleep. أقرأ معدل كل HTTP مع توضيح أنه يشمل login. ثم أراجع أخطاء HTTP وcheck وأخطاء endpoint كل واحدة بمعناها. وأعرض وسيط ثلاث قيم لكل مئين، لا أدعي أنه مئين موحد لكل الطلبات.»</div><div class="checkpoint"><b>قبل الانتقال:</b> فسر126 طلب HTTP مقابل125check، وفسر لماذا iteration_duration أكبر من endpoint_duration. ثم ميز p95 من متوسط أبطأ5% ومن نسبة التحسن.</div>
+</article></section>
+<section id="comparison" data-search><header><span class="section-number">05</span><div><h2>خامسًا: نعرض قبل وبعد بأرقام قابلة للمراجعة</h2><p>مصدر المقارنة جزء من الجواب، وليس ملاحظة نتركها بعد الجدول.</p></div></header><article class="card">
+<div class="filehead"><span class="kind">ملف مقارنة محفوظ</span><h3>الملف الثاني عشر: before-after.json</h3><a href="docs/performance/before-after.json">docs/performance/before-after.json</a></div><details class="source"><summary>بيانات المقارنة ثم الأرقام المجمعة<span class="filepath" dir="ltr">docs/performance/before-after.json · L2–109</span></summary><div class="codebox" data-snapshot="evidence-16"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    &quot;verified_at_utc&quot;:  &quot;2026-11-10T10:07:57.1512538Z&quot;,
+    &quot;before_source&quot;:  &quot;baseline&quot;,
+    &quot;after_source&quot;:  &quot;current-20261110-094614&quot;,
+    &quot;baseline_rerun&quot;:  false,
+    &quot;k6_version&quot;:  &quot;k6 v2.3.0 (commit/e088784614, go1.27.1, linux/amd64)&quot;,
+    &quot;dataset_counts&quot;:  {
+                           &quot;users&quot;:  5004,
+                           &quot;products&quot;:  15,
+                           &quot;orders&quot;:  300004,
+                           &quot;order_items&quot;:  749372
+                       },
+    &quot;matching_recorded_row_counts&quot;:  true,
+    &quot;current_row_counts_unchanged&quot;:  true,
+    &quot;summary_files&quot;:  24,
+    &quot;console_logs&quot;:  24,
+    &quot;comparison&quot;:  [
+                       {
+                           &quot;operation&quot;:  &quot;products-list&quot;,
+                           &quot;before&quot;:  {
+                                          &quot;median_p50_ms&quot;:  32.477309,
+                                          &quot;median_p95_ms&quot;:  101.05792189999997,
+                                          &quot;median_p99_ms&quot;:  513.2272886099969,
+                                          &quot;median_http_rps&quot;:  3.9551885852856983,
+                                          &quot;total_http_requests&quot;:  355,
+                                          &quot;successful_checks&quot;:  355
+                                      },
+                           &quot;after&quot;:  {
+                                         &quot;median_p50_ms&quot;:  27.747955,
+                                         &quot;median_p95_ms&quot;:  53.35332435,
+                                         &quot;median_p99_ms&quot;:  117.87081824000028,
+                                         &quot;median_http_rps&quot;:  4.041478034631965,
+                                         &quot;total_http_requests&quot;:  374,
+                                         &quot;successful_checks&quot;:  374
+                                     }
+                       },
+                       {
+                           &quot;operation&quot;:  &quot;product-detail&quot;,
+                           &quot;before&quot;:  {
+                                          &quot;median_p50_ms&quot;:  44.681736,
+                                          &quot;median_p95_ms&quot;:  173.6071331,
+                                          &quot;median_p99_ms&quot;:  307.16249896999994,
+                                          &quot;median_http_rps&quot;:  3.913804859576222,
+                                          &quot;total_http_requests&quot;:  357,
+                                          &quot;successful_checks&quot;:  357
+                                      },
+                           &quot;after&quot;:  {
+                                         &quot;median_p50_ms&quot;:  27.757679,
+                                         &quot;median_p95_ms&quot;:  39.389655,
+                                         &quot;median_p99_ms&quot;:  67.83379184000005,
+                                         &quot;median_http_rps&quot;:  4.03268008305587,
+                                         &quot;total_http_requests&quot;:  375,
+                                         &quot;successful_checks&quot;:  375
+                                     }
+                       },
+                       {
+                           &quot;operation&quot;:  &quot;customer-orders&quot;,
+                           &quot;before&quot;:  {
+                                          &quot;median_p50_ms&quot;:  53.096439000000004,
+                                          &quot;median_p95_ms&quot;:  105.15698135,
+                                          &quot;median_p99_ms&quot;:  142.56240545000003,
+                                          &quot;median_http_rps&quot;:  3.8893502825843416,
+                                          &quot;total_http_requests&quot;:  363,
+                                          &quot;successful_checks&quot;:  360
+                                      },
+                           &quot;after&quot;:  {
+                                         &quot;median_p50_ms&quot;:  46.980755,
+                                         &quot;median_p95_ms&quot;:  81.91825244999998,
+                                         &quot;median_p99_ms&quot;:  148.35753054000006,
+                                         &quot;median_http_rps&quot;:  3.90379230968014,
+                                         &quot;total_http_requests&quot;:  363,
+                                         &quot;successful_checks&quot;:  360
+                                     }
+                       },
+                       {
+                           &quot;operation&quot;:  &quot;dashboard&quot;,
+                           &quot;before&quot;:  {
+                                          &quot;median_p50_ms&quot;:  43.59642,
+                                          &quot;median_p95_ms&quot;:  152.88963815,
+                                          &quot;median_p99_ms&quot;:  187.1903760100001,
+                                          &quot;median_http_rps&quot;:  3.8782448510037115,
+                                          &quot;total_http_requests&quot;:  363,
+                                          &quot;successful_checks&quot;:  360
+                                      },
+                           &quot;after&quot;:  {
+                                         &quot;median_p50_ms&quot;:  24.430824,
+                                         &quot;median_p95_ms&quot;:  45.1780202,
+                                         &quot;median_p99_ms&quot;:  53.462478160000025,
+                                         &quot;median_http_rps&quot;:  4.0401861232455865,
+                                         &quot;total_http_requests&quot;:  378,
+                                         &quot;successful_checks&quot;:  375
+                                     }
+                       }
+                   ],
+    &quot;runs&quot;:  [
+                 {
+                     &quot;stage&quot;:  &quot;baseline&quot;,
+                     &quot;scenario&quot;:  &quot;products-list&quot;,
+                     &quot;run&quot;:  1,
+                     &quot;p50_ms&quot;:  32.295368,
+                     &quot;p95_ms&quot;:  89.006845,
+                     &quot;p99_ms&quot;:  143.4452847999999,
+                     &quot;http_requests&quot;:  121,
+                     &quot;http_rps&quot;:  3.995143373757139,
+                     &quot;successful_checks&quot;:  121,
+                     &quot;failed_checks&quot;:  0,
+                     &quot;endpoint_error_rate&quot;:  0,
+                     &quot;http_failure_rate&quot;:  0
+                 },</code></pre></div></details>
+<p>المصدرbefore هو <a href="docs/performance/baseline/">baseline</a>، والمصدرafter هو <a href="docs/performance/current-20261110-094614/">current-20261110-094614</a>. المتغيرbaseline_rerun=false يصرح أن النسخة القديمة لم تُشغّل مجددًا في جلسة المقارنة الحالية. baseline دليل تاريخي محفوظ، وبعد التحسين قياسات حالية موثقة في10 نوفمبر2026 بين09:46:15 و09:53:21UTC.</p>
+<p>نسخة المصدر المرجعيةb9514cb مفيدة لعرض تغييرات الملفات. أماbaseline التاريخية فحُفظت بعد إصلاح متطلبات تشغيل سابقة مثل عقدgRPC حتى نستطيع قياس طلبات سليمة قبل تحسين الأداء؛ ليست ادعاءً بأنcommit مجردة بلا تلك الإصلاحات كانت تعمل بنفس الصورة. تفاصيل ذلك في <a href="perf/README.md">README للأداة</a> و<a href="docs/performance/baseline/dependency-repair.txt">سجل إصلاح متطلباتbaseline</a>، وأرشيف المصدر في <a href="docs/performance/baseline/baseline-source.zip">baseline-source.zip</a>.</p>
+<h3>1 ـ p50 وp95 وp99 قبل وبعد</h3><div class="table-wrap"><table><thead><tr><th>العملية</th><th>p50 قبل</th><th>p50 بعد</th><th>p95 قبل</th><th>p95 بعد</th><th>p99 قبل</th><th>p99 بعد</th></tr></thead><tbody><tr><td>products-list</td><td>32.477</td><td>27.748</td><td>101.058</td><td>53.353</td><td>513.227</td><td>117.871</td></tr><tr><td>product-detail</td><td>44.682</td><td>27.758</td><td>173.607</td><td>39.390</td><td>307.162</td><td>67.834</td></tr><tr><td>customer-orders</td><td>53.096</td><td>46.981</td><td>105.157</td><td>81.918</td><td>142.562</td><td>148.358</td></tr><tr><td>dashboard</td><td>43.596</td><td>24.431</td><td>152.890</td><td>45.178</td><td>187.190</td><td>53.462</td></tr></tbody></table></div><p class="small">جميع الأزمنةms. كل خلية وسيط القيمة المناظرة عبر ثلاث تشغيلات. هي مشاهداتAPI كاملة تتأثر بالكاش وreplica وETag وغيرها، وليست قياسSQL وحدها.</p>
+<h3>2 ـ رسمp95 لتسهيل شرح الفرق</h3><p class="small">البني:قبل، والأخضر:بعد. شريط أقصر يعني زمنًا أقل في هذا المؤشر، وليس عدد مستخدمين أكثر.</p><div class="metric-bars"><div class="metric-pair"><h4>products-list</h4><div class="barrow"><span>قبل</span><div class="track"><div class="bar" style="width:58.21%"></div></div><span dir="ltr">101.058 ms</span></div><div class="barrow"><span>بعد</span><div class="track"><div class="bar after" style="width:30.73%"></div></div><span dir="ltr">53.353 ms</span></div></div><div class="metric-pair"><h4>product-detail</h4><div class="barrow"><span>قبل</span><div class="track"><div class="bar" style="width:100.00%"></div></div><span dir="ltr">173.607 ms</span></div><div class="barrow"><span>بعد</span><div class="track"><div class="bar after" style="width:22.69%"></div></div><span dir="ltr">39.390 ms</span></div></div><div class="metric-pair"><h4>customer-orders</h4><div class="barrow"><span>قبل</span><div class="track"><div class="bar" style="width:60.57%"></div></div><span dir="ltr">105.157 ms</span></div><div class="barrow"><span>بعد</span><div class="track"><div class="bar after" style="width:47.19%"></div></div><span dir="ltr">81.918 ms</span></div></div><div class="metric-pair"><h4>dashboard</h4><div class="barrow"><span>قبل</span><div class="track"><div class="bar" style="width:88.07%"></div></div><span dir="ltr">152.890 ms</span></div><div class="barrow"><span>بعد</span><div class="track"><div class="bar after" style="width:26.02%"></div></div><span dir="ltr">45.178 ms</span></div></div></div>
+<h3>3 ـ هل تحسنت كل الأرقام؟</h3><p>لا. معظم الأزمنة في هذا الجدول انخفضت، لكن p99 لطلبات العميل ارتفعت من142.562 إلى148.358ms، رغم انخفاض p50 وp95. يجب ذكر هذا بصراحة: الاستنتاج أن جميع الطلبات صارت أسرع غير مدعوم، والطرف البطيء ما زال يستحق فحصًا في تجربة أكبر وأكثر ضبطًا.</p>
+<h3>4 ـ throughput وأعدادالطلبات والأخطاء</h3><div class="table-wrap"><table><thead><tr><th>العملية</th><th>HTTP req/s قبل</th><th>HTTP req/s بعد</th><th>مجموعHTTP قبل/بعد</th><th>check ناجحة قبل/بعد</th><th>الأخطاء والفحوص الفاشلة</th></tr></thead><tbody><tr><td>products-list</td><td>3.955</td><td>4.041</td><td>355 / 374</td><td>355 / 374</td><td>0 في التشغيلات المحفوظة</td></tr><tr><td>product-detail</td><td>3.914</td><td>4.033</td><td>357 / 375</td><td>357 / 375</td><td>0 في التشغيلات المحفوظة</td></tr><tr><td>customer-orders</td><td>3.889</td><td>3.904</td><td>363 / 363</td><td>360 / 360</td><td>0 في التشغيلات المحفوظة</td></tr><tr><td>dashboard</td><td>3.878</td><td>4.040</td><td>363 / 378</td><td>360 / 375</td><td>0 في التشغيلات المحفوظة</td></tr></tbody></table></div>
+<p>المجموع قبل: 1438 طلب HTTP و1432 تحقق endpoint ناجح. المجموع بعد: 1490 طلب HTTP و1484 تحقق ناجح. فارق6 طلبات في كل مجموعة هو setup login لعمليتين مصادقتين ×3 تشغيلات. الأرقام المجمعة للطلبات ليست مجموع معدلات req/s؛ كل عملية قِيست بالتتابع.</p>
+<p>في الحمل الحالي رُصد 37 رد304 للقائمة و192 للتفاصيل، ولم يرصد304 للطلبات أو dashboard. لذلك تحسن حجم النقل أو سرعة بعض القراءات قد يشمل إعادة التحقق؛ لا نصف سيناريو common بأنه إجبار لكل رد على إعادة جسم JSON كامل.</p>
+<h3>5 ـ ما الذي تحققنا منه عند كتابة هذه الصفحة؟</h3><p>أعدنا قراءة24 ملخص JSON وحساب وسيط المئينات والمعدل وأعداد HTTP وchecks، وطابقت الجدول. وطابقت SHA-256 لـ48 ملفًا:24 ملخصًا و24log مع قائمة file_inventory. وطابقت نسخة ملفات الحمل الحالية نسختها أثناء قياس10 نوفمبر. هذه فحوص على أدلة موجودة؛ لا يعني ذلك إعادة تشغيل k6 اليوم، وSHA تثبت ثبات الملف مقارنة بالبصمة المسجلة ولا تثبت وحدها كل ظروف إجراء التجربة.</p>
+<h3>6 ـ من كل صف إلى ملفاته الستة الخام</h3><div class="table-wrap run-files"><table><thead><tr><th>العملية</th><th>قبل:JSON</th><th>بعد:JSON</th><th>السجلات</th></tr></thead><tbody><tr><td>products-list</td><td><a href="docs/performance/baseline/k6-products-list-1.json">تشغيل1</a> · <a href="docs/performance/baseline/k6-products-list-2.json">تشغيل2</a> · <a href="docs/performance/baseline/k6-products-list-3.json">تشغيل3</a></td><td><a href="docs/performance/current-20261110-094614/k6-products-list-1.json">تشغيل1</a> · <a href="docs/performance/current-20261110-094614/k6-products-list-2.json">تشغيل2</a> · <a href="docs/performance/current-20261110-094614/k6-products-list-3.json">تشغيل3</a></td><td><a href="docs/performance/baseline/k6-products-list-1.log">log قبل1</a> · <a href="docs/performance/current-20261110-094614/k6-products-list-1.log">log بعد1</a></td></tr><tr><td>product-detail</td><td><a href="docs/performance/baseline/k6-product-detail-1.json">تشغيل1</a> · <a href="docs/performance/baseline/k6-product-detail-2.json">تشغيل2</a> · <a href="docs/performance/baseline/k6-product-detail-3.json">تشغيل3</a></td><td><a href="docs/performance/current-20261110-094614/k6-product-detail-1.json">تشغيل1</a> · <a href="docs/performance/current-20261110-094614/k6-product-detail-2.json">تشغيل2</a> · <a href="docs/performance/current-20261110-094614/k6-product-detail-3.json">تشغيل3</a></td><td><a href="docs/performance/baseline/k6-product-detail-1.log">log قبل1</a> · <a href="docs/performance/current-20261110-094614/k6-product-detail-1.log">log بعد1</a></td></tr><tr><td>customer-orders</td><td><a href="docs/performance/baseline/k6-customer-orders-1.json">تشغيل1</a> · <a href="docs/performance/baseline/k6-customer-orders-2.json">تشغيل2</a> · <a href="docs/performance/baseline/k6-customer-orders-3.json">تشغيل3</a></td><td><a href="docs/performance/current-20261110-094614/k6-customer-orders-1.json">تشغيل1</a> · <a href="docs/performance/current-20261110-094614/k6-customer-orders-2.json">تشغيل2</a> · <a href="docs/performance/current-20261110-094614/k6-customer-orders-3.json">تشغيل3</a></td><td><a href="docs/performance/baseline/k6-customer-orders-1.log">log قبل1</a> · <a href="docs/performance/current-20261110-094614/k6-customer-orders-1.log">log بعد1</a></td></tr><tr><td>dashboard</td><td><a href="docs/performance/baseline/k6-dashboard-1.json">تشغيل1</a> · <a href="docs/performance/baseline/k6-dashboard-2.json">تشغيل2</a> · <a href="docs/performance/baseline/k6-dashboard-3.json">تشغيل3</a></td><td><a href="docs/performance/current-20261110-094614/k6-dashboard-1.json">تشغيل1</a> · <a href="docs/performance/current-20261110-094614/k6-dashboard-2.json">تشغيل2</a> · <a href="docs/performance/current-20261110-094614/k6-dashboard-3.json">تشغيل3</a></td><td><a href="docs/performance/baseline/k6-dashboard-1.log">log قبل1</a> · <a href="docs/performance/current-20261110-094614/k6-dashboard-1.log">log بعد1</a></td></tr></tbody></table></div>
+<div class="boundary">حدود الاستنتاج: أعداد الصفوف وإصدار k6 متطابقة، لكن الجلسات زمنها مختلف وقد تختلف حالة الكاش وظروف المضيف. الحمل5VUs مع انتظار ثانية، وفي القائمة قد نقرأ صفحات فارغة. لهذا نعرض مقارنة تاريخية وحالية للـAPI، لا عزلًا سببيًا لأثر كل فهرس وكل ميدلوير، ولا ضمانًا للسعة القصوى.</div>
+<h3>7 ـ أين مقارنة gzip المختلفة؟</h3><div class="filehead"><span class="kind">سيناريو إضافي متخصص</span><h3>ملف مكمل: compression.js</h3><a href="perf/k6/compression.js">perf/k6/compression.js</a></div><details class="source"><summary>سيناريو أجسام gzip الكاملة<span class="filepath" dir="ltr">perf/k6/compression.js · L1–30</span></summary><div class="codebox" data-snapshot="evidence-17"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>import http from &#39;k6/http&#39;;
+import { check, sleep } from &#39;k6&#39;;
+import { Trend, Rate } from &#39;k6/metrics&#39;;
+
+// Identical requests before/after gzip; no conditional GETs hiding body transfer.
+export const options = {
+  scenarios: { fixed: { executor: &#39;ramping-vus&#39;, startVUs: 0,
+    stages: [{ duration: &#39;5s&#39;, target: 5 }, { duration: &#39;20s&#39;, target: 5 }, { duration: &#39;5s&#39;, target: 0 }],
+    gracefulRampDown: &#39;1s&#39;, gracefulStop: &#39;2s&#39; } },
+  summaryTrendStats: [&#39;p(50)&#39;, &#39;p(95)&#39;, &#39;p(99)&#39;],
+  thresholds: { endpoint_errors: [&#39;rate==0&#39;] },
+};
+const duration = new Trend(&#39;endpoint_duration&#39;, true);
+const errors = new Rate(&#39;endpoint_errors&#39;);
+export default function () {
+  const response = http.get((__ENV.BASE_URL || &#39;http://loadtest-proxy/api&#39;) + &#39;/products?per_page=15&#39;, {
+    headers: { Accept: &#39;application/json&#39;, &#39;Accept-Encoding&#39;: &#39;gzip&#39;,
+      &#39;X-Forwarded-For&#39;: `198.18.${__ENV.RUN_ID || 210}.${__VU}` },
+  });
+  let valid = false;
+  try {
+    const payload = response.json();
+    valid = response.status === 200 &amp;&amp; Array.isArray(payload.data) &amp;&amp; payload.data.length &gt; 0 &amp;&amp;
+      payload.data.length &lt;= 15 &amp;&amp; payload.data.every(product =&gt; typeof product.price === &#39;string&#39;);
+  } catch (_) { valid = false; }
+  duration.add(response.timings.duration);
+  errors.add(!valid);
+  check(response, { &#39;200 with valid decoded product JSON&#39;: () =&gt; valid });
+  sleep(1);
+}</code></pre></div></details>
+<p>هذا الملف يطلب gzip لقائمة per_page=15، ولا يرسل If-None-Match، حتى لا يلغي جسم الرد عن طريق304. يتحقق من JSON بعد الفك ومن data والحد15 ونوع price. نتائجه قبل gzip وبعده في <a href="docs/performance/focused-review/summary.json">focused-review/summary.json</a> ومعها wire. هذه تجربة أخرى على backend محسنة أصلًا؛ لا نخلط أرقامها مع baseline التاريخية في الجدول أعلاه. شرحها التفصيلي في <a href="req_4.html">دليل المتطلب الرابع</a>.</p>
+<div class="say"><b>ما أقوله للأستاذ:</b> «هذا جدول من24 تشغيلًا:12 تاريخية قبل و12 حالية بعد. قارنت المئينات والمعدل والأخطاء، وحفظت المصادر. انخفض p95 في الأربع، لكن p99 للطلبات لم تتحسن؛ سأذكر ذلك بدل التعميم. baseline لم تُعد في جلسة10 نوفمبر، والحمل خفيف ولا يثبت أقصى سعة.»</div><div class="checkpoint"><b>قبل الانتقال:</b> اختَر صف dashboard وتتبع p95 إلى ملفاته الثلاثة. ثم اذكر المؤشر الذي ارتفع في customer-orders، والفرق بين هذه المقارنة وتجربة gzip.</div>
+</article></section>
+<section id="edit" data-search><header><span class="section-number">06</span><div><h2>سادسًا: نثبت أن تعديل المنتج يظهر في القراءة التالية</h2><p>الأداء الجيد لا يكفي إذا صار المستخدم يرى سعرًا قديمًا. نعرض الآلية ثم اختبارها ثم الدليل الحي المحفوظ.</p></div></header><article class="card">
+<p>هنا نجيب عن البند الخامس الأصلي: اختبار ظهور تعديل المنتج مباشرة. السيناريوهات الأربعة العامة في k6 للقراءة، ولا يوجد فيهاPATCH ثمGET للتحقق من السعر. المشروع يثبت هذه النقطة باختبارFeature وفاحصHTTP منفصل. لذلك نقول: لدينا إثبات صحة التحديث بعد الكتابة، ولا ندعي أنه سيناريو تحرير ضمن حملk6 المتزامن.</p>
+<div class="filehead"><span class="kind">تعديل منطق التطبيق الذي نختبره</span><h3>الملف الثالث عشر: ProductService.php، الدالة update</h3><a href="backend/my-project/app/Services/ProductService.php">backend/my-project/app/Services/ProductService.php</a></div><details class="source diff" open><summary>تعديل الدالة update بين المرجع القديم والحالي<span class="changes" dir="ltr">+2 / −0</span><span class="filepath" dir="ltr">backend/my-project/app/Services/ProductService.php</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-18"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="same">      public function update(int $id, array $data): Product</span>
+<span class="same">      {</span>
+<span class="same">          $product = Product::findOrFail($id);</span>
+<span class="same">  </span>
+<span class="same">          if (isset($data[&#39;image&#39;]) &amp;&amp; $data[&#39;image&#39;] instanceof \Illuminate\Http\UploadedFile) {</span>
+<span class="same">              // Delete old image if exists</span>
+<span class="same">              if ($product-&gt;image) {</span>
+<span class="same">                  Storage::disk(&#39;public&#39;)-&gt;delete($product-&gt;image);</span>
+<span class="same">              }</span>
+<span class="same">              $data[&#39;image&#39;] = $data[&#39;image&#39;]-&gt;store(&#39;products&#39;, &#39;public&#39;);</span>
+<span class="same">          }</span>
+<span class="same">  </span>
+<span class="same">          $product-&gt;update($data);</span>
+<span class="add">+         $this-&gt;cache-&gt;forget($id);</span>
+<span class="add">+         DashboardCache::forgetAdmin();</span>
+<span class="same">  </span>
+<span class="same">          return $product-&gt;fresh(&#39;category&#39;);</span>
+<span class="same">      }</span></code></pre></div><p class="code-note">هذا فرق فعلي في منطق حفظ المنتج؛ الهدف هنا شرح السلوك الذي تثبته الاختبارات، لا مجرد اختبار سرعة طلب GET.</p></details>
+<details class="source"><summary>حقن ProductCache في الخدمة الحالية<span class="filepath" dir="ltr">backend/my-project/app/Services/ProductService.php · L10–10</span></summary><div class="codebox" data-snapshot="evidence-19"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>    public function __construct(private readonly ProductCache $cache) {}</code></pre></div></details>
+<p>الدالة تجد المنتج وتتعامل عند الحاجة مع رفع الصورة، ثم تنفذ update على البيانات. الإضافة المهمة لهذا المتطلب هي إبطال المفتاح باستعمال cache->forget بعد نجاح التعديل، وإبطال ملخص المسؤول المتأثر بالإدارة. ثم fresh('category') تعيد النموذج المحدث مع التصنيف. لا ننتظر انتهاء TTL كي يتوقف السعر القديم عن الظهور.</p>
+<p>نربط ذلك بمسار GET الحالي: السعر وحالة الإتاحة تؤخذان من النموذج المحمّل عند ربط المسار، والكاش يُستفاد منه في بيانات التصنيف، وstock تُقرأ حيًا. سياسة اختيار primary عند الحاجة للحداثة موضوع <a href="req_2.html">شرح read replica</a>؛ لا تكفي إزالة مفتاح Redis وحدها لجميع حالات lag. هذه الآليات تجعل الاختبار الموالي ذا معنى، ولا نستنتجها فقط من قيمة TTL.</p>
+<div class="filehead"><span class="kind">إضافة اختبار صحة للتحديث</span><h3>الملف الرابع عشر: PerformanceCachingTest.php</h3><a href="backend/my-project/tests/Feature/PerformanceCachingTest.php">backend/my-project/tests/Feature/PerformanceCachingTest.php</a></div><details class="source diff" open><summary>إضافة backend/my-project/tests/Feature/PerformanceCachingTest.php<span class="changes" dir="ltr">+23 / −0</span><span class="filepath" dir="ltr">backend/my-project/tests/Feature/PerformanceCachingTest.php</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-20"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+     public function test_product_cache_excludes_stock_and_invalidates_after_writes(): void</span>
+<span class="add">+     {</span>
+<span class="add">+         $category = \App\Models\Category::create([&#39;name&#39; =&gt; &#39;Cache category&#39;]);</span>
+<span class="add">+         $product = \App\Models\Product::create([&#39;name&#39; =&gt; &#39;Cache product&#39;, &#39;price&#39; =&gt; &#39;10.00&#39;,</span>
+<span class="add">+             &#39;category_id&#39; =&gt; $category-&gt;id, &#39;is_active&#39; =&gt; true]);</span>
+<span class="add">+         $cache = app(\App\Services\ProductCache::class);</span>
+<span class="add">+         $product-&gt;load(&#39;category&#39;)-&gt;setAttribute(&#39;stock&#39;, 99);</span>
+<span class="add">+         $cache-&gt;put($product);</span>
+<span class="add">+         $this-&gt;assertArrayNotHasKey(&#39;stock&#39;, $cache-&gt;get($product-&gt;id));</span>
+<span class="add">+         app(\App\Services\ProductService::class)-&gt;update($product-&gt;id, [&#39;price&#39; =&gt; &#39;12.34&#39;]);</span>
+<span class="add">+         $this-&gt;assertNull($cache-&gt;get($product-&gt;id));</span>
+<span class="add">+ </span>
+<span class="add">+         $inventory = \Mockery::mock(\App\Services\InventoryGrpcClient::class);</span>
+<span class="add">+         $inventory-&gt;shouldReceive(&#39;getStock&#39;)-&gt;twice()-&gt;with($product-&gt;id)-&gt;andReturn(6, 4);</span>
+<span class="add">+         $this-&gt;app-&gt;instance(\App\Services\InventoryGrpcClient::class, $inventory);</span>
+<span class="add">+         $this-&gt;getJson(&#39;/api/products/&#39;.$product-&gt;id)-&gt;assertOk()</span>
+<span class="add">+             -&gt;assertJsonPath(&#39;data.price&#39;, &#39;12.34&#39;)-&gt;assertJsonPath(&#39;data.stock&#39;, 6);</span>
+<span class="add">+         $this-&gt;getJson(&#39;/api/products/&#39;.$product-&gt;id)-&gt;assertOk()-&gt;assertJsonPath(&#39;data.stock&#39;, 4);</span>
+<span class="add">+         $this-&gt;assertArrayNotHasKey(&#39;stock&#39;, $cache-&gt;get($product-&gt;id));</span>
+<span class="add">+         app(\App\Services\ProductService::class)-&gt;delete($product-&gt;id);</span>
+<span class="add">+         $this-&gt;assertNull($cache-&gt;get($product-&gt;id));</span>
+<span class="add">+         $this-&gt;getJson(&#39;/api/products/&#39;.$product-&gt;id)-&gt;assertNotFound();</span>
+<span class="add">+     }</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. مقتطف اختبار واحد من ملف جديد في المرجع الحالي، وليس عرضًا لكل الملف.</p></details>
+<h3>أ ـ نجهز وضعًا يكتشف بقاء البيانات القديمة</h3><p>ينشئ الاختبار تصنيفًا ومنتجًا بسعر10.00. يحمّل التصنيف ويضيف stock=99 إلى النموذج قبل وضعه في ProductCache. ثم يؤكد أن stock لم تُخزن. هذا يختبر قائمة الحقول المسموح بكاشها، لأن إعادة استخدام مخزون قديم خطأ مستقل يخفي التغييرات.</p>
+<h3>ب ـ نكتب ثم نقرأ دون انتظار</h3><p>يستدعي ProductService.update بسعر12.34، ثم يؤكد أن cache.get أصبحت null. بعد ذلك يحقن محاكاة InventoryGrpcClient لتعيد6 ثم4 في نداءين. يطلب تفاصيل المنتج ويؤكد السعر12.34 وstock6، ثم يقرأ مرة أخرى فيجد stock4، ويؤكد أن الكاش ما زال لا يحتوي stock.</p>
+<p>في النهاية يحذف المنتج ويتحقق من إبطال الكاش و404 في القراءة اللاحقة. أهمية هذا الاختبار أنه يفشل عند بقاء مفتاح قديم اختباريًا، ويثبت قراءة السعر الجديد وعدم جمود المخزون. لكنه ضمن بيئة اختبارات مع gRPC محاكاة؛ ليس دليلًا لـRedis حقيقية وليس قياس زمن بالميلي ثانية.</p>
+<div class="filehead"><span class="kind">إضافة تحقق حي من API والكاش</span><h3>الملف الخامس عشر: checklist-cache.php</h3><a href="perf/checklist-cache.php">perf/checklist-cache.php</a></div><details class="source diff"><summary>إضافة perf/checklist-cache.php<span class="changes" dir="ltr">+106 / −0</span><span class="filepath" dir="ltr">perf/checklist-cache.php</span></summary><div class="diff-key"><span class="removed">− قديم / محذوف</span><span class="added">+ جديد / مضاف</span><span>سطر بلا علامة: موجود في النسختين</span></div><div class="codebox" data-snapshot="evidence-21"><div class="codebar"><span dir="ltr">b9514cb → d8023a7</span><button class="copy" type="button">نسخ الفرق</button></div><pre dir="ltr"><code><span class="add">+ &lt;?php</span>
+<span class="add">+ </span>
+<span class="add">+ // Run in the backend container. Only uniquely owned fixtures and cache keys change.</span>
+<span class="add">+ require &#39;/var/www/html/vendor/autoload.php&#39;;</span>
+<span class="add">+ $app = require &#39;/var/www/html/bootstrap/app.php&#39;;</span>
+<span class="add">+ $app-&gt;make(Illuminate\Contracts\Console\Kernel::class)-&gt;bootstrap();</span>
+<span class="add">+ Illuminate\Support\Facades\DB::connection()-&gt;useWriteConnectionWhenReading();</span>
+<span class="add">+ </span>
+<span class="add">+ function checklistHttp(string $method, string $path, ?string $token = null, ?array $body = null, array $headers = []): array</span>
+<span class="add">+ {</span>
+<span class="add">+     $headers = array_merge([&#39;Accept: application/json&#39;, &#39;Content-Type: application/json&#39;], $headers);</span>
+<span class="add">+     if ($token) {</span>
+<span class="add">+         $headers[] = &#39;Authorization: Bearer &#39;.$token;</span>
+<span class="add">+     }</span>
+<span class="add">+     $context = stream_context_create([&#39;http&#39; =&gt; [&#39;method&#39; =&gt; $method, &#39;header&#39; =&gt; implode(&quot;\r\n&quot;, $headers),</span>
+<span class="add">+         &#39;content&#39; =&gt; $body === null ? &#39;&#39; : json_encode($body), &#39;ignore_errors&#39; =&gt; true, &#39;timeout&#39; =&gt; 15]]);</span>
+<span class="add">+     $raw = file_get_contents(&#39;http://127.0.0.1:8000/api&#39;.$path, false, $context);</span>
+<span class="add">+     if ($raw === false) {</span>
+<span class="add">+         throw new RuntimeException(&#39;HTTP transport failed.&#39;);</span>
+<span class="add">+     }</span>
+<span class="add">+     preg_match(&#39;/\s(\d{3})\s/&#39;, $http_response_header[0], $status);</span>
+<span class="add">+     $responseHeaders = [];</span>
+<span class="add">+     foreach ($http_response_header as $header) {</span>
+<span class="add">+         if (str_contains($header, &#39;:&#39;)) {</span>
+<span class="add">+             [$name, $value] = explode(&#39;:&#39;, $header, 2);</span>
+<span class="add">+             $responseHeaders[strtolower($name)] = trim($value);</span>
+<span class="add">+         }</span>
+<span class="add">+     }</span>
+<span class="add">+     return [&#39;status&#39; =&gt; (int) $status[1], &#39;headers&#39; =&gt; $responseHeaders,</span>
+<span class="add">+         &#39;body_bytes&#39; =&gt; strlen($raw), &#39;body&#39; =&gt; $raw === &#39;&#39; ? null : json_decode($raw, true, flags: JSON_THROW_ON_ERROR)];</span>
+<span class="add">+ }</span>
+<span class="add">+ </span>
+<span class="add">+ function checklistRequire(bool $condition, string $message): void</span>
+<span class="add">+ {</span>
+<span class="add">+     if (! $condition) {</span>
+<span class="add">+         throw new RuntimeException($message);</span>
+<span class="add">+     }</span>
+<span class="add">+ }</span>
+<span class="add">+ </span>
+<span class="add">+ $cache = app(App\Services\ProductCache::class);</span>
+<span class="add">+ $store = Illuminate\Support\Facades\Cache::store(&#39;redis&#39;)-&gt;getStore();</span>
+<span class="add">+ $ownedName = &#39;Checklist cache &#39;.Illuminate\Support\Str::uuid();</span>
+<span class="add">+ $category = null;</span>
+<span class="add">+ $product = null;</span>
+<span class="add">+ $probe = &#39;checklist:expiry:&#39;.Illuminate\Support\Str::uuid();</span>
+<span class="add">+ $result = [&#39;scope&#39; =&gt; &#39;Live HTTP, real Redis, real gRPC stock reads, owned catalog fixtures&#39;];</span>
+<span class="add">+ try {</span>
+<span class="add">+     $admin = App\Models\User::where(&#39;role&#39;, &#39;admin&#39;)-&gt;firstOrFail();</span>
+<span class="add">+     $token = auth(&#39;api&#39;)-&gt;login($admin);</span>
+<span class="add">+     $category = App\Models\Category::create([&#39;name&#39; =&gt; $ownedName]);</span>
+<span class="add">+     $product = app(App\Services\ProductService::class)-&gt;create([&#39;name&#39; =&gt; $ownedName,</span>
+<span class="add">+         &#39;price&#39; =&gt; &#39;1.00&#39;, &#39;category_id&#39; =&gt; $category-&gt;id, &#39;is_active&#39; =&gt; true]);</span>
+<span class="add">+     $path = &#39;/products/&#39;.$product-&gt;id;</span>
+<span class="add">+     $first = checklistHttp(&#39;GET&#39;, $path);</span>
+<span class="add">+     checklistRequire($first[&#39;status&#39;] === 200, &#39;Initial product read failed.&#39;);</span>
+<span class="add">+     $snapshot = $cache-&gt;get($product-&gt;id);</span>
+<span class="add">+     checklistRequire(is_array($snapshot) &amp;&amp; ! array_key_exists(&#39;stock&#39;, $snapshot), &#39;Stock must not be cached.&#39;);</span>
+<span class="add">+     $key = &#39;product:&#39;.$product-&gt;id.&#39;:details&#39;;</span>
+<span class="add">+     $ttl = (int) $store-&gt;connection()-&gt;ttl($store-&gt;getPrefix().$key);</span>
+<span class="add">+     checklistRequire($ttl &gt; 0 &amp;&amp; $ttl &lt;= 300, &#39;Product TTL must be at most 300 seconds.&#39;);</span>
+<span class="add">+     $result[&#39;product_ttl_seconds&#39;] = $ttl;</span>
+<span class="add">+     $result[&#39;cached_stock&#39;] = false;</span>
+<span class="add">+     $result[&#39;initial_etag&#39;] = $first[&#39;headers&#39;][&#39;etag&#39;];</span>
+<span class="add">+ </span>
+<span class="add">+     $changed = checklistHttp(&#39;PUT&#39;, &#39;/categories/&#39;.$category-&gt;id, $token, [&#39;name&#39; =&gt; $ownedName.&#39; updated&#39;]);</span>
+<span class="add">+     checklistRequire($changed[&#39;status&#39;] === 200 &amp;&amp; $cache-&gt;get($product-&gt;id) === null, &#39;Category cache was not invalidated.&#39;);</span>
+<span class="add">+     $fresh = checklistHttp(&#39;GET&#39;, $path, headers: [&#39;If-None-Match: &#39;.$first[&#39;headers&#39;][&#39;etag&#39;]]);</span>
+<span class="add">+     checklistRequire($fresh[&#39;status&#39;] === 200 &amp;&amp; $fresh[&#39;body&#39;][&#39;data&#39;][&#39;category&#39;][&#39;name&#39;] === $ownedName.&#39; updated&#39;,</span>
+<span class="add">+         &#39;Category changes must return a new representation.&#39;);</span>
+<span class="add">+     $result[&#39;category_update&#39;] = [&#39;status&#39; =&gt; $fresh[&#39;status&#39;], &#39;etag_changed&#39; =&gt; $fresh[&#39;headers&#39;][&#39;etag&#39;] !== $first[&#39;headers&#39;][&#39;etag&#39;]];</span>
+<span class="add">+     $unchanged = checklistHttp(&#39;GET&#39;, $path, headers: [&#39;If-None-Match: &#39;.$fresh[&#39;headers&#39;][&#39;etag&#39;]]);</span>
+<span class="add">+     checklistRequire($unchanged[&#39;status&#39;] === 304 &amp;&amp; $unchanged[&#39;body_bytes&#39;] === 0, &#39;Unchanged content must return bodyless 304.&#39;);</span>
+<span class="add">+     $result[&#39;unchanged&#39;] = [&#39;status&#39; =&gt; $unchanged[&#39;status&#39;], &#39;body_bytes&#39; =&gt; $unchanged[&#39;body_bytes&#39;]];</span>
+<span class="add">+ </span>
+<span class="add">+     checklistRequire(checklistHttp(&#39;PATCH&#39;, $path, $token, [&#39;price&#39; =&gt; &#39;2.50&#39;])[&#39;status&#39;] === 200, &#39;Price update failed.&#39;);</span>
+<span class="add">+     checklistRequire($cache-&gt;get($product-&gt;id) === null, &#39;Product edit must delete the cache key.&#39;);</span>
+<span class="add">+     $price = checklistHttp(&#39;GET&#39;, $path, headers: [&#39;If-None-Match: &#39;.$fresh[&#39;headers&#39;][&#39;etag&#39;]]);</span>
+<span class="add">+     checklistRequire($price[&#39;status&#39;] === 200 &amp;&amp; $price[&#39;body&#39;][&#39;data&#39;][&#39;price&#39;] === &#39;2.50&#39;, &#39;Price must be immediately current.&#39;);</span>
+<span class="add">+     $result[&#39;price_update&#39;] = [&#39;status&#39; =&gt; $price[&#39;status&#39;], &#39;price&#39; =&gt; $price[&#39;body&#39;][&#39;data&#39;][&#39;price&#39;]];</span>
+<span class="add">+ </span>
+<span class="add">+     App\Services\DashboardCache::forgetAdmin();</span>
+<span class="add">+     checklistRequire(checklistHttp(&#39;GET&#39;, &#39;/dashboard&#39;, $token)[&#39;status&#39;] === 200, &#39;Dashboard read failed.&#39;);</span>
+<span class="add">+     $dashboardTtl = (int) $store-&gt;connection()-&gt;ttl($store-&gt;getPrefix().&#39;dashboard:admin&#39;);</span>
+<span class="add">+     checklistRequire($dashboardTtl &gt; 0 &amp;&amp; $dashboardTtl &lt;= 60, &#39;Dashboard TTL must be at most 60 seconds.&#39;);</span>
+<span class="add">+     $result[&#39;dashboard_ttl_seconds&#39;] = $dashboardTtl;</span>
+<span class="add">+     Illuminate\Support\Facades\Cache::put($probe, &#39;expiry proof&#39;, 1);</span>
+<span class="add">+     usleep(1_200_000);</span>
+<span class="add">+     checklistRequire(Illuminate\Support\Facades\Cache::get($probe) === null, &#39;Real Redis expiry failed.&#39;);</span>
+<span class="add">+     $result[&#39;real_redis_expiry&#39;] = true;</span>
+<span class="add">+     checklistRequire(checklistHttp(&#39;DELETE&#39;, $path, $token)[&#39;status&#39;] === 200, &#39;Product deletion failed.&#39;);</span>
+<span class="add">+     checklistRequire($cache-&gt;get($product-&gt;id) === null, &#39;Deletion must invalidate cache.&#39;);</span>
+<span class="add">+     checklistRequire(checklistHttp(&#39;GET&#39;, $path)[&#39;status&#39;] === 404, &#39;Deleted product must not remain visible.&#39;);</span>
+<span class="add">+     $result[&#39;delete_invalidates&#39;] = true;</span>
+<span class="add">+     $result[&#39;passed&#39;] = true;</span>
+<span class="add">+ } finally {</span>
+<span class="add">+     if ($product) {</span>
+<span class="add">+         $owned = App\Models\Product::withTrashed()-&gt;find($product-&gt;id);</span>
+<span class="add">+         checklistRequire($owned &amp;&amp; $owned-&gt;name === $ownedName, &#39;Fixture ownership mismatch.&#39;);</span>
+<span class="add">+         $owned-&gt;forceDelete();</span>
+<span class="add">+         $cache-&gt;forget($product-&gt;id);</span>
+<span class="add">+     }</span>
+<span class="add">+     $category?-&gt;delete();</span>
+<span class="add">+     Illuminate\Support\Facades\Cache::forget($probe);</span>
+<span class="add">+     App\Services\DashboardCache::forgetAdmin();</span>
+<span class="add">+ }</span>
+<span class="add">+ echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL;</span></code></pre></div><p class="code-note">الملف غير موجود في المرجع القديم؛ المعروض إضافة حقيقية، وليس كودًا قديمًا متخيّلًا. فاحص القراءة بعد التعديل ومدى التخزين والانتهاء؛ وجوده ضمن perf لا يجعله سيناريو k6.</p></details>
+<h3>ج ـ نفهم الأداة من بداية الملف إلى نهايته</h3><div class="table-wrap"><table><thead><tr><th>السطر أو الجزء</th><th>التفسير بالتفصيل</th></tr></thead><tbody><tr><td><code>bootstrap Laravel / useWriteConnectionWhenReading</code></td><td>تهيئ Laravel داخل الحاوية، وتفرض قراءة primary لعملياتها المحلية المباشرة. طلبات HTTP التي ترسلها بعد ذلك منفصلة وتسير عبر طبقات API؛ لا تنتقل هذه العلامة تلقائيًا إلى كل طلب شبكي.</td></tr><tr><td><code>checklistHttp(method,path,token,body,headers)</code></td><td>دالة واحدة ترسل GET أو PATCH أو غيرها بالـJSON. تضيف Bearer للطلب الإداري، وتحتفظ بالحالة والترويسات وطول الجسم والبيانات المفكوكة. الجسم الفارغ يعاد null حتى لا يسبب304 خطأ json_decode.</td></tr><tr><td><code>ignore_errors / transport exception</code></td><td>تسمح بقراءة رد HTTP غير200 لتفحصه، لكن فشل النقل يوقف الأداة. واستخراج الترويسات بحروف صغيرة يجعل التحقق من etag ثابت الاسم.</td></tr><tr><td><code>checklistRequire</code></td><td>أي شرط كاذب يوقف الأداة باستثناء. لا تُكتب passed:true في المخرجات النهائية إن لم تصل كل الفحوص إلى نهاية المسار الناجح.</td></tr><tr><td><code>ProductCache + Cache::store(redis)</code></td><td>نصل إلى خدمة الكاش وإلى مخزن Redis لكي يجمع الدليل بين سلوك HTTP وحالة المفتاح وTTL الحقيقية.</td></tr><tr><td><code>UUID / category / product / probe</code></td><td>ننشئ أسماء ومفتاح اختبار مميزًا، ونحتفظ بمعرفات البيانات التي تخص التجربة كي يمكن إزالتها في finally. لا تعدل أداة الفحص منتجًا عشوائيًا للعميل.</td></tr><tr><td><code>admin token</code></td><td>نولد token لمسؤول موجود لإجراء تعديلات التصنيف والمنتج عبر API المحمية. هذا اختبار سير عمل مصادق، لا طلب PATCH عام بلا مصادقة.</td></tr><tr><td><code>GET أول ثم snapshot وTTL</code></td><td>يسخن الكاش ويأخذ الوسم، ويؤكد أن stock ليست ضمن النسخة المخزنة، وأن TTL موجبة ولا تتجاوز300 ثانية.</td></tr><tr><td><code>PUT التصنيف ثم cache null</code></td><td>يغير اسم التصنيف، ويثبت إبطال التفاصيل المتأثرة. GET بالوسم القديم يجب أن ترجع200 واسم التصنيف الجديد، ثم قراءة أخرى بالوسم الجديد ترجع304 بلا جسم.</td></tr><tr><td><code>PATCH price=2.50 ثم cache null</code></td><td>هذا قلب الاختبار: يحفظ السعر عبر HTTP ثم يفحص زوال المفتاح. لا يضيف sleep بانتظار انتهاء TTL قبل القراءة.</td></tr><tr><td><code>GET مع If-None-Match السابق</code></td><td>يرسل وسمًا سابقًا، ويؤكد200 وقيمة price=2.50. لو رجع304 خاطئة أو السعر القديم فسيفشل الشرط.</td></tr><tr><td><code>dashboard TTL / expiry probe</code></td><td>يسخن إحصاءات المسؤول ويفحص TTL حتى60 ثانية، ثم مفتاح probe بعمر ثانية وينتظر1.2 ثانية لإثبات الانتهاء الحقيقي. هذا الانتظار خاص بتجربة expiry بعد فحص السعر، وليس انتظارًا لتحديث السعر.</td></tr><tr><td><code>DELETE ثم null ثم404</code></td><td>يتحقق من إبطال المفتاح عند الحذف ومن عدم إعادة بيانات منتج حذفناه.</td></tr><tr><td><code>finally / ownership check</code></td><td>حتى عند الفشل يحاول تنظيف البيانات المملوكة. يسترجع المنتج مع المحذوفة ويطابق اسمه باسم التجربة قبل forceDelete، ويمحو مفتاحه ويحذف التصنيف والـprobe ويبطل ملخص المسؤول.</td></tr></tbody></table></div>
+<p>هذه الأداة تغير fixtures وتعيد تنظيفها؛ ليست قراءة تحميل فقط. لم نشغلها عند إنشاء هذا الدليل. ويجب فصل نتيجتها عن قياس throughput: طلب PATCH ثم GET متتالٍ يثبت السعر الظاهر ولا يثبت أن جميع القراء المتزامنين يشاهدونه في كل توقيت من أي توبولوجيا.</p>
+<div class="filehead"><span class="kind">نتيجة حية محفوظة للفاحص</span><h3>الملف السادس عشر: cache-and-edit-after-gzip.json</h3><a href="docs/performance/focused-review/cache-and-edit-after-gzip.json">docs/performance/focused-review/cache-and-edit-after-gzip.json</a></div><details class="source" open><summary>الدليل المحفوظ كاملًا<span class="filepath" dir="ltr">docs/performance/focused-review/cache-and-edit-after-gzip.json · L1–22</span></summary><div class="codebox" data-snapshot="evidence-22"><div class="codebar"><span>كود فعلي · الحالي</span><button class="copy" type="button">نسخ</button></div><pre dir="ltr"><code>{
+    &quot;scope&quot;: &quot;Live HTTP, real Redis, real gRPC stock reads, owned catalog fixtures&quot;,
+    &quot;product_ttl_seconds&quot;: 300,
+    &quot;cached_stock&quot;: false,
+    &quot;initial_etag&quot;: &quot;W/\&quot;61a907644be1be34c28537ecff298003e044259e\&quot;&quot;,
+    &quot;category_update&quot;: {
+        &quot;status&quot;: 200,
+        &quot;etag_changed&quot;: true
+    },
+    &quot;unchanged&quot;: {
+        &quot;status&quot;: 304,
+        &quot;body_bytes&quot;: 0
+    },
+    &quot;price_update&quot;: {
+        &quot;status&quot;: 200,
+        &quot;price&quot;: &quot;2.50&quot;
+    },
+    &quot;dashboard_ttl_seconds&quot;: 60,
+    &quot;real_redis_expiry&quot;: true,
+    &quot;delete_invalidates&quot;: true,
+    &quot;passed&quot;: true
+}</code></pre></div></details>
+<div class="table-wrap"><table><thead><tr><th>الدليل</th><th>القيمة المسجلة</th><th>ما الذي يثبته؟</th></tr></thead><tbody><tr><td>price_update.status / price</td><td>200 / 2.50</td><td>القراءة التالية حملت السعر الجديد.</td></tr><tr><td>unchanged.status / body_bytes</td><td>304 / 0</td><td>الوسم المطابق لا يعيد الجسم.</td></tr><tr><td>cached_stock</td><td>false</td><td>المخزون خارج نسخة تفاصيلRedis.</td></tr><tr><td>product_ttl_seconds</td><td>300</td><td>عمر المفتاح ضمن سياسة300ثانية؛ التعديل لم ينتظر هذا العمر.</td></tr><tr><td>real_redis_expiry</td><td>true</td><td>اختبار الانتهاء الحقيقي نجح للمفتاح المخصص له.</td></tr><tr><td>delete_invalidates</td><td>true</td><td>حذف المنتج أبطل النسخة المخزنة.</td></tr></tbody></table></div>
+<h3>ما معنى «يظهر فورًا» هنا؟</h3><p>المعنى المثبت: بعد نجاح الكتابة، القراءة الجديدة التي ينفذها الاختبار ترجع السعر الجديد من الـAPI دون انتظار TTL. لا يوجد في هذا الدليل قياس لعدد ميلي ثوانٍ بين كل عملية وأخرى، ولا دفع آلي لتغيير السعر إلى صفحة مفتوحة. ظهوره في واجهة مفتوحة يتطلب قراءة جديدة أو آلية تحديث في العميل؛ هذه مرحلة خارج نطاق فحص backend الحالي.</p>
+<p>يوجد أيضًا دليل HTTP أقدم في <a href="docs/performance/results/live-api-verification.json">live-api-verification.json</a> يسجل price_update_immediate=true مع سعر1.25 في فاحصه. لا نخلط1.25 هناك مع2.50 في هذه التجربة. الأداة الأقدم تختبر أمورًا أوسع من السعر، منها تعطل خدمة المخزون؛ لا حاجة لتشغيلها لتفسير القياس المعروض هنا.</p>
+<div class="say"><b>ما أقوله للأستاذ:</b> «اختبرت السرعة والصحة كلًا بدليله. بعد تعديل المنتج أحذف كاشه، ثم أقرأ بالسعر الجديد من API دون انتظار TTL. Feature test تثبت السلوك بمحاكاة المخزون، وchecklist-cache تثبته في HTTP وRedis الحقيقيتين وفق الدليل المحفوظ. هذا ليس سيناريو PATCH تحت حمل k6 ولا دفعًا تلقائيًا لواجهة مفتوحة.»</div><div class="checkpoint"><b>قبل الانتقال:</b> أشر إلى PATCH ثم cache-null ثم GET الجديدة في الفاحص. وضح لماذا لا ننتظر300 ثانية، ولماذا sleep في probe لا يعني أن السعر انتظر للتحديث.</div>
+</article></section>
+<section id="defense" data-search><header><span class="section-number">07</span><div><h2>سابعًا: تسلسل العرض وأسئلة الأستاذ</h2><p>اجعل لكل ادعاء ملفًا يشرحه ودليلًا يحدّد ما ثبت بالفعل.</p></div></header><article class="card">
+<h3>نص عرض مرتب يمكنك التدرب عليه</h3><ol><li><b>أبدأ بهدف القياس:</b> أريد معرفة زمن قراءة قائمة المنتجات والتفاصيل وطلبات العميل والإحصاءات، ثم التأكد أن التحديث لا يترك بيانات قديمة.</li>
+<li><b>أعرض البيئة:</b> أفتح <a href="docker-compose.yml">docker-compose.yml</a> وخدمة proxy، ثم أذكر إصدار k6 وأعداد الصفوف وصورة التطبيق المسجلة.</li>
+<li><b>أشرح السيناريو:</b> أفتح <a href="perf/k6/common.js">common.js</a> من options إلى المقاييس ثم headers وsetup وrequest. أشرح5VUs ومراحل5/20/5 وفاصل الثانية.</li>
+<li><b>أوضح فصل العمليات:</b> أفتح ملفات السيناريوهات الأربعة، وأقارن ملفًا عامًا بملف يصدر setup للمصادقة.</li>
+<li><b>أعرض التكرار والحفظ:</b> أفتح فرعload ثمsummary في <a href="perf/requirement3.py">requirement3.py</a>. أوضح3 تشغيلات لكل عملية، والفرق بينJSON المجمعة وlog وCSV الخام.</li>
+<li><b>أقرأ مثالًا واحدًا:</b> أفتح <a href="docs/performance/current-20261110-094614/k6-dashboard-1.json">ملخصdashboard الأول</a> و<a href="docs/performance/current-20261110-094614/k6-dashboard-1.log">سجله</a>. أشرح الفرق بين126HTTP و125تحققendpoint، وبين زمن العملية وزمن الدورة.</li>
+<li><b>أقدم المقارنة:</b> أفتح <a href="docs/performance/before-after.json">before-after.json</a> ثم <a href="docs/performance/BEFORE_AFTER.md">جدول المقارنة</a>. أذكر baseline_rerun=false، وأعرض المئينات والأخطاء والمعدل ومصادر الأرقام.</li>
+<li><b>أفسر النتيجة دون تعميم:</b> أقول إنp95 انخفض في هذه العينة، وإنp99 لطلبات العميل ارتفع، وإن الحمل الصغير لا يثبت السعة القصوى ولا يعزل أثر كل تحسين.</li>
+<li><b>أثبت صحة التحديث:</b> أفتح update في <a href="backend/my-project/app/Services/ProductService.php">ProductService.php</a> ثم الاختبار في <a href="backend/my-project/tests/Feature/PerformanceCachingTest.php">PerformanceCachingTest.php</a> ثم PATCH وGET في <a href="perf/checklist-cache.php">checklist-cache.php</a> و<a href="docs/performance/focused-review/cache-and-edit-after-gzip.json">نتيجته المحفوظة</a>.</li>
+<li><b>إذا طلب الأستاذ تشغيلًا حيًا:</b> أوضح أن <a href="perf/interview_run.sh">interview_run.sh</a> ينتج3 تشغيلات حالية ومجلدًا جديدًا، وأن <a href="perf/interview_compare.py">interview_compare.py</a> تقارنها بأرشيف تاريخي؛ لا تعيد النسخة القديمة تلقائيًا.</li></ol>
+<h3>أسئلة محتملة وإجابات بسيطة ودقيقة</h3><details class="qa"><summary>لماذا اخترت أربع عمليات؟</summary><p>لأنها مسارات قراءة مختلفة: القائمة، التفاصيل، طلبات المستخدم، والإحصاءات. تختلف الاستعلامات والمصادقة والكاش فيها، لذلك لا تكفي قراءة واحدة للحكم على النظام كله.</p></details><details class="qa"><summary>هل5VUs تعني5 طلبات في الثانية؟</summary><p>لا. هي5 مستخدمين افتراضيين يكررون العمل. كل دورة فيها انتظار الرد وثانية تفكير، فيتغير المعدل مع زمن الرد ومراحل الحمل.</p></details><details class="qa"><summary>لماذا كررت كل اختبار ثلاث مرات؟</summary><p>لتقليل اعتماد النتيجة على تشغيل واحد ومشاهدة اختلاف التشغيلات. أعرض وسيط قيمها، لكنه لا يلغي أثر البيئة أو يجعل العينة كبيرة تلقائيًا.</p></details><details class="qa"><summary>ما الفرق بينp50 وp95 وp99؟</summary><p>الأولى تصف وسط التوزيع، والأخريان تصفان طرفه الأبطأ. نقرأ الثلاث حتى لا نخفي بطء عدد قليل من الطلبات خلف متوسط جيد.</p></details><details class="qa"><summary>هلp95 في الجدول محسوبة من كل الطلبات المدمجة؟</summary><p>لا. كل تشغيل لهp95، والجدول يأخذ وسيط القيم الثلاث. هذا مختلف عن دمج العينات الخام ثم حسابp95 واحدة.</p></details><details class="qa"><summary>لماذا لا أستعملhttp_req_duration فقط؟</summary><p>لأنها تشمل كلHTTP، ومنهاsetup login. أنشأنا endpoint_duration لطلبات العملية نفسها، كي نقارن زمن القراءة دون تسجيل الدخول وsleep.</p></details><details class="qa"><summary>أين تظهر تكلفة تسجيل الدخول؟</summary><p>تدخل ضمنhttp_reqs وعددها ومعدلها، وقد تدخل مقاييسHTTP المدمجة. لكنها لا تدخلTrend الخاصة بقراءات العملية.</p></details><details class="qa"><summary>كيف عرفت أن الأخطاء صفر؟</summary><p>راجعت endpoint_errors.value وhttp_req_failed.value وفشل checks في كل تشغيل خام، لا صف الوسيط فقط. هذا يثبت عدم رصد الأخطاء المغطاة في العينة.</p></details><details class="qa"><summary>هل200 تثبت أن JSON والسعر صحيحان؟</summary><p>لا في common.js؛ فحصها عام للحالة200 أو304. compression.js تضيف تحققًا جزئيًا من JSON، وأداة التحديث تختبر السعر بعد PATCH تحديدًا.</p></details><details class="qa"><summary>لماذا لم تفشلk6 عندcheck فاشلة؟</summary><p>check تسجل النتيجة وتتابع. لجعل معيار ما يحكم نجاح التشغيل نحتاجthreshold مفعلة. المشغلات هنا تمررno-thresholds، لذلك نراجع المقاييس المصدرة أيضًا.</p></details><details class="qa"><summary>هلbaseline أُعيدت يوم10نوفمبر؟</summary><p>لا. before-after.json تصرحbaseline_rerun=false. المقارنة تستخدم أدلةbaseline التاريخية مع قياس النسخة المنشورة الحالي.</p></details><details class="qa"><summary>هل يكفي تغيير اسم الإخراج إلىbaseline.csv؟</summary><p>لا. اسم الملف لا يبدل التطبيق أو الفهارس أو الكاش. مقارنةقبل وبعد تحتاج تنفيذ المرحلتين فعليًا ببيانات وسياق موثقين.</p></details><details class="qa"><summary>هل تقدر استخراج كل العينات منp99 وحدها؟</summary><p>لا. الملخص فقد تفاصيل التوزيع الأصلي. CSV الخام تسجل نقاط مقاييس يمكن تحليلها، ولا نعيد خلقها من ثلاثمئينات.</p></details><details class="qa"><summary>هل سجلّيت الإصدار أم اكتفيت بوسمlatest؟</summary><p>الدليل يحفظk6-version.txt في الجهتين ويعرضv2.3.0. وسمlatest وحده قد يشير إلى صورة أخرى في وقت لاحق.</p></details><details class="qa"><summary>لماذا أذكر قيدًا لحمل القائمة؟</summary><p>لأنه يختار صفحات1 إلى20 وتصنيفات1 إلى5 من15 منتجًا فقط؛ قد يكثر الرد الفارغ. لذلك لا أقدمه كقياس لجميع الصفحات الممتلئة أو البحث الثقيل.</p></details><details class="qa"><summary>أين أثرت304 على القياس؟</summary><p>common تحفظETag لكل مسار وترسلIf-None-Match لاحقًا.304 تُعد نجاحًا، وتؤثر على نقل الجسم. نسجل عددها ونذكر أن التجربة تشمل إعادة التحقق.</p></details><details class="qa"><summary>هل كل الأرقام تحسنت؟</summary><p>لا. مثلًاp99 لطلبات العميل ارتفعت مننحو142.562إلى148.358ms. انخفضp50 وp95 لها، لكن لا يصح الادعاء بأن كل الطلبات أسرع.</p></details><details class="qa"><summary>هل أثبتّ أنRedis وحدها سبب الانخفاض؟</summary><p>لا. هذه مشاهداتAPI قبل وبعد عدة تغييرات وجلسات مختلفة. توجد مراحل وسيطة للمراجعة، لكن الجدول الحالي لا يعزل سببًا واحدًا.</p></details><details class="qa"><summary>كيف أثبت ظهور السعر الجديد؟</summary><p>أبطل مفتاح المنتج بعد الحفظ، ثم أقرأ API مباشرة بوسم سابق وأتوقع200 والسعر2.50. النتيجة محفوظة، ومنطق الاختبار ظاهر في checklist-cache.</p></details><details class="qa"><summary>هل اختبرت تعديل المنتج أثناء حمل k6؟</summary><p>لا في السيناريوهات الحالية. دليل التعديل اختبار صحة متتالٍ منفصل، وليس PATCH تحت حمل متزامن. سأوضح ذلك بدل نسبته إلى k6.</p></details><details class="qa"><summary>هل تعني فورًا أن صفحة المستخدم المفتوحة تتغير آليًا؟</summary><p>لا. الدليل يثبت أن القراءة التالية من API حديثة دون انتظار TTL. تحديث صفحة مفتوحة يحتاج قراءة جديدة أو آلية دفع في العميل.</p></details><details class="qa"><summary>هل شغّلت الاختبارات أثناء إعداد هذه الصفحة؟</summary><p>لا. تحققت من الكود والأدلة المحفوظة والحسابات وبصمات الملفات. الصفحة نفسها لا تمثل تشغيلًا جديدًا لـk6 أو فاحص التعديل.</p></details>
+<div class="closing"><b>الجملة التي تربط العرض:</b> صممت حملًا معلومًا، وحفظت ثلاث تشغيلات لكل عملية، وقارنت الزمن والمعدل والأخطاء مع ذكر حدود التجربة، ثم أثبت أن تحسين القراءة لم يمنع ظهور تعديل المنتج في طلب API جديد.</div>
+</article></section>
+<section id="sources" data-search><header><span class="section-number">08</span><div><h2>ثامنًا: روابط الملفات التي تعرضها للأستاذ</h2><p>اختر ملف التنفيذ للسؤال عن الآلية، وملف النتائج للسؤال عن الرقم.</p></div></header><article class="card"><div class="table-wrap"><table><thead><tr><th>الملف</th><th>الغرض منه</th></tr></thead><tbody><tr><td><a href="docker-compose.yml">docker-compose.yml</a></td><td>تكوين خدمة التمرير</td></tr><tr><td><a href="perf/loadtest-proxy.conf">perf/loadtest-proxy.conf</a></td><td>مسار HTTP الداخلي للاختبار</td></tr><tr><td><a href="perf/k6/common.js">perf/k6/common.js</a></td><td>الحمل والمقاييس والمصادقة والوسوم</td></tr><tr><td><a href="perf/k6/products-list.js">perf/k6/products-list.js</a></td><td>سيناريو products-list</td></tr><tr><td><a href="perf/k6/product-detail.js">perf/k6/product-detail.js</a></td><td>سيناريو product-detail</td></tr><tr><td><a href="perf/k6/customer-orders.js">perf/k6/customer-orders.js</a></td><td>سيناريو customer-orders</td></tr><tr><td><a href="perf/k6/dashboard.js">perf/k6/dashboard.js</a></td><td>سيناريو dashboard</td></tr><tr><td><a href="perf/requirement3.py">perf/requirement3.py</a></td><td>فرعا load وsummary وأدوات السياق</td></tr><tr><td><a href="perf/interview_run.sh">perf/interview_run.sh</a></td><td>مشغّل عرض قياس حالي</td></tr><tr><td><a href="perf/interview_compare.py">perf/interview_compare.py</a></td><td>مقارن الأرشيف والقياس الحالي</td></tr><tr><td><a href="docs/performance/before-after.json">docs/performance/before-after.json</a></td><td>المقارنة ومصادرها وبصمات الملفات</td></tr><tr><td><a href="docs/performance/BEFORE_AFTER.md">docs/performance/BEFORE_AFTER.md</a></td><td>شرح المقارنة وحدودها</td></tr><tr><td><a href="docs/performance/current-20261110-094614/RESULTS.md">docs/performance/current-20261110-094614/RESULTS.md</a></td><td>سياق القياس الحالي</td></tr><tr><td><a href="docs/performance/current-20261110-094614/summary.json">docs/performance/current-20261110-094614/summary.json</a></td><td>ملخص وبيانات التشغيلات الحالية</td></tr><tr><td><a href="docs/performance/current-20261110-094614/workload/">docs/performance/current-20261110-094614/workload/</a></td><td>نسخة السيناريوهات وقت قياس10 نوفمبر</td></tr><tr><td><a href="docs/performance/baseline/">docs/performance/baseline/</a></td><td>الأدلة التاريخية قبل التحسين</td></tr><tr><td><a href="docs/performance/current-20261110-094614/">docs/performance/current-20261110-094614/</a></td><td>الأدلة الحالية بعد التحسين</td></tr><tr><td><a href="backend/my-project/app/Services/ProductService.php">backend/my-project/app/Services/ProductService.php</a></td><td>إبطال كاش المنتج بعد الكتابة</td></tr><tr><td><a href="backend/my-project/tests/Feature/PerformanceCachingTest.php">backend/my-project/tests/Feature/PerformanceCachingTest.php</a></td><td>اختبارات صحة الكاش والمخزون</td></tr><tr><td><a href="perf/checklist-cache.php">perf/checklist-cache.php</a></td><td>فاحص القراءة بعد التعديل</td></tr><tr><td><a href="docs/performance/focused-review/cache-and-edit-after-gzip.json">docs/performance/focused-review/cache-and-edit-after-gzip.json</a></td><td>نتيجة التحديث المحفوظة</td></tr><tr><td><a href="docs/performance/results/summary.json">docs/performance/results/summary.json</a></td><td>سلم نتائج المراحل التاريخية</td></tr><tr><td><a href="perf/README.md">perf/README.md</a></td><td>سياق التشغيل وملاحظات التكرار</td></tr></tbody></table></div><p>مراجع k6 الرسمية مرتبطة بجوار تعريف المقاييس وchecks وthresholds وCSV. فروقات المصدر مأخوذة من Git ومن الملفات الحالية. كل نتيجة رقمية هنا مرتبطة بأدلة محفوظة، وحدود كل اختبار مذكورة؛ لم نضف سيناريو تحرير k6 غير موجود ولم ننسب إلى الأرشيف إعادة تشغيل لم تحدث.</p><div class="checkpoint"><b>قبل الانتقال:</b> عند سؤال الأستاذ «كيف حققت هذا؟» ابدأ باسم الملف، ثم الأسطر المسؤولة، ثم النتيجة التي تثبتها، ثم حدّ هذا الدليل. لا تتجاوز إلى الاستنتاج العام قبل فهم هذه الأربع.</div></article></section><footer class="footer">اختبار الأداء · دليل عربي مرتب ملفًا بعد ملف · <a href="#top">العودة إلى الأعلى</a></footer></main></div><script>(function(){var details=Array.from(document.querySelectorAll('details.source')),sections=Array.from(document.querySelectorAll('section[data-search]')),search=document.getElementById('search');function norm(t){return t.toLowerCase().normalize('NFKD').replace(/[ً-ٟ]/g,'');}search.addEventListener('input',function(){var term=norm(search.value.trim()),count=0;sections.forEach(function(section){section.hidden=term!==''&&!norm(section.textContent).includes(term);if(!section.hidden)count++;});document.getElementById('empty').hidden=count!==0;document.getElementById('search-status').textContent=term?'الأجزاء المطابقة: '+count:'';});document.getElementById('expand').onclick=function(){details.forEach(function(d){d.open=true;});};document.getElementById('collapse').onclick=function(){details.forEach(function(d){d.open=false;});};document.getElementById('print').onclick=function(){window.print();};var saved=[];window.addEventListener('beforeprint',function(){saved=details.map(function(d){var old=d.open;d.open=true;return old;});});window.addEventListener('afterprint',function(){details.forEach(function(d,i){d.open=saved[i]||false;});});document.querySelectorAll('.copy').forEach(function(button){button.onclick=async function(){var text=button.closest('.codebox').querySelector('code').textContent,ok=false;try{if(navigator.clipboard){await navigator.clipboard.writeText(text);ok=true;}}catch(error){}if(!ok){var field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();try{ok=document.execCommand('copy');}catch(error){}field.remove();}document.getElementById('copy-status').textContent=ok?'تم نسخ الكود.':'يمكنك تحديد الكود ونسخه يدويًا.';};});})();</script></body></html>

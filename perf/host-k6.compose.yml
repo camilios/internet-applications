@@ -1,0 +1,5 @@
+# Opt-in localhost access for native host k6. Use with the root Compose file.
+services:
+  loadtest-proxy:
+    ports:
+      - "127.0.0.1:8086:80"
