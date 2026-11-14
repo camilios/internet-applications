@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/feedback/empty-state"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/features/auth/stores/auth.store"
 import { useOrders } from "@/features/orders/hooks/use-orders"
+import { useOrderListStatusRealtime } from "@/features/orders/hooks/use-order-realtime"
 import type { Order } from "@/features/orders/types"
 import { ORDER_STATUS, ORDER_STATUS_COLORS, ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/constants/order-status"
 import { ROLES } from "@/lib/constants/roles"
@@ -29,6 +30,7 @@ function OrdersPage() {
   const navigate = useNavigate({ from: Route.fullPath })
   const isAdmin = useAuthStore((state) => state.user?.role === ROLES.ADMIN)
   const { data, isLoading, error } = useOrders(page, status, isAdmin)
+  useOrderListStatusRealtime(isAdmin ? undefined : data?.data)
 
   const columns: ColumnDef<Order>[] = [
     { accessorKey: "id", header: "رقم الطلب", cell: ({ row }) => `#${row.original.id}` },

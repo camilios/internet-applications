@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: E-Commerce API (For Frontend)
-  version: 1.0.0
+  version: 1.1.0
   description: 'مواصفات واجهة برمجة التطبيقات (OpenAPI / Swagger) لمشروع الباك إند
     بالكامل، موجهة لفريق الفرونت إند.
 
@@ -1053,6 +1053,7 @@ paths:
           description: Administrator role required
         '429':
           description: Rate limited
+  /broadcasting/auth: {"post":{"tags":["Real-Time"],"summary":"Authorize a private WebSocket channel","operationId":"authorizePrivateChannel","description":"Connect to Reverb first and copy the actual socket_id from pusher:connection_established. Admins may authorize private-admin.orders; only the order owner may authorize private-orders.{id}, with no admin ownership override. This endpoint returns a signature; subscribe over the WebSocket using that signature. It does not stream events or create a socket.","security":[{"bearerAuth":[]}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["socket_id","channel_name"],"properties":{"socket_id":{"type":"string","example":"123456.789012"},"channel_name":{"type":"string","example":"private-orders.1"}}}}}},"responses":{"200":{"description":"Private-channel signature","content":{"application/json":{"schema":{"type":"object","required":["auth"],"properties":{"auth":{"type":"string","description":"Public app key followed by an HMAC signature."}}}}}},"401":{"description":"JWT missing, invalid or expired"},"403":{"description":"Role or order ownership does not permit subscription"},"429":{"description":"Rate limited"}}}}
 components:
   securitySchemes:
     bearerAuth:
@@ -1586,3 +1587,5 @@ components:
           $ref: '#/components/schemas/PaginationLinks'
         meta:
           $ref: '#/components/schemas/PaginationMeta'
+
+x-req4-realtime: "Requirement 4: orders commit with a transactional outbox; a separate publisher and RabbitMQ email worker process confirmations. Local email is explicitly mocked. Private Reverb channels use JWT authorization before subscription. OrderCreated: private-admin.orders; OrderStatusUpdated: private-orders.{id}. Broadcasting uses its own database queue, independent of email. REST remains authoritative."

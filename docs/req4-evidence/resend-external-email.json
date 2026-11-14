@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "executed_at": "2026-11-14T17:35:36.229Z",
+  "scope": "Actual HTTP order flow, real MySQL and gRPC inventory, confirmed RabbitMQ publication, independent worker stop/restart, TLS Resend SMTP; provider transport acceptance is not a user inbox receipt assertion.",
+  "recipient": "authorized Resend account email (redacted)",
+  "sender": "onboarding@resend.dev",
+  "smtp_host": "smtp.resend.com",
+  "smtp_port": 465,
+  "order_id": 300016,
+  "event_id": "0919ac6a-f082-4f21-8f1e-06567acfc439",
+  "idempotency_key": "order-confirmation/0919ac6a-f082-4f21-8f1e-06567acfc439",
+  "http_ms": 2584,
+  "worker_stopped": {
+    "mode": "external",
+    "mailer": "smtp",
+    "host": "smtp.resend.com",
+    "mock_allowed": false,
+    "outbox": 1,
+    "event_id": "0919ac6a-f082-4f21-8f1e-06567acfc439",
+    "published": 1,
+    "deliveries": 0,
+    "external_completed": 0,
+    "queue_ready": 1
+  },
+  "worker_restarted": {
+    "mode": "external",
+    "mailer": "smtp",
+    "host": "smtp.resend.com",
+    "mock_allowed": false,
+    "outbox": 1,
+    "event_id": "0919ac6a-f082-4f21-8f1e-06567acfc439",
+    "published": 1,
+    "deliveries": 1,
+    "external_completed": 1,
+    "queue_ready": 0
+  },
+  "after_duplicate": {
+    "mode": "external",
+    "mailer": "smtp",
+    "host": "smtp.resend.com",
+    "mock_allowed": false,
+    "outbox": 1,
+    "event_id": "0919ac6a-f082-4f21-8f1e-06567acfc439",
+    "published": 1,
+    "deliveries": 1,
+    "external_completed": 1,
+    "queue_ready": 0
+  },
+  "transport_message_id": "0919ac6a-f082-4f21-8f1e-06567acfc439@localhost",
+  "inbox_receipt": "confirmed by authorized recipient in conversation: Received",
+  "provider_check": {
+    "checked_at": "2026-11-14T17:36:46.912Z",
+    "status": "UNAVAILABLE",
+    "http_status": 401,
+    "note": "Provider read access unavailable; SMTP acceptance evidence is unchanged. Check Resend dashboard or recipient inbox."
+  },
+  "inbox_confirmation_recorded_at": "2026-11-14T17:39:23.163Z",
+  "verification": {
+    "backend_tests": 102,
+    "backend_assertions": 591,
+    "isolated_broker_tests_skipped": 4,
+    "scoped_pint": "PASS",
+    "node_syntax": "PASS"
+  }
+}

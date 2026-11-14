@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "E-Commerce API (For Frontend)",
-    "version": "1.0.0",
-    "description": "مواصفات واجهة برمجة التطبيقات (OpenAPI / Swagger) لمشروع الباك إند بالكامل، موجهة لفريق الفرونت إند.\nتشمل:\n- نظام المصادقة وإدارة الحسابات عبر JWT (Bearer Token).\n- إدارة وعرض التصنيفات (Categories).\n- استعراض المنتجات وفلترتها وعرض تفاصيل المنتج مع المخزون المتاح لحظيًا من خدمة المخزون (gRPC).\n- إنشاء الطلبات ومعالجتها بآلية منع التكرار (Idempotency) وتتبع حالات الطلبات.\n- إدارة وتتبع الإشعارات الخاصة بالمستخدمين.\n- لوحة إدارة المشرف (Admin Endpoints) للتصنيفات والمنتجات وحالات الطلبات.\n"
+    "version": "1.1.0",
+    "description": "مواصفات واجهة برمجة التطبيقات (OpenAPI / Swagger) لمشروع الباك إند بالكامل، موجهة لفريق الفرونت إند.\nتشمل:\n- نظام المصادقة وإدارة الحسابات عبر JWT (Bearer Token).\n- إدارة وعرض التصنيفات (Categories).\n- استعراض المنتجات وفلترتها وعرض تفاصيل المنتج مع المخزون المتاح لحظيًا من خدمة المخزون (gRPC).\n- إنشاء الطلبات ومعالجتها بآلية منع التكرار (Idempotency) وتتبع حالات الطلبات.\n- إدارة وتتبع الإشعارات الخاصة بالمستخدمين.\n- لوحة إدارة المشرف (Admin Endpoints) للتصنيفات والمنتجات وحالات الطلبات.\n\nRequirement 4: orders commit with a transactional outbox; a separate publisher and RabbitMQ email worker process confirmations. Local email is explicitly mocked. Private Reverb channels use JWT authorization before subscription. OrderCreated: private-admin.orders; OrderStatusUpdated: private-orders.{id}. Broadcasting uses its own database queue, independent of email. REST remains authoritative."
   },
   "servers": [
     {
@@ -35,6 +35,10 @@
     {
       "name": "Notifications",
       "description": "قراءة وإدارة إشعارات المستخدمين"
+    },
+    {
+      "name": "Real-Time",
+      "description": "JWT authorization for private Reverb/Pusher channels."
     }
   ],
   "paths": {
@@ -969,7 +973,7 @@
           "Orders"
         ],
         "summary": "إنشاء طلب جديد مع قفل المخزون (Durable Reservation)",
-        "description": "يقوم العميل بإنشاء طلب جديد يحتوي على قائمة المنتجات والكميات المطلوبة.\n\n**قواعد هامة جدًا للفرونت إند**:\n1. **ترويسة `Idempotency-Key` إجبارية**: يجب إرسال UUID v4 فريد لكل طلب في الـ Header لمنع تكرار الخصم أو تكرار الطلب عند انقطاع الاتصال.\n2. **حساب الأسعار والإجمالي**: يتم حساب الأسعار وإجمالي الطلب في الباك إند استنادًا لبيانات قاعدة البيانات الحالية؛ أي أسعار تُرسل من العميل يتم تجاهلها بالكامل.\n3. **آلية الحجز والتعويض (Saga / Compensation)**: يتصل الباك إند بخدمة المخزون لحجز الكميات. إذا تعذر حفظ الطلب في قاعدة البيانات بعد نجاح الحجز، يقوم النظام تلقائيًا بإطلاق عملية تعويضية (ReleaseStock) لإلغاء الحجز فورًا.\n4. **في حالة الخطأ 503 مع كود `RESERVATION_OUTCOME_UNKNOWN`**: يجب على الفرونت إند إعادة المحاولة حصريًا باستخدام **نفس مفتاح `Idempotency-Key` ونفس البنود**، وسيقوم الباك إند باسترجاع الطلب المكتمل بأمان.\n",
+        "description": "يقوم العميل بإنشاء طلب جديد يحتوي على قائمة المنتجات والكميات المطلوبة.\n\n**قواعد هامة جدًا للفرونت إند**:\n1. **ترويسة `Idempotency-Key` إجبارية**: يجب إرسال UUID v4 فريد لكل طلب في الـ Header لمنع تكرار الخصم أو تكرار الطلب عند انقطاع الاتصال.\n2. **حساب الأسعار والإجمالي**: يتم حساب الأسعار وإجمالي الطلب في الباك إند استنادًا لبيانات قاعدة البيانات الحالية؛ أي أسعار تُرسل من العميل يتم تجاهلها بالكامل.\n3. **آلية الحجز والتعويض (Saga / Compensation)**: يتصل الباك إند بخدمة المخزون لحجز الكميات. إذا تعذر حفظ الطلب في قاعدة البيانات بعد نجاح الحجز، يقوم النظام تلقائيًا بإطلاق عملية تعويضية (ReleaseStock) لإلغاء الحجز فورًا.\n4. **في حالة الخطأ 503 مع كود `RESERVATION_OUTCOME_UNKNOWN`**: يجب على الفرونت إند إعادة المحاولة حصريًا باستخدام **نفس مفتاح `Idempotency-Key` ونفس البنود**، وسيقوم الباك إند باسترجاع الطلب المكتمل بأمان.\n\nRequirement 4: orders commit with a transactional outbox; a separate publisher and RabbitMQ email worker process confirmations. Local email is explicitly mocked. Private Reverb channels use JWT authorization before subscription. OrderCreated: private-admin.orders; OrderStatusUpdated: private-orders.{id}. Broadcasting uses its own database queue, independent of email. REST remains authoritative. A successful response does not mean email delivery has completed. On RESERVATION_OUTCOME_UNKNOWN retry the identical payload with the same Idempotency-Key.",
         "operationId": "createOrder",
         "security": [
           {
@@ -1521,6 +1525,75 @@
           },
           "429": {
             "description": "Notification request rate exceeded; honor Retry-After"
+          }
+        }
+      }
+    },
+    "/broadcasting/auth": {
+      "post": {
+        "tags": [
+          "Real-Time"
+        ],
+        "summary": "Authorize a private WebSocket channel",
+        "operationId": "authorizePrivateChannel",
+        "description": "Connect to Reverb first and copy the actual socket_id from pusher:connection_established. Admins may authorize private-admin.orders; only the order owner may authorize private-orders.{id}, with no admin ownership override. This endpoint returns a signature; subscribe over the WebSocket using that signature. It does not stream events or create a socket.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "socket_id",
+                  "channel_name"
+                ],
+                "properties": {
+                  "socket_id": {
+                    "type": "string",
+                    "example": "123456.789012"
+                  },
+                  "channel_name": {
+                    "type": "string",
+                    "example": "private-orders.1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Private-channel signature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "auth"
+                  ],
+                  "properties": {
+                    "auth": {
+                      "type": "string",
+                      "description": "Public app key followed by an HMAC signature."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT missing, invalid or expired"
+          },
+          "403": {
+            "description": "Role or order ownership does not permit subscription"
+          },
+          "429": {
+            "description": "Rate limited"
           }
         }
       }

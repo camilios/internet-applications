@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Services\InventoryGrpcClient;
+use App\Services\Messaging\MessageBroker;
+use App\Services\Messaging\RabbitMqBroker;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -16,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(InventoryGrpcClient::class);
+        $this->app->singleton(MessageBroker::class, RabbitMqBroker::class);
     }
 
     /**
@@ -23,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        require base_path('routes/channels.php');
+
         RateLimiter::for('register', function (Request $request) {
             return Limit::perMinute(10)
                 ->by('register:'.$request->ip())
@@ -102,4 +107,3 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 }
-

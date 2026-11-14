@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "PASS: actual Echo event displays Arabic new-order announcement, updates dashboard count and admin order row without refresh",
+    "PASS: existing admin approval UI sends PATCH; actual Echo event refetches REST and customer displays confirmed status without refresh",
+    "PASS: all four browser documents retain timeOrigin; no uncaught JS exceptions; realtime independent of absent email worker"
+  ],
+  "scope": "Production React/Echo/Pusher browser + real Laravel HTTP/JWT/SQLite/database queue/Reverb; inventory boundary stubbed; no RabbitMQ/SMTP/MySQL claim"
+}

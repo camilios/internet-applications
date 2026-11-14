@@ -4,6 +4,14 @@ Database API benchmarks: [k6 before-and-after results](./docs/performance/BEFORE
 including the historical baseline and the current run measured on 2026-11-10.
 
 Latest performance review: [Arabic RTL explanation with actual code](./PERFORMANCE_GUIDE_AR.html)
+
+Requirement 4: [event and integration contract](docs/req4-contract.md),
+[process startup, recovery and acceptance checks](docs/req4-operations.md),
+[implementation file responsibilities](docs/req4-delivery.md),
+[independent QA results](docs/req4-qa-report.md).
+
+Literal Arabic Req 4 review: [text compliance](docs/req4-text-compliance.md).
+The local worker now uses [real Resend SMTP](docs/resend-setup.md), with a prepared private Postman environment and recorded worker stop/restart evidence.
 and [verification/results report](./docs/performance/focused-review/REVIEW.md).
 
 The project provides Laravel REST APIs, a React frontend, and a separate
@@ -86,6 +94,12 @@ Until a replica has applied the primary's GTID position, reads fall back to the
 primary. Never reset application databases to run tests or benchmarks.
 
 ## Trying the API
+
+For ready-to-run Postman requests, import
+[`postman/E-Commerce.postman_collection.json`](postman/E-Commerce.postman_collection.json)
+and select the local environment as described in [the Postman testing guide](postman/README.md).
+It includes separate role tokens, safe order retries, private-channel authorization,
+WebSocket subscription messages and the email-worker stop/restart procedure.
 
 Import `for frontend.json` (OpenAPI 3.0.3) into Swagger Editor or Postman.
 `for frontend.yaml` provides the same contract. Both describe authentication,

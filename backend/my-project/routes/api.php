@@ -7,6 +7,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use Illuminate\Broadcasting\BroadcastController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('check.ip.lockout')->group(function () {
@@ -24,6 +25,7 @@ Route::middleware('check.ip.lockout')->group(function () {
     });
 
     Route::middleware('auth:api')->group(function () {
+        Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])->middleware('throttle:general');
         Route::middleware('throttle:general')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
             Route::get('/me', [AuthController::class, 'me']);
@@ -60,4 +62,3 @@ Route::middleware('check.ip.lockout')->group(function () {
         });
     });
 });
-

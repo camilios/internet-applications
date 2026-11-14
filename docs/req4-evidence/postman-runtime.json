@@ -1,0 +1,169 @@
+{
+  "status": "PASS",
+  "executed_at": "2026-11-14T13:11:07.828Z",
+  "scope": "Actual Docker MySQL/real inventory gRPC/RabbitMQ 3.13/Reverb/private auth/independent workers; explicit mock email; selected exported Postman scripts executed by Node/Chai, not Postman or Newman.",
+  "requests": [
+    {
+      "request": "Login customer (saves customer_token)",
+      "status": 200,
+      "elapsed_ms": 601
+    },
+    {
+      "request": "Login admin (saves admin_token)",
+      "status": 200,
+      "elapsed_ms": 299
+    },
+    {
+      "request": "Login other_customer (saves other_customer_token)",
+      "status": 200,
+      "elapsed_ms": 355
+    },
+    {
+      "request": "Current customer",
+      "status": 200,
+      "elapsed_ms": 106
+    },
+    {
+      "request": "Categories",
+      "status": 200,
+      "elapsed_ms": 324
+    },
+    {
+      "request": "Category detail",
+      "status": 200,
+      "elapsed_ms": 130
+    },
+    {
+      "request": "Products (page/filter preserved)",
+      "status": 200,
+      "elapsed_ms": 43
+    },
+    {
+      "request": "Product detail and real stock",
+      "status": 200,
+      "elapsed_ms": 48
+    },
+    {
+      "request": "Admin channel authorization",
+      "status": 200,
+      "elapsed_ms": 42
+    },
+    {
+      "request": "Create order (retains key for safe retry)",
+      "status": 201,
+      "elapsed_ms": 2702
+    },
+    {
+      "request": "Replay same order (same key and payload)",
+      "status": 201,
+      "elapsed_ms": 127
+    },
+    {
+      "request": "Owner channel authorization",
+      "status": 200,
+      "elapsed_ms": 59
+    },
+    {
+      "request": "Reject customer on admin channel",
+      "status": 403,
+      "elapsed_ms": 67
+    },
+    {
+      "request": "Reject another customer on owner channel",
+      "status": 403,
+      "elapsed_ms": 69
+    },
+    {
+      "request": "Reject non-owner admin on owner channel",
+      "status": 403,
+      "elapsed_ms": 46
+    },
+    {
+      "request": "Reject unauthenticated subscription",
+      "status": 401,
+      "elapsed_ms": 30
+    },
+    {
+      "request": "Reject another customer reading order",
+      "status": 403,
+      "elapsed_ms": 109
+    },
+    {
+      "request": "Reject customer opening admin orders",
+      "status": 403,
+      "elapsed_ms": 49
+    },
+    {
+      "request": "Customer orders",
+      "status": 200,
+      "elapsed_ms": 81
+    },
+    {
+      "request": "Customer order detail",
+      "status": 200,
+      "elapsed_ms": 75
+    },
+    {
+      "request": "Admin sees new order",
+      "status": 200,
+      "elapsed_ms": 178
+    },
+    {
+      "request": "Admin dashboard",
+      "status": 200,
+      "elapsed_ms": 362
+    },
+    {
+      "request": "Admin users",
+      "status": 200,
+      "elapsed_ms": 96
+    },
+    {
+      "request": "Approve order as admin",
+      "status": 200,
+      "elapsed_ms": 93
+    },
+    {
+      "request": "Customer sees confirmed status",
+      "status": 200,
+      "elapsed_ms": 53
+    },
+    {
+      "request": "Customer dashboard",
+      "status": 200,
+      "elapsed_ms": 52
+    },
+    {
+      "request": "Notifications",
+      "status": 200,
+      "elapsed_ms": 44
+    },
+    {
+      "request": "Notification SSE snapshot",
+      "status": 200,
+      "elapsed_ms": 102
+    }
+  ],
+  "script_assertions": 32,
+  "order_id": 300007,
+  "product_id": 23,
+  "worker_stopped": {
+    "outbox": 1,
+    "published": 1,
+    "deliveries": 0,
+    "mock_completed": 0,
+    "queue_ready": 1
+  },
+  "worker_restarted": {
+    "outbox": 1,
+    "published": 1,
+    "deliveries": 1,
+    "mock_completed": 1,
+    "queue_ready": 0
+  },
+  "websocket_events": [
+    "OrderCreated",
+    "OrderStatusUpdated"
+  ],
+  "frontend_http": 200
+}

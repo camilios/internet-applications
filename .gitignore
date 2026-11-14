@@ -35,3 +35,4 @@ secrets/
 # Logs and local overrides
 *.log
 docker-compose.override.yml
+postman/*.local.postman_environment.json

@@ -16,6 +16,9 @@ return [
 
     'default' => env('MAIL_MAILER', 'log'),
 
+    // Deliberate local demonstrations only; never allowed in production or as a fallback.
+    'order_email_allow_mock' => (bool) env('ORDER_EMAIL_ALLOW_MOCK', false),
+
     /*
     |--------------------------------------------------------------------------
     | Mailer Configurations
@@ -45,7 +48,7 @@ return [
             'port' => env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
+            'timeout' => (int) env('MAIL_TIMEOUT', 20),
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 

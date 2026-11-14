@@ -3,6 +3,7 @@ import { QueryProvider } from "./query-provider"
 import { ThemeProvider } from "./theme-provider"
 import { Toaster } from "sonner"
 import { GlobalSpinner } from "@/components/feedback/global-spinner"
+import { RealtimeProvider } from "./realtime-provider"
 
 /**
  * All app-level providers in one place.
@@ -12,7 +13,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
       <QueryProvider>
-        {children}
+        <RealtimeProvider>{children}</RealtimeProvider>
         <GlobalSpinner />
         <Toaster
           position="top-center"

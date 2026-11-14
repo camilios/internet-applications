@@ -2,6 +2,7 @@
 .env.*
 !.env.example
 .git
+.tools
 node_modules
 vendor
 bootstrap/cache/*.php

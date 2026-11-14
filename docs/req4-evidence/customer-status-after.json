@@ -1,0 +1,388 @@
+{
+  "status": "PASS",
+  "executed_at": "2026-11-14T13:27:32.931Z",
+  "order_id": 300012,
+  "elapsed_ms": 449,
+  "list_confirmed": true,
+  "pending_filter_removed": true,
+  "detail_confirmed": true,
+  "no_full_reload": true,
+  "uncaught_errors": 0,
+  "pages": [
+    {
+      "route": "/orders",
+      "frames": [
+        {
+          "event": "pusher:connection_established"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.300007"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.300008"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.1"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.2"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.300010"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.300009"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.300011"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.300012"
+        },
+        {
+          "event": "OrderStatusUpdated",
+          "channel": "private-orders.300012",
+          "order_id": 300012,
+          "status": "confirmed"
+        }
+      ],
+      "requests": [
+        {
+          "route": "/notifications?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/notifications?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "route": "/orders?status=pending",
+      "frames": [
+        {
+          "event": "pusher:connection_established"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.300012"
+        },
+        {
+          "event": "OrderStatusUpdated",
+          "channel": "private-orders.300012",
+          "order_id": 300012,
+          "status": "confirmed"
+        }
+      ],
+      "requests": [
+        {
+          "route": "/notifications?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1&status=pending",
+          "status": 204
+        },
+        {
+          "route": "/notifications?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1&status=pending",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1&status=pending",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1&status=pending",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1&status=pending",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1&status=pending",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "route": "/orders/300012",
+      "frames": [
+        {
+          "event": "pusher:connection_established"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.300012"
+        },
+        {
+          "event": "OrderStatusUpdated",
+          "channel": "private-orders.300012",
+          "order_id": 300012,
+          "status": "confirmed"
+        }
+      ],
+      "requests": [
+        {
+          "route": "/notifications?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders/300012",
+          "status": 204
+        },
+        {
+          "route": "/notifications?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders/300012",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/orders/300012",
+          "status": 204
+        },
+        {
+          "route": "/orders/300012",
+          "status": 200
+        },
+        {
+          "route": "/orders/300012",
+          "status": 204
+        },
+        {
+          "route": "/orders/300012",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "route": "/orders/300012",
+      "frames": [
+        {
+          "event": "pusher:connection_established"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-admin.orders"
+        }
+      ],
+      "requests": [
+        {
+          "route": "/notifications?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders/300012",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/notifications?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders/300012",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/admin/orders/300012/status",
+          "status": 204
+        },
+        {
+          "route": "/admin/orders/300012/status",
+          "status": 200
+        },
+        {
+          "route": "/orders/300012",
+          "status": 204
+        },
+        {
+          "route": "/orders/300012",
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "scope": "Actual deployed React/Echo + Docker Laravel/MySQL/gRPC/RabbitMQ/Reverb, separate authenticated browser contexts, existing admin status control. Email is mocked."
+}

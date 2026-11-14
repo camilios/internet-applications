@@ -2,14 +2,18 @@
 
 namespace App\Services;
 
+use App\Events\OrderCreated;
+use App\Events\OrderStatusUpdated;
 use App\Models\FailedCompensation;
 use App\Models\InventoryOperation;
 use App\Models\Order;
+use App\Models\OutboxEvent;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class OrderService
 {
@@ -176,7 +180,17 @@ class OrderService
                     'order_id' => $order->id,
                     'last_error' => null,
                 ]);
+                $eventId = (string) Str::uuid();
+                $occurredAt = now()->toISOString();
+                OutboxEvent::create([
+                    'event_id' => $eventId,
+                    'order_id' => $order->id,
+                    'event_type' => 'OrderCreated',
+                    'payload' => ['event_id' => $eventId, 'type' => 'OrderCreated', 'order_id' => $order->id, 'occurred_at' => $occurredAt],
+                    'available_at' => now(),
+                ]);
                 $this->notifyAfterCommit($user, $order, 'order_created');
+                $this->broadcastAfterCommit($order, new OrderCreated($eventId, $order->id, $occurredAt));
 
                 return $order;
             });
@@ -269,8 +283,6 @@ class OrderService
             throw $e;
         }
 
-        DashboardCache::forgetCache($user->id);
-
         return $order->load('items.product');
     }
 
@@ -343,12 +355,29 @@ class OrderService
 
             $order->update(['status' => $status]);
             $this->notifyAfterCommit($order->user, $order, 'order_status_updated');
+            $this->broadcastAfterCommit($order, new OrderStatusUpdated((string) Str::uuid(), $order->id, $status, now()->toISOString()));
 
             return $order->fresh('items.product');
         });
-        DashboardCache::forgetCache($updated->user_id);
 
         return $updated;
+    }
+
+    private function broadcastAfterCommit(Order $order, OrderCreated|OrderStatusUpdated $event): void
+    {
+        DB::afterCommit(function () use ($order, $event): void {
+            try {
+                DashboardCache::forgetCache($order->user_id);
+            } catch (\Throwable $exception) {
+                Log::error('Order dashboard cache invalidation failed', ['order_id' => $order->id, 'error_type' => $exception::class]);
+            }
+            try {
+                event($event);
+            } catch (\Throwable $exception) {
+                // A committed order must not be compensated due to a secondary broadcast failure.
+                Log::error('Order broadcast enqueue failed after commit', ['order_id' => $order->id, 'error_type' => $exception::class]);
+            }
+        });
     }
 
     private function notifyAfterCommit(User $user, Order $order, string $type): void
@@ -367,5 +396,4 @@ class OrderService
             }
         });
     }
-
 }

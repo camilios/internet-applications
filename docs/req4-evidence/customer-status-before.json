@@ -1,0 +1,172 @@
+{
+  "status": "REPRODUCED_STALE_LIST",
+  "executed_at": "2026-11-14T13:23:37.306Z",
+  "order_id": 300011,
+  "elapsed_ms": 10312,
+  "list_confirmed": false,
+  "pending_filter_removed": false,
+  "detail_confirmed": true,
+  "no_full_reload": true,
+  "uncaught_errors": 0,
+  "pages": [
+    {
+      "route": "/orders",
+      "frames": [],
+      "requests": [
+        {
+          "route": "/notifications?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 204
+        },
+        {
+          "route": "/notifications?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "route": "/orders?status=pending",
+      "frames": [],
+      "requests": [
+        {
+          "route": "/notifications?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders?page=1&status=pending",
+          "status": 204
+        },
+        {
+          "route": "/notifications?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders?page=1&status=pending",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "route": "/orders/300011",
+      "frames": [
+        {
+          "event": "pusher:connection_established"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-orders.300011"
+        },
+        {
+          "event": "OrderStatusUpdated",
+          "channel": "private-orders.300011",
+          "order_id": 300011,
+          "status": "confirmed"
+        }
+      ],
+      "requests": [
+        {
+          "route": "/notifications?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders/300011",
+          "status": 204
+        },
+        {
+          "route": "/notifications?page=1",
+          "status": 200
+        },
+        {
+          "route": "/orders/300011",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/orders/300011",
+          "status": 204
+        },
+        {
+          "route": "/orders/300011",
+          "status": 200
+        },
+        {
+          "route": "/orders/300011",
+          "status": 204
+        },
+        {
+          "route": "/orders/300011",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "route": "/orders/300011",
+      "frames": [
+        {
+          "event": "pusher:connection_established"
+        },
+        {
+          "event": "pusher_internal:subscription_succeeded",
+          "channel": "private-admin.orders"
+        }
+      ],
+      "requests": [
+        {
+          "route": "/notifications?page=1",
+          "status": 204
+        },
+        {
+          "route": "/orders/300011",
+          "status": 204
+        },
+        {
+          "route": "/notifications?page=1",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 204
+        },
+        {
+          "route": "/orders/300011",
+          "status": 200
+        },
+        {
+          "route": "/broadcasting/auth",
+          "status": 200
+        },
+        {
+          "route": "/admin/orders/300011/status",
+          "status": 204
+        },
+        {
+          "route": "/admin/orders/300011/status",
+          "status": 200
+        },
+        {
+          "route": "/orders/300011",
+          "status": 204
+        },
+        {
+          "route": "/orders/300011",
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "scope": "Actual deployed React/Echo + Docker Laravel/MySQL/gRPC/RabbitMQ/Reverb, separate authenticated browser contexts, existing admin status control. Email is mocked."
+}

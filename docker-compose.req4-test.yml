@@ -1,0 +1,17 @@
+# Isolated broker for transport tests. Never targets the application broker/data.
+services:
+  rabbitmq-test:
+    image: rabbitmq:4.2-alpine
+    hostname: req4-test-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: req4_test
+      RABBITMQ_DEFAULT_PASS: req4-test-only
+      RABBITMQ_DEFAULT_VHOST: req4_test
+    ports:
+      - "127.0.0.1:5679:5672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 15s

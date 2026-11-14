@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuthStore } from "@/features/auth/stores/auth.store"
 import { useOrder, useUpdateOrderStatus } from "@/features/orders/hooks/use-orders"
+import { useOrderStatusRealtime } from "@/features/orders/hooks/use-order-realtime"
 import { ORDER_STATUS, ORDER_STATUS_COLORS, ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/constants/order-status"
 import { ROLES } from "@/lib/constants/roles"
 import { formatCurrency, formatDate } from "@/lib/utils/format"
@@ -29,6 +30,7 @@ function OrderDetailsPage() {
   const id = Number(orderId)
   const isAdmin = useAuthStore((state) => state.user?.role === ROLES.ADMIN)
   const { data: order, isLoading, error } = useOrder(id)
+  useOrderStatusRealtime(order)
   const updateStatus = useUpdateOrderStatus(id)
 
   if (isLoading) return <LoadingSpinner text="جاري تحميل الطلب..." />

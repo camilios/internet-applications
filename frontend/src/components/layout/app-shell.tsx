@@ -4,12 +4,14 @@ import { Header } from "./header"
 import { useUiStore } from "@/stores/ui.store"
 import { cn } from "@/lib/utils/cn"
 import { useIsMobile } from "@/hooks/use-media-query"
+import { useAdminOrderRealtime } from "@/features/orders/hooks/use-order-realtime"
 
 /**
  * Main application shell.
  * GlobalSpinner موجود في AppProviders (يغطي كل الصفحات).
  */
 export function AppShell() {
+  useAdminOrderRealtime()
   const { sidebarOpen } = useUiStore()
   const isMobile = useIsMobile()
 
