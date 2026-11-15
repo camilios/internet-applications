@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac9de3bb5eef1ef57960950b4efff0c0",
+    "content-hash": "1f1eb6c920f38d12a530e0668c0b5a70",
     "packages": [
         {
             "name": "brick/math",
@@ -200,8 +200,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-08-07T11:06:28+00:00",
-            "published-time": "2024-08-07T11:08:05+00:00"
+            "time": "2024-08-07T11:06:28+00:00"
         },
         {
             "name": "clue/redis-react",
@@ -269,8 +268,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-01-03T16:18:33+00:00",
-            "published-time": "2025-01-03T16:19:18+00:00"
+            "time": "2025-01-03T16:18:33+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -688,8 +686,7 @@
                 "issues": "https://github.com/igorw/evenement/issues",
                 "source": "https://github.com/igorw/evenement/tree/v3.0.2"
             },
-            "time": "2023-08-08T05:53:35+00:00",
-            "published-time": "2023-08-08T08:34:49+00:00"
+            "time": "2023-08-08T05:53:35+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -866,8 +863,7 @@
             "support": {
                 "source": "https://github.com/grpc/grpc-php/tree/v1.85.0"
             },
-            "time": "2026-10-28T05:30:17+00:00",
-            "published-time": "2026-10-28T05:31:43+00:00"
+            "time": "2026-10-28T05:30:17+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1644,8 +1640,7 @@
             "support": {
                 "source": "https://github.com/laravel/reverb/tree/v1.13.0"
             },
-            "time": "2026-10-19T14:22:03+00:00",
-            "published-time": "2026-11-10T16:09:45+00:00"
+            "time": "2026-10-19T14:22:03+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -3054,8 +3049,7 @@
                 "issues": "https://github.com/paragonie/constant_time_encoding/issues",
                 "source": "https://github.com/paragonie/constant_time_encoding"
             },
-            "time": "2026-11-06T20:31:19+00:00",
-            "published-time": "2026-11-06T20:39:39+00:00"
+            "time": "2026-11-06T20:31:19+00:00"
         },
         {
             "name": "php-amqplib/php-amqplib",
@@ -3136,8 +3130,7 @@
                 "issues": "https://github.com/php-amqplib/php-amqplib/issues",
                 "source": "https://github.com/php-amqplib/php-amqplib/tree/v3.7.5"
             },
-            "time": "2026-09-28T19:08:43+00:00",
-            "published-time": "2026-09-28T19:10:54+00:00"
+            "time": "2026-09-28T19:08:43+00:00"
         },
         {
             "name": "php-open-source-saver/jwt-auth",
@@ -3424,8 +3417,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-11-02T10:46:03+00:00",
-            "published-time": "2026-11-02T10:50:47+00:00"
+            "time": "2026-11-02T10:46:03+00:00"
         },
         {
             "name": "psr/clock",
@@ -3979,8 +3971,7 @@
                 "issues": "https://github.com/pusher/pusher-http-php/issues",
                 "source": "https://github.com/pusher/pusher-http-php/tree/7.3.0"
             },
-            "time": "2026-08-07T12:47:11+00:00",
-            "published-time": "2026-08-07T12:47:27+00:00"
+            "time": "2026-08-07T12:47:11+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -4237,8 +4228,7 @@
                 "issues": "https://github.com/ratchetphp/RFC6455/issues",
                 "source": "https://github.com/ratchetphp/RFC6455/tree/v0.4.1"
             },
-            "time": "2026-06-06T14:34:23+00:00",
-            "published-time": "2026-06-06T14:46:21+00:00"
+            "time": "2026-06-06T14:34:23+00:00"
         },
         {
             "name": "react/cache",
@@ -4310,8 +4300,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2022-11-30T15:59:55+00:00",
-            "published-time": "2022-11-30T16:03:35+00:00"
+            "time": "2022-11-30T15:59:55+00:00"
         },
         {
             "name": "react/dns",
@@ -4387,8 +4376,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-11-18T19:34:28+00:00",
-            "published-time": "2025-11-18T19:35:06+00:00"
+            "time": "2025-11-18T19:34:28+00:00"
         },
         {
             "name": "react/event-loop",
@@ -4460,8 +4448,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-11-17T20:46:25+00:00",
-            "published-time": "2025-11-17T20:47:32+00:00"
+            "time": "2025-11-17T20:46:25+00:00"
         },
         {
             "name": "react/promise",
@@ -4534,8 +4521,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-08-19T18:57:03+00:00",
-            "published-time": "2025-08-19T19:13:36+00:00"
+            "time": "2025-08-19T18:57:03+00:00"
         },
         {
             "name": "react/promise-timer",
@@ -4614,8 +4600,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-06-04T14:27:45+00:00",
-            "published-time": "2024-06-04T14:29:41+00:00"
+            "time": "2024-06-04T14:27:45+00:00"
         },
         {
             "name": "react/socket",
@@ -4695,8 +4680,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-11-19T20:47:34+00:00",
-            "published-time": "2025-11-19T20:48:23+00:00"
+            "time": "2025-11-19T20:47:34+00:00"
         },
         {
             "name": "react/stream",
@@ -4774,8 +4758,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-06-11T12:45:25+00:00",
-            "published-time": "2024-06-11T12:48:34+00:00"
+            "time": "2024-06-11T12:45:25+00:00"
         },
         {
             "name": "symfony/clock",
@@ -6434,8 +6417,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-25T15:50:05+00:00",
-            "published-time": "2026-09-30T10:23:32+00:00"
+            "time": "2026-09-25T15:50:05+00:00"
         },
         {
             "name": "symfony/polyfill-php83",
@@ -10106,5 +10088,5 @@
         "php": "^8.2"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.11.0"
+    "plugin-api-version": "2.6.0"
 }
