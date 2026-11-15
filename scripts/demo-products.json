@@ -1,0 +1,18 @@
+{
+  "category": {
+    "name": "إلكترونيات وإكسسوارات",
+    "description": "A new collection of everyday electronics and accessories."
+  },
+  "products": [
+    { "name": "فأرة لاسلكية", "description": "فأرة مريحة للاستخدام اليومي مع الحاسوب.", "price": 79, "initial_stock": 100 },
+    { "name": "لوحة مفاتيح ميكانيكية", "description": "لوحة مفاتيح مناسبة للعمل والكتابة والألعاب.", "price": 189, "initial_stock": 100 },
+    { "name": "سماعة رأس سلكية", "description": "سماعة رأس بميكروفون للمكالمات والاستخدام اليومي.", "price": 149, "initial_stock": 100 },
+    { "name": "موزع منافذ USB-C", "description": "موزع صغير لتوصيل ملحقات الحاسوب.", "price": 99, "initial_stock": 100 },
+    { "name": "حامل حاسوب محمول", "description": "حامل مكتبي قابل للتعديل للحاسوب المحمول.", "price": 89, "initial_stock": 100 },
+    { "name": "شاحن متنقل", "description": "شاحن محمول للاستخدام أثناء التنقل.", "price": 129, "initial_stock": 100 },
+    { "name": "مكبر صوت بلوتوث", "description": "مكبر صوت محمول للاستخدام المنزلي.", "price": 159, "initial_stock": 100 },
+    { "name": "كاميرا ويب", "description": "كاميرا للحاسوب مناسبة للاجتماعات ومكالمات الفيديو.", "price": 199, "initial_stock": 100 },
+    { "name": "وحدة تخزين خارجية SSD", "description": "وحدة تخزين محمولة للملفات والنسخ الاحتياطية.", "price": 349, "initial_stock": 100 },
+    { "name": "شاشة مكتبية", "description": "شاشة مناسبة للعمل والدراسة والاستخدام اليومي.", "price": 699, "initial_stock": 100 }
+  ]
+}

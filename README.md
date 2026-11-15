@@ -17,6 +17,8 @@ and [verification/results report](./docs/performance/focused-review/REVIEW.md).
 The project provides Laravel REST APIs, a React frontend, and a separate
 Node.js/TypeScript inventory service.
 
+For another laptop, [load the shared demo products and initial stock](docs/data-on-another-laptop.md) after pulling the code. Migrations update schema; database records require a seed or a separate backup transfer.
+
 ## Services
 
 - `backend/my-project`: Laravel 12 REST API, JWT authentication, catalog,
