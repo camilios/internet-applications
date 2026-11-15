@@ -11,6 +11,7 @@ import { useAuthStore } from "@/features/auth/stores/auth.store"
 import { useOrders } from "@/features/orders/hooks/use-orders"
 import { useOrderListStatusRealtime } from "@/features/orders/hooks/use-order-realtime"
 import type { Order } from "@/features/orders/types"
+import { OrderSummaryCard } from "@/features/orders/components/order-summary-card"
 import { ORDER_STATUS, ORDER_STATUS_COLORS, ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/constants/order-status"
 import { ROLES } from "@/lib/constants/roles"
 import { formatCurrency, formatDate } from "@/lib/utils/format"
@@ -91,6 +92,7 @@ function OrdersPage() {
             isLoading={isLoading}
             emptyTitle="لا توجد طلبات"
             emptyDescription="لم يتم العثور على طلبات بهذه الحالة."
+            renderMobileRow={(order) => <OrderSummaryCard order={order} showCustomer={isAdmin} />}
           />
           {data?.meta && (
             <Pagination

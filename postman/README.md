@@ -1,5 +1,11 @@
 # Testing locally with Postman
 
+The updated collection is named **E-Commerce API — Req 4 v1.2**. Re-import the JSON after updating the repository, then open requests from this version. Existing imported copies do not automatically get file changes. Version 1.2 binds generated keys, captured login tokens and IDs for each request so an old environment/runner variable cannot override them. Product/quantity/connection inputs still use your selected settings.
+
+For a new purchase: **Login customer → Products (or set an available product_id) → Prepare next order key → Create order**. Prepare is now the first request in folder 03. Retrying the same purchase keeps its original key and body; Replay uses that same key. Never generate a new key automatically on every retry. These behaviors are checked with `node --test postman/tests/idempotency-scope.test.mjs`.
+
+The v1.2 fix passed eight scope regression checks and a live run of seven selected requests / nine script assertions with deliberately stale environment/runner keys and tokens. Order **300019** returned 201 on creation and replay, with the same order ID and one stock reservation (product 24: 100 → 99). [Recorded result](../docs/req4-evidence/postman-idempotency.json). Exported scripts were executed through Node/Chai against the real local API/MySQL/gRPC; this was not a run inside the Postman app. Existing imported Postman copies must be re-imported to receive the fix.
+
 Import `E-Commerce.postman_collection.json`. Import `E-Commerce.local.postman_environment.json` if it has been prepared on this machine; it is ignored by Git and contains local credentials. Otherwise import the blank `E-Commerce.postman_environment.json` and fill in the three accounts' passwords. Select that environment in Postman.
 
 The API is `http://localhost:8000/api`, the frontend is `http://localhost:5173`, and Reverb is `ws://localhost:8080`. The running local worker now sends **real Resend SMTP email**, with mock delivery disabled. For real-email tests, import/select `E-Commerce.Resend.local.postman_environment.json`; it uses the authorized Resend account email as the customer. The ordinary demo customer addresses cannot receive email from the unverified test sender. See [Resend setup and evidence](../docs/resend-setup.md).

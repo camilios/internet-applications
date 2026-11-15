@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "executed_at": "2026-11-15T09:05:12.150Z",
+  "scope": "Selected exported Postman scripts executed through Node/Chai with environment/runner variable shadows; actual local HTTP/MySQL/gRPC. This is not a Postman-app run. One authorized customer order; no worker start/stop or status change.",
+  "collection": "E-Commerce API — Req 4 v1.2",
+  "requests": [
+    {
+      "request": "Login customer (saves customer_token)",
+      "status": 200
+    },
+    {
+      "request": "Product detail and real stock",
+      "status": 200
+    },
+    {
+      "request": "Prepare next order key (intentional new purchase)",
+      "status": 200
+    },
+    {
+      "request": "Create order (retains key for safe retry)",
+      "status": 201
+    },
+    {
+      "request": "Replay same order (same key and payload)",
+      "status": 201
+    },
+    {
+      "request": "Customer order detail",
+      "status": 200
+    },
+    {
+      "request": "Product detail and real stock",
+      "status": 200
+    }
+  ],
+  "script_assertions": 9,
+  "order_id": 300019,
+  "product_id": 24,
+  "prepared_key_sent": true,
+  "stale_key_ignored": true,
+  "captured_token_used": true,
+  "replay_same_order": true,
+  "stock_before": 100,
+  "stock_after": 99,
+  "unit_scope_tests": 8
+}

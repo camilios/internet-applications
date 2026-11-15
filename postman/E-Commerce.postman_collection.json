@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "E-Commerce API — Req 4",
+    "name": "E-Commerce API — Req 4 v1.2",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Import the local environment and run login requests first. Req 4 folder covers real order creation, safe replay, private-channel auth and admin approval. Mail is explicitly MOCK locally. WebSocket instructions and worker stop/restart commands: postman/README.md. Run requests deliberately: catalog admin requests mutate data."
+    "description": "v1.2 fixes stale environment/runner values overriding prepared order keys, captured tokens and IDs. Re-import this file and open requests from this version. Select the appropriate local environment and run login requests first. Req 4 folder covers real order creation, safe replay, private-channel auth and admin approval. Email uses the configured mock/SMTP profile; select the Resend environment for the authorized real recipient. WebSocket and worker commands: postman/README.md. Catalog admin requests mutate data."
   },
   "variable": [
     {
@@ -131,6 +131,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -173,6 +185,18 @@
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -217,6 +241,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -253,6 +289,18 @@
             "description": ""
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -295,6 +343,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -328,6 +388,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -357,6 +429,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -384,6 +468,18 @@
             "description": ""
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -414,6 +510,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -429,6 +537,58 @@
     {
       "name": "03 Req 4 — orders and private channels",
       "item": [
+        {
+          "name": "Prepare next order key (intentional new purchase)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customer_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/me",
+            "description": "Start a NEW purchase with a fresh UUID. This updates the exact key that Create order sends, even if an environment/runner has an older value. Retry an uncertain reservation using its existing key and identical payload."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}",
+                  "const nextKey = pm.variables.replaceIn('{{$guid}}');",
+                  "pm.collectionVariables.set('idempotency_key', nextKey);",
+                  "pm.variables.set('idempotency_key', nextKey);",
+                  "pm.collectionVariables.set('order_id', '');",
+                  "pm.variables.set('order_id', '');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP status', () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
         {
           "name": "Create order (retains key for safe retry)",
           "request": {
@@ -458,7 +618,7 @@
               }
             ],
             "url": "{{base_url}}/orders",
-            "description": "Creates a real order and reserves real inventory. The key is retained on failure and retry. Use Prepare next order only when intentionally creating another order. Email is mocked locally and processed separately.",
+            "description": "Creates a real order and reserves real inventory. Sends the prepared collection key explicitly, bypassing stale environment/runner values. The key is retained on failure and retry. Use Prepare next order only for a new purchase. Email is handled separately using the configured provider; the Resend environment uses the authorized account email.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"items\": [{ \"product_id\": {{product_id}}, \"quantity\": {{quantity}} }]\n}",
@@ -475,7 +635,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "if (!pm.collectionVariables.get('idempotency_key')) pm.collectionVariables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));"
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}",
+                  "if (!pm.collectionVariables.get('idempotency_key')) pm.collectionVariables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));",
+                  "const orderKey = pm.collectionVariables.get('idempotency_key');",
+                  "if (!orderKey) throw new Error('Run Prepare next order key before replaying an order.');",
+                  "pm.variables.set('idempotency_key', orderKey);",
+                  "pm.request.headers.upsert({ key: 'Idempotency-Key', value: orderKey });"
                 ]
               }
             },
@@ -534,6 +702,22 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}",
+                  "const orderKey = pm.collectionVariables.get('idempotency_key');",
+                  "if (!orderKey) throw new Error('Run Prepare next order key before replaying an order.');",
+                  "pm.variables.set('idempotency_key', orderKey);",
+                  "pm.request.headers.upsert({ key: 'Idempotency-Key', value: orderKey });"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -570,6 +754,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -605,6 +801,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -639,6 +847,18 @@
             "description": ""
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -687,6 +907,18 @@
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -737,6 +969,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -786,6 +1030,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -833,6 +1089,18 @@
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -882,6 +1150,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -923,6 +1203,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -958,6 +1250,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -992,6 +1296,18 @@
             "description": ""
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -1041,6 +1357,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1077,56 +1405,24 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Expected HTTP status', () => pm.expect(pm.response.code).to.be.oneOf([200]));",
                   "pm.test('Confirmed', () => pm.expect(pm.response.json().data.status).to.eql('confirmed'));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Prepare next order key (intentional new purchase)",
-          "request": {
-            "method": "GET",
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{customer_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": "{{base_url}}/me",
-            "description": "Run this only when intentionally starting a NEW purchase. Retry an uncertain reservation using its existing key instead."
-          },
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.collectionVariables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}')); pm.collectionVariables.unset('order_id');"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Expected HTTP status', () => pm.expect(pm.response.code).to.be.oneOf([200]));"
                 ]
               }
             }
@@ -1162,6 +1458,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1196,6 +1504,18 @@
             "description": ""
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -1233,6 +1553,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1268,6 +1600,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1302,6 +1646,18 @@
             "description": ""
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -1343,6 +1699,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1378,6 +1746,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1412,6 +1792,18 @@
             "description": ""
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -1460,6 +1852,18 @@
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -1510,6 +1914,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1557,6 +1973,18 @@
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -1607,6 +2035,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1654,6 +2094,18 @@
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -1703,6 +2155,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1738,6 +2202,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1772,6 +2248,18 @@
             "description": "May fail while products reference it; only the category captured by Create category is targeted."
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -1813,6 +2301,18 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1847,6 +2347,18 @@
             "description": ""
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {",
+                  "  const value = pm.collectionVariables.get(key);",
+                  "  if (value !== undefined && value !== null) pm.variables.set(key, value);",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {

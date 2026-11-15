@@ -53,7 +53,7 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Button variant="ghost" size="sm" asChild>
           <Link to="/products">
             <ArrowRight className="ml-2 h-4 w-4" />
@@ -80,7 +80,7 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
               <img
                 src={product.image_url}
                 alt={product.name}
-                className="max-h-full rounded-lg object-contain"
+                className="max-h-full max-w-full rounded-lg object-contain"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center rounded-lg bg-muted text-muted-foreground">
@@ -92,18 +92,18 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
 
         <Card className="lg:col-span-2">
           <CardHeader>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <CardTitle className="text-2xl">{product.name}</CardTitle>
-                <div className="mt-2 flex gap-2">
-                  <Badge variant="secondary">{product.category.name}</Badge>
+            <div className="flex min-w-0 flex-col items-start justify-between gap-4 sm:flex-row sm:flex-wrap">
+              <div className="min-w-0 flex-1">
+                <CardTitle className="break-words text-2xl">{product.name}</CardTitle>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="h-auto min-h-5 max-w-full whitespace-normal break-words">{product.category.name}</Badge>
                   <Badge variant={product.is_active ? "default" : "outline"}>
                     {product.is_active ? "نشط" : "معطّل"}
                   </Badge>
                 </div>
               </div>
-              <div className="text-left">
-                <p className="text-3xl font-bold text-primary">
+              <div className="min-w-0 max-w-full text-start">
+                <p className="break-words text-2xl font-bold text-primary sm:text-3xl">
                   {formatCurrency(product.price)}
                 </p>
               </div>
@@ -115,11 +115,11 @@ export function ProductDetails({ productId }: ProductDetailsProps) {
                 <h3 className="mb-1 text-sm font-medium text-muted-foreground">
                   الوصف
                 </h3>
-                <p className="leading-relaxed">{product.description}</p>
+                <p className="break-words leading-relaxed">{product.description}</p>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4 border-t pt-4">
+            <div className="grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-2">
               <div>
                 <p className="text-sm text-muted-foreground">المخزون المتوفر</p>
                 <p className="text-lg font-semibold">{product.stock}</p>

@@ -6,6 +6,7 @@ import { spawn, execFileSync } from "node:child_process"
 import fs from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
+import { checkResponsiveLayouts } from "../responsive/layout-checks.mjs"
 
 const frontend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const backend = path.resolve(frontend, "../backend/my-project")
@@ -18,6 +19,8 @@ const reverbPort = Number(process.env.REQ4_BROWSER_REVERB_PORT || 18180)
 const uiPort = Number(process.env.REQ4_BROWSER_UI_PORT || 18173)
 const origin = `http://127.0.0.1:${uiPort}`
 const api = `http://127.0.0.1:${apiPort}/api`
+const checkLayouts = process.env.REQ4_BROWSER_LAYOUT === "true"
+const viewport = { width: checkLayouts ? 720 : 1280, height: 900, deviceScaleFactor: 1, mobile: false }
 const php = process.env.REQ4_QA_PHP || "php"
 const phpFlags = process.platform === "win32" ? ["-d", "extension=sockets", "-d", "extension=sodium", "-d", "extension=pdo_sqlite", "-d", "extension=gd"] : []
 const browser = process.env.REQ4_BROWSER_EXECUTABLE || [
@@ -42,12 +45,12 @@ const env = {
   REVERB_HOST: "127.0.0.1", REVERB_PORT: String(reverbPort), REVERB_SCHEME: "http", REVERB_ALLOWED_ORIGINS: "127.0.0.1,localhost",
   CORS_ALLOWED_ORIGINS: origin,
   APP_CONFIG_CACHE: path.join(runDirectory, "no-config.php"), APP_ROUTES_CACHE: path.join(runDirectory, "no-routes.php"),
-  VITE_API_URL: api, VITE_REVERB_APP_KEY: "req4-browser-key", VITE_REVERB_HOST: "127.0.0.1", VITE_REVERB_PORT: String(reverbPort), VITE_REVERB_SCHEME: "http",
+  VITE_API_URL: checkLayouts ? "/api" : api, VITE_REVERB_APP_KEY: "req4-browser-key", VITE_REVERB_HOST: "127.0.0.1", VITE_REVERB_PORT: String(reverbPort), VITE_REVERB_SCHEME: "http",
 }
 const children = [], tabs = [], checks = []
 let processLogs = "", cdp
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-const runPhp = (...args) => execFileSync(php, [...phpFlags, ...args], { cwd: backend, env, encoding: "utf8", windowsHide: true, timeout: 30000 })
+const runPhp = (...args) => execFileSync(php, [...phpFlags, ...args], { cwd: backend, env, encoding: "utf8", windowsHide: true, timeout: 90000 })
 function start(executable, args, cwd) {
   const child = spawn(executable, args, { cwd, env, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
   children.push(child)
@@ -56,7 +59,7 @@ function start(executable, args, cwd) {
   child.on("error", (error) => { processLogs += `${error.message}\n` })
   return child
 }
-async function until(check, message, timeout = 20000) {
+async function until(check, message, timeout = 45000) {
   const deadline = Date.now() + timeout
   while (Date.now() < deadline) {
     try { const result = await check(); if (result) return result } catch {}
@@ -126,37 +129,51 @@ async function newTab(user, token, route) {
     }
     if (message.method === "Network.responseReceived") {
       const { url, status } = message.params.response
-      if (url.startsWith(api)) tab.requests.push({ route: url.slice(api.length), status })
+      const prefix = url.startsWith(api) ? api : checkLayouts && url.startsWith(origin + "/api") ? origin + "/api" : null
+      if (prefix) tab.requests.push({ route: url.slice(prefix.length), status })
     }
     if (message.method === "Runtime.exceptionThrown") tab.errors.push(message.params.exceptionDetails.text)
   })
   for (const domain of ["Page", "Runtime", "Network"]) await cdp.send(`${domain}.enable`, {}, sessionId)
-  const storage = JSON.stringify({ state: { user, token, isAuthenticated: true }, version: 0 })
-  await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: `localStorage.setItem('auth-storage', ${JSON.stringify(storage)})` }, sessionId)
+  await cdp.send("Emulation.setDeviceMetricsOverride", viewport, sessionId)
+  if (user && token) {
+    const storage = JSON.stringify({ state: { user, token, isAuthenticated: true }, version: 0 })
+    await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: `localStorage.setItem('auth-storage', ${JSON.stringify(storage)})` }, sessionId)
+  }
   await cdp.send("Page.navigate", { url: origin + route }, sessionId)
-  await until(() => evaluate(tab, "document.readyState === 'complete' && !!document.querySelector('main')"), `React page ${route}`)
+  await until(() => evaluate(tab, "document.readyState === 'complete' && !!document.querySelector('main, form')"), `React page ${route}`)
   tab.timeOrigin = await evaluate(tab, "performance.timeOrigin")
   return tab
 }
 const bodyHas = (tab, text) => until(() => evaluate(tab, `document.body.innerText.includes(${JSON.stringify(text)})`), `visible text ${text}`)
 const subscribed = (tab, channel) => until(() => tab.frames.some((frame) => frame.event === "pusher_internal:subscription_succeeded" && frame.channel === channel), `Echo subscription ${channel}`)
+const visibleOrder = (id) => `[...document.querySelectorAll('tbody tr, article[aria-label]')].find(row => row.getClientRects().length && row.innerText.includes('#${id}'))`
 async function screenshot(tab, name) {
   await cdp.send("Page.bringToFront", {}, tab.sessionId)
   await evaluate(tab, "new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
-  const { data } = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true }, tab.sessionId)
+  const { data } = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false }, tab.sessionId)
   const filename = path.join(runDirectory, name)
   fs.writeFileSync(filename, Buffer.from(data, "base64"))
   return filename
 }
 
 try {
-  console.log("Building production frontend for the isolated browser acceptance environment...")
-  const npmCli = path.join(path.dirname(process.execPath), "node_modules/npm/bin/npm-cli.js")
-  execFileSync(process.execPath, [npmCli, "run", "build", "--", "--outDir", path.join(runDirectory, "dist")], { cwd: frontend, env, encoding: "utf8", windowsHide: true, timeout: 180000 })
+  const prebuilt = process.env.REQ4_BROWSER_PREBUILT_DIST
+  if (prebuilt) {
+    const source = path.resolve(prebuilt)
+    const relative = path.relative(toolsRoot, source)
+    assert.ok(relative && !relative.startsWith("..") && !path.isAbsolute(relative) && path.basename(source) === "dist" && path.basename(path.dirname(source)).startsWith("req4-browser-"), "Only reuse a generated isolated test build with matching test ports/settings")
+    fs.cpSync(source, path.join(runDirectory, "dist"), { recursive: true })
+    console.log("Reusing the unchanged isolated production build for a test-harness-only rerun...")
+  } else {
+    console.log("Building production frontend for the isolated browser acceptance environment...")
+    const npmCli = path.join(path.dirname(process.execPath), "node_modules/npm/bin/npm-cli.js")
+    execFileSync(process.execPath, [npmCli, "run", "build", "--", "--outDir", path.join(runDirectory, "dist")], { cwd: frontend, env, encoding: "utf8", windowsHide: true, timeout: 180000 })
+  }
   const fixture = JSON.parse(runPhp("tests/qa/reverb-fixture.php", "init"))
   start(php, [...phpFlags, "-S", `127.0.0.1:${apiPort}`, "tests/qa/reverb-router.php"], backend)
   start(php, [...phpFlags, "artisan", "reverb:start", "--host=127.0.0.1", `--port=${reverbPort}`], backend)
-  start(process.execPath, [path.join(frontend, "node_modules/vite/bin/vite.js"), "preview", "--host=127.0.0.1", `--port=${uiPort}`, "--strictPort", "--outDir", path.join(runDirectory, "dist")], frontend)
+  start(process.execPath, [path.join(frontend, "node_modules/vite/bin/vite.js"), "preview", "--host=127.0.0.1", `--port=${uiPort}`, "--strictPort", "--outDir", path.join(runDirectory, "dist"), ...(checkLayouts ? ["--config", "tests/responsive/vite.config.mjs"] : [])], frontend)
   await until(async () => (await request("GET", "/me", fixture.admin)).ok, "isolated HTTP API")
   await until(async () => !!(await fetch(`http://127.0.0.1:${reverbPort}`)), "Reverb server")
   await until(async () => (await fetch(origin)).ok, "production Vite preview")
@@ -184,7 +201,7 @@ try {
   runPhp("artisan", "queue:work", "database", "--queue=broadcasts", "--once", "--tries=1", "--timeout=15")
   await bodyHas(dashboard, `طلب جديد #${order.id}`)
   await until(async () => (await evaluate(dashboard, countExpression)) === "1", "dashboard count changes through Echo")
-  await until(() => evaluate(adminOrders, `[...document.querySelectorAll('tbody tr')].some(row => row.innerText.includes(${JSON.stringify(`#${order.id}`)}))`), "new order row appears")
+  await until(() => evaluate(adminOrders, `!!(${visibleOrder(order.id)})`), "new order appears in the visible table/card")
   assert.ok(dashboard.frames.some((frame) => frame.event === "OrderCreated" && frame.order_id === order.id))
   assert.ok(adminOrders.frames.some((frame) => frame.event === "OrderCreated" && frame.order_id === order.id))
   checks.push("PASS: actual Echo event displays Arabic new-order announcement, updates dashboard count and admin order row without refresh")
@@ -206,15 +223,41 @@ try {
   await until(() => adminApproval.requests.some((item) => item.route === `/admin/orders/${order.id}/status` && item.status === 200), "existing admin mutation succeeds")
   runPhp("artisan", "queue:work", "database", "--queue=broadcasts", "--once", "--tries=1", "--timeout=15")
   await bodyHas(customer, "مؤكد")
-  await until(() => evaluate(customerList, "document.querySelector('tbody')?.innerText.includes('مؤكد')"), "customer list status updates")
+  await until(() => evaluate(customerList, `(${visibleOrder(order.id)})?.innerText.includes('مؤكد')`), "visible customer list/card status updates")
   await bodyHas(pendingList, "لا توجد طلبات")
   assert.ok(customer.frames.some((frame) => frame.event === "OrderStatusUpdated" && frame.order_id === order.id && frame.status === "confirmed"))
   assert.ok(customerList.frames.some((frame) => frame.event === "OrderStatusUpdated" && frame.order_id === order.id && frame.status === "confirmed"))
   assert.ok(pendingList.frames.some((frame) => frame.event === "OrderStatusUpdated" && frame.order_id === order.id && frame.status === "confirmed"))
   assert.ok(customer.requests.filter((item) => item.route === `/orders/${order.id}` && item.status === 200).length >= 2)
+  for (const tab of [customer, customerList, pendingList]) {
+    await until(() => evaluate(tab, `[...document.querySelectorAll('[data-sonner-toast]')].some(toast => toast.getClientRects().length && toast.innerText.includes('تم تحديث حالة الطلب #${order.id}'))`), "visible customer status toast")
+  }
   checks.push("PASS: existing admin approval UI sends PATCH; actual Echo event updates customer detail and orders list and removes the row from the pending filter without refresh")
   await screenshot(customer, "customer-confirmed.png")
   await screenshot(adminApproval, "admin-approved.png")
+
+  for (const [status, label] of [["processing", "قيد التجهيز"], ["shipped", "تم الشحن"], ["delivered", "تم التوصيل"]]) {
+    await until(() => evaluate(adminApproval, `(() => { const s=document.querySelector('#next-order-status'); return s && !s.disabled && s.value === '' && [...s.options].some(o=>o.value === '${status}'); })()`), `reset selector before ${status}`)
+    const previous = adminApproval.requests.filter(item => item.route === `/admin/orders/${order.id}/status` && item.status === 200).length
+    await evaluate(adminApproval, `(() => { const s=document.querySelector('#next-order-status'); s.value='${status}'; s.dispatchEvent(new Event('change',{bubbles:true})); })()`)
+    await until(() => adminApproval.requests.filter(item => item.route === `/admin/orders/${order.id}/status` && item.status === 200).length === previous + 1, `saved ${status}`)
+    runPhp("artisan", "queue:work", "database", "--queue=broadcasts", "--once", "--tries=1", "--timeout=15")
+    await bodyHas(adminApproval, label)
+    await bodyHas(customer, label)
+    await until(() => evaluate(customerList, `(${visibleOrder(order.id)})?.innerText.includes(${JSON.stringify(label)})`), `visible customer ${status}`)
+  }
+  await until(() => evaluate(adminApproval, "!document.querySelector('#next-order-status')"), "delivered removes the status selector")
+  checks.push("PASS: confirmed -> processing -> shipped -> delivered through the admin control; each selection resets; delivered hides the selector; customer list/detail update live")
+  await screenshot(adminApproval, "admin-delivered.png")
+  await screenshot(customer, "customer-delivered.png")
+
+  const layouts = checkLayouts ? await checkResponsiveLayouts({
+    cdp, evaluate, until, pause, newTab, screenshot,
+    adminUser, adminToken: fixture.admin, ownerUser, ownerToken: fixture.owner,
+    productId: fixture.product_id, dashboard, customer, customerList, adminApproval,
+    onLayout: entry => fs.appendFileSync(path.join(runDirectory, "layout-results.jsonl"), JSON.stringify(entry) + "\n"),
+  }) : []
+  if (checkLayouts) checks.push(`PASS: ${layouts.length} responsive page/viewport checks; drawer keyboard/focus/navigation and desktop-to-split-screen resize`)
 
   for (const tab of tabs) {
     assert.equal(await evaluate(tab, "performance.timeOrigin"), tab.timeOrigin, "no full page reload")
@@ -224,9 +267,9 @@ try {
   assert.equal(final.unpublished, 1)
   assert.equal(final.deliveries, 0)
   assert.equal(final.queued_broadcasts, 0)
-  checks.push("PASS: all six browser documents retain timeOrigin; no uncaught JS exceptions; realtime independent of absent email worker")
+  checks.push(`PASS: all ${tabs.length} browser documents retain timeOrigin; no uncaught JS exceptions; realtime independent of absent email worker`)
   const result = {
-    checks, evidenceDirectory: runDirectory,
+    checks, layouts, realtimeViewport: viewport, evidenceDirectory: runDirectory,
     scope: "Production React/Echo/Pusher browser + real Laravel HTTP/JWT/SQLite/database queue/Reverb; inventory boundary stubbed; no RabbitMQ/SMTP/MySQL claim",
   }
   fs.writeFileSync(path.join(runDirectory, "result.json"), JSON.stringify(result, null, 2))
@@ -235,6 +278,7 @@ try {
   console.log(result.scope)
 } catch (error) {
   console.error(error.message)
+  fs.writeFileSync(path.join(runDirectory, "failure.json"), JSON.stringify({ message: error.message, checks }, null, 2))
   if (tabs.length) {
     for (const [index, tab] of tabs.entries()) {
       try {

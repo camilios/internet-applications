@@ -39,6 +39,12 @@ const event = (listen, source) => ({ listen, script: { type: 'text/javascript', 
 const status = codes => `pm.test('Expected HTTP status', () => pm.expect(pm.response.code).to.be.oneOf(${JSON.stringify(codes)}));`
 const jsonBody = value => ({ mode: 'raw', raw: typeof value === 'string' ? value : JSON.stringify(value, null, 2), options: { raw: { language: 'json' } } })
 const auth = role => role === false ? { type: 'noauth' } : { type: 'bearer', bearer: [{ key: 'token', value: `{{${role || 'customer'}_token}}`, type: 'string' }] }
+// Values produced by requests are canonical in this collection. Bind them locally
+// for each send so environment/runner values cannot shadow a fresh login/key/ID.
+const bindRuntimeVariables = `for (const key of ['customer_token','admin_token','other_customer_token','customer_id','admin_id','other_customer_id','order_id','idempotency_key','channel_auth','created_category_id','created_product_id','notification_id']) {
+  const value = pm.collectionVariables.get(key);
+  if (value !== undefined && value !== null) pm.variables.set(key, value);
+}`
 function request(name, method, endpoint, { role = 'customer', body, expected = [200], tests = '', prerequest = '', description = '', headers = [] } = {}) {
   const item = {
     name,
@@ -46,7 +52,7 @@ function request(name, method, endpoint, { role = 'customer', body, expected = [
     event: [event('test', status(expected) + (tests ? '\n' + tests : ''))],
   }
   if (body) item.request.body = jsonBody(body)
-  if (prerequest) item.event.unshift(event('prerequest', prerequest))
+  item.event.unshift(event('prerequest', bindRuntimeVariables + (prerequest ? '\n' + prerequest : '')))
   return item
 }
 const capture = (variable, expression) => `if (pm.response.code >= 200 && pm.response.code < 300) { const result = pm.response.json(); pm.collectionVariables.set('${variable}', ${expression}); }`
@@ -58,14 +64,27 @@ function login(role) {
 }
 const orderBody = '{\n  "items": [{ "product_id": {{product_id}}, "quantity": {{quantity}} }]\n}'
 const orderHeaders = [{ key: 'Idempotency-Key', value: '{{idempotency_key}}' }]
+const bindOrderKey = `const orderKey = pm.collectionVariables.get('idempotency_key');
+if (!orderKey) throw new Error('Run Prepare next order key before replaying an order.');
+pm.variables.set('idempotency_key', orderKey);
+pm.request.headers.upsert({ key: 'Idempotency-Key', value: orderKey });`
+const prepareOrder = request('Prepare next order key (intentional new purchase)', 'GET', '/me', {
+  prerequest: `const nextKey = pm.variables.replaceIn('{{$guid}}');
+pm.collectionVariables.set('idempotency_key', nextKey);
+pm.variables.set('idempotency_key', nextKey);
+pm.collectionVariables.set('order_id', '');
+pm.variables.set('order_id', '');`,
+  description: 'Start a NEW purchase with a fresh UUID. This updates the exact key that Create order sends, even if an environment/runner has an older value. Retry an uncertain reservation using its existing key and identical payload.',
+})
 const create = request('Create order (retains key for safe retry)', 'POST', '/orders', {
   body: orderBody, expected: [201], headers: orderHeaders,
-  prerequest: "if (!pm.collectionVariables.get('idempotency_key')) pm.collectionVariables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));",
+  prerequest: "if (!pm.collectionVariables.get('idempotency_key')) pm.collectionVariables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));\n" + bindOrderKey,
   tests: capture('order_id', 'result.data.id') + "\npm.test('Order belongs to customer', () => pm.expect(pm.response.json().data.user_id).to.eql(Number(pm.collectionVariables.get('customer_id'))));",
-  description: 'Creates a real order and reserves real inventory. The key is retained on failure and retry. Use Prepare next order only when intentionally creating another order. Email is mocked locally and processed separately.',
+  description: 'Creates a real order and reserves real inventory. Sends the prepared collection key explicitly, bypassing stale environment/runner values. The key is retained on failure and retry. Use Prepare next order only for a new purchase. Email is handled separately using the configured provider; the Resend environment uses the authorized account email.',
 })
 const replay = request('Replay same order (same key and payload)', 'POST', '/orders', {
   body: orderBody, expected: [201], headers: orderHeaders,
+  prerequest: bindOrderKey,
   tests: "pm.test('Same order returned', () => pm.expect(pm.response.json().data.id).to.eql(Number(pm.collectionVariables.get('order_id'))));",
 })
 const authorize = (name, channel, role, code = 200) => request(name, 'POST', '/broadcasting/auth', {
@@ -95,13 +114,13 @@ const administrative = [
   request('Delete created category', 'DELETE', '/categories/{{created_category_id}}', { role: 'admin', description: 'May fail while products reference it; only the category captured by Create category is targeted.', expected: [200, 409, 422] }),
 ]
 const collection = {
-  info: { name: 'E-Commerce API — Req 4', schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json', description: 'Import the local environment and run login requests first. Req 4 folder covers real order creation, safe replay, private-channel auth and admin approval. Mail is explicitly MOCK locally. WebSocket instructions and worker stop/restart commands: postman/README.md. Run requests deliberately: catalog admin requests mutate data.' },
+  info: { name: 'E-Commerce API — Req 4 v1.2', schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json', description: 'v1.2 fixes stale environment/runner values overriding prepared order keys, captured tokens and IDs. Re-import this file and open requests from this version. Select the appropriate local environment and run login requests first. Req 4 folder covers real order creation, safe replay, private-channel auth and admin approval. Email uses the configured mock/SMTP profile; select the Resend environment for the authorized real recipient. WebSocket and worker commands: postman/README.md. Catalog admin requests mutate data.' },
   variable: Object.entries({ base_url: 'http://localhost:8000/api', reverb_url: 'ws://localhost:8080/app/ecommerce-local?protocol=7&client=postman&version=1.0&flash=false', customer_token: '', admin_token: '', other_customer_token: '', customer_id: '', admin_id: '', other_customer_id: '', product_id: '', category_id: '', quantity: '1', order_id: '', idempotency_key: '', socket_id: '', channel_auth: '', created_category_id: '', created_product_id: '', notification_id: '' }).map(([key, value]) => ({ key, value, type: 'string' })),
   item: [
     { name: '01 Authentication', item: [login('customer'), login('admin'), login('other_customer'), request('Current customer', 'GET', '/me'), request('Register a new customer (optional)', 'POST', '/register', { role: false, body: { name: 'Postman customer', email: '{{$randomEmail}}', password: '{{registration_password}}', password_confirmation: '{{registration_password}}' }, expected: [201], description: 'Creates a new customer; existing customer_token is preserved. Registration cannot assign admin role.' })] },
     { name: '02 Catalog', item: catalog },
     { name: '03 Req 4 — orders and private channels', item: [
-      create, replay,
+      prepareOrder, create, replay,
       request('Customer orders', 'GET', '/orders?page=1'),
       request('Customer order detail', 'GET', '/orders/{{order_id}}'),
       request('Admin sees new order', 'GET', '/admin/orders?page=1', { role: 'admin' }),
@@ -115,7 +134,6 @@ const collection = {
       request('Reject customer opening admin orders', 'GET', '/admin/orders', { expected: [403] }),
       request('Approve order as admin', 'PATCH', '/admin/orders/{{order_id}}/status', { role: 'admin', body: { status: 'confirmed' }, tests: "pm.test('Confirmed', () => pm.expect(pm.response.json().data.status).to.eql('confirmed'));" }),
       request('Customer sees confirmed status', 'GET', '/orders/{{order_id}}', { tests: "pm.test('Confirmed', () => pm.expect(pm.response.json().data.status).to.eql('confirmed'));" }),
-      request('Prepare next order key (intentional new purchase)', 'GET', '/me', { prerequest: "pm.collectionVariables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}')); pm.collectionVariables.unset('order_id');", description: 'Run this only when intentionally starting a NEW purchase. Retry an uncertain reservation using its existing key instead.' }),
     ] },
     { name: '04 Dashboard and notifications', item: [
       request('Customer dashboard', 'GET', '/dashboard'),

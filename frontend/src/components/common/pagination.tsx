@@ -17,17 +17,18 @@ export function Pagination({ page, lastPage, onPageChange, className }: Paginati
   if (lastPage <= 1) return null
 
   return (
-    <div className={cn("flex items-center justify-center gap-2", className)}>
+    <div className={cn("flex min-w-0 items-center justify-center gap-2", className)}>
       <Button
         variant="outline"
         size="icon"
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
+        aria-label="الصفحة السابقة"
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
 
-      <span className="text-sm text-muted-foreground">
+      <span className="min-w-0 text-center text-sm text-muted-foreground">
         صفحة {page} من {lastPage}
       </span>
 
@@ -36,6 +37,7 @@ export function Pagination({ page, lastPage, onPageChange, className }: Paginati
         size="icon"
         disabled={page >= lastPage}
         onClick={() => onPageChange(page + 1)}
+        aria-label="الصفحة التالية"
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>

@@ -1,9 +1,10 @@
 import { Outlet } from "@tanstack/react-router"
+import { useEffect } from "react"
 import { Sidebar } from "./sidebar"
 import { Header } from "./header"
 import { useUiStore } from "@/stores/ui.store"
 import { cn } from "@/lib/utils/cn"
-import { useIsMobile } from "@/hooks/use-media-query"
+import { useIsDesktop } from "@/hooks/use-media-query"
 import { useAdminOrderRealtime } from "@/features/orders/hooks/use-order-realtime"
 
 /**
@@ -12,8 +13,13 @@ import { useAdminOrderRealtime } from "@/features/orders/hooks/use-order-realtim
  */
 export function AppShell() {
   useAdminOrderRealtime()
-  const { sidebarOpen } = useUiStore()
-  const isMobile = useIsMobile()
+  const { sidebarOpen, setMobileSidebarOpen } = useUiStore()
+  const isDesktop = useIsDesktop()
+
+  // Drawer state is separate from desktop expansion, so resizing cannot open it.
+  useEffect(() => {
+    setMobileSidebarOpen(false)
+  }, [isDesktop, setMobileSidebarOpen])
 
   return (
     <div className="relative flex min-h-screen bg-background">
@@ -21,12 +27,12 @@ export function AppShell() {
 
       <div
         className={cn(
-          "flex flex-1 flex-col transition-all duration-300",
-          !isMobile && sidebarOpen ? "md:mr-64" : "md:mr-16"
+          "min-w-0 flex flex-1 flex-col transition-[margin] duration-300 motion-reduce:transition-none",
+          isDesktop && (sidebarOpen ? "lg:mr-64" : "lg:mr-16")
         )}
       >
         <Header />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+        <main className="min-w-0 flex-1 p-4 sm:p-6 xl:p-8">
           <Outlet />
         </main>
       </div>

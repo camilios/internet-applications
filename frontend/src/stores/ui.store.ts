@@ -3,15 +3,14 @@ import { persist } from "zustand/middleware"
 
 interface UiState {
   sidebarOpen: boolean
+  mobileSidebarOpen: boolean
   theme: "light" | "dark" | "system"
   setSidebarOpen: (open: boolean) => void
   toggleSidebar: () => void
+  setMobileSidebarOpen: (open: boolean) => void
+  toggleMobileSidebar: () => void
   setTheme: (theme: "light" | "dark" | "system") => void
 }
-
-/** على الموبايل السايدبار يبدأ مقفول عشان ما يغطي الصفحة */
-const getInitialSidebarOpen = () =>
-  typeof window === "undefined" ? true : window.innerWidth >= 768
 
 /**
  * Global UI state only.
@@ -20,10 +19,13 @@ const getInitialSidebarOpen = () =>
 export const useUiStore = create<UiState>()(
   persist(
     (set) => ({
-      sidebarOpen: getInitialSidebarOpen(),
+      sidebarOpen: true,
+      mobileSidebarOpen: false,
       theme: "system",
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+      setMobileSidebarOpen: (open) => set({ mobileSidebarOpen: open }),
+      toggleMobileSidebar: () => set((s) => ({ mobileSidebarOpen: !s.mobileSidebarOpen })),
       setTheme: (theme) => set({ theme }),
     }),
     {

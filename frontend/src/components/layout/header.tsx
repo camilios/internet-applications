@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { useIsMobile } from "@/hooks/use-media-query"
+import { useIsDesktop } from "@/hooks/use-media-query"
 import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from "@/features/notifications/hooks/use-notifications"
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/constants/order-status"
 
@@ -26,8 +26,9 @@ export function Header() {
   const { setTheme } = useTheme()
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
-  const toggleSidebar = useUiStore((s) => s.toggleSidebar)
-  const isMobile = useIsMobile()
+  const toggleMobileSidebar = useUiStore((s) => s.toggleMobileSidebar)
+  const mobileSidebarOpen = useUiStore((s) => s.mobileSidebarOpen)
+  const isDesktop = useIsDesktop()
   const navigate = useNavigate()
   const { data: notifications } = useNotifications()
   const markRead = useMarkNotificationRead()
@@ -60,15 +61,15 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      {isMobile && (
-        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 sm:gap-4 sm:px-4">
+      {!isDesktop && (
+        <Button id="sidebar-toggle" variant="ghost" size="icon" onClick={toggleMobileSidebar} aria-expanded={mobileSidebarOpen} aria-controls="app-sidebar" aria-haspopup="dialog">
           <Menu className="h-5 w-5" />
           <span className="sr-only">القائمة</span>
         </Button>
       )}
 
-      <div className="flex-1" />
+      <div className="min-w-0 flex-1" />
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -81,7 +82,7 @@ export function Header() {
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80" align="end">
+        <DropdownMenuContent className="w-80 max-w-[calc(100vw-1rem)]" align="end">
           <div className="flex items-center justify-between px-3 py-2">
             <DropdownMenuLabel className="p-0">الإشعارات</DropdownMenuLabel>
             {unreadCount > 0 && (
@@ -143,11 +144,11 @@ export function Header() {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end">
+        <DropdownMenuContent className="w-56 max-w-[calc(100vw-1rem)]" align="end">
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{user?.name}</p>
-              <p className="text-xs leading-none text-muted-foreground">
+              <p className="break-words text-sm font-medium leading-snug">{user?.name}</p>
+              <p className="break-all text-xs leading-snug text-muted-foreground">
                 {user?.email}
               </p>
             </div>

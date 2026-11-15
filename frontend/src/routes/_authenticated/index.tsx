@@ -40,18 +40,18 @@ function DashboardPage() {
   ]
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="لوحة التحكم"
         description="نظرة عامة على أداء المتجر"
       />
 
-      <div className={`grid gap-4 md:grid-cols-2 ${isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+      <div className={`grid gap-4 sm:grid-cols-2 ${isAdmin ? "xl:grid-cols-4" : "xl:grid-cols-3"}`}>
         {stats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
+              <stat.icon className="h-4 w-4 shrink-0 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
@@ -63,8 +63,8 @@ function DashboardPage() {
         <CardHeader>
           <CardTitle>{isAdmin ? "إجمالي المبيعات" : "إجمالي قيمة طلباتي"}</CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-between">
-          <p className="text-2xl font-bold">{formatCurrency(summary.total_sales)}</p>
+        <CardContent className="flex flex-wrap items-center justify-between gap-4">
+          <p className="min-w-0 break-words text-2xl font-bold">{formatCurrency(summary.total_sales)}</p>
           <Button asChild variant="outline">
             <Link to="/orders">عرض الطلبات</Link>
           </Button>

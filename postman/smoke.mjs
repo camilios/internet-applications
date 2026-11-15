@@ -29,13 +29,15 @@ async function until(predicate, label, timeout = 20000) {
   }
   throw new Error(`Timed out: ${label}`)
 }
-const substitute = value => value.replace(/\{\{([^}]+)\}\}/g, (_, key) => key === '$guid' ? randomUUID() : String(env.has(key) ? env.get(key) : variables.get(key) ?? `{{${key}}}`))
 async function run(prefix) {
   const item = requests.find(item => item.name.startsWith(prefix))
   assert.ok(item, `collection request exists: ${prefix}`)
-  const pm = { collectionVariables: { get: key => variables.get(key), set: (key, value) => variables.set(key, value), unset: key => variables.delete(key) }, variables: { replaceIn: substitute }, expect, test: (_name, callback) => { callback(); assertions++ } }
+  const local = new Map()
+  const substitute = value => value.replace(/\{\{([^}]+)\}\}/g, (_, key) => key === '$guid' ? randomUUID() : String(local.has(key) ? local.get(key) : env.has(key) ? env.get(key) : variables.get(key) ?? `{{${key}}}`))
+  const requestHeaders = item.request.header.map(header => ({ ...header }))
+  const pm = { collectionVariables: { get: key => variables.get(key), set: (key, value) => variables.set(key, value), unset: key => variables.delete(key) }, variables: { replaceIn: substitute, set: (key, value) => local.set(key, value) }, request: { headers: { upsert: header => { const index = requestHeaders.findIndex(item => item.key.toLowerCase() === header.key.toLowerCase()); if (index < 0) requestHeaders.push(header); else requestHeaders[index] = header } } }, expect, test: (_name, callback) => { callback(); assertions++ } }
   for (const event of item.event ?? []) if (event.listen === 'prerequest') vm.runInNewContext(event.script.exec.join('\n'), { pm }, { timeout: 1000 })
-  const headers = Object.fromEntries(item.request.header.map(({ key, value }) => [key, substitute(value)]))
+  const headers = Object.fromEntries(requestHeaders.map(({ key, value }) => [key, substitute(value)]))
   if (item.request.auth.type === 'bearer') headers.Authorization = 'Bearer ' + substitute(item.request.auth.bearer[0].value)
   const body = item.request.body ? substitute(item.request.body.raw) : undefined
   const url = substitute(item.request.url)

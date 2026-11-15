@@ -45,15 +45,15 @@ export function ProductTable() {
       accessorKey: "name",
       header: "الاسم",
       cell: ({ row }) => (
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           {row.original.image_url && (
             <img
               src={row.original.image_url}
               alt=""
-              className="h-10 w-10 rounded-md object-cover"
+              className="h-10 w-10 shrink-0 rounded-md object-cover"
             />
           )}
-          <span className="font-medium">{row.original.name}</span>
+          <span className="min-w-0 break-words font-medium">{row.original.name}</span>
         </div>
       ),
     },

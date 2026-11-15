@@ -7,7 +7,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table"
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import {
   Table,
   TableBody,
@@ -29,6 +29,7 @@ interface DataTableProps<TData, TValue> {
   emptyTitle?: string
   emptyDescription?: string
   className?: string
+  renderMobileRow?: (row: TData) => ReactNode
 }
 
 /**
@@ -42,6 +43,7 @@ export function DataTable<TData, TValue>({
   emptyTitle,
   emptyDescription,
   className,
+  renderMobileRow,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
 
@@ -68,34 +70,56 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className={cn("rounded-md border", className)}>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="text-right">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="text-right">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <>
+      <ul className="grid min-w-0 gap-3 sm:grid-cols-2 lg:hidden" aria-label="قائمة البيانات">
+        {table.getRowModel().rows.map((row) => (
+          <li key={row.id} className="min-w-0 rounded-xl border bg-card p-4">
+            {renderMobileRow ? renderMobileRow(row.original) : (
+              <dl className="space-y-3">
+                {row.getVisibleCells().map((cell) => {
+                  const header = table.getFlatHeaders().find((item) => item.column.id === cell.column.id)
+                  const label = header && flexRender(header.column.columnDef.header, header.getContext())
+                  return (
+                    <div key={cell.id} className="min-w-0 space-y-1">
+                      {label && <dt className="text-xs text-muted-foreground">{label}</dt>}
+                      <dd className="min-w-0 [overflow-wrap:anywhere]">{flexRender(cell.column.columnDef.cell, cell.getContext())}</dd>
+                    </div>
+                  )
+                })}
+              </dl>
+            )}
+          </li>
+        ))}
+      </ul>
+      <div className={cn("hidden min-w-0 max-w-full rounded-md border lg:block", className)}>
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="text-right">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="text-right">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   )
 }
 
