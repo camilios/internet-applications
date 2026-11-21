@@ -5,6 +5,8 @@ including the historical baseline and the current run measured on 2026-11-10.
 
 Latest performance review: [Arabic RTL explanation with actual code](./PERFORMANCE_GUIDE_AR.html)
 
+Requirement 5: [Arabic walkthrough and commands](docs/req5-scalability-ar.md) | [measured load, failover and worker results](docs/req5-evidence.json).
+
 Requirement 4: [event and integration contract](docs/req4-contract.md),
 [process startup, recovery and acceptance checks](docs/req4-operations.md),
 [implementation file responsibilities](docs/req4-delivery.md),

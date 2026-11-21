@@ -1,0 +1,72 @@
+{
+  "after_restart": {
+    "ecommerce-req5-api-1": 10,
+    "ecommerce-req5-api-2": 10,
+    "ecommerce-req5-api-3": 10
+  },
+  "before_stop_500": {
+    "ecommerce-req5-api-1": 166,
+    "ecommerce-req5-api-2": 167,
+    "ecommerce-req5-api-3": 167
+  },
+  "catalog_before_stop": {
+    "ecommerce-req5-api-1": 2,
+    "ecommerce-req5-api-2": 2,
+    "ecommerce-req5-api-3": 2
+  },
+  "concurrent_clients": 12,
+  "gateway_version": "nginx version: nginx/1.31.8",
+  "health_path": "GET /up",
+  "images": {
+    "api": "internet-applications-resend:latest",
+    "email-worker": "internet-applications-resend:latest",
+    "gateway": "nginx:alpine",
+    "rabbitmq": "rabbitmq:3.13-management-alpine"
+  },
+  "jobs_per_worker": {
+    "ecommerce-req5-email-worker-1": 35,
+    "ecommerce-req5-email-worker-2": 56,
+    "ecommerce-req5-email-worker-3": 59
+  },
+  "revoked_token_401": {
+    "ecommerce-req5-api-1": 2,
+    "ecommerce-req5-api-2": 2,
+    "ecommerce-req5-api-3": 2
+  },
+  "run": "d5f622e1-e35c-45b6-a16b-9f7c483a6939",
+  "same_customer_before_stop": {
+    "ecommerce-req5-api-1": 2,
+    "ecommerce-req5-api-2": 2,
+    "ecommerce-req5-api-3": 2
+  },
+  "same_customer_while_stopped": {
+    "ecommerce-req5-api-2": 3,
+    "ecommerce-req5-api-3": 3
+  },
+  "started_utc": "2026-11-20T17:47:22+00:00",
+  "state_visibility": {
+    "ecommerce-req5-api-1": {
+      "local_log": true,
+      "public_file": true,
+      "redis": true
+    },
+    "ecommerce-req5-api-2": {
+      "local_log": false,
+      "public_file": true,
+      "redis": true
+    },
+    "ecommerce-req5-api-3": {
+      "local_log": false,
+      "public_file": true,
+      "redis": true
+    }
+  },
+  "state_written_on": "ecommerce-req5-api-1",
+  "stopped_api": "ecommerce-req5-api-1",
+  "unique_mock_deliveries": 150,
+  "while_stopped_120": {
+    "ecommerce-req5-api-2": 60,
+    "ecommerce-req5-api-3": 60
+  },
+  "worker_queue": "orders.email"
+}

@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>المتطلب الخامس | شرح Compose وNginx سطراً بسطر</title>
+<style>
+:root{color-scheme:light;--ink:#172b38;--muted:#415d67;--accent:#166461;--border:#c9d9d8;--paper:#fff;--wash:#f0f6f4}*{box-sizing:border-box}html{scroll-padding-block:1rem}body{margin:0;background:var(--wash);color:var(--ink);font:17px/1.85 system-ui,"Segoe UI",Tahoma,sans-serif}main{max-width:67rem;margin:auto;padding:1.4rem}header,.panel,.group{background:var(--paper);padding:clamp(1rem,3vw,2rem);margin:1rem 0;border:1px solid var(--border);border-radius:12px}header{border-top:5px solid var(--accent)}h1,h2,h3{line-height:1.4;margin:.2rem 0 .75rem}h1{font-size:clamp(1.65rem,4vw,2.65rem)}.kicker,.label{font-weight:700;color:var(--accent);font-size:.9rem}p{margin:.45rem 0 .9rem}a{color:#075b61;text-underline-offset:.2em}a:focus-visible,summary:focus-visible{outline:3px solid #db951e;outline-offset:3px}code,pre,.num{font-family:Consolas,"Courier New",monospace}p code,li code,dd code,.gloss code{unicode-bidi:isolate;background:#f0f4f4;border-radius:3px;padding:.03em .24em;overflow-wrap:anywhere;font-size:.92em}nav a,.quick a{display:inline-block;margin:.15rem 0 .2rem .65rem}nav ul{columns:2;column-gap:2rem;margin:0;padding-inline-start:1.4rem}nav li{break-inside:avoid}.flow,.full{padding:1rem;border-radius:7px;background:#142e39;color:#f7fbfc;overflow:auto;line-height:1.65;text-align:left;direction:ltr}.flow{white-space:pre-wrap;overflow-wrap:anywhere}.full{max-height:28rem;font-size:.88rem}summary{cursor:pointer;font-weight:650}.entry{border-block-start:1px solid var(--border);padding:.85rem 0}.entry p{margin:.35rem 0 0}.entry:target{border-inline-start:.3rem solid #bd8c19;background:#fff9e2;padding-inline:.6rem}.srcrow{display:grid;align-items:start;grid-template-columns:3.3rem minmax(0,1fr);direction:ltr;gap:.5rem}.srcrow pre{margin:0;padding:.28rem .5rem;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;background:#eff4f6;color:#153240;text-align:left;font-size:.93rem;min-height:1.9rem}.num{direction:ltr;text-align:center;font-size:.88rem;line-height:1.9}.key .num{color:#fff;background:#116464;border-radius:5px}.empty{font-size:.85rem;color:var(--muted)}.gloss{display:grid;grid-template-columns:minmax(8rem,13rem) 1fr;gap:.5rem 1rem}.gloss dt{font-weight:700}.gloss dd{margin:0}.end{font-size:.92rem}h2[id],section[id]{scroll-margin-top:1rem}@media(max-width:650px){main{padding:.65rem}nav ul{columns:1}.gloss{display:block}.gloss dd{margin-bottom:1rem}.srcrow{grid-template-columns:2.5rem minmax(0,1fr)}}@media print{body{background:white;font-size:10pt}main{max-width:none;padding:0}.panel,header,.group{border:0;padding:.3rem 0}.entry{break-inside:avoid}nav,.quick,.fullcode,.back{display:none}.flow,.srcrow pre{color:#000;background:#f2f2f2}}
+</style></head><body><main id="top"><header><div class="kicker">دليل قراءة الكود · المتطلب الخامس</div><h1>من ينشئ النسخ الثلاث؟ ومن يختار النسخة التي تستقبل الطلب؟</h1>
+<p><strong>التغيير لم يقتصر على Docker Compose، وملف <bdi dir="ltr">docker-compose.yml</bdi> الأصلي لم يُعدَّل لهذا المتطلب.</strong> أضفنا ملف تشغيل مستقلاً ينشئ الحاويات، وملف Nginx يوزع الحركة بينها. أما منطق Laravel وReact لإتمام العملية فكان موجوداً؛ وأُضيفت ملفات منفصلة لاختباره وتوثيقه.</p>
+<div class="quick"><a href="#glossary">معاني الرموز</a> · <a href="#y121">نسخ API</a> · <a href="#y139">عمال البريد</a> · <a href="#n5">اختيار النسخة</a> · <a href="#n21">عند الفشل</a> · <a href="#evidence">نتيجة التجربة</a></div></header>
+<section class="panel"><h2>اتبع طلباً واحداً ورسالة واحدة</h2><pre class="flow">GET /api/me → 127.0.0.1:8015 → Nginx:80 → api-1 | api-2 | api-3 (8000)
+OrderCreated → MySQL outbox → publisher → RabbitMQ: orders.email → worker-1 | worker-2 | worker-3</pre>
+<p>في المسار الأول يختار Nginx نسخة HTTP، وتستطيع أي نسخة التحقق من رمز الزبون. في الثاني يسحب عامل متاح رسالة من طابور مشترك. العلامة <code dir="ltr">|</code> في الرسم تعني «واحدة من هذه الوجهات» وليست سطراً في الملف. لا يختار Nginx عامل البريد.</p>
+<p><strong>مثال للتتبع:</strong> إذا توقفت <code dir="ltr">api-1</code>، يبقى عنوان Postman نفسه. اقرأ <a href="#y133">قاعدة المنفذ</a>، ثم <a href="#n5">تعريف الخلفيات</a> و<a href="#n21">شروط تجربة خلفية أخرى</a>. بعد ذلك راقب <a href="#n24">ترويسة الرد</a> لتعرف أي نسخة أجابت.</p></section>
+<section id="glossary" class="panel"><h2>قاموس الرموز: لماذا تتغيّر قراءة الحرف نفسه؟</h2><dl class="gloss">
+<dt><code dir="ltr">:</code></dt><dd>في <code dir="ltr">image: mysql:8.0</code> تفصل النقطتان الأولى المفتاح عن قيمته؛ والثانية تفصل اسم الصورة عن الوسم. في <code dir="ltr">api:8000</code> تفصل المضيف عن المنفذ، وفي <code dir="ltr">http://</code> هي جزء من صيغة العنوان.</dd>
+<dt><code dir="ltr">␠ ␠</code></dt><dd>المسافات في بداية YAML تعني تبعية، لا تجميلاً. <code dir="ltr">replicas</code> داخل <code dir="ltr">deploy</code> يصف خدمة معينة. ارجع إلى الهامش الأيسر لتخرج إلى مستوى المشروع. السطر الفارغ وحده لا يغير المستوى.</dd>
+<dt><code dir="ltr">x-  &amp;  *  &lt;&lt;:</code></dt><dd><code dir="ltr">x-</code> يعرّف مقطعاً مساعداً. <code dir="ltr">&amp;laravel</code> يسمّي الخريطة، و<code dir="ltr">*laravel</code> يرجع إليها، و<code dir="ltr">&lt;&lt;: *laravel</code> يدمج مفاتيحها في الخريطة الحالية. إذا عرّفت <code dir="ltr">depends_on</code> محلياً يتقدم على الموروث؛ لإضافة شروط مع حفظ القديمة ندمج <code dir="ltr">*ready</code> داخل ذلك القاموس.</dd>
+<dt><code dir="ltr">[]  {}  ,</code></dt><dd><code dir="ltr">[edge, default]</code> قائمة من عنصرين. <code dir="ltr">{replicas: 3}</code> خريطة مفتاح وقيمة في سطر واحد. <code dir="ltr">{}</code> خريطة بلا خيارات إضافية. الفاصلة داخل القائمة تفصل العناصر؛ وفي قيمة CORS النصية تقرؤها إعدادات التطبيق.</dd>
+<dt><code dir="ltr">${VAR:-value}  ${VAR:?message}</code></dt><dd>يحلّ Compose قيمة المتغير من البيئة أو <code dir="ltr">.env</code> قبل بدء الحاوية. <code dir="ltr">:-</code> يختار البديل إذا غاب المتغير أو كان فارغاً، و<code dir="ltr">:?</code> يتوقف برسالة في الحالتين. في Nginx تشير صيغة مثل <code dir="ltr">$remote_addr</code> إلى قيمة وقت معالجة طلب HTTP.</dd>
+<dt><code dir="ltr">&#x27;…&#x27;  &quot;&quot;</code></dt><dd>في YAML تحافظ علامات الاقتباس على قيم مثل <code dir="ltr">&#x27;false&#x27;</code> و<code dir="ltr">&#x27;no&#x27;</code> كنصوص. وفي إعداد Nginx القيمة الفارغة <code dir="ltr">&quot;&quot;</code> في <code dir="ltr">proxy_set_header</code> تعني عدم تمرير تلك الترويسة للخلفية.</dd>
+<dt><code dir="ltr">./  /  /24</code></dt><dd><code dir="ltr">./</code> مسار نسبي من موقع ملف المشروع هنا، و<code dir="ltr">/run/secrets</code> مسار مطلق داخل الحاوية. أما <code dir="ltr">/24</code> بعد عنوان شبكة فهو طول بادئة IPv4، وليس مجلداً.</dd>
+<dt><code dir="ltr">-  _  --  =</code></dt><dd>الشرطة في <code dir="ltr">email-worker</code> والشرطة السفلية في <code dir="ltr">REQ5_APP_IMAGE</code> جزء من اسم دقيق. الشرطتان في <code dir="ltr">--timeout=30</code> تبدآن خياراً للأمر، و<code dir="ltr">=</code> تربط الخيار بقيمته. <code dir="ltr">-q</code> خيار قصير.</dd>
+<dt><code dir="ltr">127.0.0.1  0.0.0.0</code></dt><dd>الأول يعني «هذا الجهاز» من زاوية العملية: في Postman هو جهازك، وداخل فحص API هو حاوية API نفسها. الثاني عنوان استماع على كل واجهات الحاوية؛ نشر منفذ إلى جهازك قرار منفصل.</dd>
+<dt><code dir="ltr">IP:HOST_PORT:CONTAINER_PORT</code></dt><dd>في <code dir="ltr">127.0.0.1:8015:80</code> يرسل العميل إلى 8015 على جهازك ثم يُحوّل Docker إلى 80 في حاوية Nginx. وفي <code dir="ltr">source:target:ro</code> يصف النمط مصدر ملف ومكان تركيبه وخيار القراءة فقط، لا منافذ شبكة.</dd>
+<dt><code dir="ltr">s  k  m</code></dt><dd>في هذه الملفات <code dir="ltr">2s</code> مدة بالثواني، و<code dir="ltr">64k</code> حجم ذاكرة مهيأة لـNginx، و<code dir="ltr">24m</code> حد حجم جسم الطلب. لا تخلط هذه الوحدات مع عدد النسخ أو رقم المنفذ.</dd>
+<dt><code dir="ltr">;  #  { … }</code></dt><dd>في Nginx تنهي الفاصلة المنقوطة تعليمة، و<code dir="ltr">#</code> يبدأ تعليقاً حتى نهاية السطر، والقوسان يحددان كتلة مثل <code dir="ltr">location /</code>. هذه وظيفة مختلفة عن خرائط YAML المختصرة.</dd>
+</dl></section><nav class="panel" aria-label="فهرس الشرح"><h2>الفهرس بحسب ترتيب الملفين</h2>
+<p><a href="#y-file"><bdi dir="ltr">docker-compose.req5.yml</bdi></a> · 181 سطراً</p><ul>
+<li><a href="#y-g1">اسم المشروع · 1</a></li>
+<li><a href="#y-g3">قالب Laravel: ما الذي تتشاركه النسخ؟ · 3</a></li>
+<li><a href="#y-g49">قالب قواعد البيانات · 49</a></li>
+<li><a href="#y-g58">قاعدة بيانات المتجر · 58</a></li>
+<li><a href="#y-g68">قاعدة بيانات المخزون · 68</a></li>
+<li><a href="#y-g77">خدمة المخزون · 77</a></li>
+<li><a href="#y-g90">Redis: الكاش والجلسات · 90</a></li>
+<li><a href="#y-g100">RabbitMQ: الوسيط المشترك · 100</a></li>
+<li><a href="#y-g114">الترحيل قبل تشغيل النسخ · 114</a></li>
+<li><a href="#y-g121">ثلاث نسخ من Laravel · 121</a></li>
+<li><a href="#y-g130">بوابة واحدة على جهازك · 130</a></li>
+<li><a href="#y-g139">ثلاثة عمال على طابور واحد · 139</a></li>
+<li><a href="#y-g147">ناشر الأحداث · 147</a></li>
+<li><a href="#y-g151">المجدول · 151</a></li>
+<li><a href="#y-g154">خادم البث اللحظي · 154</a></li>
+<li><a href="#y-g158">عامل البث · 158</a></li>
+<li><a href="#y-g165">شبكتا البيانات والبوابة · 165</a></li>
+<li><a href="#y-g170">وحدات التخزين · 170</a></li>
+<li><a href="#y-g177">مصادر الأسرار · 177</a></li>
+</ul>
+<p><a href="#n-file"><bdi dir="ltr">ops/req5/nginx.conf</bdi></a> · 26 سطراً</p><ul>
+<li><a href="#n-g1">اكتشاف النسخ واختيار الخلفية · 1</a></li>
+<li><a href="#n-g7">استقبال الطلب وتحديد مساره · 7</a></li>
+<li><a href="#n-g12">ما الذي تراه Laravel عن العميل؟ · 12</a></li>
+<li><a href="#n-g20">الفشل وإعادة المحاولة ودليل التوزيع · 20</a></li>
+</ul>
+</nav>
+<section class="panel" id="y-file"><div class="label">ملف التشغيل 1 من 2</div><h2><bdi dir="ltr">docker-compose.req5.yml</bdi></h2><p>السطر الأصلي معروض من اليسار إلى اليمين وتحته تفسيره. رقم السطر رابط مباشر له، والأرقام المميزة باللون هي نقاط التوسّع الأساسية.</p><details class="fullcode"><summary>عرض نسخة الكود كاملة للنسخ أو المقارنة</summary><pre class="full" dir="ltr"><code>name: ecommerce-req5
+
+x-laravel: &amp;laravel
+  image: ${REQ5_APP_IMAGE:-ecommerce-req5-app:local}
+  restart: unless-stopped
+  environment:
+    APP_NAME: E-Commerce
+    APP_ENV: local
+    APP_DEBUG: &#x27;false&#x27;
+    APP_URL: http://localhost:8015
+    APP_KEY: ${APP_KEY:?Set APP_KEY in the project .env}
+    JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+    TRUSTED_PROXIES: 172.30.55.0/24
+    DB_CONNECTION: mysql
+    DB_HOST: mysql
+    DB_DATABASE: ecommerce_req5
+    DB_USERNAME: laravel
+    DB_PASSWORD_FILE: /run/secrets/mysql_password
+    DB_REPLICA_ENABLED: &#x27;false&#x27;
+    SKIP_MIGRATIONS: &#x27;true&#x27;
+    CACHE_STORE: redis
+    SESSION_DRIVER: redis
+    REDIS_CLIENT: phpredis
+    REDIS_HOST: redis
+    LOG_CHANNEL: stderr
+    INVENTORY_GRPC_HOST: inventory-service:50051
+    CORS_ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    BROADCAST_CONNECTION: reverb
+    REVERB_APP_ID: ${REVERB_APP_ID:-ecommerce}
+    REVERB_APP_KEY: ${REVERB_APP_KEY:-ecommerce-local}
+    REVERB_APP_SECRET: ${REVERB_APP_SECRET:?Set REVERB_APP_SECRET in .env}
+    REVERB_HOST: reverb
+    REVERB_PORT: 8080
+    REVERB_SCHEME: http
+    REVERB_ALLOWED_ORIGINS: localhost,127.0.0.1
+    RABBITMQ_HOST: rabbitmq
+    RABBITMQ_USER: ${RABBITMQ_USER:-orders}
+    RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in .env}
+    RABBITMQ_VHOST: ${RABBITMQ_VHOST:-ecommerce}
+    MAIL_MAILER: array
+    ORDER_EMAIL_ALLOW_MOCK: &#x27;true&#x27;
+    MAIL_FROM_ADDRESS: demo@example.invalid
+  secrets: [mysql_password]
+  volumes: [public_uploads:/var/www/html/storage/app/public]
+  depends_on: &amp;ready
+    migrate: {condition: service_completed_successfully}
+    redis: {condition: service_healthy}
+
+x-db: &amp;db
+  image: mysql:8.0
+  restart: unless-stopped
+  healthcheck:
+    test: [CMD, mysqladmin, ping, -h, &#x27;127.0.0.1&#x27;]
+    interval: 4s
+    timeout: 4s
+    retries: 40
+
+services:
+  mysql:
+    &lt;&lt;: *db
+    environment:
+      MYSQL_DATABASE: ecommerce_req5
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_password
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+    volumes: [primary_data:/var/lib/mysql]
+    secrets: [mysql_root_password, mysql_password]
+  inventory-mysql:
+    &lt;&lt;: *db
+    environment:
+      MYSQL_DATABASE: inventory_db
+      MYSQL_USER: inventory_service
+      MYSQL_PASSWORD_FILE: /run/secrets/inventory_mysql_password
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/inventory_mysql_root_password
+    volumes: [inventory_data:/var/lib/mysql]
+    secrets: [inventory_mysql_password, inventory_mysql_root_password]
+  inventory-service:
+    image: ${REQ5_INVENTORY_IMAGE:-ecommerce-req5-inventory:local}
+    build: {context: ., dockerfile: inventory-service/Dockerfile}
+    restart: unless-stopped
+    environment:
+      DB_HOST: inventory-mysql
+      DB_NAME: inventory_db
+      DB_USER: inventory_service
+      DB_PASSWORD_FILE: /run/secrets/inventory_mysql_password
+      NODE_ENV: production
+    secrets: [inventory_mysql_password]
+    depends_on:
+      inventory-mysql: {condition: service_healthy}
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: [redis-server, --appendonly, &#x27;yes&#x27;]
+    volumes: [redis_data:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 4s
+      timeout: 3s
+      retries: 15
+  rabbitmq:
+    image: ${REQ5_RABBIT_IMAGE:-rabbitmq:4.2-alpine}
+    hostname: req5-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-orders}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in .env}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-ecommerce}
+    volumes: [broker_data:/var/lib/rabbitmq]
+    healthcheck:
+      test: [CMD, rabbitmq-diagnostics, -q, check_running]
+      interval: 6s
+      timeout: 10s
+      retries: 30
+  migrate:
+    &lt;&lt;: *laravel
+    build: ./backend/my-project
+    restart: &#x27;no&#x27;
+    command: [php, artisan, migrate, --force]
+    depends_on:
+      mysql: {condition: service_healthy}
+  api:
+    &lt;&lt;: *laravel
+    deploy: {replicas: 3}
+    networks: [edge, default]
+    healthcheck:
+      test: [CMD, curl, -fsS, &#x27;http://127.0.0.1:8000/up&#x27;]
+      interval: 5s
+      timeout: 4s
+      retries: 15
+  gateway:
+    image: ${REQ5_NGINX_IMAGE:-nginx:1.28-alpine}
+    restart: unless-stopped
+    ports: [&#x27;127.0.0.1:8015:80&#x27;]
+    volumes: [&#x27;./ops/req5/nginx.conf:/etc/nginx/conf.d/default.conf:ro&#x27;]
+    networks:
+      edge: {}
+    depends_on:
+      api: {condition: service_healthy}
+  email-worker:
+    &lt;&lt;: *laravel
+    deploy: {replicas: 3}
+    command: [php, artisan, &#x27;orders:email-worker&#x27;]
+    stop_grace_period: 45s
+    depends_on: &amp;messaging
+      &lt;&lt;: *ready
+      rabbitmq: {condition: service_healthy}
+  outbox-publisher:
+    &lt;&lt;: *laravel
+    command: [php, artisan, &#x27;outbox:publish&#x27;]
+    depends_on: *messaging
+  scheduler:
+    &lt;&lt;: *laravel
+    command: [php, artisan, &#x27;schedule:work&#x27;]
+  reverb:
+    &lt;&lt;: *laravel
+    command: [php, artisan, &#x27;reverb:start&#x27;, &#x27;--host=0.0.0.0&#x27;, &#x27;--port=8080&#x27;]
+    ports: [&#x27;127.0.0.1:8185:8080&#x27;]
+  broadcast-worker:
+    &lt;&lt;: *laravel
+    command: [php, artisan, &#x27;queue:work&#x27;, database, &#x27;--queue=broadcasts&#x27;, &#x27;--tries=5&#x27;, &#x27;--backoff=5&#x27;, &#x27;--timeout=30&#x27;, &#x27;--sleep=1&#x27;]
+    depends_on:
+      &lt;&lt;: *ready
+      reverb: {condition: service_started}
+
+networks:
+  default:
+    ipam: {config: [{subnet: 172.30.56.0/24}]}
+  edge:
+    ipam: {config: [{subnet: 172.30.55.0/24}]}
+volumes:
+  primary_data: {}
+  inventory_data: {}
+  redis_data: {}
+  broker_data: {}
+
+  public_uploads: {}
+secrets:
+  mysql_password: {file: ./secrets/mysql_password.txt}
+  mysql_root_password: {file: ./secrets/mysql_root_password.txt}
+  inventory_mysql_password: {file: ./secrets/inventory_mysql_password.txt}
+  inventory_mysql_root_password: {file: ./secrets/inventory_mysql_root_password.txt}
+</code></pre></details></section>
+<section class="group" id="y-g1"><div class="label">الأسطر 1–2</div><h3>اسم المشروع</h3>
+<article class="entry" id="y1"><div class="srcrow"><a class="num" href="#y1" aria-label="السطر 1">001</a><pre dir="ltr"><code class="source">name: ecommerce-req5</code></pre></div><p>يسمّي مشروع Compose «ecommerce-req5». لذلك يستطيع Docker تمييز حاوياته وشبكاته ووحدات تخزينه عن المشروع العادي. الاسم هنا للمشروع كله، وليس اسماً ثابتاً لإحدى نسخه.</p></article>
+<article class="entry" id="y2"><div class="srcrow"><a class="num" href="#y2" aria-label="السطر 2">002</a><pre dir="ltr"><code class="source"></code></pre></div><p>سطر فارغ يفصل اسم المشروع عن قالب Laravel؛ لا ينشئ مورداً ولا يغيّر مستوى التداخل.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g3"><div class="label">الأسطر 3–48</div><h3>قالب Laravel: ما الذي تتشاركه النسخ؟</h3>
+<article class="entry key" id="y3"><div class="srcrow"><a class="num" href="#y3" aria-label="السطر 3">003</a><pre dir="ltr"><code class="source">x-laravel: &amp;laravel</code></pre></div><p>البادئة <code dir="ltr">x-</code> تعرّف حقلاً مساعداً يتجاهله Compose كخدمة. الرمز <code dir="ltr">&amp;</code> يسمّي محتوى هذه الخريطة <code dir="ltr">laravel</code> لنستعمله لاحقاً بـ<code dir="ltr">*laravel</code>. لم تُنشأ حاوية بعد.</p></article>
+<article class="entry" id="y4"><div class="srcrow"><a class="num" href="#y4" aria-label="السطر 4">004</a><pre dir="ltr"><code class="source">  image: ${REQ5_APP_IMAGE:-ecommerce-req5-app:local}</code></pre></div><p>تأخذ كل عملية Laravel الصورة المحدّدة في <code dir="ltr">REQ5_APP_IMAGE</code>. إذا لم توجد قيمة غير فارغة، يستعمل Compose <code dir="ltr">ecommerce-req5-app:local</code>. النقطتان في آخر الاسم تفصلان اسم الصورة عن وسمها <code dir="ltr">local</code>؛ القيمة ليست عنوان شبكة.</p></article>
+<article class="entry" id="y5"><div class="srcrow"><a class="num" href="#y5" aria-label="السطر 5">005</a><pre dir="ltr"><code class="source">  restart: unless-stopped</code></pre></div><p>إذا توقفت عملية الحاوية، يطبّق Docker سياسة إعادة التشغيل <code dir="ltr">unless-stopped</code>. أما الحاوية التي توقفها عمداً أثناء العرض فتظل متوقفة حتى تشغّلها. هذه السياسة ليست ما يوزع الطلبات.</p></article>
+<article class="entry" id="y6"><div class="srcrow"><a class="num" href="#y6" aria-label="السطر 6">006</a><pre dir="ltr"><code class="source">  environment:</code></pre></div><p>بداية قاموس متغيرات البيئة التي ستراها عمليات Laravel. المفتاح والقيمة إلى يمين ويسار <code dir="ltr">:</code>، والمسافات البادئة تضع الأسطر التالية داخل هذا القاموس.</p></article>
+<article class="entry" id="y7"><div class="srcrow"><a class="num" href="#y7" aria-label="السطر 7">007</a><pre dir="ltr"><code class="source">    APP_NAME: E-Commerce</code></pre></div><p>يضبط اسم التطبيق على <code dir="ltr">E-Commerce</code> لكل النسخ. الشرطة جزء من الاسم؛ لا تنشئ خدمة ثانية. الاسم الموحد يفيد أيضاً في الإعدادات التي تشتق بادئات المفاتيح منه.</p></article>
+<article class="entry" id="y8"><div class="srcrow"><a class="num" href="#y8" aria-label="السطر 8">008</a><pre dir="ltr"><code class="source">    APP_ENV: local</code></pre></div><p>تعمل Laravel في بيئة <code dir="ltr">local</code> الخاصة بالعرض. ومع السطر 41 تسمح إعدادات المشروع باختبار البريد الوهمي دون إرسال خارجي.</p></article>
+<article class="entry" id="y9"><div class="srcrow"><a class="num" href="#y9" aria-label="السطر 9">009</a><pre dir="ltr"><code class="source">    APP_DEBUG: &#x27;false&#x27;</code></pre></div><p>يمرّر النص <code dir="ltr">&#x27;false&#x27;</code> كمتغير بيئة لتعطيل إظهار تفاصيل أخطاء Laravel للعميل. علامتا الاقتباس تمنعان YAML من معاملته كقيمة منطقية أصلية.</p></article>
+<article class="entry" id="y10"><div class="srcrow"><a class="num" href="#y10" aria-label="السطر 10">010</a><pre dir="ltr"><code class="source">    APP_URL: http://localhost:8015</code></pre></div><p>العنوان العام المرجعي لـLaravel هو <code dir="ltr">http://localhost:8015</code>. هذا عنوان البوابة كما يراها مستخدم الجهاز؛ لا يفتح السطر منفذاً بنفسه. النشر الفعلي في السطر 133.</p></article>
+<article class="entry key" id="y11"><div class="srcrow"><a class="num" href="#y11" aria-label="السطر 11">011</a><pre dir="ltr"><code class="source">    APP_KEY: ${APP_KEY:?Set APP_KEY in the project .env}</code></pre></div><p>قبل إنشاء الحاوية يحلّ Compose تعبير <code dir="ltr">${…}</code>. العامل <code dir="ltr">:?</code> يفرض <code dir="ltr">APP_KEY</code> غير فارغ وإلا يظهر النص بعد علامة السؤال. تشترك النسخ في مفتاح تشفير Laravel حتى تستطيع قراءة القيم المشفّرة نفسها.</p></article>
+<article class="entry key" id="y12"><div class="srcrow"><a class="num" href="#y12" aria-label="السطر 12">012</a><pre dir="ltr"><code class="source">    JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}</code></pre></div><p>يُلزم Compose بوجود <code dir="ltr">JWT_SECRET</code>. هذا سر توقيع رموز الدخول في إعداد المشروع: الرمز الذي صدر من نسخة يمكن أن تتحقق منه نسخة أخرى بالمفتاح نفسه. يختلف عن مفتاح تشفير Laravel في السطر السابق.</p></article>
+<article class="entry" id="y13"><div class="srcrow"><a class="num" href="#y13" aria-label="السطر 13">013</a><pre dir="ltr"><code class="source">    TRUSTED_PROXIES: 172.30.55.0/24</code></pre></div><p>تقبل Laravel ترويسات الوكيل الموثوق من نطاق شبكة البوابة. <code dir="ltr">/24</code> يعني أن أول 24 بت من عنوان IPv4 تحدد الشبكة. النطاق يطابق شبكة <code dir="ltr">edge</code> في السطر 169، وليس جميع عناوين الإنترنت.</p></article>
+<article class="entry" id="y14"><div class="srcrow"><a class="num" href="#y14" aria-label="السطر 14">014</a><pre dir="ltr"><code class="source">    DB_CONNECTION: mysql</code></pre></div><p>يختار Laravel اتصال قاعدة البيانات من النوع <code dir="ltr">mysql</code>. هذا اسم برنامج الاتصال في الإعدادات؛ السطر التالي يحدد أين توجد الخدمة.</p></article>
+<article class="entry" id="y15"><div class="srcrow"><a class="num" href="#y15" aria-label="السطر 15">015</a><pre dir="ltr"><code class="source">    DB_HOST: mysql</code></pre></div><p>اسم المضيف <code dir="ltr">mysql</code> يُحل داخل شبكة Docker إلى خدمة السطر 59. لو استُخدم <code dir="ltr">localhost</code> داخل نسخة API فسيشير إلى النسخة نفسها، لا إلى قاعدة البيانات.</p></article>
+<article class="entry" id="y16"><div class="srcrow"><a class="num" href="#y16" aria-label="السطر 16">016</a><pre dir="ltr"><code class="source">    DB_DATABASE: ecommerce_req5</code></pre></div><p>جميع النسخ تختار قاعدة <code dir="ltr">ecommerce_req5</code>. لذلك الطلب المكتوب من نسخة يمكن قراءته من أخرى، وتبقى بيانات العرض منفصلة عن قاعدة المشروع العادي.</p></article>
+<article class="entry" id="y17"><div class="srcrow"><a class="num" href="#y17" aria-label="السطر 17">017</a><pre dir="ltr"><code class="source">    DB_USERNAME: laravel</code></pre></div><p>تتصل Laravel بحساب قاعدة البيانات <code dir="ltr">laravel</code>. هذا اسم مستخدم MySQL، وليس اسم نسخة ولا حساب الزبون المسجّل في المتجر.</p></article>
+<article class="entry" id="y18"><div class="srcrow"><a class="num" href="#y18" aria-label="السطر 18">018</a><pre dir="ltr"><code class="source">    DB_PASSWORD_FILE: /run/secrets/mysql_password</code></pre></div><p>هذه قيمة مسار لا كلمة مرور. تقرأ نقطة دخول Laravel الملف <code dir="ltr">/run/secrets/mysql_password</code> عند بدء الحاوية، ثم يستخدم الاتصال كلمة المرور. السطر 43 يتيح الملف والسطر 178 يحدد مصدره.</p></article>
+<article class="entry" id="y19"><div class="srcrow"><a class="num" href="#y19" aria-label="السطر 19">019</a><pre dir="ltr"><code class="source">    DB_REPLICA_ENABLED: &#x27;false&#x27;</code></pre></div><p>يعطّل مسار القراءة من نسخة MySQL ثانوية في هذا العرض؛ نسخ API الثلاث تتعامل مع قاعدة التطبيق نفسها. نسخ التطبيق ونسخ قاعدة البيانات شيئان مختلفان.</p></article>
+<article class="entry key" id="y20"><div class="srcrow"><a class="num" href="#y20" aria-label="السطر 20">020</a><pre dir="ltr"><code class="source">    SKIP_MIGRATIONS: &#x27;true&#x27;</code></pre></div><p>تتجاوز نقطة الدخول تشغيل الترحيلات تلقائياً في كل حاوية ترث هذا المتغير. ستنفذ خدمة <code dir="ltr">migrate</code> الترحيل صراحةً مرة في دورة الإقلاع، فلا تتنافس نسخ API على تعديل الجداول.</p></article>
+<article class="entry key" id="y21"><div class="srcrow"><a class="num" href="#y21" aria-label="السطر 21">021</a><pre dir="ltr"><code class="source">    CACHE_STORE: redis</code></pre></div><p>يختار Redis كمخزن الكاش. مفتاح الكاش الذي تكتبه النسخة الأولى يراه الباقون، وكذلك العدّادات التي تستعمل هذا المخزن؛ لا تصبح لكل نسخة حصّة مستقلة من حد الطلبات.</p></article>
+<article class="entry" id="y22"><div class="srcrow"><a class="num" href="#y22" aria-label="السطر 22">022</a><pre dir="ltr"><code class="source">    SESSION_DRIVER: redis</code></pre></div><p>عند استخدام جلسات Laravel تُخزَّن الجلسة في Redis المشترك لا في ملف محلي. مصادقة API في هذا المشروع تعتمد JWT؛ مشاركة الجلسات لا تغني عن اشتراك النسخ في سر التوقيع.</p></article>
+<article class="entry" id="y23"><div class="srcrow"><a class="num" href="#y23" aria-label="السطر 23">023</a><pre dir="ltr"><code class="source">    REDIS_CLIENT: phpredis</code></pre></div><p>تستخدم Laravel إضافة PHP المسماة <code dir="ltr">phpredis</code> للتحدث إلى Redis. هذا اسم العميل البرمجي داخل صورة Laravel، وليس اسم الخادم.</p></article>
+<article class="entry" id="y24"><div class="srcrow"><a class="num" href="#y24" aria-label="السطر 24">024</a><pre dir="ltr"><code class="source">    REDIS_HOST: redis</code></pre></div><p>اسم خادم Redis على شبكة Docker هو <code dir="ltr">redis</code>، أي خدمة السطر 90. كل النسخ ترسل إليه قراءاتها وكتابتها بدلاً من تشغيل مخزن في كل حاوية.</p></article>
+<article class="entry key" id="y25"><div class="srcrow"><a class="num" href="#y25" aria-label="السطر 25">025</a><pre dir="ltr"><code class="source">    LOG_CHANNEL: stderr</code></pre></div><p>تكتب Laravel إلى قناة <code dir="ltr">stderr</code>، أي مخرج الخطأ القياسي للعملية. يلتقطه Docker فتستطيع عرض سجلات العمال مع أسماء حاوياتهم؛ ملف <code dir="ltr">laravel.log</code> داخل حاوية واحدة لم يكن يعرض عمل بقية الحاويات.</p></article>
+<article class="entry" id="y26"><div class="srcrow"><a class="num" href="#y26" aria-label="السطر 26">026</a><pre dir="ltr"><code class="source">    INVENTORY_GRPC_HOST: inventory-service:50051</code></pre></div><p>يرسل عميل المخزون طلبات gRPC إلى المضيف <code dir="ltr">inventory-service</code> والمنفذ الداخلي <code dir="ltr">50051</code>. تبقى كميات المنتجات تحت إدارة خدمة مخزون واحدة مهما كان عدد نسخ API.</p></article>
+<article class="entry" id="y27"><div class="srcrow"><a class="num" href="#y27" aria-label="السطر 27">027</a><pre dir="ltr"><code class="source">    CORS_ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173</code></pre></div><p>قائمة أصلين مسموحين للواجهة في المتصفح، مفصولين بفاصلة: <code dir="ltr">localhost:5173</code> و<code dir="ltr">127.0.0.1:5173</code> باستخدام HTTP. لا ينسخ هذا السطر الواجهة ولا يتحكم بتوزيع الحمل.</p></article>
+<article class="entry" id="y28"><div class="srcrow"><a class="num" href="#y28" aria-label="السطر 28">028</a><pre dir="ltr"><code class="source">    BROADCAST_CONNECTION: reverb</code></pre></div><p>تستخدم Laravel اتصال البث المسمّى <code dir="ltr">reverb</code> لإرسال أحداث الواجهة اللحظية. جميع نسخ التطبيق تعرف الوجهة نفسها؛ توزيع HTTP ليس بديلاً عن WebSocket.</p></article>
+<article class="entry" id="y29"><div class="srcrow"><a class="num" href="#y29" aria-label="السطر 29">029</a><pre dir="ltr"><code class="source">    REVERB_APP_ID: ${REVERB_APP_ID:-ecommerce}</code></pre></div><p>يعرّف التطبيق لدى Reverb بواسطة <code dir="ltr">REVERB_APP_ID</code>، أو <code dir="ltr">ecommerce</code> إن كان المتغير مفقوداً أو فارغاً. المعرّف يميز التطبيق؛ ليس سر التوقيع.</p></article>
+<article class="entry" id="y30"><div class="srcrow"><a class="num" href="#y30" aria-label="السطر 30">030</a><pre dir="ltr"><code class="source">    REVERB_APP_KEY: ${REVERB_APP_KEY:-ecommerce-local}</code></pre></div><p>يحدد مفتاح تعريف تطبيق Reverb أو يستعمل <code dir="ltr">ecommerce-local</code>. يتطابق هذا المفتاح مع ما تضبطه الواجهة للاتصال، ويختلف عن السر الخاص في السطر التالي.</p></article>
+<article class="entry" id="y31"><div class="srcrow"><a class="num" href="#y31" aria-label="السطر 31">031</a><pre dir="ltr"><code class="source">    REVERB_APP_SECRET: ${REVERB_APP_SECRET:?Set REVERB_APP_SECRET in .env}</code></pre></div><p>يفرض وجود سر Reverb غير فارغ. تحتاجه خوادم التطبيق عند توقيع عمليات البث؛ لا ترسله إلى كود المتصفح.</p></article>
+<article class="entry" id="y32"><div class="srcrow"><a class="num" href="#y32" aria-label="السطر 32">032</a><pre dir="ltr"><code class="source">    REVERB_HOST: reverb</code></pre></div><p>تصل عمليات Laravel إلى الخادم اللحظي عبر اسم خدمة Docker <code dir="ltr">reverb</code>. هذا الاسم داخلي ولا يحتاج المتصفح إلى معرفته.</p></article>
+<article class="entry" id="y33"><div class="srcrow"><a class="num" href="#y33" aria-label="السطر 33">033</a><pre dir="ltr"><code class="source">    REVERB_PORT: 8080</code></pre></div><p>منفذ Reverb داخل شبكة الحاويات هو <code dir="ltr">8080</code>. من خارج Docker يستخدم المتصفح المنفذ المنشور <code dir="ltr">8185</code> في السطر 157.</p></article>
+<article class="entry" id="y34"><div class="srcrow"><a class="num" href="#y34" aria-label="السطر 34">034</a><pre dir="ltr"><code class="source">    REVERB_SCHEME: http</code></pre></div><p>اتصال Laravel الداخلي بخادم البث يستخدم المخطط <code dir="ltr">http</code> في هذا العرض المحلي؛ السطر لا يُفعّل TLS أو ينشر منفذاً.</p></article>
+<article class="entry" id="y35"><div class="srcrow"><a class="num" href="#y35" aria-label="السطر 35">035</a><pre dir="ltr"><code class="source">    REVERB_ALLOWED_ORIGINS: localhost,127.0.0.1</code></pre></div><p>تحدد أسماء المضيفين المسموح لهم كأصل للاتصال اللحظي: <code dir="ltr">localhost</code> و<code dir="ltr">127.0.0.1</code>. هذا فحص لأصل الاتصال؛ صلاحية الاشتراك في قناة طلب خاص تُفحص أيضاً في التطبيق.</p></article>
+<article class="entry" id="y36"><div class="srcrow"><a class="num" href="#y36" aria-label="السطر 36">036</a><pre dir="ltr"><code class="source">    RABBITMQ_HOST: rabbitmq</code></pre></div><p>يسمّي وسيط الرسائل الذي يتصل به الناشر والعمال: <code dir="ltr">rabbitmq</code>. كل عامل يصل إلى الوسيط نفسه بدلاً من إنشاء وسيط معزول خاص به.</p></article>
+<article class="entry" id="y37"><div class="srcrow"><a class="num" href="#y37" aria-label="السطر 37">037</a><pre dir="ltr"><code class="source">    RABBITMQ_USER: ${RABBITMQ_USER:-orders}</code></pre></div><p>حساب الاتصال بـRabbitMQ هو قيمة <code dir="ltr">RABBITMQ_USER</code>، وإلا <code dir="ltr">orders</code>. يجب أن يطابق الحساب الذي يُهيّأ من السطر 105؛ هنا <code dir="ltr">orders</code> اسم مستخدم وليس اسم طابور.</p></article>
+<article class="entry" id="y38"><div class="srcrow"><a class="num" href="#y38" aria-label="السطر 38">038</a><pre dir="ltr"><code class="source">    RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in .env}</code></pre></div><p>يأخذ كلمة مرور الوسيط من بيئة Compose ويوقف التحضير إذا كانت فارغة. يتطابق المتغير مع ما يستخدمه الوسيط في السطر 106؛ النص بعد <code dir="ltr">:?</code> رسالة خطأ فقط.</p></article>
+<article class="entry" id="y39"><div class="srcrow"><a class="num" href="#y39" aria-label="السطر 39">039</a><pre dir="ltr"><code class="source">    RABBITMQ_VHOST: ${RABBITMQ_VHOST:-ecommerce}</code></pre></div><p>الـ<code dir="ltr">vhost</code> مساحة أسماء داخل RabbitMQ، والقيمة البديلة <code dir="ltr">ecommerce</code>. يجب أن يتفق العامل والناشر عليها ليريا الطوابير والتبادلات نفسها. اسم الطابور نفسه <code dir="ltr">orders.email</code> يأتي من إعداد Laravel.</p></article>
+<article class="entry" id="y40"><div class="srcrow"><a class="num" href="#y40" aria-label="السطر 40">040</a><pre dir="ltr"><code class="source">    MAIL_MAILER: array</code></pre></div><p><code dir="ltr">array</code> ناقل بريد للاختبار داخل العملية. يمر طلب الإرسال في منطق البريد، لكنه لا يصل إلى صندوق حقيقي؛ الذي نختبره هنا هو تقاسم الرسائل بين العمال.</p></article>
+<article class="entry" id="y41"><div class="srcrow"><a class="num" href="#y41" aria-label="السطر 41">041</a><pre dir="ltr"><code class="source">    ORDER_EMAIL_ALLOW_MOCK: &#x27;true&#x27;</code></pre></div><p>يسمح منطق التطبيق صراحة بالبريد الوهمي في بيئة العرض. هذا الإذن منفصل عن اختيار الناقل في السطر 40؛ لا يغيّر إعداد بريد المشروع العادي.</p></article>
+<article class="entry" id="y42"><div class="srcrow"><a class="num" href="#y42" aria-label="السطر 42">042</a><pre dir="ltr"><code class="source">    MAIL_FROM_ADDRESS: demo@example.invalid</code></pre></div><p>عنوان المرسِل الوهمي <code dir="ltr">demo@example.invalid</code>: ما قبل <code dir="ltr">@</code> اسم محلي وما بعدها نطاق مخصص لأمثلة غير قابلة للتسليم. لا توجد بيانات عميل أو مفتاح مزوّد بريد هنا.</p></article>
+<article class="entry" id="y43"><div class="srcrow"><a class="num" href="#y43" aria-label="السطر 43">043</a><pre dir="ltr"><code class="source">  secrets: [mysql_password]</code></pre></div><p><code dir="ltr">[mysql_password]</code> قائمة من عنصر واحد تمنح الخدمات التي ترث القالب الوصول إلى سر التطبيق. تعريف السر أسفل الملف وحده لا يكفي لإتاحته داخل الحاوية.</p></article>
+<article class="entry key" id="y44"><div class="srcrow"><a class="num" href="#y44" aria-label="السطر 44">044</a><pre dir="ltr"><code class="source">  volumes: [public_uploads:/var/www/html/storage/app/public]</code></pre></div><p>الجزء قبل <code dir="ltr">:</code> هو وحدة التخزين <code dir="ltr">public_uploads</code> وبعده مسار صور Laravel داخل الحاوية. جميع النسخ تركّب الوحدة نفسها، فتُقرأ الصورة من نسخة حتى لو رُفعت إلى أخرى على المضيف نفسه.</p></article>
+<article class="entry" id="y45"><div class="srcrow"><a class="num" href="#y45" aria-label="السطر 45">045</a><pre dir="ltr"><code class="source">  depends_on: &amp;ready</code></pre></div><p>يبدأ قاموس شروط بدء العمليات ويحفظه بالمرساة <code dir="ltr">&amp;ready</code>. يبيّن السطران التاليان أن الترحيل يجب أن ينجح وأن Redis يجب أن يكون سليماً. الشروط تُستخدم عند الإقلاع وليست مراقباً دائماً للحركة.</p></article>
+<article class="entry key" id="y46"><div class="srcrow"><a class="num" href="#y46" aria-label="السطر 46">046</a><pre dir="ltr"><code class="source">    migrate: {condition: service_completed_successfully}</code></pre></div><p>خريطة مختصرة بين <code dir="ltr">{ }</code>: انتظار خدمة <code dir="ltr">migrate</code> حتى تنتهي بنجاح (رمز خروج صفر). مجرد بدء الحاوية ليس كافياً لأن الجداول قد لا تكون جاهزة بعد.</p></article>
+<article class="entry" id="y47"><div class="srcrow"><a class="num" href="#y47" aria-label="السطر 47">047</a><pre dir="ltr"><code class="source">    redis: {condition: service_healthy}</code></pre></div><p>ينتظر خدمة <code dir="ltr">redis</code> حتى ينجح فحص الصحة الخاص بها. بخلاف الترحيل، المطلوب هنا خدمة مستمرة وسليمة لا عملية تنتهي.</p></article>
+<article class="entry" id="y48"><div class="srcrow"><a class="num" href="#y48" aria-label="السطر 48">048</a><pre dir="ltr"><code class="source"></code></pre></div><p>فاصل بصري: انتهى قالب Laravel ويبدأ قالب مستقل لقواعد البيانات. السطر الفارغ لا يغلق الكتلة؛ الذي يحددها هو التراجع في المسافات.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g49"><div class="label">الأسطر 49–57</div><h3>قالب قواعد البيانات</h3>
+<article class="entry" id="y49"><div class="srcrow"><a class="num" href="#y49" aria-label="السطر 49">049</a><pre dir="ltr"><code class="source">x-db: &amp;db</code></pre></div><p>يعرّف مقطعاً مساعداً ثانياً <code dir="ltr">x-db</code> باسم مرجعي <code dir="ltr">db</code>. سيستخدمه كل من خادم بيانات المتجر وخادم بيانات المخزون دون أن يشتركا في ملفات البيانات.</p></article>
+<article class="entry" id="y50"><div class="srcrow"><a class="num" href="#y50" aria-label="السطر 50">050</a><pre dir="ltr"><code class="source">  image: mysql:8.0</code></pre></div><p><code dir="ltr">mysql</code> اسم الصورة و<code dir="ltr">8.0</code> وسمها. هذا يحدد نسخة برنامج الخادم المستخدم في الخدمتين، ولا يعني وجود ثماني نسخ من قاعدة البيانات.</p></article>
+<article class="entry" id="y51"><div class="srcrow"><a class="num" href="#y51" aria-label="السطر 51">051</a><pre dir="ltr"><code class="source">  restart: unless-stopped</code></pre></div><p>تطبّق سياسة إعادة التشغيل على حاويات MySQL ما لم توقفها عمداً. التحمّل المقاس هنا يخص توقف API؛ هذا السطر لا ينشئ خادم قاعدة بيانات احتياطياً.</p></article>
+<article class="entry" id="y52"><div class="srcrow"><a class="num" href="#y52" aria-label="السطر 52">052</a><pre dir="ltr"><code class="source">  healthcheck:</code></pre></div><p>بداية وصف فحص صحة MySQL. يقرأ Docker نتيجة الأمر أدناه؛ تستعملها الخدمات التابعة حين تطلب <code dir="ltr">service_healthy</code>.</p></article>
+<article class="entry" id="y53"><div class="srcrow"><a class="num" href="#y53" aria-label="السطر 53">053</a><pre dir="ltr"><code class="source">    test: [CMD, mysqladmin, ping, -h, &#x27;127.0.0.1&#x27;]</code></pre></div><p><code dir="ltr">CMD</code> ينفّذ الوسائط مباشرة: <code dir="ltr">mysqladmin</code> الأداة، و<code dir="ltr">ping</code> يسأل هل الخادم يستجيب، و<code dir="ltr">-h</code> يحدد المضيف. <code dir="ltr">127.0.0.1</code> هنا صحيح لأن الفحص يجري داخل حاوية MySQL نفسها. لا يثبت أن ترحيلات Laravel انتهت.</p></article>
+<article class="entry" id="y54"><div class="srcrow"><a class="num" href="#y54" aria-label="السطر 54">054</a><pre dir="ltr"><code class="source">    interval: 4s</code></pre></div><p>الفاصل المهيأ بين فحوص MySQL هو <code dir="ltr">4s</code>؛ <code dir="ltr">s</code> تعني ثواني. لا يتعلق هذا الرقم بمهلة استجابة HTTP.</p></article>
+<article class="entry" id="y55"><div class="srcrow"><a class="num" href="#y55" aria-label="السطر 55">055</a><pre dir="ltr"><code class="source">    timeout: 4s</code></pre></div><p>إذا لم ينتهِ فحص MySQL الواحد خلال أربع ثوانٍ يعدّه Docker فاشلاً. <code dir="ltr">timeout</code> مهلة محاولة واحدة، بينما <code dir="ltr">interval</code> يضبط تكرار الفحص.</p></article>
+<article class="entry" id="y56"><div class="srcrow"><a class="num" href="#y56" aria-label="السطر 56">056</a><pre dir="ltr"><code class="source">    retries: 40</code></pre></div><p>بعد 40 فشلاً متتالياً يعتبر Docker الحاوية غير سليمة. الرقم لا يعني إنشاء 40 نسخة أو إعادة تشغيلها 40 مرة.</p></article>
+<article class="entry" id="y57"><div class="srcrow"><a class="num" href="#y57" aria-label="السطر 57">057</a><pre dir="ltr"><code class="source"></code></pre></div><p>فاصل بصري بين القوالب القابلة لإعادة الاستخدام وقسم الخدمات التي سيشغّلها Compose فعلاً.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g58"><div class="label">الأسطر 58–67</div><h3>قاعدة بيانات المتجر</h3>
+<article class="entry" id="y58"><div class="srcrow"><a class="num" href="#y58" aria-label="السطر 58">058</a><pre dir="ltr"><code class="source">services:</code></pre></div><p>بداية خريطة <code dir="ltr">services</code>. كل مفتاح تحتها يعرّف خدمة فعلية؛ عدد حاويات كل خدمة يُحدد منفصلاً.</p></article>
+<article class="entry" id="y59"><div class="srcrow"><a class="num" href="#y59" aria-label="السطر 59">059</a><pre dir="ltr"><code class="source">  mysql:</code></pre></div><p>خادم بيانات Laravel. اسم الخدمة <code dir="ltr">mysql</code> يعمل أيضاً كاسم مضيف داخل الشبكة الافتراضية، وهو ما يشير إليه <code dir="ltr">DB_HOST</code> في السطر 15.</p></article>
+<article class="entry" id="y60"><div class="srcrow"><a class="num" href="#y60" aria-label="السطر 60">060</a><pre dir="ltr"><code class="source">    &lt;&lt;: *db</code></pre></div><p><code dir="ltr">&lt;&lt;:</code> يدمج أزواج المفاتيح والقيم من <code dir="ltr">*db</code> في هذه الخدمة: الصورة وسياسة الإقلاع وفحص الصحة. لا ينسخ بيانات ولا يشارك اتصالاً.</p></article>
+<article class="entry" id="y61"><div class="srcrow"><a class="num" href="#y61" aria-label="السطر 61">061</a><pre dir="ltr"><code class="source">    environment:</code></pre></div><p>بداية متغيرات صورة MySQL لهذه الخدمة. تستهلكها صورة قاعدة البيانات، وليست متغيرات Laravel رغم تشابه الأسماء.</p></article>
+<article class="entry" id="y62"><div class="srcrow"><a class="num" href="#y62" aria-label="السطر 62">062</a><pre dir="ltr"><code class="source">      MYSQL_DATABASE: ecommerce_req5</code></pre></div><p>عند تهيئة وحدة بيانات جديدة تنشئ صورة MySQL قاعدة <code dir="ltr">ecommerce_req5</code>. الاسم مطابق لما يطلبه Laravel في السطر 16.</p></article>
+<article class="entry" id="y63"><div class="srcrow"><a class="num" href="#y63" aria-label="السطر 63">063</a><pre dir="ltr"><code class="source">      MYSQL_USER: laravel</code></pre></div><p>عند التهيئة يُنشأ مستخدم التطبيق <code dir="ltr">laravel</code>. تتصل به النسخ بدلاً من استخدام حساب إدارة قاعدة البيانات <code dir="ltr">root</code>.</p></article>
+<article class="entry" id="y64"><div class="srcrow"><a class="num" href="#y64" aria-label="السطر 64">064</a><pre dir="ltr"><code class="source">      MYSQL_PASSWORD_FILE: /run/secrets/mysql_password</code></pre></div><p>تقرأ صورة MySQL كلمة مرور حساب التطبيق من ملف السر المشار إليه. هذه جهة الخادم؛ السطر 18 يجعل العميل يقرأ السر المطابق عند الاتصال.</p></article>
+<article class="entry" id="y65"><div class="srcrow"><a class="num" href="#y65" aria-label="السطر 65">065</a><pre dir="ltr"><code class="source">      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password</code></pre></div><p>ملف مستقل لكلمة مرور <code dir="ltr">root</code>. تمييز سر مدير قاعدة البيانات عن سر التطبيق يسمح بإتاحة الأول لخادم MySQL فقط.</p></article>
+<article class="entry" id="y66"><div class="srcrow"><a class="num" href="#y66" aria-label="السطر 66">066</a><pre dir="ltr"><code class="source">    volumes: [primary_data:/var/lib/mysql]</code></pre></div><p>يربط <code dir="ltr">primary_data</code> بمجلد بيانات MySQL الفعلي <code dir="ltr">/var/lib/mysql</code>. تبديل حاوية الخادم لا يعني حذف جداول المتجر ما دامت الوحدة باقية.</p></article>
+<article class="entry" id="y67"><div class="srcrow"><a class="num" href="#y67" aria-label="السطر 67">067</a><pre dir="ltr"><code class="source">    secrets: [mysql_root_password, mysql_password]</code></pre></div><p>تحتاج حاوية MySQL السرّين عند التهيئة؛ الأقواس المربعة قائمة والفاصلة تفصل اسمين. لا تمنح هذه القائمة كلا السرّين لحاويات Laravel.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g68"><div class="label">الأسطر 68–76</div><h3>قاعدة بيانات المخزون</h3>
+<article class="entry" id="y68"><div class="srcrow"><a class="num" href="#y68" aria-label="السطر 68">068</a><pre dir="ltr"><code class="source">  inventory-mysql:</code></pre></div><p>تعريف خادم مستقل لبيانات المخزون. الشرطة في <code dir="ltr">inventory-mysql</code> جزء من اسم خدمة واحد يحله Docker عبر DNS.</p></article>
+<article class="entry" id="y69"><div class="srcrow"><a class="num" href="#y69" aria-label="السطر 69">069</a><pre dir="ltr"><code class="source">    &lt;&lt;: *db</code></pre></div><p>يستخدم قالب <code dir="ltr">db</code> نفسه: برنامج MySQL وفحص الصحة نفسهما، لكن متغيراته ووحدة بياناته تخص المخزون وحده.</p></article>
+<article class="entry" id="y70"><div class="srcrow"><a class="num" href="#y70" aria-label="السطر 70">070</a><pre dir="ltr"><code class="source">    environment:</code></pre></div><p>هذه المرة تعود خريطة البيئة إلى <code dir="ltr">inventory-mysql</code> فقط. تحدد القاعدة والحساب وأسرار عملية التهيئة لهذا الخادم.</p></article>
+<article class="entry" id="y71"><div class="srcrow"><a class="num" href="#y71" aria-label="السطر 71">071</a><pre dir="ltr"><code class="source">      MYSQL_DATABASE: inventory_db</code></pre></div><p>تنشأ قاعدة <code dir="ltr">inventory_db</code> للمخزون عند التهيئة الأولى. ليست جداول المخزون داخل قاعدة <code dir="ltr">ecommerce_req5</code> الخاصة بالمتجر.</p></article>
+<article class="entry" id="y72"><div class="srcrow"><a class="num" href="#y72" aria-label="السطر 72">072</a><pre dir="ltr"><code class="source">      MYSQL_USER: inventory_service</code></pre></div><p>حساب قاعدة المخزون اسمه <code dir="ltr">inventory_service</code> بشرطة سفلية. يختلف عن اسم خدمة الشبكة <code dir="ltr">inventory-service</code> ذي الشرطة الوسطية.</p></article>
+<article class="entry" id="y73"><div class="srcrow"><a class="num" href="#y73" aria-label="السطر 73">073</a><pre dir="ltr"><code class="source">      MYSQL_PASSWORD_FILE: /run/secrets/inventory_mysql_password</code></pre></div><p>يقرأ MySQL كلمة مرور حساب المخزون من ملف <code dir="ltr">inventory_mysql_password</code>، وهو السر نفسه الذي سيُمنح لعميل المخزون في السطر 87.</p></article>
+<article class="entry" id="y74"><div class="srcrow"><a class="num" href="#y74" aria-label="السطر 74">074</a><pre dir="ltr"><code class="source">      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/inventory_mysql_root_password</code></pre></div><p>مسار كلمة مرور مدير قاعدة المخزون. الفصل عن سر مدير قاعدة المتجر هنا مقصود؛ كل خادم له ملفات صلاحياته.</p></article>
+<article class="entry" id="y75"><div class="srcrow"><a class="num" href="#y75" aria-label="السطر 75">075</a><pre dir="ltr"><code class="source">    volumes: [inventory_data:/var/lib/mysql]</code></pre></div><p>يصل <code dir="ltr">inventory_data</code> وحده إلى مسار <code dir="ltr">/var/lib/mysql</code> في حاوية المخزون. تطابق المسار الداخلي مع السطر 66 لا يعني تطابق وحدة التخزين.</p></article>
+<article class="entry" id="y76"><div class="srcrow"><a class="num" href="#y76" aria-label="السطر 76">076</a><pre dir="ltr"><code class="source">    secrets: [inventory_mysql_password, inventory_mysql_root_password]</code></pre></div><p>يتيح سر المستخدم وسر المدير لخادم بيانات المخزون تحديداً. اسم السر في القائمة يجب أن يطابق أحد تعريفات آخر الملف.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g77"><div class="label">الأسطر 77–89</div><h3>خدمة المخزون</h3>
+<article class="entry" id="y77"><div class="srcrow"><a class="num" href="#y77" aria-label="السطر 77">077</a><pre dir="ltr"><code class="source">  inventory-service:</code></pre></div><p>تبدأ خدمة المخزون البرمجية. هذه حاوية Node.js تستقبل مكالمات gRPC من Laravel، وليست خادم MySQL الذي رأيناه للتو.</p></article>
+<article class="entry" id="y78"><div class="srcrow"><a class="num" href="#y78" aria-label="السطر 78">078</a><pre dir="ltr"><code class="source">    image: ${REQ5_INVENTORY_IMAGE:-ecommerce-req5-inventory:local}</code></pre></div><p>يمكن اختيار صورة جاهزة عبر <code dir="ltr">REQ5_INVENTORY_IMAGE</code>، وإلا يستخدم اسم الصورة المحلية <code dir="ltr">ecommerce-req5-inventory:local</code>. هذا يحدد ما ستشغله الحاوية.</p></article>
+<article class="entry" id="y79"><div class="srcrow"><a class="num" href="#y79" aria-label="السطر 79">079</a><pre dir="ltr"><code class="source">    build: {context: ., dockerfile: inventory-service/Dockerfile}</code></pre></div><p><code dir="ltr">build</code> يحدد كيف تُبنى الصورة: <code dir="ltr">context: .</code> يسمح للبناء بقراءة الملفات من جذر المشروع، و<code dir="ltr">dockerfile</code> يختار الوصفة داخل <code dir="ltr">inventory-service/</code>. تحتاج الوصفة إلى ملفات الخدمة وملفات <code dir="ltr">proto</code> معاً.</p></article>
+<article class="entry" id="y80"><div class="srcrow"><a class="num" href="#y80" aria-label="السطر 80">080</a><pre dir="ltr"><code class="source">    restart: unless-stopped</code></pre></div><p>يعيد Docker خدمة المخزون بعد خروج عمليتها ما لم توقفها عمداً. هذا لا يضيف نسخاً من خدمة المخزون؛ النسخ الثلاث المطلوبة تخص API Laravel.</p></article>
+<article class="entry" id="y81"><div class="srcrow"><a class="num" href="#y81" aria-label="السطر 81">081</a><pre dir="ltr"><code class="source">    environment:</code></pre></div><p>بداية البيئة الخاصة بعملية Node.js. تقرأ هذه الخدمة أسماء المتغيرات الخاصة بها مثل <code dir="ltr">DB_NAME</code> بدلاً من <code dir="ltr">DB_DATABASE</code> المستخدم في Laravel.</p></article>
+<article class="entry" id="y82"><div class="srcrow"><a class="num" href="#y82" aria-label="السطر 82">082</a><pre dir="ltr"><code class="source">      DB_HOST: inventory-mysql</code></pre></div><p>عميل المخزون يتصل بالمضيف <code dir="ltr">inventory-mysql</code> على الشبكة الداخلية، وليس بـ<code dir="ltr">mysql</code> الذي يخدم طلبات المتجر.</p></article>
+<article class="entry" id="y83"><div class="srcrow"><a class="num" href="#y83" aria-label="السطر 83">083</a><pre dir="ltr"><code class="source">      DB_NAME: inventory_db</code></pre></div><p>يختار قاعدة <code dir="ltr">inventory_db</code> التي هيّأها السطر 71. وجود خادم بالاسم الصحيح لا يكفي إذا اختلف اسم قاعدة البيانات.</p></article>
+<article class="entry" id="y84"><div class="srcrow"><a class="num" href="#y84" aria-label="السطر 84">084</a><pre dir="ltr"><code class="source">      DB_USER: inventory_service</code></pre></div><p>يستخدم حساب <code dir="ltr">inventory_service</code> من السطر 72؛ هذا حساب محدود للخدمة، وليس مدير خادم MySQL.</p></article>
+<article class="entry" id="y85"><div class="srcrow"><a class="num" href="#y85" aria-label="السطر 85">085</a><pre dir="ltr"><code class="source">      DB_PASSWORD_FILE: /run/secrets/inventory_mysql_password</code></pre></div><p>تحصل الخدمة على كلمة مرور حساب المخزون من ملف مركّب داخل الحاوية. لا تحتوي القيمة هنا على كلمة المرور نفسها.</p></article>
+<article class="entry" id="y86"><div class="srcrow"><a class="num" href="#y86" aria-label="السطر 86">086</a><pre dir="ltr"><code class="source">      NODE_ENV: production</code></pre></div><p>تعمل عملية Node في وضع <code dir="ltr">production</code>. هذا يخص تطبيق المخزون، ولا يبدل قيمة <code dir="ltr">APP_ENV: local</code> في خدمات Laravel.</p></article>
+<article class="entry" id="y87"><div class="srcrow"><a class="num" href="#y87" aria-label="السطر 87">087</a><pre dir="ltr"><code class="source">    secrets: [inventory_mysql_password]</code></pre></div><p>يحصل تطبيق المخزون على سر المستخدم العادي فقط. لا يحتاج إلى قراءة ملف كلمة مرور <code dir="ltr">root</code> حتى يتعامل مع المخزون.</p></article>
+<article class="entry" id="y88"><div class="srcrow"><a class="num" href="#y88" aria-label="السطر 88">088</a><pre dir="ltr"><code class="source">    depends_on:</code></pre></div><p>بداية قائمة الاعتماد عند إقلاع خدمة المخزون. اسم الاعتماد وشرط انتظاره يأتيان في السطر التالي.</p></article>
+<article class="entry" id="y89"><div class="srcrow"><a class="num" href="#y89" aria-label="السطر 89">089</a><pre dir="ltr"><code class="source">      inventory-mysql: {condition: service_healthy}</code></pre></div><p>ينتظر Compose نجاح فحص <code dir="ltr">inventory-mysql</code> قبل بدء خدمة المخزون. لا ينتظر هذا السطر قاعدة بيانات المتجر لأن الخدمة لا تتصل بها.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g90"><div class="label">الأسطر 90–99</div><h3>Redis: الكاش والجلسات</h3>
+<article class="entry" id="y90"><div class="srcrow"><a class="num" href="#y90" aria-label="السطر 90">090</a><pre dir="ltr"><code class="source">  redis:</code></pre></div><p>تعريف خدمة التخزين المشترك في الذاكرة <code dir="ltr">redis</code>. يصل إليها جميع عملاء Laravel عبر السطر 24.</p></article>
+<article class="entry" id="y91"><div class="srcrow"><a class="num" href="#y91" aria-label="السطر 91">091</a><pre dir="ltr"><code class="source">    image: redis:7-alpine</code></pre></div><p>تشغّل الصورة <code dir="ltr">redis</code> بوسم <code dir="ltr">7-alpine</code>، أي إصدار من سلسلة 7 مبني على Alpine. الشرطة داخل الوسم ليست عملية طرح.</p></article>
+<article class="entry" id="y92"><div class="srcrow"><a class="num" href="#y92" aria-label="السطر 92">092</a><pre dir="ltr"><code class="source">    restart: unless-stopped</code></pre></div><p>سياسة إعادة تشغيل Redis بعد توقف غير مقصود. استعادة عمليته لا تعوّض ما لم يُحفظ على التخزين الدائم.</p></article>
+<article class="entry" id="y93"><div class="srcrow"><a class="num" href="#y93" aria-label="السطر 93">093</a><pre dir="ltr"><code class="source">    command: [redis-server, --appendonly, &#x27;yes&#x27;]</code></pre></div><p>تشغّل أمر <code dir="ltr">redis-server</code> مع المعامل <code dir="ltr">--appendonly</code> وقيمته النصية <code dir="ltr">yes</code>. بذلك يسجل Redis التغييرات في سجل AOF يمكنه قراءته عند العودة، بدلاً من الاعتماد على الذاكرة وحدها.</p></article>
+<article class="entry" id="y94"><div class="srcrow"><a class="num" href="#y94" aria-label="السطر 94">094</a><pre dir="ltr"><code class="source">    volumes: [redis_data:/data]</code></pre></div><p>تربط وحدة <code dir="ltr">redis_data</code> بمجلد <code dir="ltr">/data</code> الذي يستخدمه Redis للحفظ. وجود الوحدة يكمل تشغيل AOF في السطر السابق، ولا ينشئ نسخة Redis ثانية.</p></article>
+<article class="entry" id="y95"><div class="srcrow"><a class="num" href="#y95" aria-label="السطر 95">095</a><pre dir="ltr"><code class="source">    healthcheck:</code></pre></div><p>تعريف فحص صحة خاص بـRedis. ليس هو فحص URL المستخدم مع API ولا فحص الأداة <code dir="ltr">mysqladmin</code>.</p></article>
+<article class="entry" id="y96"><div class="srcrow"><a class="num" href="#y96" aria-label="السطر 96">096</a><pre dir="ltr"><code class="source">      test: [CMD, redis-cli, ping]</code></pre></div><p>تشغّل <code dir="ltr">redis-cli ping</code> داخل حاوية Redis للتحقق من وجود خادم يجيب؛ الرد المعتاد <code dir="ltr">PONG</code>. حالة الفحص يستعملها شرط <code dir="ltr">service_healthy</code> في السطر 47.</p></article>
+<article class="entry" id="y97"><div class="srcrow"><a class="num" href="#y97" aria-label="السطر 97">097</a><pre dir="ltr"><code class="source">      interval: 4s</code></pre></div><p>الفاصل المهيأ بين فحوص Redis أربع ثوانٍ. لا يحدد مدة بقاء كاش المنتجات.</p></article>
+<article class="entry" id="y98"><div class="srcrow"><a class="num" href="#y98" aria-label="السطر 98">098</a><pre dir="ltr"><code class="source">      timeout: 3s</code></pre></div><p>المهلة القصوى لفحص Redis الواحد ثلاث ثوانٍ؛ تجاوزها يعد فشلاً لذلك الفحص.</p></article>
+<article class="entry" id="y99"><div class="srcrow"><a class="num" href="#y99" aria-label="السطر 99">099</a><pre dir="ltr"><code class="source">      retries: 15</code></pre></div><p>بعد 15 فشلاً متتالياً يصبح Redis غير سليم في نظر Docker. هذه سياسة فحص، وليست عدد محاولات إرسال الرسالة.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g100"><div class="label">الأسطر 100–113</div><h3>RabbitMQ: الوسيط المشترك</h3>
+<article class="entry" id="y100"><div class="srcrow"><a class="num" href="#y100" aria-label="السطر 100">100</a><pre dir="ltr"><code class="source">  rabbitmq:</code></pre></div><p>تعريف خدمة وسيط RabbitMQ. الحاوية تحتفظ بالطوابير؛ عمليات العمال الثلاث تعمل في حاويات أخرى وتسحب من هذا الوسيط نفسه.</p></article>
+<article class="entry" id="y101"><div class="srcrow"><a class="num" href="#y101" aria-label="السطر 101">101</a><pre dir="ltr"><code class="source">    image: ${REQ5_RABBIT_IMAGE:-rabbitmq:4.2-alpine}</code></pre></div><p>صورة الوسيط قابلة للاستبدال عبر <code dir="ltr">REQ5_RABBIT_IMAGE</code>. إذا لم يُعطَ المتغير قيمة، يختار Compose <code dir="ltr">rabbitmq:4.2-alpine</code>. الصورة الفعلية للاختبار مسجلة في ملف النتائج.</p></article>
+<article class="entry" id="y102"><div class="srcrow"><a class="num" href="#y102" aria-label="السطر 102">102</a><pre dir="ltr"><code class="source">    hostname: req5-rabbitmq</code></pre></div><p>يثبت اسم المضيف داخل حاوية الوسيط على <code dir="ltr">req5-rabbitmq</code> ليستقر اسم عقدة RabbitMQ عند استخدام بياناتها. العملاء ما زالوا يصلون إلى اسم الخدمة <code dir="ltr">rabbitmq</code>؛ ولا يفرض السطر <code dir="ltr">container_name</code> على نسخ API.</p></article>
+<article class="entry" id="y103"><div class="srcrow"><a class="num" href="#y103" aria-label="السطر 103">103</a><pre dir="ltr"><code class="source">    restart: unless-stopped</code></pre></div><p>يعيد Docker تشغيل الوسيط ما لم توقفه عمداً. تحمّل فقدان نسخة Laravel لا يعني تحمّل فقدان وسيط RabbitMQ الوحيد.</p></article>
+<article class="entry" id="y104"><div class="srcrow"><a class="num" href="#y104" aria-label="السطر 104">104</a><pre dir="ltr"><code class="source">    environment:</code></pre></div><p>بداية متغيرات تهيئة الوسيط نفسه. القيم في الأسطر التالية تتوافق مع متغيرات الاتصال التي تصل إلى Laravel عبر القالب.</p></article>
+<article class="entry" id="y105"><div class="srcrow"><a class="num" href="#y105" aria-label="السطر 105">105</a><pre dir="ltr"><code class="source">      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-orders}</code></pre></div><p>عند تهيئة بيانات الوسيط لأول مرة، اسم حسابه الافتراضي قيمة <code dir="ltr">RABBITMQ_USER</code> أو <code dir="ltr">orders</code>. هذا هو الطرف المقابل لما يستخدمه العميل في السطر 37.</p></article>
+<article class="entry" id="y106"><div class="srcrow"><a class="num" href="#y106" aria-label="السطر 106">106</a><pre dir="ltr"><code class="source">      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in .env}</code></pre></div><p>يأخذ الوسيط كلمة مرور التهيئة من نفس المتغير الإلزامي الذي يقرأه العميل. تغيير متغير التهيئة لاحقاً لا يعني تغيير كلمة مرور حساب موجود في بيانات وسيط قديم.</p></article>
+<article class="entry" id="y107"><div class="srcrow"><a class="num" href="#y107" aria-label="السطر 107">107</a><pre dir="ltr"><code class="source">      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-ecommerce}</code></pre></div><p>ينشئ العرض مساحة أسماء ابتدائية من <code dir="ltr">RABBITMQ_VHOST</code> أو <code dir="ltr">ecommerce</code>. لهذا يتحدث الناشر والعمال في المساحة نفسها حين يستخدمون إعداد السطر 39.</p></article>
+<article class="entry" id="y108"><div class="srcrow"><a class="num" href="#y108" aria-label="السطر 108">108</a><pre dir="ltr"><code class="source">    volumes: [broker_data:/var/lib/rabbitmq]</code></pre></div><p>تبقى بيانات الوسيط في وحدة <code dir="ltr">broker_data</code> عند المسار <code dir="ltr">/var/lib/rabbitmq</code>. هذا التخزين يخدم طوابير المشروع؛ متانة الرسالة تعتمد أيضاً على تعريف الطابور وطريقة النشر والإقرار في كود المراسلة.</p></article>
+<article class="entry" id="y109"><div class="srcrow"><a class="num" href="#y109" aria-label="السطر 109">109</a><pre dir="ltr"><code class="source">    healthcheck:</code></pre></div><p>بداية فحص صحة RabbitMQ. تنتظر خدمات المراسلة نجاحه قبل أن تبدأ عملها؛ خدمات HTTP لا تعتمد عليه مباشرة في تعريف الإقلاع.</p></article>
+<article class="entry" id="y110"><div class="srcrow"><a class="num" href="#y110" aria-label="السطر 110">110</a><pre dir="ltr"><code class="source">      test: [CMD, rabbitmq-diagnostics, -q, check_running]</code></pre></div><p>تشغّل أداة <code dir="ltr">rabbitmq-diagnostics</code>؛ الخيار <code dir="ltr">-q</code> يقلل المخرجات، و<code dir="ltr">check_running</code> يفحص أن تطبيق RabbitMQ يعمل. لا يقول هذا الفحص إن عاملاً بعينه أنجز رسالة.</p></article>
+<article class="entry" id="y111"><div class="srcrow"><a class="num" href="#y111" aria-label="السطر 111">111</a><pre dir="ltr"><code class="source">      interval: 6s</code></pre></div><p>الفاصل بين فحوص الوسيط ست ثوانٍ. لا علاقة له بزمن إعادة محاولة البريد.</p></article>
+<article class="entry" id="y112"><div class="srcrow"><a class="num" href="#y112" aria-label="السطر 112">112</a><pre dir="ltr"><code class="source">      timeout: 10s</code></pre></div><p>يمكن لأمر فحص الوسيط أن يستغرق حتى عشر ثوانٍ قبل أن يعدّه Docker فاشلاً.</p></article>
+<article class="entry" id="y113"><div class="srcrow"><a class="num" href="#y113" aria-label="السطر 113">113</a><pre dir="ltr"><code class="source">      retries: 30</code></pre></div><p>ثلاثون فشلاً متتالياً تجعل الحالة غير سليمة. الرقم لا يعني وجود ثلاثين عاملاً أو رسالة.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g114"><div class="label">الأسطر 114–120</div><h3>الترحيل قبل تشغيل النسخ</h3>
+<article class="entry" id="y114"><div class="srcrow"><a class="num" href="#y114" aria-label="السطر 114">114</a><pre dir="ltr"><code class="source">  migrate:</code></pre></div><p>خدمة <code dir="ltr">migrate</code> عملية مستقلة قصيرة العمر. وجود واحدة فقط هو ما يمنع النسخ الجديدة من محاولة تعديل مخطط قاعدة البيانات بالتوازي عند الإقلاع.</p></article>
+<article class="entry" id="y115"><div class="srcrow"><a class="num" href="#y115" aria-label="السطر 115">115</a><pre dir="ltr"><code class="source">    &lt;&lt;: *laravel</code></pre></div><p>ترث <code dir="ltr">migrate</code> إعدادات Laravel حتى تصل إلى قاعدة المتجر بالصورة والمفاتيح نفسيهما. ستغيّر محلياً سياسة إعادة التشغيل والاعتمادات وأمر التنفيذ.</p></article>
+<article class="entry" id="y116"><div class="srcrow"><a class="num" href="#y116" aria-label="السطر 116">116</a><pre dir="ltr"><code class="source">    build: ./backend/my-project</code></pre></div><p>يُستخدم المجلد <code dir="ltr">./backend/my-project</code> كسياق بناء ويُقرأ <code dir="ltr">Dockerfile</code> منه. هذه الخدمة تحدد وصفة بناء صورة Laravel المشتركة؛ خدمات API والعمال تستخدم اسم الصورة نفسه من السطر 4.</p></article>
+<article class="entry" id="y117"><div class="srcrow"><a class="num" href="#y117" aria-label="السطر 117">117</a><pre dir="ltr"><code class="source">    restart: &#x27;no&#x27;</code></pre></div><p>تستبدل <code dir="ltr">restart: &#x27;no&#x27;</code> القيمة الموروثة <code dir="ltr">unless-stopped</code>. نجاح العملية وخروجها مقصودان؛ لا نريد أن يعيد Docker تشغيل أمر الترحيل مراراً بعد انتهائه.</p></article>
+<article class="entry key" id="y118"><div class="srcrow"><a class="num" href="#y118" aria-label="السطر 118">118</a><pre dir="ltr"><code class="source">    command: [php, artisan, migrate, --force]</code></pre></div><p>الأمر الفعلي <code dir="ltr">php artisan migrate --force</code>: يشغّل PHP أداة Laravel التي تطبّق الترحيلات المعلقة، و<code dir="ltr">--force</code> يسمح بالتنفيذ دون تأكيد الإنتاج التفاعلي. لا تعارض مع السطر 20: ذاك يمنع الترحيل الضمني في نقطة الدخول، وهذا يطلبه صراحةً كوظيفة الحاوية.</p></article>
+<article class="entry" id="y119"><div class="srcrow"><a class="num" href="#y119" aria-label="السطر 119">119</a><pre dir="ltr"><code class="source">    depends_on:</code></pre></div><p>هذا المفتاح المحلي يحل محل <code dir="ltr">depends_on</code> الموروث في دمج YAML داخل الملف. لذلك لا تنتظر <code dir="ltr">migrate</code> انتهاء نفسها؛ اعتمادها الوحيد المبين هنا هو قاعدة البيانات.</p></article>
+<article class="entry" id="y120"><div class="srcrow"><a class="num" href="#y120" aria-label="السطر 120">120</a><pre dir="ltr"><code class="source">      mysql: {condition: service_healthy}</code></pre></div><p>بعد أن يصبح <code dir="ltr">mysql</code> سليماً، تبدأ خدمة الترحيلات. لا يبدأ API ولا العامل المعتمد على <code dir="ltr">ready</code> قبل اكتمال هذه الخدمة بنجاح.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g121"><div class="label">الأسطر 121–129</div><h3>ثلاث نسخ من Laravel</h3>
+<article class="entry" id="y121"><div class="srcrow"><a class="num" href="#y121" aria-label="السطر 121">121</a><pre dir="ltr"><code class="source">  api:</code></pre></div><p><code dir="ltr">api</code> هو اسم خدمة HTTP واحد في Docker. تحته ستنشأ حاويات متعددة؛ لا يوجد هنا <code dir="ltr">container_name</code> يجبرها جميعاً على الاسم نفسه.</p></article>
+<article class="entry" id="y122"><div class="srcrow"><a class="num" href="#y122" aria-label="السطر 122">122</a><pre dir="ltr"><code class="source">    &lt;&lt;: *laravel</code></pre></div><p>تحصل كل نسخة API على الإعدادات المشتركة، ومنها قاعدة البيانات وRedis ومفتاح JWT ووحدة الصور. لا يوجد <code dir="ltr">command</code> محلي، فتستخدم أمر تقديم Laravel الافتراضي في الصورة على المنفذ 8000.</p></article>
+<article class="entry key" id="y123"><div class="srcrow"><a class="num" href="#y123" aria-label="السطر 123">123</a><pre dir="ltr"><code class="source">    deploy: {replicas: 3}</code></pre></div><p><code dir="ltr">deploy</code> يضم سياسة تشغيل الخدمة و<code dir="ltr">replicas: 3</code> يطلب ثلاث حاويات API. العدد لا ينشئ بوابة ولا يختار أي نسخة تستقبل الطلب؛ الاختيار وظيفة Nginx.</p></article>
+<article class="entry key" id="y124"><div class="srcrow"><a class="num" href="#y124" aria-label="السطر 124">124</a><pre dir="ltr"><code class="source">    networks: [edge, default]</code></pre></div><p>الـAPI موصول بشبكتين: <code dir="ltr">edge</code> لاستقبال الطلب من Nginx، و<code dir="ltr">default</code> للوصول إلى MySQL وRedis والخدمات الداخلية. لا تُنشر ثلاثة منافذ على جهازك؛ النسخ تستعمل 8000 كلٌ داخل حاويتها.</p></article>
+<article class="entry" id="y125"><div class="srcrow"><a class="num" href="#y125" aria-label="السطر 125">125</a><pre dir="ltr"><code class="source">    healthcheck:</code></pre></div><p>تعريف صحة كل نسخة API على حدة. قد تصبح نسخة جاهزة بينما لا تزال أخرى تقلع. الفحص من Docker يختلف عن كشف Nginx فشل الاتصال أثناء الخدمة.</p></article>
+<article class="entry" id="y126"><div class="srcrow"><a class="num" href="#y126" aria-label="السطر 126">126</a><pre dir="ltr"><code class="source">      test: [CMD, curl, -fsS, &#x27;http://127.0.0.1:8000/up&#x27;]</code></pre></div><p>يشغّل Docker <code dir="ltr">curl</code> على <code dir="ltr">/up</code> داخل النسخة نفسها. <code dir="ltr">-f</code> يعتبر أخطاء HTTP فشلاً، و<code dir="ltr">-s</code> يكتم شريط التقدم، و<code dir="ltr">-S</code> يُظهر الخطأ مع الوضع الصامت. هذا يتحقق من استجابة تلك النسخة دون المرور بالبوابة.</p></article>
+<article class="entry" id="y127"><div class="srcrow"><a class="num" href="#y127" aria-label="السطر 127">127</a><pre dir="ltr"><code class="source">      interval: 5s</code></pre></div><p>تكرار فحص نسخة API كل خمس ثوانٍ تقريباً. هذه وتيرة فحوص Docker، وليست مدة تحديث DNS عند Nginx.</p></article>
+<article class="entry" id="y128"><div class="srcrow"><a class="num" href="#y128" aria-label="السطر 128">128</a><pre dir="ltr"><code class="source">      timeout: 4s</code></pre></div><p>إذا تجاوز فحص <code dir="ltr">/up</code> المحلي أربع ثوانٍ يحسبه Docker فشلاً؛ لا يغير هذا المهلة المسموحة لكل طلب زبون.</p></article>
+<article class="entry" id="y129"><div class="srcrow"><a class="num" href="#y129" aria-label="السطر 129">129</a><pre dir="ltr"><code class="source">      retries: 15</code></pre></div><p>خمس عشرة محاولة فاشلة متتالية تجعل حالة النسخة غير سليمة. لتجربة الاستمرارية يوقف الاختبار حاوية كاملة ثم يرسل طلبات من خارجها.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g130"><div class="label">الأسطر 130–138</div><h3>بوابة واحدة على جهازك</h3>
+<article class="entry" id="y130"><div class="srcrow"><a class="num" href="#y130" aria-label="السطر 130">130</a><pre dir="ltr"><code class="source">  gateway:</code></pre></div><p>بداية خدمة <code dir="ltr">gateway</code>: هذه الحاوية عنوان الدخول الثابت للعميل. خلف العنوان يمكن إيقاف نسخة أو إعادتها دون تعديل رابط Postman.</p></article>
+<article class="entry" id="y131"><div class="srcrow"><a class="num" href="#y131" aria-label="السطر 131">131</a><pre dir="ltr"><code class="source">    image: ${REQ5_NGINX_IMAGE:-nginx:1.28-alpine}</code></pre></div><p>تستخدم البوابة صورة Nginx من <code dir="ltr">REQ5_NGINX_IMAGE</code> أو افتراضياً <code dir="ltr">nginx:1.28-alpine</code>. اسم الصورة يحدد البرنامج؛ ملف الإعداد المركّب بعد قليل يحدد استراتيجية التوزيع.</p></article>
+<article class="entry" id="y132"><div class="srcrow"><a class="num" href="#y132" aria-label="السطر 132">132</a><pre dir="ltr"><code class="source">    restart: unless-stopped</code></pre></div><p>تطبق البوابة سياسة إعادة التشغيل ذاتها. توجد بوابة واحدة في هذا العرض؛ اختبار الاستمرارية يوقف نسخة API وليس البوابة.</p></article>
+<article class="entry key" id="y133"><div class="srcrow"><a class="num" href="#y133" aria-label="السطر 133">133</a><pre dir="ltr"><code class="source">    ports: [&#x27;127.0.0.1:8015:80&#x27;]</code></pre></div><p>اقرأ <code dir="ltr">127.0.0.1:8015:80</code> من اليسار: عنوان الربط على جهازك، ثم منفذ الجهاز <code dir="ltr">8015</code>، ثم منفذ Nginx داخل الحاوية <code dir="ltr">80</code>. لذلك جميع طلبات Postman تذهب إلى العنوان نفسه.</p></article>
+<article class="entry key" id="y134"><div class="srcrow"><a class="num" href="#y134" aria-label="السطر 134">134</a><pre dir="ltr"><code class="source">    volumes: [&#x27;./ops/req5/nginx.conf:/etc/nginx/conf.d/default.conf:ro&#x27;]</code></pre></div><p>هذا ربط ملف من المشروع، لا وحدة بيانات مسماة: <code dir="ltr">./ops/req5/nginx.conf</code> هو المصدر، و<code dir="ltr">/etc/nginx/conf.d/default.conf</code> وجهة القراءة داخل Nginx، و<code dir="ltr">ro</code> تعني للقراءة فقط. هنا بالضبط يلتقي الملفان.</p></article>
+<article class="entry" id="y135"><div class="srcrow"><a class="num" href="#y135" aria-label="السطر 135">135</a><pre dir="ltr"><code class="source">    networks:</code></pre></div><p>يبدأ تحديد الشبكات التي تنضم إليها البوابة. لأن القائمة صريحة فلن تُوصل البوابة تلقائياً أيضاً بشبكة البيانات <code dir="ltr">default</code>.</p></article>
+<article class="entry" id="y136"><div class="srcrow"><a class="num" href="#y136" aria-label="السطر 136">136</a><pre dir="ltr"><code class="source">      edge: {}</code></pre></div><p><code dir="ltr">edge: {}</code> يضم البوابة إلى شبكة <code dir="ltr">edge</code> دون خيارات إضافية. الأقواس الفارغة تعني خريطة فارغة، لا أن الشبكة بلا عنوان؛ يخصّص Docker عنواناً داخل نطاقها.</p></article>
+<article class="entry" id="y137"><div class="srcrow"><a class="num" href="#y137" aria-label="السطر 137">137</a><pre dir="ltr"><code class="source">    depends_on:</code></pre></div><p>يحدد متى يُسمح لـCompose أن يبدأ البوابة في دورة الإقلاع. بعد التشغيل، Nginx نفسه هو الذي يختار خلفية ويعالج تعذر الاتصال.</p></article>
+<article class="entry" id="y138"><div class="srcrow"><a class="num" href="#y138" aria-label="السطر 138">138</a><pre dir="ltr"><code class="source">      api: {condition: service_healthy}</code></pre></div><p>ينتظر Compose صحة خدمة API قبل بدء البوابة. ليس هذا الشرط هو الذي يحوّل الطلب إلى نسخة أخرى عند الفشل؛ راجع <code dir="ltr">proxy_next_upstream</code> في ملف Nginx.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g139"><div class="label">الأسطر 139–146</div><h3>ثلاثة عمال على طابور واحد</h3>
+<article class="entry" id="y139"><div class="srcrow"><a class="num" href="#y139" aria-label="السطر 139">139</a><pre dir="ltr"><code class="source">  email-worker:</code></pre></div><p>خدمة مستقلة لعمال بريد الطلبات. لا تستقبل طلبات HTTP ولا ينشئ Nginx حصة منفصلة لكل عامل؛ تحصل العمال على العمل من RabbitMQ.</p></article>
+<article class="entry" id="y140"><div class="srcrow"><a class="num" href="#y140" aria-label="السطر 140">140</a><pre dir="ltr"><code class="source">    &lt;&lt;: *laravel</code></pre></div><p>ترث العمال الاتصال بقاعدة المتجر والوسيط وإعداد البريد التجريبي نفسه. لا حاجة لنسخ كود معالجة البريد ثلاث مرات في Laravel.</p></article>
+<article class="entry key" id="y141"><div class="srcrow"><a class="num" href="#y141" aria-label="السطر 141">141</a><pre dir="ltr"><code class="source">    deploy: {replicas: 3}</code></pre></div><p>هذه <code dir="ltr">replicas: 3</code> الثانية تخص عامل البريد فقط. يصبح لدينا ثلاث عمليات استهلاك مستقلة بالإضافة إلى نسخ API الثلاث، لا ست نسخ من خادم HTTP.</p></article>
+<article class="entry key" id="y142"><div class="srcrow"><a class="num" href="#y142" aria-label="السطر 142">142</a><pre dir="ltr"><code class="source">    command: [php, artisan, &#x27;orders:email-worker&#x27;]</code></pre></div><p>كل حاوية تشغّل <code dir="ltr">php artisan orders:email-worker</code>. النقطتان داخل اسم أمر Artisan جزء من الاسم. أمر المشروع يقرأ من <code dir="ltr">orders.email</code> عبر إعداد RabbitMQ؛ لا يُشتق الطابور من رقم الحاوية.</p></article>
+<article class="entry" id="y143"><div class="srcrow"><a class="num" href="#y143" aria-label="السطر 143">143</a><pre dir="ltr"><code class="source">    stop_grace_period: 45s</code></pre></div><p>عند طلب الإيقاف يعطي Docker العامل مهلة تصل إلى 45 ثانية قبل الإنهاء القسري. المهلة لا تضمن إتمام الرسالة؛ مسؤولية الإقرار وإعادة التسليم تقع على كود العامل والوسيط.</p></article>
+<article class="entry" id="y144"><div class="srcrow"><a class="num" href="#y144" aria-label="السطر 144">144</a><pre dir="ltr"><code class="source">    depends_on: &amp;messaging</code></pre></div><p>يعرّف مجموعة اعتماد باسم <code dir="ltr">messaging</code> ويطبّقها على عامل البريد. تعطي المرساة <code dir="ltr">&amp;messaging</code> الناشر لاحقاً طريقة لاستخدام الشروط نفسها.</p></article>
+<article class="entry key" id="y145"><div class="srcrow"><a class="num" href="#y145" aria-label="السطر 145">145</a><pre dir="ltr"><code class="source">      &lt;&lt;: *ready</code></pre></div><p>يدمج <code dir="ltr">&lt;&lt;: *ready</code> شرطَي الترحيل الناجح وRedis السليم داخل قاموس <code dir="ltr">depends_on</code> الحالي؛ ثم يضيف السطر التالي اعتماداً ثالثاً بدلاً من فقدان الشرطين.</p></article>
+<article class="entry" id="y146"><div class="srcrow"><a class="num" href="#y146" aria-label="السطر 146">146</a><pre dir="ltr"><code class="source">      rabbitmq: {condition: service_healthy}</code></pre></div><p>يجب أن يكون RabbitMQ سليماً قبل تشغيل العمال. العامل يحتاج وسيطاً حياً ليسحب منه؛ وهذا شرط بداية وليس وعداً بأن الوسيط لن يتوقف لاحقاً.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g147"><div class="label">الأسطر 147–150</div><h3>ناشر الأحداث</h3>
+<article class="entry" id="y147"><div class="srcrow"><a class="num" href="#y147" aria-label="السطر 147">147</a><pre dir="ltr"><code class="source">  outbox-publisher:</code></pre></div><p>خدمة الناشر <code dir="ltr">outbox-publisher</code> تعمل بشكل منفصل عن API والعمال. مهمتها دفع أحداث الطلبات المحفوظة إلى RabbitMQ، وليست إرسال البريد للزبون.</p></article>
+<article class="entry" id="y148"><div class="srcrow"><a class="num" href="#y148" aria-label="السطر 148">148</a><pre dir="ltr"><code class="source">    &lt;&lt;: *laravel</code></pre></div><p>يرث الناشر إعدادات Laravel نفسها، فيستطيع قراءة جدول الأحداث من قاعدة المتجر والاتصال بالوسيط المشترك.</p></article>
+<article class="entry" id="y149"><div class="srcrow"><a class="num" href="#y149" aria-label="السطر 149">149</a><pre dir="ltr"><code class="source">    command: [php, artisan, &#x27;outbox:publish&#x27;]</code></pre></div><p>يشغّل <code dir="ltr">php artisan outbox:publish</code> لقراءة الأحداث المعلقة ونشرها. يوجد ناشر واحد في هذا العرض؛ الذين طُلب تكثيرهم هم المستهلكون في السطر 141.</p></article>
+<article class="entry" id="y150"><div class="srcrow"><a class="num" href="#y150" aria-label="السطر 150">150</a><pre dir="ltr"><code class="source">    depends_on: *messaging</code></pre></div><p><code dir="ltr">*messaging</code> مرجع مباشر لقاموس الشروط الكامل من الأسطر 144–146، أي الترحيل وRedis وRabbitMQ. لا ينشئ نسخة من حاوية العامل.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g151"><div class="label">الأسطر 151–153</div><h3>المجدول</h3>
+<article class="entry" id="y151"><div class="srcrow"><a class="num" href="#y151" aria-label="السطر 151">151</a><pre dir="ltr"><code class="source">  scheduler:</code></pre></div><p>تعريف المجدول <code dir="ltr">scheduler</code> مرة واحدة. إبقاؤه خدمة منفصلة يعني أن زيادة عدد حاويات HTTP لا تشغّل مجدولاً جديداً مع كل نسخة.</p></article>
+<article class="entry" id="y152"><div class="srcrow"><a class="num" href="#y152" aria-label="السطر 152">152</a><pre dir="ltr"><code class="source">    &lt;&lt;: *laravel</code></pre></div><p>يرث المجدول، ضمن ما يرث، <code dir="ltr">depends_on</code> من <code dir="ltr">&amp;ready</code> والاتصال بقاعدة البيانات وRedis. لا يرث <code dir="ltr">&amp;messaging</code> المخصص للبريد.</p></article>
+<article class="entry" id="y153"><div class="srcrow"><a class="num" href="#y153" aria-label="السطر 153">153</a><pre dir="ltr"><code class="source">    command: [php, artisan, &#x27;schedule:work&#x27;]</code></pre></div><p>يشغّل <code dir="ltr">php artisan schedule:work</code>، الذي يتولى تنفيذ المهام المجدولة عند مواعيدها؛ مثل إعادة محاولة عمليات تعويض المخزون المسجلة في المشروع.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g154"><div class="label">الأسطر 154–157</div><h3>خادم البث اللحظي</h3>
+<article class="entry" id="y154"><div class="srcrow"><a class="num" href="#y154" aria-label="السطر 154">154</a><pre dir="ltr"><code class="source">  reverb:</code></pre></div><p>خدمة Reverb تستضيف اتصال WebSocket اللحظي. وجود ثلاث نسخ API لا ينشئ ثلاثة خوادم WebSocket في هذه البنية.</p></article>
+<article class="entry" id="y155"><div class="srcrow"><a class="num" href="#y155" aria-label="السطر 155">155</a><pre dir="ltr"><code class="source">    &lt;&lt;: *laravel</code></pre></div><p>يرث Reverb الإعدادات المشتركة ومعرّف التطبيق والمفتاح والسر. هذا يمكّن نسخ التطبيق من التحدث إلى خادم البث نفسه.</p></article>
+<article class="entry" id="y156"><div class="srcrow"><a class="num" href="#y156" aria-label="السطر 156">156</a><pre dir="ltr"><code class="source">    command: [php, artisan, &#x27;reverb:start&#x27;, &#x27;--host=0.0.0.0&#x27;, &#x27;--port=8080&#x27;]</code></pre></div><p><code dir="ltr">php artisan reverb:start</code> يبدأ خادم البث. <code dir="ltr">--host=0.0.0.0</code> يجعله يستمع على واجهات الحاوية و<code dir="ltr">--port=8080</code> يختار منفذه الداخلي؛ النشر على الجهاز تحدده القاعدة التالية.</p></article>
+<article class="entry" id="y157"><div class="srcrow"><a class="num" href="#y157" aria-label="السطر 157">157</a><pre dir="ltr"><code class="source">    ports: [&#x27;127.0.0.1:8185:8080&#x27;]</code></pre></div><p>يربط منفذ جهازك <code dir="ltr">8185</code> بالمنفذ <code dir="ltr">8080</code> داخل Reverb على عنوان الحلقة المحلية فقط. هذا منفذ البث اللحظي، بينما <code dir="ltr">8015</code> منفذ REST عبر Nginx.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g158"><div class="label">الأسطر 158–164</div><h3>عامل البث</h3>
+<article class="entry" id="y158"><div class="srcrow"><a class="num" href="#y158" aria-label="السطر 158">158</a><pre dir="ltr"><code class="source">  broadcast-worker:</code></pre></div><p>بداية العامل الذي يعالج مهام البث لخادم Reverb. يختلف عن العمال الثلاثة الذين يقرؤون طابور البريد <code dir="ltr">orders.email</code> في RabbitMQ.</p></article>
+<article class="entry" id="y159"><div class="srcrow"><a class="num" href="#y159" aria-label="السطر 159">159</a><pre dir="ltr"><code class="source">    &lt;&lt;: *laravel</code></pre></div><p>يستعمل عامل البث صورة Laravel المشتركة ويصل إلى قاعدة البيانات وبقية إعدادات المشروع. لا يوجد <code dir="ltr">deploy.replicas</code> هنا، فتعمل حاوية واحدة افتراضياً.</p></article>
+<article class="entry" id="y160"><div class="srcrow"><a class="num" href="#y160" aria-label="السطر 160">160</a><pre dir="ltr"><code class="source">    command: [php, artisan, &#x27;queue:work&#x27;, database, &#x27;--queue=broadcasts&#x27;, &#x27;--tries=5&#x27;, &#x27;--backoff=5&#x27;, &#x27;--timeout=30&#x27;, &#x27;--sleep=1&#x27;]</code></pre></div><p><code dir="ltr">queue:work database</code> يستهلك مهام Laravel من اتصال الطابور <code dir="ltr">database</code>. <code dir="ltr">--queue=broadcasts</code> يحدد طابور البث، و<code dir="ltr">--tries=5</code> سقف المحاولات، و<code dir="ltr">--backoff=5</code> انتظار إعادة المحاولة بالثواني، و<code dir="ltr">--timeout=30</code> مهلة تنفيذ المهمة، و<code dir="ltr">--sleep=1</code> انتظار عند خلو الطابور.</p></article>
+<article class="entry" id="y161"><div class="srcrow"><a class="num" href="#y161" aria-label="السطر 161">161</a><pre dir="ltr"><code class="source">    depends_on:</code></pre></div><p>بداية شروط إقلاع عامل البث. سنجمع شروط Laravel الأساسية مع شرط يتعلق بخادم البث تحديداً.</p></article>
+<article class="entry" id="y162"><div class="srcrow"><a class="num" href="#y162" aria-label="السطر 162">162</a><pre dir="ltr"><code class="source">      &lt;&lt;: *ready</code></pre></div><p>يدمج شروط <code dir="ltr">*ready</code> المعرّفة سابقاً: انتهاء الترحيل بنجاح وجاهزية Redis. لا يضيف انتظار RabbitMQ لأن هذا العامل يقرأ من طابور قاعدة البيانات.</p></article>
+<article class="entry" id="y163"><div class="srcrow"><a class="num" href="#y163" aria-label="السطر 163">163</a><pre dir="ltr"><code class="source">      reverb: {condition: service_started}</code></pre></div><p>ينتظر Compose أن تبدأ خدمة Reverb، لا أن تنجح في فحص صحي. الفرق بين <code dir="ltr">service_started</code> و<code dir="ltr">service_healthy</code> مهم: بدء العملية لا يثبت وحده أنها تقبل اتصالات بعد.</p></article>
+<article class="entry" id="y164"><div class="srcrow"><a class="num" href="#y164" aria-label="السطر 164">164</a><pre dir="ltr"><code class="source"></code></pre></div><p>فاصل بين نهاية تعريف الحاويات وبداية تعريف موارد الشبكات. كلمة <code dir="ltr">networks</code> التالية عند أقصى اليسار، أي إنها للمشروع كله.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g165"><div class="label">الأسطر 165–169</div><h3>شبكتا البيانات والبوابة</h3>
+<article class="entry" id="y165"><div class="srcrow"><a class="num" href="#y165" aria-label="السطر 165">165</a><pre dir="ltr"><code class="source">networks:</code></pre></div><p>يعرّف شبكات المشروع. بخلاف <code dir="ltr">networks</code> تحت خدمة بعينها، هذا القسم يصف الشبكة نفسها، لا من ينضم إليها.</p></article>
+<article class="entry" id="y166"><div class="srcrow"><a class="num" href="#y166" aria-label="السطر 166">166</a><pre dir="ltr"><code class="source">  default:</code></pre></div><p>اسم الشبكة الداخلية الافتراضية <code dir="ltr">default</code>. الخدمات التي لا تختار شبكة صراحة تنضم إليها، والـAPI يذكرها صراحة مع <code dir="ltr">edge</code>.</p></article>
+<article class="entry" id="y167"><div class="srcrow"><a class="num" href="#y167" aria-label="السطر 167">167</a><pre dir="ltr"><code class="source">    ipam: {config: [{subnet: 172.30.56.0/24}]}</code></pre></div><p><code dir="ltr">ipam</code> لإدارة العناوين، و<code dir="ltr">config</code> قائمة إعدادات، و<code dir="ltr">subnet</code> نطاقها <code dir="ltr">172.30.56.0/24</code>. الأقواس المتداخلة تصف خريطة وقائمة داخلها؛ لكل حاوية عنوان داخل النطاق وليس عنوان المضيف نفسه.</p></article>
+<article class="entry" id="y168"><div class="srcrow"><a class="num" href="#y168" aria-label="السطر 168">168</a><pre dir="ltr"><code class="source">  edge:</code></pre></div><p>اسم شبكة البوابة <code dir="ltr">edge</code>. هي المسار بين Nginx ونسخ API؛ لا تحتاج البوابة لاتصال مباشر بقاعدة بيانات المتجر.</p></article>
+<article class="entry" id="y169"><div class="srcrow"><a class="num" href="#y169" aria-label="السطر 169">169</a><pre dir="ltr"><code class="source">    ipam: {config: [{subnet: 172.30.55.0/24}]}</code></pre></div><p>نطاق <code dir="ltr">edge</code> هو <code dir="ltr">172.30.55.0/24</code>، مغاير لنطاق الشبكة الداخلية. يطابق النطاق الذي تقبله Laravel لترويسات الوكيل في السطر 13.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g170"><div class="label">الأسطر 170–176</div><h3>وحدات التخزين</h3>
+<article class="entry" id="y170"><div class="srcrow"><a class="num" href="#y170" aria-label="السطر 170">170</a><pre dir="ltr"><code class="source">volumes:</code></pre></div><p>بداية تعريف وحدات التخزين المسماة على مستوى المشروع. تعريف اسم هنا لا يوصله تلقائياً إلى كل خدمة؛ الربط يتم في <code dir="ltr">volumes</code> تحت الخدمة.</p></article>
+<article class="entry" id="y171"><div class="srcrow"><a class="num" href="#y171" aria-label="السطر 171">171</a><pre dir="ltr"><code class="source">  primary_data: {}</code></pre></div><p>وحدة <code dir="ltr">primary_data</code> لملفات MySQL الخاصة بالمتجر. <code dir="ltr">{}</code> تعني استعمال إعدادات Docker الاعتيادية للوحدة؛ موضع تركيبها في السطر 66.</p></article>
+<article class="entry" id="y172"><div class="srcrow"><a class="num" href="#y172" aria-label="السطر 172">172</a><pre dir="ltr"><code class="source">  inventory_data: {}</code></pre></div><p>وحدة <code dir="ltr">inventory_data</code> لحفظ بيانات خادم مخزون مستقل. لا تختلط بوحدة المتجر حتى لو استعمل الخادمان داخل حاويتيهما المسار ذاته <code dir="ltr">/var/lib/mysql</code>.</p></article>
+<article class="entry" id="y173"><div class="srcrow"><a class="num" href="#y173" aria-label="السطر 173">173</a><pre dir="ltr"><code class="source">  redis_data: {}</code></pre></div><p>وحدة <code dir="ltr">redis_data</code> لحفظ ملفات Redis، ومنها سجل AOF عند تفعيله. تستخدمها خدمة Redis وحدها؛ نسخ Laravel تتصل بها عبر الشبكة ولا تقرأ تلك الملفات مباشرة.</p></article>
+<article class="entry" id="y174"><div class="srcrow"><a class="num" href="#y174" aria-label="السطر 174">174</a><pre dir="ltr"><code class="source">  broker_data: {}</code></pre></div><p>وحدة <code dir="ltr">broker_data</code> لحالة وسيط RabbitMQ. العمال يقرأون من الطابور عبر اتصال بالوسيط، لا بقراءة ملفات هذه الوحدة يدوياً.</p></article>
+<article class="entry" id="y175"><div class="srcrow"><a class="num" href="#y175" aria-label="السطر 175">175</a><pre dir="ltr"><code class="source"></code></pre></div><p>سطر فارغ داخل قسم <code dir="ltr">volumes</code>. لا ينهي القسم؛ إزاحة <code dir="ltr">public_uploads</code> في السطر التالي تُبقيه تحت تعريف الوحدات نفسه.</p></article>
+<article class="entry" id="y176"><div class="srcrow"><a class="num" href="#y176" aria-label="السطر 176">176</a><pre dir="ltr"><code class="source">  public_uploads: {}</code></pre></div><p>وحدة <code dir="ltr">public_uploads</code> لملفات المنتجات. يركبها قالب Laravel في السطر 44، لذلك لا تختفي صورة بمجرد أن يختار Nginx نسخة API أخرى على مضيف Docker نفسه.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="y-g177"><div class="label">الأسطر 177–181</div><h3>مصادر الأسرار</h3>
+<article class="entry" id="y177"><div class="srcrow"><a class="num" href="#y177" aria-label="السطر 177">177</a><pre dir="ltr"><code class="source">secrets:</code></pre></div><p>بداية قاموس الأسرار المتاحة للتعريف في هذا المشروع. المفتاح المنطقي على اليسار يستعمله <code dir="ltr">secrets</code> في كل خدمة؛ <code dir="ltr">file</code> يحدد الملف المصدر على الجهاز.</p></article>
+<article class="entry" id="y178"><div class="srcrow"><a class="num" href="#y178" aria-label="السطر 178">178</a><pre dir="ltr"><code class="source">  mysql_password: {file: ./secrets/mysql_password.txt}</code></pre></div><p>يقرأ Compose ملف <code dir="ltr">./secrets/mysql_password.txt</code> ليتيح السر بالاسم <code dir="ltr">mysql_password</code> للحاويات المصرح لها. الصفحة تعرض المسار فقط، وليس محتوى الملف.</p></article>
+<article class="entry" id="y179"><div class="srcrow"><a class="num" href="#y179" aria-label="السطر 179">179</a><pre dir="ltr"><code class="source">  mysql_root_password: {file: ./secrets/mysql_root_password.txt}</code></pre></div><p>سر منفصل لمدير قاعدة المتجر: مصدره <code dir="ltr">./secrets/mysql_root_password.txt</code>. تحصل عليه خدمة MySQL في السطر 67؛ لا يُركّب في حاويات API.</p></article>
+<article class="entry" id="y180"><div class="srcrow"><a class="num" href="#y180" aria-label="السطر 180">180</a><pre dir="ltr"><code class="source">  inventory_mysql_password: {file: ./secrets/inventory_mysql_password.txt}</code></pre></div><p>مصدر سر حساب خدمة المخزون هو <code dir="ltr">./secrets/inventory_mysql_password.txt</code>. يستعمله خادم المخزون وعميله، لذلك يجب أن يشيرا إلى الاسم المنطقي نفسه.</p></article>
+<article class="entry" id="y181"><div class="srcrow"><a class="num" href="#y181" aria-label="السطر 181">181</a><pre dir="ltr"><code class="source">  inventory_mysql_root_password: {file: ./secrets/inventory_mysql_root_password.txt}</code></pre></div><p>السطر الأخير يعرّف سر مدير قاعدة المخزون من ملفه المحلي. لا تضع كلمة المرور مكان المسار؛ الصورة تتوقع الملف الذي يُركّب داخل حاوية قاعدة المخزون.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="panel" id="n-file"><div class="label">ملف التشغيل 2 من 2</div><h2><bdi dir="ltr">ops/req5/nginx.conf</bdi></h2><p>السطر الأصلي معروض من اليسار إلى اليمين وتحته تفسيره. رقم السطر رابط مباشر له، والأرقام المميزة باللون هي نقاط التوسّع الأساسية.</p><details class="fullcode"><summary>عرض نسخة الكود كاملة للنسخ أو المقارنة</summary><pre class="full" dir="ltr"><code>resolver 127.0.0.11 valid=2s ipv6=off;
+upstream req5_api {
+    zone req5_api 64k;
+    # Default: equal-weight round robin over the current Docker DNS records.
+    server api:8000 resolve max_fails=1 fail_timeout=2s;
+}
+server {
+    listen 80;
+    client_max_body_size 24m;
+    location / {
+        proxy_pass http://req5_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $http_host;
+        proxy_set_header Connection &quot;&quot;;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-Port 8015;
+        proxy_set_header Forwarded &quot;&quot;;
+        proxy_connect_timeout 1s;
+        proxy_next_upstream error timeout http_502 http_503 http_504;
+        proxy_next_upstream_tries 3;
+        # Local demonstration only: show which upstream served each response.
+        add_header X-Req5-Upstream $upstream_addr always;
+    }
+}
+</code></pre></details></section>
+<section class="group" id="n-g1"><div class="label">الأسطر 1–6</div><h3>اكتشاف النسخ واختيار الخلفية</h3>
+<article class="entry key" id="n1"><div class="srcrow"><a class="num" href="#n1" aria-label="السطر 1">001</a><pre dir="ltr"><code class="source">resolver 127.0.0.11 valid=2s ipv6=off;</code></pre></div><p>يستخدم Nginx محلّل أسماء Docker الداخلي <code dir="ltr">127.0.0.11</code>. تعني <code dir="ltr">valid=2s</code> صلاحية إجابة DNS المعتمدة هنا لثانيتين، و<code dir="ltr">ipv6=off</code> أنه لا يطلب عناوين IPv6. هذا اكتشاف للعناوين، وليس فحص صحة Laravel كل ثانيتين.</p></article>
+<article class="entry" id="n2"><div class="srcrow"><a class="num" href="#n2" aria-label="السطر 2">002</a><pre dir="ltr"><code class="source">upstream req5_api {</code></pre></div><p>يفتح <code dir="ltr">{</code> تعريف مجموعة خلفيات اسمها <code dir="ltr">req5_api</code>. اخترنا هذا الاسم داخل Nginx وسنستعمله في <code dir="ltr">proxy_pass</code>؛ أما <code dir="ltr">api</code> في السطر 5 فهو اسم خدمة Docker الحقيقي.</p></article>
+<article class="entry" id="n3"><div class="srcrow"><a class="num" href="#n3" aria-label="السطر 3">003</a><pre dir="ltr"><code class="source">    zone req5_api 64k;</code></pre></div><p><code dir="ltr">zone</code> يحجز <code dir="ltr">64k</code> من الذاكرة المشتركة لعمّال Nginx لتبادل إعداد المجموعة وحالتها أثناء التشغيل. هؤلاء ليسوا عمّال البريد، وهذه الذاكرة ليست كاش طلبات العملاء.</p></article>
+<article class="entry" id="n4"><div class="srcrow"><a class="num" href="#n4" aria-label="السطر 4">004</a><pre dir="ltr"><code class="source">    # Default: equal-weight round robin over the current Docker DNS records.</code></pre></div><p>الرمز <code dir="ltr">#</code> يجعل السطر تعليقاً لا يُنفّذ. يشرح اختيار Round Robin: النسخ متشابهة والسجلات ذات وزن متساوٍ، فيتناوب Nginx بينها افتراضياً. لا توجد تعليمة حرفية اسمها <code dir="ltr">round_robin</code> هنا.</p></article>
+<article class="entry key" id="n5"><div class="srcrow"><a class="num" href="#n5" aria-label="السطر 5">005</a><pre dir="ltr"><code class="source">    server api:8000 resolve max_fails=1 fail_timeout=2s;</code></pre></div><p><code dir="ltr">api:8000</code> اسم خدمة واحد يعيده Docker بعدة عناوين. <code dir="ltr">resolve</code> يُحدّثها أثناء التشغيل. مع <code dir="ltr">max_fails=1</code> يكفي فشل مؤهل واحد خلال نافذة <code dir="ltr">fail_timeout=2s</code> ليستبعد Nginx العنوان المعني مؤقتاً لمدة ثانيتين. أنواع الفشل المؤهلة تحددها أيضاً الأسطر 20–22.</p></article>
+<article class="entry" id="n6"><div class="srcrow"><a class="num" href="#n6" aria-label="السطر 6">006</a><pre dir="ltr"><code class="source">}</code></pre></div><p>القوس <code dir="ltr">}</code> يغلق تعريف مجموعة الخلفيات. المجموعة أصبحت معروفة ولكن لم يُحدد حتى الآن المنفذ الذي يستمع عليه Nginx للعميل.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="n-g7"><div class="label">الأسطر 7–11</div><h3>استقبال الطلب وتحديد مساره</h3>
+<article class="entry" id="n7"><div class="srcrow"><a class="num" href="#n7" aria-label="السطر 7">007</a><pre dir="ltr"><code class="source">server {</code></pre></div><p>يفتح كتلة خادم HTTP أمامي. كلمة <code dir="ltr">server</code> هنا تنشئ كتلة لاستقبال الحركة؛ أما <code dir="ltr">server</code> في السطر 5 فتسجل وجهة خلفية داخل <code dir="ltr">upstream</code>.</p></article>
+<article class="entry" id="n8"><div class="srcrow"><a class="num" href="#n8" aria-label="السطر 8">008</a><pre dir="ltr"><code class="source">    listen 80;</code></pre></div><p>يستمع Nginx على المنفذ <code dir="ltr">80</code> داخل حاوية البوابة. يحوّل Docker منفذ الجهاز <code dir="ltr">8015</code> إلى هذا المنفذ بالقاعدة الموجودة في Compose س133.</p></article>
+<article class="entry" id="n9"><div class="srcrow"><a class="num" href="#n9" aria-label="السطر 9">009</a><pre dir="ltr"><code class="source">    client_max_body_size 24m;</code></pre></div><p>يسمح لجسم طلب العميل بحجم حتى <code dir="ltr">24m</code> (24 ميبيبايت). قد يفيد في رفع صورة؛ قد تفرض PHP أو قواعد Laravel حداً أصغر. لا يتعلق هذا بتوزيع أحجام الطلبات بين النسخ.</p></article>
+<article class="entry" id="n10"><div class="srcrow"><a class="num" href="#n10" aria-label="السطر 10">010</a><pre dir="ltr"><code class="source">    location / {</code></pre></div><p>تبدأ كتلة المعالجة للمسارات التي تبدأ بـ<code dir="ltr">/</code>. هنا تشمل <code dir="ltr">/up</code> و<code dir="ltr">/api/me</code> وطلبات الطلبات، لأنها كتلة المسار الوحيدة في هذا الخادم.</p></article>
+<article class="entry key" id="n11"><div class="srcrow"><a class="num" href="#n11" aria-label="السطر 11">011</a><pre dir="ltr"><code class="source">        proxy_pass http://req5_api;</code></pre></div><p>يمرر الطلب عبر HTTP إلى مجموعة <code dir="ltr">req5_api</code> في السطر 2. لا توجد لاحقة مسار بعد اسم المجموعة، فيُمرّر مثلاً <code dir="ltr">/api/me</code> إلى النسخة المختارة بنفس المسار في هذا الإعداد.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="n-g12"><div class="label">الأسطر 12–19</div><h3>ما الذي تراه Laravel عن العميل؟</h3>
+<article class="entry" id="n12"><div class="srcrow"><a class="num" href="#n12" aria-label="السطر 12">012</a><pre dir="ltr"><code class="source">        proxy_http_version 1.1;</code></pre></div><p>يضبط إصدار HTTP الذي يستخدمه Nginx نحو النسخة الخلفية على <code dir="ltr">1.1</code>. لا يفرض على المتصفح التحدث بإصدار بعينه.</p></article>
+<article class="entry" id="n13"><div class="srcrow"><a class="num" href="#n13" aria-label="السطر 13">013</a><pre dir="ltr"><code class="source">        proxy_set_header Host $http_host;</code></pre></div><p>يضبط ترويسة <code dir="ltr">Host</code> المرسلة إلى الخلفية على <code dir="ltr">$http_host</code>، أي قيمة Host الواردة وقد تتضمن المنفذ <code dir="ltr">8015</code>. هنا <code dir="ltr">$</code> يقرأ متغير Nginx عند معالجة الطلب، بخلاف <code dir="ltr">${…}</code> التي يحلّها Compose قبل تشغيل الحاوية.</p></article>
+<article class="entry" id="n14"><div class="srcrow"><a class="num" href="#n14" aria-label="السطر 14">014</a><pre dir="ltr"><code class="source">        proxy_set_header Connection &quot;&quot;;</code></pre></div><p>القيمة <code dir="ltr">&quot;&quot;</code> سلسلة فارغة: لا يرسل Nginx ترويسة <code dir="ltr">Connection</code> إلى الخلفية بهذه القاعدة. هي ترويسة خاصة بوصلة واحدة وليست من بيانات الطلب التي يلزم تمريرها كما وصلت.</p></article>
+<article class="entry" id="n15"><div class="srcrow"><a class="num" href="#n15" aria-label="السطر 15">015</a><pre dir="ltr"><code class="source">        proxy_set_header X-Forwarded-For $remote_addr;</code></pre></div><p>يضع في <code dir="ltr">X-Forwarded-For</code> قيمة <code dir="ltr">$remote_addr</code>، عنوان النظير الذي اتصل بالبوابة كما تراه. يستبدل أي سلسلة أرسلها العميل بنفسه. تعتمد Laravel على نطاق الوكيل الموثوق لتفسير الترويسة.</p></article>
+<article class="entry" id="n16"><div class="srcrow"><a class="num" href="#n16" aria-label="السطر 16">016</a><pre dir="ltr"><code class="source">        proxy_set_header X-Forwarded-Proto $scheme;</code></pre></div><p><code dir="ltr">$scheme</code> هو مخطط الطلب الذي استقبله Nginx، مثل <code dir="ltr">http</code>. ينقله باسم <code dir="ltr">X-Forwarded-Proto</code> حتى تعرف Laravel المخطط الخارجي عند بناء الروابط.</p></article>
+<article class="entry" id="n17"><div class="srcrow"><a class="num" href="#n17" aria-label="السطر 17">017</a><pre dir="ltr"><code class="source">        proxy_set_header X-Forwarded-Host $http_host;</code></pre></div><p>ينقل اسم المضيف الذي تلقته البوابة في <code dir="ltr">X-Forwarded-Host</code>. يساعد الخلفية على تمييز عنوان المستخدم الظاهر من اسم الخدمة الداخلي <code dir="ltr">api</code>.</p></article>
+<article class="entry" id="n18"><div class="srcrow"><a class="num" href="#n18" aria-label="السطر 18">018</a><pre dir="ltr"><code class="source">        proxy_set_header X-Forwarded-Port 8015;</code></pre></div><p>يخبر الخلفية أن منفذ العميل الظاهر هو <code dir="ltr">8015</code> وليس المنفذ الداخلي <code dir="ltr">80</code>. القيمة مكتوبة صراحة، لذا يجب تحديثها مع قاعدة نشر المنفذ عند تغيير منفذ العرض.</p></article>
+<article class="entry" id="n19"><div class="srcrow"><a class="num" href="#n19" aria-label="السطر 19">019</a><pre dir="ltr"><code class="source">        proxy_set_header Forwarded &quot;&quot;;</code></pre></div><p>يزيل ترويسة <code dir="ltr">Forwarded</code> الواردة باستخدام القيمة الفارغة، كي لا تمر نسخة ثانية من معلومات الوكيل من العميل إلى جانب ترويسات <code dir="ltr">X-Forwarded-*</code> التي يضعها Nginx.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="group" id="n-g20"><div class="label">الأسطر 20–26</div><h3>الفشل وإعادة المحاولة ودليل التوزيع</h3>
+<article class="entry" id="n20"><div class="srcrow"><a class="num" href="#n20" aria-label="السطر 20">020</a><pre dir="ltr"><code class="source">        proxy_connect_timeout 1s;</code></pre></div><p>عند إنشاء اتصال بخلفية، أقصى انتظار هنا ثانية. هذه ليست مهلة تنفيذ الطلب كاملاً؛ فائدتها عدم تعليق اختيار النسخة طويلاً عند تعذر الاتصال.</p></article>
+<article class="entry key" id="n21"><div class="srcrow"><a class="num" href="#n21" aria-label="السطر 21">021</a><pre dir="ltr"><code class="source">        proxy_next_upstream error timeout http_502 http_503 http_504;</code></pre></div><p>يحدد متى يمكن تجربة خلفية أخرى: خلل اتصال أو قراءة الترويسة (<code dir="ltr">error</code>)، انتهاء المهلة (<code dir="ltr">timeout</code>)، أو رد <code dir="ltr">502</code> أو <code dir="ltr">503</code> أو <code dir="ltr">504</code>. لا يَعِد بإعادة كل طلب كتابة بعد إرساله؛ خيار <code dir="ltr">non_idempotent</code> غير مفعل، ولا يمكن تبديل الاستجابة بعدما بدأ إرسالها إلى العميل.</p></article>
+<article class="entry key" id="n22"><div class="srcrow"><a class="num" href="#n22" aria-label="السطر 22">022</a><pre dir="ltr"><code class="source">        proxy_next_upstream_tries 3;</code></pre></div><p>يسمح بما يصل إلى ثلاث محاولات إجمالاً للطلب المؤهل، والأولى ضمنها. ليس المقصود إرسال ثلاث نسخ بالتوازي من طلب المستخدم؛ إن نجحت الأولى تنتهي العملية عندها.</p></article>
+<article class="entry" id="n23"><div class="srcrow"><a class="num" href="#n23" aria-label="السطر 23">023</a><pre dir="ltr"><code class="source">        # Local demonstration only: show which upstream served each response.</code></pre></div><p>تعليق يبدأ بـ<code dir="ltr">#</code>. يوضح أن الترويسة في السطر التالي مخصصة للعرض المحلي حتى يمكن قياس التوزيع؛ لا ينبغي الخلط بينها وبين آلية الاختيار نفسها.</p></article>
+<article class="entry key" id="n24"><div class="srcrow"><a class="num" href="#n24" aria-label="السطر 24">024</a><pre dir="ltr"><code class="source">        add_header X-Req5-Upstream $upstream_addr always;</code></pre></div><p>يضيف <code dir="ltr">X-Req5-Upstream</code> إلى الرد الذي تراه في Postman. تحتوي <code dir="ltr">$upstream_addr</code> عنوان الخلفية ومنفذها، وقد ترى أكثر من عنوان عند إعادة المحاولة. <code dir="ltr">always</code> يضيف الترويسة بصرف النظر عن رمز الحالة عندما توجد لها قيمة. يستخدم الاختبار آخر عنوان لمعرفة من أجاب.</p></article>
+<article class="entry" id="n25"><div class="srcrow"><a class="num" href="#n25" aria-label="السطر 25">025</a><pre dir="ltr"><code class="source">    }</code></pre></div><p>يغلق القوس كتلة <code dir="ltr">location /</code> ابتداءً من السطر 10؛ انتهت قواعد تمرير طلبات ذلك المسار.</p></article>
+<article class="entry" id="n26"><div class="srcrow"><a class="num" href="#n26" aria-label="السطر 26">026</a><pre dir="ltr"><code class="source">}</code></pre></div><p>يغلق القوس الأخير كتلة <code dir="ltr">server</code> التي بدأت في السطر 7. هكذا اكتمل المساران: منفذ لاستقبال HTTP ومجموعة خلفية لاختيار نسخة Laravel.</p></article>
+<a class="back" href="#top">العودة إلى البداية ↑</a></section>
+<section class="panel" id="evidence"><h2>أين ينتهي الإعداد وأين يبدأ الإثبات؟</h2>
+<p>في التشغيل المسجّل في <a href="docs/req5-evidence.json"><bdi>docs/req5-evidence.json</bdi></a> تلقّت النسخ الثلاث <bdi>166 / 167 / 167</bdi> طلباً من أصل 500 على <code dir="ltr">GET /up</code>. أثناء إيقاف النسخة الأولى أجابت الباقيتان عن 60 طلباً لكل منهما، وظل <code dir="ltr">/api/me</code> يعيد الزبون نفسه. بعد إعادة النسخة توزعت 30 إجابة بالتساوي. أنجز العمال 150 رسالة بريد تجريبية موزعة <bdi>35 / 56 / 59</bdi>. الأرقام نتيجة تشغيل مسجّل، لا نسب مفروضة في الإعداد.</p>
+<p><strong>حدود النتيجة:</strong> اختبرنا توقف نسخة API واحدة على مضيف Docker واحد؛ لم نختبر تعطل Nginx أو قاعدة البيانات أو المضيف بأكمله. وحدة الصور مشتركة بين حاويات ذلك المضيف. تحميل 500 طلب على مسار الصحة لا يقيس سرعة الشراء، وبريد <code dir="ltr">array</code> لا يثبت وصول بريد خارجي.</p>
+<ul><li><a href="docker-compose.req5.yml"><bdi>docker-compose.req5.yml</bdi></a> و<a href="ops/req5/nginx.conf"><bdi>ops/req5/nginx.conf</bdi></a>: ملفا تشغيل التوسّع اللذان شُرحا أعلاه. بقي ملف Compose الأساسي على حاله.</li>
+<li><a href="ops/req5/verify.py"><bdi>verify.py</bdi></a>: يرسل الطلبات ويحصيها حسب النسخة، يوقف حاوية الاختبار ثم يعيدها، ويقارن سجلات العمال بالنتائج في قاعدة البيانات.</li>
+<li><a href="ops/req5/probe.php"><bdi>probe.php</bdi></a>: مساعد اختبار داخل الحاوية المعزولة يُجهز البيانات ويختبر التخزين المشترك. ليس مساراً جديداً في API.</li>
+<li><a href="docs/req5-scalability-ar.md">دليل العرض العربي</a> يشرح التشغيل، و<a href="README.md"><bdi>README.md</bdi></a> يشير إلى الدليل والنتائج. لا يوزع أيٌّ منهما الطلبات.</li></ul></section>
+<footer class="panel end"><strong>مراجع الصياغة:</strong> <a href="https://docs.docker.com/reference/compose-file/fragments/">مراسي YAML في Compose</a> · <a href="https://docs.docker.com/reference/compose-file/interpolation/">تفسير متغيرات Compose</a> · <a href="https://docs.docker.com/reference/compose-file/services/">تعريف خدمات Compose</a> · <a href="https://nginx.org/en/docs/http/ngx_http_upstream_module.html">مجموعات Nginx</a> · <a href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html">تمرير الطلب وإعادة المحاولة</a>.</footer></main></body></html>
