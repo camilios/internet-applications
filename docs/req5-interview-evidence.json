@@ -1,6 +1,6 @@
 {
-  "run": "53d3394b-c1ac-4961-8a06-7ff421737760",
-  "utc": "2026-11-25T19:51:38+00:00",
+  "run": "64b418b6-5aaa-4143-b5d4-61eaffacc997",
+  "utc": "2026-11-25T20:06:42+00:00",
   "url": "http://127.0.0.1:8015",
   "before": {
     "ecommerce-req5-api-1": 3,
@@ -14,14 +14,14 @@
     "error_percent": 0.0,
     "replicas": {
       "before": {
-        "ecommerce-req5-api-2": 34,
-        "ecommerce-req5-api-1": 35,
-        "ecommerce-req5-api-3": 34
+        "ecommerce-req5-api-3": 33,
+        "ecommerce-req5-api-1": 34,
+        "ecommerce-req5-api-2": 33
       },
       "transition": {
-        "ecommerce-req5-api-1": 50,
-        "ecommerce-req5-api-3": 143,
-        "ecommerce-req5-api-2": 144
+        "ecommerce-req5-api-1": 54,
+        "ecommerce-req5-api-2": 143,
+        "ecommerce-req5-api-3": 143
       },
       "down": {
         "ecommerce-req5-api-2": 30,
@@ -29,9 +29,9 @@
       }
     },
     "stop_target": "ecommerce-req5-api-1",
-    "elapsed_s": 3.459,
-    "stop_requested_s": 0.692,
-    "stop_confirmed_s": 3.02
+    "elapsed_s": 3.677,
+    "stop_requested_s": 0.773,
+    "stop_confirmed_s": 3.245
   },
   "after_restore": {
     "ecommerce-req5-api-1": 4,
@@ -46,8 +46,8 @@
   "individual_stops_other_replicas": {
     "ecommerce-req5-api-2": {
       "while_down_get_categories": {
-        "ecommerce-req5-api-1": 2,
-        "ecommerce-req5-api-3": 4
+        "ecommerce-req5-api-1": 3,
+        "ecommerce-req5-api-3": 3
       },
       "after_restart_get_up": {
         "ecommerce-req5-api-1": 4,
@@ -57,8 +57,8 @@
     },
     "ecommerce-req5-api-3": {
       "while_down_get_categories": {
-        "ecommerce-req5-api-1": 4,
-        "ecommerce-req5-api-2": 2
+        "ecommerce-req5-api-1": 3,
+        "ecommerce-req5-api-2": 3
       },
       "after_restart_get_up": {
         "ecommerce-req5-api-1": 4,
@@ -75,155 +75,155 @@
     "ecommerce-req5-email-worker-3": 8
   },
   "smtp_inbox": "http://127.0.0.1:8025",
-  "test_recipient": "53d3394b-c1ac-4961-8a06-7ff421737760@example.invalid",
+  "test_recipient": "64b418b6-5aaa-4143-b5d4-61eaffacc997@example.invalid",
   "distinct_mailbox_entries": 24,
   "orders": [
     {
-      "id": 199,
-      "event_id": "4d0fec71-5562-4c8c-97ae-d7d0f3b054ab",
+      "id": 247,
+      "event_id": "5b77d4c9-3080-4059-b852-d62d90260b35",
       "worker": "ecommerce-req5-email-worker-3",
       "received_copies": 1
     },
     {
-      "id": 200,
-      "event_id": "c9115eb0-d505-4d0c-97bf-a62638a068f2",
+      "id": 248,
+      "event_id": "3965e77b-7203-4314-b330-0890f3f55120",
       "worker": "ecommerce-req5-email-worker-3",
       "received_copies": 1
     },
     {
-      "id": 201,
-      "event_id": "62d8e939-7b08-4138-8920-3db4c13bd352",
-      "worker": "ecommerce-req5-email-worker-2",
-      "received_copies": 1
-    },
-    {
-      "id": 202,
-      "event_id": "47b51af7-f734-4b3b-ace7-9dca69adae5b",
+      "id": 249,
+      "event_id": "78c0ff26-3f9c-4732-a651-b289c0335295",
       "worker": "ecommerce-req5-email-worker-1",
       "received_copies": 1
     },
     {
-      "id": 203,
-      "event_id": "fefdd5d1-e93c-4e3e-8297-3f37afd787a2",
-      "worker": "ecommerce-req5-email-worker-1",
-      "received_copies": 1
-    },
-    {
-      "id": 204,
-      "event_id": "aa2f13b2-3d9f-481f-bcdf-88fc076f19c2",
+      "id": 250,
+      "event_id": "845aa37e-eb91-4a6a-9a61-0e2538829199",
       "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     },
     {
-      "id": 205,
-      "event_id": "fe748dfc-9268-4dbf-bdce-5793d94bf0ea",
-      "worker": "ecommerce-req5-email-worker-1",
-      "received_copies": 1
-    },
-    {
-      "id": 206,
-      "event_id": "4108dd5a-40a7-4acc-8295-3260b33effcb",
+      "id": 251,
+      "event_id": "cf410737-0445-471e-832d-802d95ccd53d",
       "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     },
     {
-      "id": 207,
-      "event_id": "4d6ec715-332e-42d2-8809-b44449a2a99f",
+      "id": 252,
+      "event_id": "49b7aba1-eb79-4b57-b54a-d6180af830f5",
+      "worker": "ecommerce-req5-email-worker-2",
+      "received_copies": 1
+    },
+    {
+      "id": 253,
+      "event_id": "4cfedaa8-6727-4d0b-a00a-26d5c9fc1024",
       "worker": "ecommerce-req5-email-worker-3",
       "received_copies": 1
     },
     {
-      "id": 208,
-      "event_id": "a70a73be-b2df-408d-810f-f901f2682006",
-      "worker": "ecommerce-req5-email-worker-2",
-      "received_copies": 1
-    },
-    {
-      "id": 209,
-      "event_id": "a65ed65e-99d7-4dbc-bc79-5b3f6907e832",
+      "id": 254,
+      "event_id": "978474ba-c2c5-4555-b421-4651a615d5fd",
       "worker": "ecommerce-req5-email-worker-1",
       "received_copies": 1
     },
     {
-      "id": 210,
-      "event_id": "fb0033a8-4a21-4c28-86b0-e2556612f79a",
-      "worker": "ecommerce-req5-email-worker-3",
-      "received_copies": 1
-    },
-    {
-      "id": 211,
-      "event_id": "5b748c38-847e-4b88-b1b1-2084e4243365",
+      "id": 255,
+      "event_id": "3477dc5e-e065-47ed-bd73-d0f1c2ffeed2",
       "worker": "ecommerce-req5-email-worker-1",
       "received_copies": 1
     },
     {
-      "id": 212,
-      "event_id": "7dd4806c-3a6a-4ad4-8ab4-bd17ab291a80",
-      "worker": "ecommerce-req5-email-worker-2",
-      "received_copies": 1
-    },
-    {
-      "id": 213,
-      "event_id": "e6d77e1b-8583-411a-b7c0-ad1af83fe0e8",
-      "worker": "ecommerce-req5-email-worker-2",
-      "received_copies": 1
-    },
-    {
-      "id": 214,
-      "event_id": "4ff8ae55-6d16-4d04-a4aa-087ec8484c10",
+      "id": 256,
+      "event_id": "21ebc9d2-fe78-4f81-b78a-49485c4f5344",
       "worker": "ecommerce-req5-email-worker-3",
       "received_copies": 1
     },
     {
-      "id": 215,
-      "event_id": "d4b996ef-e64c-482d-9831-6bdc584b6225",
+      "id": 257,
+      "event_id": "e7c060bd-7c49-4ac2-9d57-f0db1ea27b15",
+      "worker": "ecommerce-req5-email-worker-2",
+      "received_copies": 1
+    },
+    {
+      "id": 258,
+      "event_id": "c2da96c0-4ddb-43a9-900b-6707f06828a4",
+      "worker": "ecommerce-req5-email-worker-3",
+      "received_copies": 1
+    },
+    {
+      "id": 259,
+      "event_id": "4f5191a0-e16e-4c87-b374-014b0cefd7cb",
+      "worker": "ecommerce-req5-email-worker-3",
+      "received_copies": 1
+    },
+    {
+      "id": 260,
+      "event_id": "3edabc19-4ef9-4380-a0e8-cfb12e54e5f2",
+      "worker": "ecommerce-req5-email-worker-2",
+      "received_copies": 1
+    },
+    {
+      "id": 261,
+      "event_id": "3022eede-5b1e-42eb-b1b7-1b9a0955d152",
+      "worker": "ecommerce-req5-email-worker-2",
+      "received_copies": 1
+    },
+    {
+      "id": 262,
+      "event_id": "54eba490-ec9d-4714-b5a5-a3608e2334ce",
       "worker": "ecommerce-req5-email-worker-1",
       "received_copies": 1
     },
     {
-      "id": 216,
-      "event_id": "2723c612-bf13-4266-a29b-f3787f8aaa51",
-      "worker": "ecommerce-req5-email-worker-2",
-      "received_copies": 1
-    },
-    {
-      "id": 217,
-      "event_id": "e08b2778-a031-435d-aace-dabb0288283b",
-      "worker": "ecommerce-req5-email-worker-3",
-      "received_copies": 1
-    },
-    {
-      "id": 218,
-      "event_id": "a32f5225-1fa3-4616-a6a9-da2d71231881",
-      "worker": "ecommerce-req5-email-worker-3",
-      "received_copies": 1
-    },
-    {
-      "id": 219,
-      "event_id": "efb5b047-0877-47f7-ab78-f5aefbbe2e27",
+      "id": 263,
+      "event_id": "2559eb8f-6ff4-4544-8b4d-6b0df993710d",
       "worker": "ecommerce-req5-email-worker-1",
       "received_copies": 1
     },
     {
-      "id": 220,
-      "event_id": "b605c3c7-208a-4927-a768-abecc6434161",
-      "worker": "ecommerce-req5-email-worker-1",
-      "received_copies": 1
-    },
-    {
-      "id": 221,
-      "event_id": "7923af08-2e31-4519-b8bc-0f65771d954f",
+      "id": 264,
+      "event_id": "74fe222d-2bae-447b-ba89-bcbe533bd5bc",
       "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     },
     {
-      "id": 222,
-      "event_id": "7fc45837-1f94-4818-bb44-aca0f06ab18f",
+      "id": 265,
+      "event_id": "9ae94d07-ca15-4722-97c7-705831c11b34",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 266,
+      "event_id": "34591298-dec2-4b5a-828f-c418b24e1513",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 267,
+      "event_id": "f82d5a62-b5db-4077-be1c-6270f9684e6b",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 268,
+      "event_id": "7bbe2956-c7db-4db8-83ad-8dbd8c8cb07f",
       "worker": "ecommerce-req5-email-worker-3",
+      "received_copies": 1
+    },
+    {
+      "id": 269,
+      "event_id": "2c5b14e7-c505-4a1c-ab05-b3834e37c1f3",
+      "worker": "ecommerce-req5-email-worker-3",
+      "received_copies": 1
+    },
+    {
+      "id": 270,
+      "event_id": "cbef57a8-4b7f-411a-b2c7-77bc72ba849c",
+      "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     }
   ],
-  "replayed_event": "4d0fec71-5562-4c8c-97ae-d7d0f3b054ab",
+  "replayed_event": "5b77d4c9-3080-4059-b852-d62d90260b35",
   "processed_again": true,
   "extra_mail_after_replay": 0
 }

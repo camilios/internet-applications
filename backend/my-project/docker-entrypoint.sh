@@ -6,8 +6,16 @@ if [ -f "$DB_PASSWORD_FILE" ]; then
     export DB_PASSWORD=$(cat "$DB_PASSWORD_FILE")
 fi
 
-# Discard configuration generated before runtime secrets were mounted.
-php artisan config:clear
+# Artisan loads the cached config before executing config:clear. Discard it
+# before bootstrapping the kernel so even an interrupted cache write can recover.
+php -r '
+    require "vendor/autoload.php";
+    $app = require "bootstrap/app.php";
+    $cachePath = $app->getCachedConfigPath();
+    if (is_file($cachePath) && !unlink($cachePath)) {
+        exit(1);
+    }
+'
 
 # Wait for database to be ready
 echo "Waiting for database..."
