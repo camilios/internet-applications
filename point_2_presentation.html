@@ -1,0 +1,254 @@
+<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>كيف يصل تأكيد الطلب من عامل مستقل إلى صندوق البريد؟</title><style>
+:root{--ink:#153044;--bg:#f1f5f8;--line:#c9d7e1;--link:#075873;--focus:#ffe8a3;--soft:#f3f7fa;color-scheme:light}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.85 system-ui,'Segoe UI',Tahoma,sans-serif}main{max-width:67rem;margin:auto;padding:1rem}header,section{background:white;border:1px solid var(--line);border-radius:12px;padding:clamp(1rem,3vw,1.8rem);margin:.9rem 0}header{border-top:5px solid var(--link)}h1,h2,h3{line-height:1.45;margin:.2rem 0 .6rem}h1{font-size:clamp(1.45rem,3vw,2.2rem)}h2{font-size:1.35rem}h3{font-size:1rem}p{margin:.5rem 0}.tag,.clock{font-weight:700;color:var(--link)}a{color:var(--link);text-underline-offset:3px}nav,.jumps{display:flex;flex-wrap:wrap;gap:.25rem .9rem}nav{margin-top:.8rem}.top{display:flex;justify-content:space-between;align-items:baseline;gap:.7rem}.clock,.path,code{font-family:Consolas,monospace}.clock{white-space:nowrap}.path{display:inline-block;overflow-wrap:anywhere;max-width:100%;font-size:.85rem}.piece{padding:.7rem 0}.open,.jumps{font-size:.87rem}.pane{direction:ltr;text-align:left;max-height:20rem;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:6px;background:#fafcfd;scroll-padding-top:2.5rem}.pane pre{line-height:1.6;font-size:13px;tab-size:4;margin:0;min-width:100%;width:max-content;padding:.25rem 0}.ln{display:inline-block;min-width:100%;padding-right:.55rem;color:#31475b}.ln:before{content:attr(data-n);display:inline-block;width:3.25rem;margin-right:.6rem;padding-right:.55rem;text-align:right;font-size:.82em;color:#526678;border-right:1px solid #c5d1da;user-select:none}.hit{background:var(--focus);color:#222}.ln:target{outline:2px solid #b16b00;outline-offset:-2px}.jumps{margin:.3rem 0 .45rem}.talk{margin-top:.8rem;border-inline-start:4px solid #30828b;padding:.35rem 1rem;background:#f2f8f8}.talk p+p{margin-top:.8rem}.guide{font-size:.92rem}.key{background:var(--focus);padding:.02rem .25rem}.piece:focus-within{border-color:#91abb1}a:focus-visible,.pane:focus-visible{outline:2px solid #086984}.navback{font-size:.82rem} @media print{body{background:white;font-size:11pt}main{max-width:none;margin:0;padding:0}header,section{border:0;padding:.4rem 0}nav,.jumps,.navback{display:none}.pane{max-height:none;overflow:visible}.pane pre{font-size:8pt;white-space:pre-wrap;overflow-wrap:anywhere;width:auto}.ln{display:inline;min-width:0}.hit{background:#fff0b8;print-color-adjust:exact}.top,h3{break-after:avoid}}</style></head><body><main id="top">
+<header><div class="tag">المتطلب الرابع · الفكرة الثانية</div><h1>كيف يصل تأكيد الطلب من عامل مستقل إلى صندوق البريد؟</h1><p><strong>مدة العرض كاملًا: نحو <bdi dir="ltr">8:10</bdi> دقائق.</strong> اقرأ فقرات «ما تقوله» فقط وانتقل إلى الكود المشار إليه. التوقيت يشمل الانتقال بين المواضع؛ لا تقرأ الدالة كاملة بصوت عالٍ.</p><p class="guide">كل دالة معروضة من تعريفها إلى نهايتها. <span class="key">التظليل</span> يحدد الجزء المتعلق بالفكرة؛ بقية الكود موجود لتفهم السياق. روابط الأرقام تنقلك إلى مواضع الشرح داخل الدالة.</p><nav aria-label="محطات العرض"><a href="#step-1">1. عملية مستقلة عن الويب</a> · <a href="#step-2">2. من رسالة الطابور إلى خدمة البريد</a> · <a href="#step-3">3. متى يكون البريد حقيقياً؟</a> · <a href="#step-4">4. إلى مَن يُرسَل؟</a> · <a href="#step-5">5. ماذا يرى الزبون؟</a></nav></header>
+<section id="step-1"><div class="top"><h2>1. عملية مستقلة عن الويب</h2><span class="clock" dir="ltr">0:00–1:40</span></div><div class="piece"><h3><bdi>خدمة email-worker</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="docker-compose.yml">docker-compose.yml</a> · الأسطر <bdi>251–253</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s1c1l251">251–253</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: خدمة email-worker"><pre dir="ltr"><code data-path="docker-compose.yml" data-start="251" data-end="253"><span data-n="251" class="ln hit" id="s1c1l251">  email-worker:</span>
+<span data-n="252" class="ln hit" id="s1c1l252">    &lt;&lt;: *order-worker</span>
+<span data-n="253" class="ln hit" id="s1c1l253">    command: ["php", "artisan", "orders:email-worker"]</span></code></pre></div></div><div class="piece"><h3><bdi>handle()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Console/Commands/OrderEmailWorker.php">backend/my-project/app/Console/Commands/OrderEmailWorker.php</a> · الأسطر <bdi>19–60</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s1c2l21">21–31</a> <a dir="ltr" class="jump" href="#s1c2l33">33–40</a> <a dir="ltr" class="jump" href="#s1c2l56">56</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: handle()"><pre dir="ltr"><code data-path="backend/my-project/app/Console/Commands/OrderEmailWorker.php" data-start="19" data-end="60"><span data-n="19" class="ln" id="s1c2l19">    public function handle(MessageBroker $broker, EmailMessageProcessor $processor, MailDeliveryConfiguration $mailConfiguration): int</span>
+<span data-n="20" class="ln" id="s1c2l20">    {</span>
+<span data-n="21" class="ln hit" id="s1c2l21">        try {</span>
+<span data-n="22" class="ln hit" id="s1c2l22">            // Check before connecting to the database or consuming any message.</span>
+<span data-n="23" class="ln hit" id="s1c2l23">            $mode = $mailConfiguration-&gt;assertDeliverable();</span>
+<span data-n="24" class="ln hit" id="s1c2l24">        } catch (MailDeliveryConfigurationException $exception) {</span>
+<span data-n="25" class="ln hit" id="s1c2l25">            $this-&gt;error($exception-&gt;getMessage());</span>
+<span data-n="26" class="ln hit" id="s1c2l26"></span>
+<span data-n="27" class="ln hit" id="s1c2l27">            return self::FAILURE;</span>
+<span data-n="28" class="ln hit" id="s1c2l28">        }</span>
+<span data-n="29" class="ln hit" id="s1c2l29">        if ($mode === 'mock') {</span>
+<span data-n="30" class="ln hit" id="s1c2l30">            $this-&gt;warn('MOCK DELIVERY enabled: order confirmations will not send external email.');</span>
+<span data-n="31" class="ln hit" id="s1c2l31">            Log::warning('MOCK DELIVERY enabled for order email worker; no external email will be sent');</span>
+<span data-n="32" class="ln" id="s1c2l32">        }</span>
+<span data-n="33" class="ln hit" id="s1c2l33">        DB::connection()-&gt;useWriteConnectionWhenReading();</span>
+<span data-n="34" class="ln hit" id="s1c2l34">        do {</span>
+<span data-n="35" class="ln hit" id="s1c2l35">            try {</span>
+<span data-n="36" class="ln hit" id="s1c2l36">                $message = $broker-&gt;receive();</span>
+<span data-n="37" class="ln hit" id="s1c2l37">                if ($message !== null) {</span>
+<span data-n="38" class="ln hit" id="s1c2l38">                    $processor-&gt;handle($message);</span>
+<span data-n="39" class="ln hit" id="s1c2l39">                } elseif (! $this-&gt;option('once')) {</span>
+<span data-n="40" class="ln hit" id="s1c2l40">                    sleep(1);</span>
+<span data-n="41" class="ln" id="s1c2l41">                }</span>
+<span data-n="42" class="ln" id="s1c2l42">            } catch (MailDeliveryConfigurationException $exception) {</span>
+<span data-n="43" class="ln" id="s1c2l43">                $broker-&gt;close();</span>
+<span data-n="44" class="ln" id="s1c2l44">                $this-&gt;error($exception-&gt;getMessage());</span>
+<span data-n="45" class="ln" id="s1c2l45"></span>
+<span data-n="46" class="ln" id="s1c2l46">                return self::FAILURE;</span>
+<span data-n="47" class="ln" id="s1c2l47">            } catch (\Throwable $exception) {</span>
+<span data-n="48" class="ln" id="s1c2l48">                // Closing leaves the delivery unacknowledged; RabbitMQ redelivers on recovery.</span>
+<span data-n="49" class="ln" id="s1c2l49">                $broker-&gt;close();</span>
+<span data-n="50" class="ln" id="s1c2l50">                Log::error('Order email worker recovering', ['error_type' =&gt; $exception::class]);</span>
+<span data-n="51" class="ln" id="s1c2l51">                if ($this-&gt;option('once')) {</span>
+<span data-n="52" class="ln" id="s1c2l52">                    return self::FAILURE;</span>
+<span data-n="53" class="ln" id="s1c2l53">                }</span>
+<span data-n="54" class="ln" id="s1c2l54">                sleep(config('rabbitmq.reconnect_delay'));</span>
+<span data-n="55" class="ln" id="s1c2l55">            }</span>
+<span data-n="56" class="ln hit" id="s1c2l56">        } while (! $this-&gt;option('once'));</span>
+<span data-n="57" class="ln" id="s1c2l57">        $broker-&gt;close();</span>
+<span data-n="58" class="ln" id="s1c2l58"></span>
+<span data-n="59" class="ln" id="s1c2l59">        return self::SUCCESS;</span>
+<span data-n="60" class="ln" id="s1c2l60">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>أبدأ من تعريف عامل البريد في <bdi dir="ltr">Compose</bdi>. قد ينشئ زبون طلباً ثم يغلق الصفحة، ومع ذلك يستمر تجهيز التأكيد. السبب أن الإرسال يحدث داخل حاوية لها أمر تشغيل خاص، وليس في المتصفح ولا في آخر سطر من متحكم الطلب. صحيح أن العامل يستعمل صورة <bdi dir="ltr">Laravel</bdi> وإعدادات المشروع، لكنه عملية منفصلة: الناشر يضع حدث الشراء عند الوسيط، وهذا الأمر يأخذه ليحوّله إلى بريد.</p><p>في بداية <bdi dir="ltr">handle</bdi> يفحص العامل إعداد البريد قبل أن يسحب شيئاً من الطابور. لو كان الإعداد غير صالح يخرج بخطأ، ولو سُمِح بوضع تجريبي يعلن ذلك بوضوح. بعدها يقرأ من قاعدة البيانات الرئيسية ويسحب الرسائل في حلقة. أهمية القراءة من الرئيسية أن الحدث قد يصل بعد الشراء مباشرة؛ لا نريد أن يظن العامل أن الطلب مفقود لمجرد أن نسخة القراءة لم تتحدث بعد. وعند فراغ الطابور ينتظر، ولا تُحسب هذه الحالة كفشل إرسال.</p><p>مثال ذلك أن خادم الطلبات قد يستقبل ثلاثة طلبات متتالية بينما ينتظر العامل رد مزود البريد على الرسالة الأولى. لا ينتظر أصحاب الطلبين الآخرين ذلك الرد لكي يحصلوا على رقمي طلبيهما.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-2"><div class="top"><h2>2. من رسالة الطابور إلى خدمة البريد</h2><span class="clock" dir="ltr">1:40–3:10</span></div><div class="piece"><h3><bdi>receive()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/RabbitMqBroker.php">backend/my-project/app/Services/Messaging/RabbitMqBroker.php</a> · الأسطر <bdi>103–118</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s2c1l106">106–109</a> <a dir="ltr" class="jump" href="#s2c1l113">113–117</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: receive()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/RabbitMqBroker.php" data-start="103" data-end="118"><span data-n="103" class="ln" id="s2c1l103">    public function receive(): ?IncomingMessage</span>
+<span data-n="104" class="ln" id="s2c1l104">    {</span>
+<span data-n="105" class="ln" id="s2c1l105">        // Polling keeps heartbeat/socket handling bounded, including on an idle queue.</span>
+<span data-n="106" class="ln hit" id="s2c1l106">        $message = $this-&gt;channel()-&gt;basic_get(config('rabbitmq.queue'), false);</span>
+<span data-n="107" class="ln hit" id="s2c1l107">        if ($message === null) {</span>
+<span data-n="108" class="ln hit" id="s2c1l108">            return null;</span>
+<span data-n="109" class="ln hit" id="s2c1l109">        }</span>
+<span data-n="110" class="ln" id="s2c1l110">        $headers = $message-&gt;has('application_headers') ? $message-&gt;get('application_headers')-&gt;getNativeData() : [];</span>
+<span data-n="111" class="ln" id="s2c1l111">        $attempt = filter_var($headers['attempt'] ?? 1, FILTER_VALIDATE_INT);</span>
+<span data-n="112" class="ln" id="s2c1l112"></span>
+<span data-n="113" class="ln hit" id="s2c1l113">        return new IncomingMessage(</span>
+<span data-n="114" class="ln hit" id="s2c1l114">            $message-&gt;getBody(),</span>
+<span data-n="115" class="ln hit" id="s2c1l115">            $attempt === false ? 1 : max(1, $attempt),</span>
+<span data-n="116" class="ln hit" id="s2c1l116">            fn () =&gt; $message-&gt;ack(),</span>
+<span data-n="117" class="ln hit" id="s2c1l117">        );</span>
+<span data-n="118" class="ln" id="s2c1l118">    }</span></code></pre></div></div><div class="piece"><h3><bdi>handle()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/EmailMessageProcessor.php">backend/my-project/app/Services/Messaging/EmailMessageProcessor.php</a> · الأسطر <bdi>13–45</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s2c2l15">15–22</a> <a dir="ltr" class="jump" href="#s2c2l43">43–44</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: handle()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/EmailMessageProcessor.php" data-start="13" data-end="45"><span data-n="13" class="ln" id="s2c2l13">    public function handle(IncomingMessage $message): void</span>
+<span data-n="14" class="ln" id="s2c2l14">    {</span>
+<span data-n="15" class="ln hit" id="s2c2l15">        $event = null;</span>
+<span data-n="16" class="ln hit" id="s2c2l16">        try {</span>
+<span data-n="17" class="ln hit" id="s2c2l17">            $event = $this-&gt;decode($message-&gt;body);</span>
+<span data-n="18" class="ln hit" id="s2c2l18">            Log::info('Order email processing', ['event_id' =&gt; $event['event_id'], 'attempt' =&gt; $message-&gt;attempt]);</span>
+<span data-n="19" class="ln hit" id="s2c2l19">            $this-&gt;sender-&gt;send($event);</span>
+<span data-n="20" class="ln hit" id="s2c2l20">        } catch (MailDeliveryConfigurationException $exception) {</span>
+<span data-n="21" class="ln hit" id="s2c2l21">            // Misconfiguration is operational, not a failed delivery attempt. Preserve the original message.</span>
+<span data-n="22" class="ln hit" id="s2c2l22">            throw $exception;</span>
+<span data-n="23" class="ln" id="s2c2l23">        } catch (\Throwable $exception) {</span>
+<span data-n="24" class="ln" id="s2c2l24">            $permanent = $exception instanceof PermanentMessageException || $exception instanceof JsonException;</span>
+<span data-n="25" class="ln" id="s2c2l25">            $exhausted = $message-&gt;attempt &gt;= config('rabbitmq.max_attempts');</span>
+<span data-n="26" class="ln" id="s2c2l26">            $eventId = $event['event_id'] ?? (string) Str::uuid();</span>
+<span data-n="27" class="ln" id="s2c2l27">            if ($permanent || $exhausted) {</span>
+<span data-n="28" class="ln" id="s2c2l28">                // Confirm the DLQ publication before acknowledging the original delivery.</span>
+<span data-n="29" class="ln" id="s2c2l29">                $this-&gt;broker-&gt;publish($message-&gt;body, $eventId, config('rabbitmq.dead_letter_exchange'), config('rabbitmq.dead_letter_routing_key'), $message-&gt;attempt);</span>
+<span data-n="30" class="ln" id="s2c2l30">            } else {</span>
+<span data-n="31" class="ln" id="s2c2l31">                $retryIndex = min($message-&gt;attempt, count(config('rabbitmq.retry_delays')));</span>
+<span data-n="32" class="ln" id="s2c2l32">                $this-&gt;broker-&gt;publish($message-&gt;body, $eventId, config('rabbitmq.retry_exchange'), 'retry.'.$retryIndex, $message-&gt;attempt + 1);</span>
+<span data-n="33" class="ln" id="s2c2l33">            }</span>
+<span data-n="34" class="ln" id="s2c2l34">            Log::warning('Order email deferred', [</span>
+<span data-n="35" class="ln" id="s2c2l35">                'event_id' =&gt; $eventId, 'attempt' =&gt; $message-&gt;attempt,</span>
+<span data-n="36" class="ln" id="s2c2l36">                'destination' =&gt; $permanent || $exhausted ? 'dead_letter' : 'retry', 'error_type' =&gt; $exception::class,</span>
+<span data-n="37" class="ln" id="s2c2l37">            ]);</span>
+<span data-n="38" class="ln" id="s2c2l38">            $message-&gt;acknowledge();</span>
+<span data-n="39" class="ln" id="s2c2l39"></span>
+<span data-n="40" class="ln" id="s2c2l40">            return;</span>
+<span data-n="41" class="ln" id="s2c2l41">        }</span>
+<span data-n="42" class="ln" id="s2c2l42"></span>
+<span data-n="43" class="ln hit" id="s2c2l43">        Log::info('Order email processed', ['event_id' =&gt; $event['event_id'], 'attempt' =&gt; $message-&gt;attempt]);</span>
+<span data-n="44" class="ln hit" id="s2c2l44">        $message-&gt;acknowledge();</span>
+<span data-n="45" class="ln" id="s2c2l45">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في <bdi dir="ltr">receive</bdi> أركّز على <bdi dir="ltr">basic_get</bdi>. المعامل <bdi dir="ltr">false</bdi> هنا قيمة لخيار معناه «بدون إقرار»، لذلك نتيجته الفعلية أن الإقرار التلقائي معطّل. لا تختفي الرسالة من مسؤولية الوسيط بمجرد أخذها؛ يعطينا الكود جسمها ورقم المحاولة وطريقة لإقرارها لاحقاً. إن لم يجد رسالة أصلاً، تعود نتيجة فارغة ولا ينشئ العامل بريداً من لا شيء.</p><p>بعدها أنظر في المعالج إلى بداية مسار النجاح ونهايته معاً. يفهم محتوى الحدث ويتحقق أنه يمثل إنشاء طلب، ثم يمرره إلى خدمة الإرسال. فقط بعد رجوع تلك الخدمة بنجاح يؤكد للوسيط أنه انتهى. لهذا لا أستدل على إرسال البريد من عبارة «استلم العامل الحدث». الاستلام يثبت أن الطابور أوصل العمل؛ أما التنفيذ فيحتاج عنوان الزبون وناقل بريد فعلياً، وهما ما سنتتبعه الآن.</p><p>لو وصلت رسالة فيها رقم طلب فقط، ولم نستطع التحقق من أنها حدث الإنشاء المتوقع، فلا يكفي أن تكون موجودة في الطابور لنرسل شيئاً. الوسيط ينقل عملاً، أما صحة العمل التجارية فيتحقق منها التطبيق.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-3"><div class="top"><h2>3. متى يكون البريد حقيقياً؟</h2><span class="clock" dir="ltr">3:10–4:50</span></div><div class="piece"><h3><bdi>إعداد ناقل SMTP</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/config/mail.php">backend/my-project/config/mail.php</a> · الأسطر <bdi>43–53</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c1l44">44–51</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: إعداد ناقل SMTP"><pre dir="ltr"><code data-path="backend/my-project/config/mail.php" data-start="43" data-end="53"><span data-n="43" class="ln" id="s3c1l43">        'smtp' =&gt; [</span>
+<span data-n="44" class="ln hit" id="s3c1l44">            'transport' =&gt; 'smtp',</span>
+<span data-n="45" class="ln hit" id="s3c1l45">            'scheme' =&gt; env('MAIL_SCHEME'),</span>
+<span data-n="46" class="ln hit" id="s3c1l46">            'url' =&gt; env('MAIL_URL'),</span>
+<span data-n="47" class="ln hit" id="s3c1l47">            'host' =&gt; env('MAIL_HOST', '127.0.0.1'),</span>
+<span data-n="48" class="ln hit" id="s3c1l48">            'port' =&gt; env('MAIL_PORT', 2525),</span>
+<span data-n="49" class="ln hit" id="s3c1l49">            'username' =&gt; env('MAIL_USERNAME'),</span>
+<span data-n="50" class="ln hit" id="s3c1l50">            'password' =&gt; env('MAIL_PASSWORD'),</span>
+<span data-n="51" class="ln hit" id="s3c1l51">            'timeout' =&gt; (int) env('MAIL_TIMEOUT', 20),</span>
+<span data-n="52" class="ln" id="s3c1l52">            'local_domain' =&gt; env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),</span>
+<span data-n="53" class="ln" id="s3c1l53">        ],</span></code></pre></div></div><div class="piece"><h3><bdi>validateMailer()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/MailDeliveryConfiguration.php">backend/my-project/app/Services/Messaging/MailDeliveryConfiguration.php</a> · الأسطر <bdi>15–66</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c2l33">33–37</a> <a dir="ltr" class="jump" href="#s3c2l53">53–65</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: validateMailer()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/MailDeliveryConfiguration.php" data-start="15" data-end="66"><span data-n="15" class="ln" id="s3c2l15">    private function validateMailer(string $name, array $ancestors): string</span>
+<span data-n="16" class="ln" id="s3c2l16">    {</span>
+<span data-n="17" class="ln" id="s3c2l17">        if ($name === '' || in_array($name, $ancestors, true)) {</span>
+<span data-n="18" class="ln" id="s3c2l18">            throw new MailDeliveryConfigurationException('Order email mailer configuration is missing or circular.');</span>
+<span data-n="19" class="ln" id="s3c2l19">        }</span>
+<span data-n="20" class="ln" id="s3c2l20">        $mailer = config('mail.mailers.'.$name);</span>
+<span data-n="21" class="ln" id="s3c2l21">        if (! is_array($mailer)) {</span>
+<span data-n="22" class="ln" id="s3c2l22">            throw new MailDeliveryConfigurationException('Order email mailer is not configured.');</span>
+<span data-n="23" class="ln" id="s3c2l23">        }</span>
+<span data-n="24" class="ln" id="s3c2l24">        if (isset($mailer['url'])) {</span>
+<span data-n="25" class="ln" id="s3c2l25">            try {</span>
+<span data-n="26" class="ln" id="s3c2l26">                // Mirror Laravel MailManager so a MAIL_URL override cannot hide a non-delivery transport.</span>
+<span data-n="27" class="ln" id="s3c2l27">                $mailer = (new ConfigurationUrlParser)-&gt;parseConfiguration($mailer);</span>
+<span data-n="28" class="ln" id="s3c2l28">                $mailer['transport'] = $mailer['driver'] ?? null;</span>
+<span data-n="29" class="ln" id="s3c2l29">            } catch (\Throwable) {</span>
+<span data-n="30" class="ln" id="s3c2l30">                throw new MailDeliveryConfigurationException('Order email mailer URL is invalid.');</span>
+<span data-n="31" class="ln" id="s3c2l31">            }</span>
+<span data-n="32" class="ln" id="s3c2l32">        }</span>
+<span data-n="33" class="ln hit" id="s3c2l33">        $transport = $mailer['transport'] ?? null;</span>
+<span data-n="34" class="ln hit" id="s3c2l34">        $explicitMock = config('mail.order_email_allow_mock') &amp;&amp; app()-&gt;environment('local', 'testing');</span>
+<span data-n="35" class="ln hit" id="s3c2l35">        if (in_array($transport, ['array', 'log'], true) &amp;&amp; $ancestors === []</span>
+<span data-n="36" class="ln hit" id="s3c2l36">            &amp;&amp; ($explicitMock || ($transport === 'array' &amp;&amp; app()-&gt;environment('testing')))) {</span>
+<span data-n="37" class="ln hit" id="s3c2l37">            return 'mock';</span>
+<span data-n="38" class="ln" id="s3c2l38">        }</span>
+<span data-n="39" class="ln" id="s3c2l39">        if (in_array($transport, ['failover', 'roundrobin'], true)) {</span>
+<span data-n="40" class="ln" id="s3c2l40">            $children = $mailer['mailers'] ?? [];</span>
+<span data-n="41" class="ln" id="s3c2l41">            if (! is_array($children) || $children === []) {</span>
+<span data-n="42" class="ln" id="s3c2l42">                throw new MailDeliveryConfigurationException('Order email composite mailer has no delivery transports.');</span>
+<span data-n="43" class="ln" id="s3c2l43">            }</span>
+<span data-n="44" class="ln" id="s3c2l44">            foreach ($children as $child) {</span>
+<span data-n="45" class="ln" id="s3c2l45">                if (! is_string($child)) {</span>
+<span data-n="46" class="ln" id="s3c2l46">                    throw new MailDeliveryConfigurationException('Order email composite mailer configuration is invalid.');</span>
+<span data-n="47" class="ln" id="s3c2l47">                }</span>
+<span data-n="48" class="ln" id="s3c2l48">                $this-&gt;validateMailer($child, [...$ancestors, $name]);</span>
+<span data-n="49" class="ln" id="s3c2l49">            }</span>
+<span data-n="50" class="ln" id="s3c2l50"></span>
+<span data-n="51" class="ln" id="s3c2l51">            return 'external';</span>
+<span data-n="52" class="ln" id="s3c2l52">        }</span>
+<span data-n="53" class="ln hit" id="s3c2l53">        if (! in_array($transport, ['smtp', 'sendmail', 'mail', 'mailgun', 'ses', 'ses-v2', 'postmark', 'resend'], true)) {</span>
+<span data-n="54" class="ln hit" id="s3c2l54">            throw new MailDeliveryConfigurationException('Order emails require a delivery mailer. Explicit log/array mock mode is allowed only in local/testing environments; non-delivery fallbacks are not allowed.');</span>
+<span data-n="55" class="ln hit" id="s3c2l55">        }</span>
+<span data-n="56" class="ln hit" id="s3c2l56">        if ($transport === 'smtp') {</span>
+<span data-n="57" class="ln hit" id="s3c2l57">            $host = $mailer['host'] ?? '';</span>
+<span data-n="58" class="ln hit" id="s3c2l58">            $validHost = is_string($host) &amp;&amp; (filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false || filter_var($host, FILTER_VALIDATE_IP) !== false);</span>
+<span data-n="59" class="ln hit" id="s3c2l59">            $validPort = filter_var($mailer['port'] ?? 25, FILTER_VALIDATE_INT, ['options' =&gt; ['min_range' =&gt; 1, 'max_range' =&gt; 65535]]) !== false;</span>
+<span data-n="60" class="ln hit" id="s3c2l60">            if (! $validHost || ! $validPort) {</span>
+<span data-n="61" class="ln hit" id="s3c2l61">                throw new MailDeliveryConfigurationException('Configure the external SMTP provider host and port before starting the order email worker.');</span>
+<span data-n="62" class="ln hit" id="s3c2l62">            }</span>
+<span data-n="63" class="ln hit" id="s3c2l63">        }</span>
+<span data-n="64" class="ln hit" id="s3c2l64"></span>
+<span data-n="65" class="ln hit" id="s3c2l65">        return 'external';</span>
+<span data-n="66" class="ln" id="s3c2l66">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في إعداد <bdi dir="ltr">SMTP</bdi> توجد ثلاث معلومات مختلفة من المفيد تمييزها: الناقل الذي ستستعمله <bdi dir="ltr">Laravel</bdi>، عنوان الخادم الخارجي، وبيانات الاعتماد التي تأتي من البيئة. في تجربة <bdi dir="ltr">Resend</bdi> يشير المضيف إلى خدمة <bdi dir="ltr">Resend</bdi>، ولا تُنسخ كلمة الاعتماد إلى كود الطلب أو إلى محتوى الرسالة. إذا كان الناقل المختار يسجل النص محلياً فلن يصل شيء إلى صندوق العميل حتى لو كان قالب البريد صحيحاً تماماً.</p><p>لهذا نفحص طريقة التسليم في الدالة الثانية. يسمح المشروع في حالات محلية أو اختبارية محددة بناقل تجريبي، وتعيد الدالة حينها وصفاً واضحاً بأنه <bdi dir="ltr">mock</bdi>. أما <bdi dir="ltr">SMTP</bdi> فيحتاج إعداد مضيف ومنفذ صالحين حتى يُعد ناقلاً خارجياً. كلمة <bdi dir="ltr">external</bdi> هنا تصف المسار المختار، لا نتيجة إرسال هذه الرسالة بعينها؛ فحص صيغة العنوان لا يثبت أن بيانات الدخول قُبلت أو أن مزوّد البريد يعمل الآن. البرهان التالي موجود في استدعاء الإرسال نفسه.</p><p>يمكن إذن أن ينجح اختبار قالب الرسالة باستخدام ناقل محلي وأن يفشل إرسال حقيقي لنفس القالب بسبب إعداد المزوّد. هذا لا يناقض الاختبار؛ كل واحد منهما يجيب عن سؤال مختلف.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-4"><div class="top"><h2>4. إلى مَن يُرسَل؟</h2><span class="clock" dir="ltr">4:50–6:30</span></div><div class="piece"><h3><bdi>send()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/OrderConfirmationSender.php">backend/my-project/app/Services/Messaging/OrderConfirmationSender.php</a> · الأسطر <bdi>18–55</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s4c1l22">22–24</a> <a dir="ltr" class="jump" href="#s4c1l28">28–36</a> <a dir="ltr" class="jump" href="#s4c1l39">39–49</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: send()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/OrderConfirmationSender.php" data-start="18" data-end="55"><span data-n="18" class="ln" id="s4c1l18">    public function send(array $event): void</span>
+<span data-n="19" class="ln" id="s4c1l19">    {</span>
+<span data-n="20" class="ln" id="s4c1l20">        $mode = $this-&gt;mailConfiguration-&gt;assertDeliverable();</span>
+<span data-n="21" class="ln" id="s4c1l21"></span>
+<span data-n="22" class="ln hit" id="s4c1l22">        $outbox = OutboxEvent::query()-&gt;useWritePdo()-&gt;find($event['event_id']);</span>
+<span data-n="23" class="ln hit" id="s4c1l23">        if ($outbox === null || $outbox-&gt;event_type !== 'OrderCreated' || $outbox-&gt;order_id !== $event['order_id']) {</span>
+<span data-n="24" class="ln hit" id="s4c1l24">            throw new PermanentMessageException('Message does not identify a recorded order event.');</span>
+<span data-n="25" class="ln" id="s4c1l25">        }</span>
+<span data-n="26" class="ln" id="s4c1l26"></span>
+<span data-n="27" class="ln" id="s4c1l27">        // Unique row + row lock serializes duplicate deliveries, even across worker processes.</span>
+<span data-n="28" class="ln hit" id="s4c1l28">        DB::table('notification_deliveries')-&gt;insertOrIgnore([</span>
+<span data-n="29" class="ln hit" id="s4c1l29">            'event_id' =&gt; $event['event_id'], 'order_id' =&gt; $event['order_id'],</span>
+<span data-n="30" class="ln hit" id="s4c1l30">            'created_at' =&gt; now(), 'updated_at' =&gt; now(),</span>
+<span data-n="31" class="ln hit" id="s4c1l31">        ]);</span>
+<span data-n="32" class="ln hit" id="s4c1l32">        DB::transaction(function () use ($event, $mode): void {</span>
+<span data-n="33" class="ln hit" id="s4c1l33">            $delivery = NotificationDelivery::query()-&gt;whereKey($event['event_id'])-&gt;lockForUpdate()-&gt;firstOrFail();</span>
+<span data-n="34" class="ln hit" id="s4c1l34">            if ($delivery-&gt;delivered_at !== null) {</span>
+<span data-n="35" class="ln hit" id="s4c1l35">                // A provider change does not automatically replay earlier mock or unclassified deliveries.</span>
+<span data-n="36" class="ln hit" id="s4c1l36">                return;</span>
+<span data-n="37" class="ln" id="s4c1l37">            }</span>
+<span data-n="38" class="ln" id="s4c1l38"></span>
+<span data-n="39" class="ln hit" id="s4c1l39">            $order = Order::query()-&gt;useWritePdo()-&gt;with(['user', 'items.product'])-&gt;find($event['order_id']);</span>
+<span data-n="40" class="ln hit" id="s4c1l40">            if ($order === null || $order-&gt;user === null || ! filter_var($order-&gt;user-&gt;email, FILTER_VALIDATE_EMAIL)) {</span>
+<span data-n="41" class="ln hit" id="s4c1l41">                throw new PermanentMessageException('Order recipient is unavailable.');</span>
+<span data-n="42" class="ln hit" id="s4c1l42">            }</span>
+<span data-n="43" class="ln hit" id="s4c1l43"></span>
+<span data-n="44" class="ln hit" id="s4c1l44">            $sent = Mail::to($order-&gt;user-&gt;email)-&gt;send(new OrderConfirmation($order, $event['event_id']));</span>
+<span data-n="45" class="ln hit" id="s4c1l45">            if ($sent === null) {</span>
+<span data-n="46" class="ln hit" id="s4c1l46">                throw new RuntimeException('Mail delivery was cancelled before sending.');</span>
+<span data-n="47" class="ln hit" id="s4c1l47">            }</span>
+<span data-n="48" class="ln hit" id="s4c1l48">            // SMTP cannot participate in this transaction. A crash here can resend; stable Message-ID helps providers deduplicate.</span>
+<span data-n="49" class="ln hit" id="s4c1l49">            $delivery-&gt;update(['delivered_at' =&gt; now(), 'delivery_mode' =&gt; $mode]);</span>
+<span data-n="50" class="ln" id="s4c1l50">            Log::info($mode === 'mock' ? 'MOCK DELIVERY: order confirmation processed without an external email' : 'Order confirmation accepted by delivery transport', [</span>
+<span data-n="51" class="ln" id="s4c1l51">                'event_id' =&gt; $event['event_id'], 'delivery_mode' =&gt; $mode,</span>
+<span data-n="52" class="ln" id="s4c1l52">                'transport_message_id' =&gt; substr(preg_replace('/[^A-Za-z0-9@._:+\/-]/', '', $sent-&gt;getMessageId()), 0, 255),</span>
+<span data-n="53" class="ln" id="s4c1l53">            ]);</span>
+<span data-n="54" class="ln" id="s4c1l54">        }, 1);</span>
+<span data-n="55" class="ln" id="s4c1l55">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>الجزء المهم في <bdi dir="ltr">send</bdi> يبدأ بالربط بين معرّف الحدث والطلب المسجّل أصلاً. لا نثق بعنوان مستلم قادم من حمولة خارجية؛ نتحقق من ارتباط الحدث بطلب حقيقي، ثم نحضر الطلب وصاحبه وعناصره من قاعدة المتجر. بذلك يكون البريد موجهاً إلى صاحب الطلب، وتكون التفاصيل المستخدمة في النص هي التفاصيل التي حفظها المتجر.</p><p>في قلب المعاملة نأخذ قفلاً على سجل التسليم الخاص بالحدث. لو استيقظ عاملان للحدث نفسه، لا ينبغي أن يقررا الإرسال في اللحظة نفسها. إذا كان وقت التسليم محفوظاً يرجع العامل دون إنشاء بريد جديد. وفي أول معالجة يمرّر عنوان صاحب الطلب ورسالة التأكيد إلى <bdi dir="ltr">Mail</bdi>، ثم يحفظ الوقت ووضع التسليم بعد النجاح. توجد حدود واضحة لهذا الترتيب: إذا قبل المزوّد الرسالة ثم تعطّل العامل قبل حفظ الوقت، لا تستطيع معاملة <bdi dir="ltr">MySQL</bdi> سحب البريد من المزوّد. لذلك نخفّف التكرار ولا نعد بأنه مستحيل.</p><p>ولهذا نحتفظ أيضاً بوضع التسليم مع وقته. عند المراجعة نستطيع التفريق بين طلب عولج في تجربة محلية وطلب سُلّم لناقل خارجي، حتى لو كان رقم الطلب ظاهراً في سجل الحالتين.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-5"><div class="top"><h2>5. ماذا يرى الزبون؟</h2><span class="clock" dir="ltr">6:30–8:10</span></div><div class="piece"><h3><bdi>الصنف OrderConfirmation</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Mail/OrderConfirmation.php">backend/my-project/app/Mail/OrderConfirmation.php</a> · الأسطر <bdi>12–56</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s5c1l14">14</a> <a dir="ltr" class="jump" href="#s5c1l18">18</a> <a dir="ltr" class="jump" href="#s5c1l25">25–28</a> <a dir="ltr" class="jump" href="#s5c1l47">47–49</a> <a dir="ltr" class="jump" href="#s5c1l54">54</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: الصنف OrderConfirmation"><pre dir="ltr"><code data-path="backend/my-project/app/Mail/OrderConfirmation.php" data-start="12" data-end="56"><span data-n="12" class="ln" id="s5c1l12">class OrderConfirmation extends Mailable</span>
+<span data-n="13" class="ln" id="s5c1l13">{</span>
+<span data-n="14" class="ln hit" id="s5c1l14">    public function __construct(public readonly Order $order, private readonly string $eventId) {}</span>
+<span data-n="15" class="ln" id="s5c1l15"></span>
+<span data-n="16" class="ln" id="s5c1l16">    public function envelope(): Envelope</span>
+<span data-n="17" class="ln" id="s5c1l17">    {</span>
+<span data-n="18" class="ln hit" id="s5c1l18">        return new Envelope(subject: 'Order #'.$this-&gt;order-&gt;id.' confirmation');</span>
+<span data-n="19" class="ln" id="s5c1l19">    }</span>
+<span data-n="20" class="ln" id="s5c1l20"></span>
+<span data-n="21" class="ln" id="s5c1l21">    public function headers(): Headers</span>
+<span data-n="22" class="ln" id="s5c1l22">    {</span>
+<span data-n="23" class="ln" id="s5c1l23">        $domain = parse_url((string) config('app.url'), PHP_URL_HOST) ?: 'localhost';</span>
+<span data-n="24" class="ln" id="s5c1l24"></span>
+<span data-n="25" class="ln hit" id="s5c1l25">        return new Headers(</span>
+<span data-n="26" class="ln hit" id="s5c1l26">            messageId: $this-&gt;eventId.'@'.$domain,</span>
+<span data-n="27" class="ln hit" id="s5c1l27">            text: $this-&gt;usesResendSmtp() ? ['Resend-Idempotency-Key' =&gt; 'order-confirmation/'.$this-&gt;eventId] : [],</span>
+<span data-n="28" class="ln hit" id="s5c1l28">        );</span>
+<span data-n="29" class="ln" id="s5c1l29">    }</span>
+<span data-n="30" class="ln" id="s5c1l30"></span>
+<span data-n="31" class="ln" id="s5c1l31">    private function usesResendSmtp(): bool</span>
+<span data-n="32" class="ln" id="s5c1l32">    {</span>
+<span data-n="33" class="ln" id="s5c1l33">        $mailer = config('mail.mailers.'.($this-&gt;mailer ?? config('mail.default')), []);</span>
+<span data-n="34" class="ln" id="s5c1l34">        if (! is_array($mailer)) {</span>
+<span data-n="35" class="ln" id="s5c1l35">            return false;</span>
+<span data-n="36" class="ln" id="s5c1l36">        }</span>
+<span data-n="37" class="ln" id="s5c1l37">        if (isset($mailer['url'])) {</span>
+<span data-n="38" class="ln" id="s5c1l38">            try {</span>
+<span data-n="39" class="ln" id="s5c1l39">                // Laravel allows MAIL_URL to override both the host and transport.</span>
+<span data-n="40" class="ln" id="s5c1l40">                $mailer = (new ConfigurationUrlParser)-&gt;parseConfiguration($mailer);</span>
+<span data-n="41" class="ln" id="s5c1l41">                $mailer['transport'] = $mailer['driver'] ?? null;</span>
+<span data-n="42" class="ln" id="s5c1l42">            } catch (\Throwable) {</span>
+<span data-n="43" class="ln" id="s5c1l43">                return false;</span>
+<span data-n="44" class="ln" id="s5c1l44">            }</span>
+<span data-n="45" class="ln" id="s5c1l45">        }</span>
+<span data-n="46" class="ln" id="s5c1l46"></span>
+<span data-n="47" class="ln hit" id="s5c1l47">        return ($mailer['transport'] ?? null) === 'smtp'</span>
+<span data-n="48" class="ln hit" id="s5c1l48">            &amp;&amp; is_string($mailer['host'] ?? null)</span>
+<span data-n="49" class="ln hit" id="s5c1l49">            &amp;&amp; strtolower(rtrim($mailer['host'], '.')) === 'smtp.resend.com';</span>
+<span data-n="50" class="ln" id="s5c1l50">    }</span>
+<span data-n="51" class="ln" id="s5c1l51"></span>
+<span data-n="52" class="ln" id="s5c1l52">    public function content(): Content</span>
+<span data-n="53" class="ln" id="s5c1l53">    {</span>
+<span data-n="54" class="ln hit" id="s5c1l54">        return new Content(view: 'mail.order-confirmation');</span>
+<span data-n="55" class="ln" id="s5c1l55">    }</span>
+<span data-n="56" class="ln" id="s5c1l56">}</span></code></pre></div></div><div class="piece"><h3><bdi>قالب البريد كاملاً</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/resources/views/mail/order-confirmation.blade.php">backend/my-project/resources/views/mail/order-confirmation.blade.php</a> · الأسطر <bdi>1–14</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s5c2l5">5–12</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: قالب البريد كاملاً"><pre dir="ltr"><code data-path="backend/my-project/resources/views/mail/order-confirmation.blade.php" data-start="1" data-end="14"><span data-n="1" class="ln" id="s5c2l1">&lt;!doctype html&gt;</span>
+<span data-n="2" class="ln" id="s5c2l2">&lt;html lang="en"&gt;</span>
+<span data-n="3" class="ln" id="s5c2l3">&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;title&gt;Order confirmation&lt;/title&gt;&lt;/head&gt;</span>
+<span data-n="4" class="ln" id="s5c2l4">&lt;body&gt;</span>
+<span data-n="5" class="ln hit" id="s5c2l5">    &lt;h1&gt;Thank you for your order&lt;/h1&gt;</span>
+<span data-n="6" class="ln hit" id="s5c2l6">    &lt;p&gt;Your order #{{ $order-&gt;id }} has been placed successfully.&lt;/p&gt;</span>
+<span data-n="7" class="ln hit" id="s5c2l7">    &lt;ul&gt;</span>
+<span data-n="8" class="ln hit" id="s5c2l8">        @foreach ($order-&gt;items as $item)</span>
+<span data-n="9" class="ln hit" id="s5c2l9">            &lt;li&gt;{{ $item-&gt;product?-&gt;name ?? 'Product' }} &amp;times; {{ $item-&gt;quantity }} — {{ $item-&gt;subtotal }}&lt;/li&gt;</span>
+<span data-n="10" class="ln hit" id="s5c2l10">        @endforeach</span>
+<span data-n="11" class="ln hit" id="s5c2l11">    &lt;/ul&gt;</span>
+<span data-n="12" class="ln hit" id="s5c2l12">    &lt;p&gt;Total: {{ $order-&gt;total }}&lt;/p&gt;</span>
+<span data-n="13" class="ln" id="s5c2l13">&lt;/body&gt;</span>
+<span data-n="14" class="ln" id="s5c2l14">&lt;/html&gt;</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>أنهي التتبع بما يستطيع الزبون رؤيته. في صنف الرسالة يُبنى الموضوع من رقم الطلب، ويُستخدم معرّف ثابت للرسالة. وعندما يتأكد الكود أن النقل هو <bdi dir="ltr">SMTP</bdi> عبر <bdi dir="ltr">Resend</bdi>، يضيف ترويسة بمفتاح مشتق من الحدث نفسه كي يستطيع المزوّد تمييز إعادة المحاولة. ليس المقصود أن يصبح كل بريد يطلبه الزبون مطابقاً لبريد سابق؛ طلب جديد له حدث مختلف، أما إعادة معالجة الحدث نفسه فتحتفظ بهويته.</p><p>في القالب أشير إلى رقم الطلب وبنوده ومجموعه. هذه هي الصلة بين بيانات العامل والنتيجة خارج التطبيق: أستطيع مطابقة موضوع الرسالة ومجموعها مع الطلب الذي أنشأته. إذا سألني الدكتور ماذا يثبت السجل، أفرق بين ثلاث مراحل: تنفيذ العامل، وقبول ناقل خارجي للرسالة، ثم وصول نسخة مطابقة إلى صندوق الاختبار. ظهور رقم الطلب الصحيح داخل الصندوق هو ما يثبت المرحلة الأخيرة؛ تشغيل الحاوية أو تسجيل نتيجة تجريبية لا يثبتها.</p><p>في العرض أكتفي بذكر عنوان الرسالة ورقم الطلب، لا بيانات اعتماد المزوّد. وإذا تأخر ظهورها في الصندوق أرجع إلى سجل نفس الحدث أولاً بدل أن أنشئ عدة مشتريات وأخلط بين تأكيداتها.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+</main><script>document.querySelectorAll(".pane").forEach(box=>{const first=box.querySelector(".hit");if(first)box.scrollTop=Math.max(0,first.getBoundingClientRect().top-box.getBoundingClientRect().top-42);});</script></body></html>

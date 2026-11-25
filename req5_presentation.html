@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>المتطلب الخامس | عرض الكود: التوسع وتوزيع الأحمال</title><style>
+:root{--ink:#153044;--bg:#f1f5f8;--line:#c9d7e1;--link:#075873;--focus:#ffe8a3;--soft:#f3f7fa;color-scheme:light}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.85 system-ui,'Segoe UI',Tahoma,sans-serif}main{max-width:67rem;margin:auto;padding:1rem}header,section{background:white;border:1px solid var(--line);border-radius:12px;padding:clamp(1rem,3vw,1.8rem);margin:.9rem 0}header{border-top:5px solid var(--link)}h1,h2,h3{line-height:1.45;margin:.2rem 0 .6rem}h1{font-size:clamp(1.45rem,3vw,2.2rem)}h2{font-size:1.35rem}h3{font-size:1rem}p{margin:.5rem 0}.tag,.clock{font-weight:700;color:var(--link)}a{color:var(--link);text-underline-offset:3px}nav,.jumps{display:flex;flex-wrap:wrap;gap:.25rem .9rem}nav{margin-top:.8rem}.top{display:flex;justify-content:space-between;align-items:baseline;gap:.7rem}.clock,.path,code{font-family:Consolas,monospace}.clock{white-space:nowrap}.path{display:inline-block;overflow-wrap:anywhere;max-width:100%;font-size:.85rem}.piece{padding:.7rem 0}.open,.jumps{font-size:.87rem}.pane{direction:ltr;text-align:left;max-height:20rem;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:6px;background:#fafcfd;scroll-padding-top:2.5rem}.pane pre{line-height:1.6;font-size:13px;tab-size:4;margin:0;min-width:100%;width:max-content;padding:.25rem 0}.ln{display:inline-block;min-width:100%;padding-right:.55rem;color:#31475b}.ln:before{content:attr(data-n);display:inline-block;width:3.25rem;margin-right:.6rem;padding-right:.55rem;text-align:right;font-size:.82em;color:#526678;border-right:1px solid #c5d1da;user-select:none}.hit{background:var(--focus);color:#222}.ln:target{outline:2px solid #b16b00;outline-offset:-2px}.jumps{margin:.3rem 0 .45rem}.talk{margin-top:.8rem;border-inline-start:4px solid #30828b;padding:.35rem 1rem;background:#f2f8f8}.talk p+p{margin-top:.8rem}.guide{font-size:.92rem}.key{background:var(--focus);padding:.02rem .25rem}.piece:focus-within{border-color:#91abb1}a:focus-visible,.pane:focus-visible{outline:2px solid #086984}.navback{font-size:.82rem} @media print{body{background:white;font-size:11pt}main{max-width:none;margin:0;padding:0}header,section{border:0;padding:.4rem 0}nav,.jumps,.navback{display:none}.pane{max-height:none;overflow:visible}.pane pre{font-size:8pt;white-space:pre-wrap;overflow-wrap:anywhere;width:auto}.ln{display:inline;min-width:0}.hit{background:#fff0b8;print-color-adjust:exact}.top,h3{break-after:avoid}}.commands{direction:ltr;text-align:left;background:#183242;color:#fff;padding:1rem;border-radius:6px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65} .hint{margin-top:1.1rem}</style></head><body><main id="top"><header><div class="tag">المتطلب الخامس · عرض الكود للمناقشة</div><h1>كيف يخدم المتجر الزبون إذا توقفت إحدى نسخه؟</h1><p><strong>مدة الشرح الكامل نحو <bdi dir="ltr">8:35</bdi> دقائق.</strong> تقرأ فقرات «ما تقوله» وتشير إلى الكود المظلّل. الملف يعرض كتل الإعداد والدوال كاملة للسياق؛ لا يلزم قراءتها سطراً بسطر. أوامر التشغيل في آخر الصفحة مرجع خارج وقت الإلقاء.</p><p><a href="#commands">انتقل مباشرة إلى أوامر المتطلبين</a> · <a href="req5.html">المرجع المفصّل سطراً بسطر</a> · <a href="docs/req5-evidence.json">نتائج آخر اختبار محفوظ</a></p><nav aria-label="محطات العرض"><a href="#step-1">1. ثلاث نسخ، وعنوان واحد للزبون</a> <a href="#step-2">2. كيف يختار Nginx النسخة؟ وماذا لو توقفت؟</a> <a href="#step-3">3. ما الذي يجب أن يبقى مشتركاً؟</a> <a href="#step-4">4. ثلاثة عمّال، لكن طابور بريد واحد</a> <a href="#step-5">5. كيف أثبت التوزيع والاستمرارية أمام الدكتور؟</a></nav></header>
+<section id="step-1"><div class="top"><h2>1. ثلاث نسخ، وعنوان واحد للزبون</h2><span class="clock" dir="ltr">0:00–1:35</span></div><div class="piece"><h3><bdi>خدمة api</bdi></h3><div class="open">افتح: <a class="path" href="docker-compose.req5.yml" dir="ltr">docker-compose.req5.yml</a> · الأسطر <bdi>121–129</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" href="#g1p1l121">121–126</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: خدمة api"><pre dir="ltr"><code data-path="docker-compose.req5.yml" data-start="121" data-end="129"><span data-n="121" class="ln hit" id="g1p1l121">  api:</span>
+<span data-n="122" class="ln hit" id="g1p1l122">    &lt;&lt;: *laravel</span>
+<span data-n="123" class="ln hit" id="g1p1l123">    deploy: {replicas: 3}</span>
+<span data-n="124" class="ln hit" id="g1p1l124">    networks: [edge, default]</span>
+<span data-n="125" class="ln hit" id="g1p1l125">    healthcheck:</span>
+<span data-n="126" class="ln hit" id="g1p1l126">      test: [CMD, curl, -fsS, 'http://127.0.0.1:8000/up']</span>
+<span data-n="127" class="ln" id="g1p1l127">      interval: 5s</span>
+<span data-n="128" class="ln" id="g1p1l128">      timeout: 4s</span>
+<span data-n="129" class="ln" id="g1p1l129">      retries: 15</span></code></pre></div></div>
+<div class="piece"><h3><bdi>خدمة gateway</bdi></h3><div class="open">افتح: <a class="path" href="docker-compose.req5.yml" dir="ltr">docker-compose.req5.yml</a> · الأسطر <bdi>130–138</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" href="#g1p2l130">130</a> <a dir="ltr" href="#g1p2l133">133–138</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: خدمة gateway"><pre dir="ltr"><code data-path="docker-compose.req5.yml" data-start="130" data-end="138"><span data-n="130" class="ln hit" id="g1p2l130">  gateway:</span>
+<span data-n="131" class="ln" id="g1p2l131">    image: ${REQ5_NGINX_IMAGE:-nginx:1.28-alpine}</span>
+<span data-n="132" class="ln" id="g1p2l132">    restart: unless-stopped</span>
+<span data-n="133" class="ln hit" id="g1p2l133">    ports: ['127.0.0.1:8015:80']</span>
+<span data-n="134" class="ln hit" id="g1p2l134">    volumes: ['./ops/req5/nginx.conf:/etc/nginx/conf.d/default.conf:ro']</span>
+<span data-n="135" class="ln hit" id="g1p2l135">    networks:</span>
+<span data-n="136" class="ln hit" id="g1p2l136">      edge: {}</span>
+<span data-n="137" class="ln hit" id="g1p2l137">    depends_on:</span>
+<span data-n="138" class="ln hit" id="g1p2l138">      api: {condition: service_healthy}</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>لنفترض أن الزبون فتح صفحة طلباته، ثم ضغط على طلب ليرى تفاصيله. هذان طلبان مختلفان، لكن المتصفح يستعمل في الحالتين العنوان نفسه. أبدأ من خدمة التطبيق في ملف <bdi dir="ltr">Compose.</bdi> العدد ثلاثة يطلب تشغيل ثلاث حاويات من صورة <bdi dir="ltr">Laravel</bdi> نفسها؛ لا توجد ثلاثة مشاريع مختلفة، ولا ننسخ كود المتحكم ثلاث مرات. كل حاوية تستمع داخلياً على المنفذ نفسه، وهذا ممكن لأن لكل حاوية شبكة خاصة بها.</p><p>المشكلة التي وجدناها في الإعداد الأصلي هي الاسم الثابت للحاوية ونشر منفذ المضيف مباشرة من خدمة التطبيق. <bdi dir="ltr">Docker</bdi> يرفض إعطاء الاسم نفسه لثلاث حاويات، ولا تستطيع ثلاث حاويات حجز المنفذ نفسه على الجهاز. في إعداد العرض تركنا <bdi dir="ltr">Docker</bdi> يسمي النسخ، ونشرنا منفذاً واحداً من البوابة فقط. اقرأ قاعدة المنفذ من اليسار: على جهازي أدخل إلى 8015، فيستقبل <bdi dir="ltr">Nginx</bdi> الطلب داخلياً على 80. أما نسخة <bdi dir="ltr">Laravel</bdi> التي ستجيب فلم يحددها هذا السطر؛ القرار موجود في الملف التالي.</p></div><a class="navback" href="#top">العودة إلى الفهرس</a></section>
+<section id="step-2"><div class="top"><h2>2. كيف يختار Nginx النسخة؟ وماذا لو توقفت؟</h2><span class="clock" dir="ltr">1:35–3:15</span></div><div class="piece"><h3><bdi>إعداد Nginx كاملاً</bdi></h3><div class="open">افتح: <a class="path" href="ops/req5/nginx.conf" dir="ltr">ops/req5/nginx.conf</a> · الأسطر <bdi>1–26</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" href="#g2p1l1">1–5</a> <a dir="ltr" href="#g2p1l10">10–11</a> <a dir="ltr" href="#g2p1l20">20–24</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: إعداد Nginx كاملاً"><pre dir="ltr"><code data-path="ops/req5/nginx.conf" data-start="1" data-end="26"><span data-n="1" class="ln hit" id="g2p1l1">resolver 127.0.0.11 valid=2s ipv6=off;</span>
+<span data-n="2" class="ln hit" id="g2p1l2">upstream req5_api {</span>
+<span data-n="3" class="ln hit" id="g2p1l3">    zone req5_api 64k;</span>
+<span data-n="4" class="ln hit" id="g2p1l4">    # Default: equal-weight round robin over the current Docker DNS records.</span>
+<span data-n="5" class="ln hit" id="g2p1l5">    server api:8000 resolve max_fails=1 fail_timeout=2s;</span>
+<span data-n="6" class="ln" id="g2p1l6">}</span>
+<span data-n="7" class="ln" id="g2p1l7">server {</span>
+<span data-n="8" class="ln" id="g2p1l8">    listen 80;</span>
+<span data-n="9" class="ln" id="g2p1l9">    client_max_body_size 24m;</span>
+<span data-n="10" class="ln hit" id="g2p1l10">    location / {</span>
+<span data-n="11" class="ln hit" id="g2p1l11">        proxy_pass http://req5_api;</span>
+<span data-n="12" class="ln" id="g2p1l12">        proxy_http_version 1.1;</span>
+<span data-n="13" class="ln" id="g2p1l13">        proxy_set_header Host $http_host;</span>
+<span data-n="14" class="ln" id="g2p1l14">        proxy_set_header Connection &quot;&quot;;</span>
+<span data-n="15" class="ln" id="g2p1l15">        proxy_set_header X-Forwarded-For $remote_addr;</span>
+<span data-n="16" class="ln" id="g2p1l16">        proxy_set_header X-Forwarded-Proto $scheme;</span>
+<span data-n="17" class="ln" id="g2p1l17">        proxy_set_header X-Forwarded-Host $http_host;</span>
+<span data-n="18" class="ln" id="g2p1l18">        proxy_set_header X-Forwarded-Port 8015;</span>
+<span data-n="19" class="ln" id="g2p1l19">        proxy_set_header Forwarded &quot;&quot;;</span>
+<span data-n="20" class="ln hit" id="g2p1l20">        proxy_connect_timeout 1s;</span>
+<span data-n="21" class="ln hit" id="g2p1l21">        proxy_next_upstream error timeout http_502 http_503 http_504;</span>
+<span data-n="22" class="ln hit" id="g2p1l22">        proxy_next_upstream_tries 3;</span>
+<span data-n="23" class="ln hit" id="g2p1l23">        # Local demonstration only: show which upstream served each response.</span>
+<span data-n="24" class="ln hit" id="g2p1l24">        add_header X-Req5-Upstream $upstream_addr always;</span>
+<span data-n="25" class="ln" id="g2p1l25">    }</span>
+<span data-n="26" class="ln" id="g2p1l26">}</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في أعلى الملف يرى <bdi dir="ltr">Nginx</bdi> اسم خدمة واحداً هو <bdi dir="ltr">api</bdi>، لكن <bdi dir="ltr">Docker</bdi> يعيد له عناوين النسخ الثلاث. تسمح له كلمة <bdi dir="ltr">resolve</bdi> بتحديث معرفته بالعناوين أثناء التشغيل، فلا نكتب عنوان كل حاوية يدوياً. ولأن الصور والموارد متشابهة اخترنا التناوب المتساوي، أي <bdi dir="ltr">Round</bdi> <bdi dir="ltr">Robin.</bdi> لا تبحث عن سطر اسمه <bdi dir="ltr">round_robin</bdi>؛ هذا هو السلوك الافتراضي لهذه المجموعة. إذا نجح طلب عند الأولى فالمجموعة تستطيع إعطاء طلبات لاحقة للثانية والثالثة، دون إلزام الزبون بالنسخة التي خدمته أول مرة.</p><p>الجزء الثاني يمرر مسار الزبون إلى هذه المجموعة. عند تعذر الاتصال أو بعض الردود المؤقتة يستطيع <bdi dir="ltr">Nginx</bdi> تجربة وجهة أخرى ضمن ثلاث محاولات إجمالاً، لا ثلاث إضافية. لا يعني هذا إرسال طلب الشراء إلى ثلاث نسخ، ولا ضمان إعادة كل كتابة بعد إرسالها. اختبار التوقف هنا يستخدم طلبات قراءة. بقي سؤال: كيف نعرف أي نسخة أجابت؟ نقرأ ترويسة الرد <bdi dir="ltr">X-Req5-Upstream.</bdi> إذا ظهرت فيها عدة عناوين نتيجة محاولة ثانية، فالاختبار يعتمد العنوان الأخير لمعرفة من أعاد الاستجابة.</p></div><a class="navback" href="#top">العودة إلى الفهرس</a></section>
+<section id="step-3"><div class="top"><h2>3. ما الذي يجب أن يبقى مشتركاً؟</h2><span class="clock" dir="ltr">3:15–5:00</span></div><div class="piece"><h3><bdi>القالب المشترك لخدمات Laravel</bdi></h3><div class="open">افتح: <a class="path" href="docker-compose.req5.yml" dir="ltr">docker-compose.req5.yml</a> · الأسطر <bdi>3–47</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" href="#g3p1l11">11–12</a> <a dir="ltr" href="#g3p1l15">15–25</a> <a dir="ltr" href="#g3p1l40">40–47</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: القالب المشترك لخدمات Laravel"><pre dir="ltr"><code data-path="docker-compose.req5.yml" data-start="3" data-end="47"><span data-n="3" class="ln" id="g3p1l3">x-laravel: &amp;laravel</span>
+<span data-n="4" class="ln" id="g3p1l4">  image: ${REQ5_APP_IMAGE:-ecommerce-req5-app:local}</span>
+<span data-n="5" class="ln" id="g3p1l5">  restart: unless-stopped</span>
+<span data-n="6" class="ln" id="g3p1l6">  environment:</span>
+<span data-n="7" class="ln" id="g3p1l7">    APP_NAME: E-Commerce</span>
+<span data-n="8" class="ln" id="g3p1l8">    APP_ENV: local</span>
+<span data-n="9" class="ln" id="g3p1l9">    APP_DEBUG: 'false'</span>
+<span data-n="10" class="ln" id="g3p1l10">    APP_URL: http://localhost:8015</span>
+<span data-n="11" class="ln hit" id="g3p1l11">    APP_KEY: ${APP_KEY:?Set APP_KEY in the project .env}</span>
+<span data-n="12" class="ln hit" id="g3p1l12">    JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}</span>
+<span data-n="13" class="ln" id="g3p1l13">    TRUSTED_PROXIES: 172.30.55.0/24</span>
+<span data-n="14" class="ln" id="g3p1l14">    DB_CONNECTION: mysql</span>
+<span data-n="15" class="ln hit" id="g3p1l15">    DB_HOST: mysql</span>
+<span data-n="16" class="ln hit" id="g3p1l16">    DB_DATABASE: ecommerce_req5</span>
+<span data-n="17" class="ln hit" id="g3p1l17">    DB_USERNAME: laravel</span>
+<span data-n="18" class="ln hit" id="g3p1l18">    DB_PASSWORD_FILE: /run/secrets/mysql_password</span>
+<span data-n="19" class="ln hit" id="g3p1l19">    DB_REPLICA_ENABLED: 'false'</span>
+<span data-n="20" class="ln hit" id="g3p1l20">    SKIP_MIGRATIONS: 'true'</span>
+<span data-n="21" class="ln hit" id="g3p1l21">    CACHE_STORE: redis</span>
+<span data-n="22" class="ln hit" id="g3p1l22">    SESSION_DRIVER: redis</span>
+<span data-n="23" class="ln hit" id="g3p1l23">    REDIS_CLIENT: phpredis</span>
+<span data-n="24" class="ln hit" id="g3p1l24">    REDIS_HOST: redis</span>
+<span data-n="25" class="ln hit" id="g3p1l25">    LOG_CHANNEL: stderr</span>
+<span data-n="26" class="ln" id="g3p1l26">    INVENTORY_GRPC_HOST: inventory-service:50051</span>
+<span data-n="27" class="ln" id="g3p1l27">    CORS_ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173</span>
+<span data-n="28" class="ln" id="g3p1l28">    BROADCAST_CONNECTION: reverb</span>
+<span data-n="29" class="ln" id="g3p1l29">    REVERB_APP_ID: ${REVERB_APP_ID:-ecommerce}</span>
+<span data-n="30" class="ln" id="g3p1l30">    REVERB_APP_KEY: ${REVERB_APP_KEY:-ecommerce-local}</span>
+<span data-n="31" class="ln" id="g3p1l31">    REVERB_APP_SECRET: ${REVERB_APP_SECRET:?Set REVERB_APP_SECRET in .env}</span>
+<span data-n="32" class="ln" id="g3p1l32">    REVERB_HOST: reverb</span>
+<span data-n="33" class="ln" id="g3p1l33">    REVERB_PORT: 8080</span>
+<span data-n="34" class="ln" id="g3p1l34">    REVERB_SCHEME: http</span>
+<span data-n="35" class="ln" id="g3p1l35">    REVERB_ALLOWED_ORIGINS: localhost,127.0.0.1</span>
+<span data-n="36" class="ln" id="g3p1l36">    RABBITMQ_HOST: rabbitmq</span>
+<span data-n="37" class="ln" id="g3p1l37">    RABBITMQ_USER: ${RABBITMQ_USER:-orders}</span>
+<span data-n="38" class="ln" id="g3p1l38">    RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in .env}</span>
+<span data-n="39" class="ln" id="g3p1l39">    RABBITMQ_VHOST: ${RABBITMQ_VHOST:-ecommerce}</span>
+<span data-n="40" class="ln hit" id="g3p1l40">    MAIL_MAILER: array</span>
+<span data-n="41" class="ln hit" id="g3p1l41">    ORDER_EMAIL_ALLOW_MOCK: 'true'</span>
+<span data-n="42" class="ln hit" id="g3p1l42">    MAIL_FROM_ADDRESS: demo@example.invalid</span>
+<span data-n="43" class="ln hit" id="g3p1l43">  secrets: [mysql_password]</span>
+<span data-n="44" class="ln hit" id="g3p1l44">  volumes: [public_uploads:/var/www/html/storage/app/public]</span>
+<span data-n="45" class="ln hit" id="g3p1l45">  depends_on: &amp;ready</span>
+<span data-n="46" class="ln hit" id="g3p1l46">    migrate: {condition: service_completed_successfully}</span>
+<span data-n="47" class="ln hit" id="g3p1l47">    redis: {condition: service_healthy}</span></code></pre></div></div>
+<div class="piece"><h3><bdi>خدمة migrate</bdi></h3><div class="open">افتح: <a class="path" href="docker-compose.req5.yml" dir="ltr">docker-compose.req5.yml</a> · الأسطر <bdi>114–120</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" href="#g3p2l115">115–120</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: خدمة migrate"><pre dir="ltr"><code data-path="docker-compose.req5.yml" data-start="114" data-end="120"><span data-n="114" class="ln" id="g3p2l114">  migrate:</span>
+<span data-n="115" class="ln hit" id="g3p2l115">    &lt;&lt;: *laravel</span>
+<span data-n="116" class="ln hit" id="g3p2l116">    build: ./backend/my-project</span>
+<span data-n="117" class="ln hit" id="g3p2l117">    restart: 'no'</span>
+<span data-n="118" class="ln hit" id="g3p2l118">    command: [php, artisan, migrate, --force]</span>
+<span data-n="119" class="ln hit" id="g3p2l119">    depends_on:</span>
+<span data-n="120" class="ln hit" id="g3p2l120">      mysql: {condition: service_healthy}</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>أرجع الآن إلى الزبون الذي تنقل بين صفحتين. لو صدر رمز دخوله من نسخة وتحققت منه نسخة أخرى بمفتاح مختلف، لبدت له المشكلة وكأن الموقع يخرجه من حسابه عشوائياً. لهذا تأخذ النسخ مفتاح التوقيع نفسه وتقرأ الطلبات من قاعدة المتجر نفسها. الكاش في <bdi dir="ltr">Redis</bdi> مشترك، وقرص الصور مركّب في المسار نفسه داخل الحاويات. هذا يحل مشكلة صورة يرفعها المسؤول عبر نسخة ثم يطلبها الزبون من أخرى. مشاركة <bdi dir="ltr">Redis</bdi> والصور كانت موجودة في المشروع؛ حافظنا عليها واختبرناها بدل نسبها إلى إصلاح جديد.</p><p>أما سجل <bdi dir="ltr">Laravel</bdi> المحلي فقد أظهر الفرق فعلاً: علامة كُتبت في ملف داخل نسخة لم تظهر في ملف النسختين الأخريين. جعلنا العمليات تكتب إلى <bdi dir="ltr">stderr</bdi> حتى يعرض <bdi dir="ltr">Docker</bdi> سجلات الخدمة مع أسماء حاوياتها. وهناك فرق آخر عند الإقلاع: لا نريد ثلاث عمليات تحاول تعديل جداول قاعدة البيانات في الوقت نفسه. لذلك يتجاوز القالب الترحيل التلقائي، وتنّفذه خدمة واحدة صراحة، ثم تنتظر النسخ نجاحها. نعرض ذلك كخطر تزامن عالجناه، لا كادعاء بأننا شاهدنا تلفاً في قاعدة البيانات.</p></div><a class="navback" href="#top">العودة إلى الفهرس</a></section>
+<section id="step-4"><div class="top"><h2>4. ثلاثة عمّال، لكن طابور بريد واحد</h2><span class="clock" dir="ltr">5:00–6:45</span></div><div class="piece"><h3><bdi>خدمة email-worker</bdi></h3><div class="open">افتح: <a class="path" href="docker-compose.req5.yml" dir="ltr">docker-compose.req5.yml</a> · الأسطر <bdi>139–146</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" href="#g4p1l139">139–146</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: خدمة email-worker"><pre dir="ltr"><code data-path="docker-compose.req5.yml" data-start="139" data-end="146"><span data-n="139" class="ln hit" id="g4p1l139">  email-worker:</span>
+<span data-n="140" class="ln hit" id="g4p1l140">    &lt;&lt;: *laravel</span>
+<span data-n="141" class="ln hit" id="g4p1l141">    deploy: {replicas: 3}</span>
+<span data-n="142" class="ln hit" id="g4p1l142">    command: [php, artisan, 'orders:email-worker']</span>
+<span data-n="143" class="ln hit" id="g4p1l143">    stop_grace_period: 45s</span>
+<span data-n="144" class="ln hit" id="g4p1l144">    depends_on: &amp;messaging</span>
+<span data-n="145" class="ln hit" id="g4p1l145">      &lt;&lt;: *ready</span>
+<span data-n="146" class="ln hit" id="g4p1l146">      rabbitmq: {condition: service_healthy}</span></code></pre></div></div>
+<div class="piece"><h3><bdi>خدمة outbox-publisher</bdi></h3><div class="open">افتح: <a class="path" href="docker-compose.req5.yml" dir="ltr">docker-compose.req5.yml</a> · الأسطر <bdi>147–150</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" href="#g4p2l147">147–150</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: خدمة outbox-publisher"><pre dir="ltr"><code data-path="docker-compose.req5.yml" data-start="147" data-end="150"><span data-n="147" class="ln hit" id="g4p2l147">  outbox-publisher:</span>
+<span data-n="148" class="ln hit" id="g4p2l148">    &lt;&lt;: *laravel</span>
+<span data-n="149" class="ln hit" id="g4p2l149">    command: [php, artisan, 'outbox:publish']</span>
+<span data-n="150" class="ln hit" id="g4p2l150">    depends_on: *messaging</span></code></pre></div></div>
+<div class="piece"><h3><bdi>دالة receive() كاملة</bdi></h3><div class="open">افتح: <a class="path" href="backend/my-project/app/Services/Messaging/RabbitMqBroker.php" dir="ltr">backend/my-project/app/Services/Messaging/RabbitMqBroker.php</a> · الأسطر <bdi>103–118</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" href="#g4p3l105">105–106</a> <a dir="ltr" href="#g4p3l113">113–117</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: دالة receive() كاملة"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/RabbitMqBroker.php" data-start="103" data-end="118"><span data-n="103" class="ln" id="g4p3l103">    public function receive(): ?IncomingMessage</span>
+<span data-n="104" class="ln" id="g4p3l104">    {</span>
+<span data-n="105" class="ln hit" id="g4p3l105">        // Polling keeps heartbeat/socket handling bounded, including on an idle queue.</span>
+<span data-n="106" class="ln hit" id="g4p3l106">        $message = $this-&gt;channel()-&gt;basic_get(config('rabbitmq.queue'), false);</span>
+<span data-n="107" class="ln" id="g4p3l107">        if ($message === null) {</span>
+<span data-n="108" class="ln" id="g4p3l108">            return null;</span>
+<span data-n="109" class="ln" id="g4p3l109">        }</span>
+<span data-n="110" class="ln" id="g4p3l110">        $headers = $message-&gt;has('application_headers') ? $message-&gt;get('application_headers')-&gt;getNativeData() : [];</span>
+<span data-n="111" class="ln" id="g4p3l111">        $attempt = filter_var($headers['attempt'] ?? 1, FILTER_VALIDATE_INT);</span>
+<span data-n="112" class="ln" id="g4p3l112"></span>
+<span data-n="113" class="ln hit" id="g4p3l113">        return new IncomingMessage(</span>
+<span data-n="114" class="ln hit" id="g4p3l114">            $message-&gt;getBody(),</span>
+<span data-n="115" class="ln hit" id="g4p3l115">            $attempt === false ? 1 : max(1, $attempt),</span>
+<span data-n="116" class="ln hit" id="g4p3l116">            fn () =&gt; $message-&gt;ack(),</span>
+<span data-n="117" class="ln hit" id="g4p3l117">        );</span>
+<span data-n="118" class="ln" id="g4p3l118">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>هنا يظهر الرقم ثلاثة مرة ثانية، لكنه هذه المرة لا يعني ثلاث وجهات <bdi dir="ltr">HTTP.</bdi> كل حاوية عامل تشغّل أمر البريد نفسه وتتصل بوسيط <bdi dir="ltr">RabbitMQ</bdi> نفسه. ناشر الأحداث يضع عمل البريد في الطابور، ثم يسحب عامل متاح الرسالة. <bdi dir="ltr">Nginx</bdi> ليس طرفاً في هذا القرار. لذلك عندما يصل طلب شراء لا يحصل الزبون على ثلاثة تأكيدات لمجرد أن عدد العمّال ثلاثة.</p><p>في دالة الاستقبال أشير إلى <bdi dir="ltr">basic_get</bdi>: جميع العمليات تقرأ اسم الطابور نفسه من الإعداد، وهو <bdi dir="ltr">orders.email</bdi> في هذا العرض. الوسيط الثاني <bdi dir="ltr">false</bdi> يخص خيار عدم الإقرار، أي إن السحب وحده لا يؤكد إنجاز العمل. تبقى الرسالة بحاجة إلى إقرار بعد المعالجة. لا نفرض أن يأخذ كل عامل خمسين رسالة من أصل مئة وخمسين؛ قد ينهي عامل عمله قبل غيره ويسحب الرسالة التالية. المطلوب أن يُظهر سجل كل عامل أنه شارك، وأن نجد كل الأحداث في قاعدة البيانات. البريد هنا تجريبي عمداً: نختبر توزيع العمل لا إرسال مئة وخمسين رسالة إلى صندوق حقيقي.</p></div><a class="navback" href="#top">العودة إلى الفهرس</a></section>
+<section id="step-5"><div class="top"><h2>5. كيف أثبت التوزيع والاستمرارية أمام الدكتور؟</h2><span class="clock" dir="ltr">6:45–8:35</span></div><div class="piece"><h3><bdi>الدالة sample() كاملة</bdi></h3><div class="open">افتح: <a class="path" href="ops/req5/verify.py" dir="ltr">ops/req5/verify.py</a> · الأسطر <bdi>72–84</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" href="#g5p1l72">72–76</a> <a dir="ltr" href="#g5p1l80">80–84</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: الدالة sample() كاملة"><pre dir="ltr"><code data-path="ops/req5/verify.py" data-start="72" data-end="84"><span data-n="72" class="ln hit" id="g5p1l72">def sample(n, peers, path='/up', token=None, expected=200, user=None, concurrency=12):</span>
+<span data-n="73" class="ln hit" id="g5p1l73">    counts = Counter()</span>
+<span data-n="74" class="ln hit" id="g5p1l74">    def one(_):</span>
+<span data-n="75" class="ln hit" id="g5p1l75">        status, ip, body = http(path, token)</span>
+<span data-n="76" class="ln hit" id="g5p1l76">        check(status == expected and ip in peers, f'{path}: HTTP {status} via {ip}; expected {expected} via {list(peers.values())}')</span>
+<span data-n="77" class="ln" id="g5p1l77">        if user is not None:</span>
+<span data-n="78" class="ln" id="g5p1l78">            parsed = json.loads(body)</span>
+<span data-n="79" class="ln" id="g5p1l79">            check(parsed.get('data', parsed).get('id') == user, 'Different customer returned by /api/me')</span>
+<span data-n="80" class="ln hit" id="g5p1l80">        return peers[ip]</span>
+<span data-n="81" class="ln hit" id="g5p1l81">    with futures.ThreadPoolExecutor(max_workers=concurrency) as pool:</span>
+<span data-n="82" class="ln hit" id="g5p1l82">        counts.update(pool.map(one, range(n)))</span>
+<span data-n="83" class="ln hit" id="g5p1l83">    check(set(counts) == set(peers.values()), f'{path} did not reach all expected replicas: {counts}')</span>
+<span data-n="84" class="ln hit" id="g5p1l84">    return dict(sorted(counts.items()))</span></code></pre></div></div>
+<div class="piece"><h3><bdi>الدالة main() كاملة</bdi></h3><div class="open">افتح: <a class="path" href="ops/req5/verify.py" dir="ltr">ops/req5/verify.py</a> · الأسطر <bdi>96–158</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" href="#g5p2l112">112–115</a> <a dir="ltr" href="#g5p2l117">117–122</a> <a dir="ltr" href="#g5p2l126">126–136</a> <a dir="ltr" href="#g5p2l142">142–155</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: الدالة main() كاملة"><pre dir="ltr"><code data-path="ops/req5/verify.py" data-start="96" data-end="158"><span data-n="96" class="ln" id="g5p2l96">def main():</span>
+<span data-n="97" class="ln" id="g5p2l97">    apis, workers = containers('api', 3), containers('email-worker', 3)</span>
+<span data-n="98" class="ln" id="g5p2l98">    gateway, = containers('gateway', 1).values()</span>
+<span data-n="99" class="ln" id="g5p2l99">    ipfmt = '{{(index .NetworkSettings.Networks &quot;ecommerce-req5_edge&quot;).IPAddress}}'</span>
+<span data-n="100" class="ln" id="g5p2l100">    peers = {command('docker','inspect','-f',ipfmt,cid): name for name,cid in apis.items()}</span>
+<span data-n="101" class="ln" id="g5p2l101">    check(len(peers) == 3 and '' not in peers, 'Missing distinct edge IPs')</span>
+<span data-n="102" class="ln" id="g5p2l102">    # Tie the loopback URL to the verified isolated gateway before sending any token.</span>
+<span data-n="103" class="ln" id="g5p2l103">    check(command('docker','port',gateway,'80/tcp') == '127.0.0.1:8015', 'Unexpected gateway binding')</span>
+<span data-n="104" class="ln" id="g5p2l104">    name, first = next(iter(apis.items()))</span>
+<span data-n="105" class="ln" id="g5p2l105">    alive = {ip:n for ip,n in peers.items() if n != name}</span>
+<span data-n="106" class="ln" id="g5p2l106">    survivor = next(cid for n,cid in apis.items() if n != name)</span>
+<span data-n="107" class="ln" id="g5p2l107">    since = datetime.now(timezone.utc).isoformat(timespec='seconds')</span>
+<span data-n="108" class="ln" id="g5p2l108">    proof = {'started_utc':since, 'run':RUN, 'health_path':'GET /up', 'concurrent_clients':12,</span>
+<span data-n="109" class="ln" id="g5p2l109">             'gateway_version':command('docker','exec',gateway,'nginx','-v'),</span>
+<span data-n="110" class="ln" id="g5p2l110">             'images':{svc:command('docker','inspect','-f','{{.Config.Image}}',cid) for svc,cid in</span>
+<span data-n="111" class="ln" id="g5p2l111">                       [('api',first),('email-worker',next(iter(workers.values()))),('gateway',gateway),('rabbitmq',next(iter(containers('rabbitmq',1).values())))]}}</span>
+<span data-n="112" class="ln hit" id="g5p2l112">    proof['before_stop_500'] = sample(500, peers)</span>
+<span data-n="113" class="ln hit" id="g5p2l113">    print('500 GET /up:', proof['before_stop_500'], flush=True)</span>
+<span data-n="114" class="ln hit" id="g5p2l114">    proof['catalog_before_stop'] = sample(6, peers, '/api/categories', concurrency=1)</span>
+<span data-n="115" class="ln hit" id="g5p2l115">    probe(first, 'write')</span>
+<span data-n="116" class="ln" id="g5p2l116">    try:</span>
+<span data-n="117" class="ln hit" id="g5p2l117">        states = {n:probe(cid, 'read') for n,cid in apis.items()}</span>
+<span data-n="118" class="ln hit" id="g5p2l118">        check(all(s['local_log'] == (n == name) and s['public_file'] and s['redis'] for n,s in states.items()), 'Shared/local state mismatch')</span>
+<span data-n="119" class="ln hit" id="g5p2l119">        # docker exec's stderr attaches to the exec session rather than the service log.</span>
+<span data-n="120" class="ln hit" id="g5p2l120">        # Worker processing below independently proves real service stderr aggregation.</span>
+<span data-n="121" class="ln hit" id="g5p2l121">        proof['state_written_on'] = name</span>
+<span data-n="122" class="ln hit" id="g5p2l122">        proof['state_visibility'] = states</span>
+<span data-n="123" class="ln" id="g5p2l123">    finally:</span>
+<span data-n="124" class="ln" id="g5p2l124">        probe(first, 'remove-markers')</span>
+<span data-n="125" class="ln" id="g5p2l125">    user = probe(first, 'user')</span>
+<span data-n="126" class="ln hit" id="g5p2l126">    proof['same_customer_before_stop'] = sample(6, peers, '/api/me', user['token'], user=user['id'], concurrency=1)</span>
+<span data-n="127" class="ln hit" id="g5p2l127">    try:</span>
+<span data-n="128" class="ln hit" id="g5p2l128">        command('docker','stop','-t','3',first)</span>
+<span data-n="129" class="ln hit" id="g5p2l129">        check(command('docker','inspect','-f','{{.State.Running}}',first) == 'false', 'Selected API did not stop')</span>
+<span data-n="130" class="ln hit" id="g5p2l130">        proof['stopped_api'] = name</span>
+<span data-n="131" class="ln hit" id="g5p2l131">        proof['while_stopped_120'] = sample(120, alive)</span>
+<span data-n="132" class="ln hit" id="g5p2l132">        proof['same_customer_while_stopped'] = sample(6, alive, '/api/me', user['token'], user=user['id'], concurrency=1)</span>
+<span data-n="133" class="ln hit" id="g5p2l133">        print('120 GET /up with one stopped:', proof['while_stopped_120'], flush=True)</span>
+<span data-n="134" class="ln hit" id="g5p2l134">    finally:</span>
+<span data-n="135" class="ln hit" id="g5p2l135">        command('docker','start',first)</span>
+<span data-n="136" class="ln hit" id="g5p2l136">        until(lambda: command('docker','inspect','-f','{{.State.Health.Status}}',first) == 'healthy', 90, 'Restored API unhealthy')</span>
+<span data-n="137" class="ln" id="g5p2l137">    # Let Docker DNS re-advertise the restored instance; discover its possibly new IP.</span>
+<span data-n="138" class="ln" id="g5p2l138">    peers = {command('docker','inspect','-f',ipfmt,cid):n for n,cid in apis.items()}</span>
+<span data-n="139" class="ln" id="g5p2l139">    def rejoined():</span>
+<span data-n="140" class="ln" id="g5p2l140">        return {http('/up')[1] for _ in range(9)} == set(peers)</span>
+<span data-n="141" class="ln" id="g5p2l141">    until(rejoined, 30, 'API did not rejoin Nginx')</span>
+<span data-n="142" class="ln hit" id="g5p2l142">    proof['after_restart'] = sample(30, peers)</span>
+<span data-n="143" class="ln hit" id="g5p2l143">    status, _, _ = http('/api/logout',user['token'],'POST')</span>
+<span data-n="144" class="ln hit" id="g5p2l144">    check(status == 200,'Logout failed')</span>
+<span data-n="145" class="ln hit" id="g5p2l145">    proof['revoked_token_401'] = sample(6, peers, '/api/me', user['token'], expected=401, concurrency=1)</span>
+<span data-n="146" class="ln hit" id="g5p2l146">    events = set(probe(survivor,'enqueue'))</span>
+<span data-n="147" class="ln hit" id="g5p2l147">    check(len(events) == 150,'Wrong number of distinct fixture events')</span>
+<span data-n="148" class="ln hit" id="g5p2l148">    until(lambda: set(probe(survivor,'delivered')) == events, 140, 'Not all 150 events recorded mock delivery')</span>
+<span data-n="149" class="ln hit" id="g5p2l149">    pattern = re.compile(r'Order email processed.*?&quot;event_id&quot;\s*:\s*&quot;([0-9a-f-]+)&quot;')</span>
+<span data-n="150" class="ln hit" id="g5p2l150">    per_worker = {n:[e for e in pattern.findall(command('docker','logs','--since',since,cid)) if e in events] for n,cid in workers.items()}</span>
+<span data-n="151" class="ln hit" id="g5p2l151">    combined = Counter(e for items in per_worker.values() for e in items)</span>
+<span data-n="152" class="ln hit" id="g5p2l152">    check(set(combined) == events and all(v == 1 for v in combined.values()) and all(per_worker.values()), 'Worker logs do not show each event once with all three participating')</span>
+<span data-n="153" class="ln hit" id="g5p2l153">    proof['worker_queue'] = 'orders.email'</span>
+<span data-n="154" class="ln hit" id="g5p2l154">    proof['unique_mock_deliveries'] = len(combined)</span>
+<span data-n="155" class="ln hit" id="g5p2l155">    proof['jobs_per_worker'] = {n:len(items) for n,items in per_worker.items()}</span>
+<span data-n="156" class="ln" id="g5p2l156">    path = ROOT/'docs'/'req5-evidence.json'</span>
+<span data-n="157" class="ln" id="g5p2l157">    path.write_text(json.dumps(proof,indent=2,sort_keys=True)+'\n',encoding='utf-8')</span>
+<span data-n="158" class="ln" id="g5p2l158">    print('150 deliveries:', proof['jobs_per_worker'], '\nPASS:', path, flush=True)</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في ملف الإثبات لا يكفيني النظر إلى ثلاث حاويات بحالة تشغيل. ربما كانت واحدة فقط تجيب عن كل الطلبات. الدالة الأولى ترسل مجموعة طلبات، وتتحقق من رمز النجاح ومن أن عنوان الخلفية معروف، ثم تعد الإجابات لكل نسخة. في التشغيل المسجل أُرسل خمسمئة طلب على مسار صحة <bdi dir="ltr">Laravel</bdi> باستخدام اثني عشر عميلاً متزامناً. كانت الحصص مئة وستة وستين، ثم مئة وسبعة وستين لكل من الأخريين. هذا يثبت توزيع <bdi dir="ltr">HTTP</bdi>، وليس قياساً لسرعة إتمام خمسمئة عملية شراء.</p><p>بعدها يوقف البرنامج نسخة واحدة ويتحقق من توقفها فعلاً، ويبقي العنوان الذي يراه العميل دون تغيير. أثناء التوقف نجح مئة وعشرون طلباً، ستون على كل نسخة باقية، ونجح طلب الحساب بالرمز السابق أيضاً. يعيد الاختبار النسخة ثم يتحقق أنها عادت للمشاركة. وأخيراً يطابق معرّفات مئة وخمسين حدثاً تجريبياً مع قاعدة البيانات وسجلات العمّال الثلاثة. كانت حصصهم خمسة وثلاثين وستة وخمسين وتسعة وخمسين. الأعداد قد تختلف في العرض القادم؛ المهم عدم فقد أي حدث ومشاركة الجميع. هذه النتيجة تخص توقف نسخة تطبيق واحدة على جهاز <bdi dir="ltr">Docker</bdi> واحد، ولا تثبت تحمّل تعطل الجهاز أو البوابة نفسها.</p></div><a class="navback" href="#top">العودة إلى الفهرس</a></section>
+<section id="commands"><h2>أوامر التشغيل على جهازك</h2><p>ابدأ من المشروع المجهّز بمفاتيحه وملفات الأسرار المحلية. هذه الأوامر تستخدم WSL للخدمات وPowerShell للواجهة، ولا تحتاج إلى تشغيل Vite لإثبات توزيع الحمل.</p><h3>١. المتطلب الرابع: الخدمات في WSL / Ubuntu</h3><p>الأمر الأول الخاص بـDocker يوقف حاوية الواجهة لتحرير المنفذ 5173. تُستعمل صور المشروع الموجودة على جهازك؛ الاختباران في النهاية يتحققان من RabbitMQ واستجابة API، لا من وصول بريد فعلي.</p><pre class="commands" dir="ltr"><code>cd /mnt/e/Projects/internet-applications
+docker compose stop frontend
+docker compose up -d --no-build --wait mysql mysql-replica inventory-mysql redis rabbitmq backend inventory-service scheduler outbox-publisher email-worker reverb broadcast-worker
+docker compose exec email-worker php artisan messaging:health
+curl -sS -o /dev/null -w 'Backend HTTP %{http_code}\n' http://localhost:8000/up</code></pre><h3>٢. المتطلب الرابع: الواجهة المحلية في PowerShell</h3><pre class="commands" dir="ltr"><code>Set-Location 'E:\Projects\internet-applications\frontend'
+if (-not (Test-Path '.env.local')) { Copy-Item '.env.example' '.env.local' }
+if (-not (Test-Path 'node_modules\.bin\vite.cmd')) { npm.cmd ci }
+npm.cmd run dev -- --host 127.0.0.1 --port 5173 --strictPort</code></pre><p>اترك نافذة Vite مفتوحة وافتح <a href="http://localhost:5173"><bdi>http://localhost:5173</bdi></a>. الإعداد المحلي المعتاد يتصل بـAPI على 8000 وبـReverb على 8080. إرسال بريد حقيقي في المتطلب الرابع يحتاج إعداد SMTP الفعلي في ملف البيئة.</p><h3>٣. المتطلب الخامس: التشغيل والإثبات في WSL / Ubuntu</h3><pre class="commands" dir="ltr"><code>cd /mnt/e/Projects/internet-applications
+docker compose -f docker-compose.req5.yml build migrate inventory-service
+docker compose -f docker-compose.req5.yml up -d --no-build --wait
+docker compose -f docker-compose.req5.yml ps -a
+python3 ops/req5/verify.py</code></pre><p>تحتاج إلى سطر البناء عند إعداد الصور لأول مرة أو بعد تغيير الكود المراد إدخاله في الصورة. في المرات التالية يمكنك تخطيه إذا كانت الصور المطلوبة موجودة. خروج خدمة <bdi>migrate</bdi> بالرمز صفر طبيعي بعد اكتمال عملها. عنوان التجربة في Postman هو <a href="http://127.0.0.1:8015/up"><bdi>http://127.0.0.1:8015/up</bdi></a>.</p><p>الأمر الأخير ينفذ الاختبار، ويوقف نسخة API واحدة ثم يعيدها، ويضيف بيانات تجريبية إلى قاعدة المتطلب الخامس ويحدّث <a href="docs/req5-evidence.json">ملف النتائج</a> عند النجاح. البريد في هذه البيئة وهمي ولا يحتاج إلى Resend.</p><p><a href="docs/req5-scalability-ar.md">الدليل العملي للإيقاف اليدوي وإعادة التشغيل</a></p></section></main><script>document.querySelectorAll(".pane").forEach(p=>{const e=p.querySelector(".hit");if(e)p.scrollTop=Math.max(0,e.getBoundingClientRect().top-p.getBoundingClientRect().top-42)});</script></body></html>

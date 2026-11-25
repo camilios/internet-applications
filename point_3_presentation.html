@@ -1,0 +1,240 @@
+<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>من يحتفظ بالرسالة إذا توقف العامل؟</title><style>
+:root{--ink:#153044;--bg:#f1f5f8;--line:#c9d7e1;--link:#075873;--focus:#ffe8a3;--soft:#f3f7fa;color-scheme:light}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.85 system-ui,'Segoe UI',Tahoma,sans-serif}main{max-width:67rem;margin:auto;padding:1rem}header,section{background:white;border:1px solid var(--line);border-radius:12px;padding:clamp(1rem,3vw,1.8rem);margin:.9rem 0}header{border-top:5px solid var(--link)}h1,h2,h3{line-height:1.45;margin:.2rem 0 .6rem}h1{font-size:clamp(1.45rem,3vw,2.2rem)}h2{font-size:1.35rem}h3{font-size:1rem}p{margin:.5rem 0}.tag,.clock{font-weight:700;color:var(--link)}a{color:var(--link);text-underline-offset:3px}nav,.jumps{display:flex;flex-wrap:wrap;gap:.25rem .9rem}nav{margin-top:.8rem}.top{display:flex;justify-content:space-between;align-items:baseline;gap:.7rem}.clock,.path,code{font-family:Consolas,monospace}.clock{white-space:nowrap}.path{display:inline-block;overflow-wrap:anywhere;max-width:100%;font-size:.85rem}.piece{padding:.7rem 0}.open,.jumps{font-size:.87rem}.pane{direction:ltr;text-align:left;max-height:20rem;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:6px;background:#fafcfd;scroll-padding-top:2.5rem}.pane pre{line-height:1.6;font-size:13px;tab-size:4;margin:0;min-width:100%;width:max-content;padding:.25rem 0}.ln{display:inline-block;min-width:100%;padding-right:.55rem;color:#31475b}.ln:before{content:attr(data-n);display:inline-block;width:3.25rem;margin-right:.6rem;padding-right:.55rem;text-align:right;font-size:.82em;color:#526678;border-right:1px solid #c5d1da;user-select:none}.hit{background:var(--focus);color:#222}.ln:target{outline:2px solid #b16b00;outline-offset:-2px}.jumps{margin:.3rem 0 .45rem}.talk{margin-top:.8rem;border-inline-start:4px solid #30828b;padding:.35rem 1rem;background:#f2f8f8}.talk p+p{margin-top:.8rem}.guide{font-size:.92rem}.key{background:var(--focus);padding:.02rem .25rem}.piece:focus-within{border-color:#91abb1}a:focus-visible,.pane:focus-visible{outline:2px solid #086984}.navback{font-size:.82rem} @media print{body{background:white;font-size:11pt}main{max-width:none;margin:0;padding:0}header,section{border:0;padding:.4rem 0}nav,.jumps,.navback{display:none}.pane{max-height:none;overflow:visible}.pane pre{font-size:8pt;white-space:pre-wrap;overflow-wrap:anywhere;width:auto}.ln{display:inline;min-width:0}.hit{background:#fff0b8;print-color-adjust:exact}.top,h3{break-after:avoid}}</style></head><body><main id="top">
+<header><div class="tag">المتطلب الرابع · الفكرة الثالثة</div><h1>من يحتفظ بالرسالة إذا توقف العامل؟</h1><p><strong>مدة العرض كاملًا: نحو <bdi dir="ltr">9:15</bdi> دقائق.</strong> اقرأ فقرات «ما تقوله» فقط وانتقل إلى الكود المشار إليه. التوقيت يشمل الانتقال بين المواضع؛ لا تقرأ الدالة كاملة بصوت عالٍ.</p><p class="guide">كل دالة معروضة من تعريفها إلى نهايتها. <span class="key">التظليل</span> يحدد الجزء المتعلق بالفكرة؛ بقية الكود موجود لتفهم السياق. روابط الأرقام تنقلك إلى مواضع الشرح داخل الدالة.</p><nav aria-label="محطات العرض"><a href="#step-1">1. مسار البريد ومواعيد الإعادة</a> · <a href="#step-2">2. أين تنتظر الرسالة الفاشلة؟</a> · <a href="#step-3">3. سحب الرسالة دون حذفها</a> · <a href="#step-4">4. قرار واحد: نجاح أم إعادة أم عزل؟</a> · <a href="#step-5">5. تأكيد البديل قبل إقرار الأصل</a> · <a href="#step-6">6. تكرار التسليم لا يعني إرسال بريد جديد دائماً</a></nav></header>
+<section id="step-1"><div class="top"><h2>1. مسار البريد ومواعيد الإعادة</h2><span class="clock" dir="ltr">0:00–1:30</span></div><div class="piece"><h3><bdi>إعدادات الطوابير والمحاولات</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/config/rabbitmq.php">backend/my-project/config/rabbitmq.php</a> · الأسطر <bdi>1–26</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s1c1l13">13–22</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: إعدادات الطوابير والمحاولات"><pre dir="ltr"><code data-path="backend/my-project/config/rabbitmq.php" data-start="1" data-end="26"><span data-n="1" class="ln" id="s1c1l1">&lt;?php</span>
+<span data-n="2" class="ln" id="s1c1l2"></span>
+<span data-n="3" class="ln" id="s1c1l3">return [</span>
+<span data-n="4" class="ln" id="s1c1l4">    'host' =&gt; env('RABBITMQ_HOST', '127.0.0.1'),</span>
+<span data-n="5" class="ln" id="s1c1l5">    'port' =&gt; (int) env('RABBITMQ_PORT', 5672),</span>
+<span data-n="6" class="ln" id="s1c1l6">    'user' =&gt; env('RABBITMQ_USER', 'orders'),</span>
+<span data-n="7" class="ln" id="s1c1l7">    'password' =&gt; env('RABBITMQ_PASSWORD', ''),</span>
+<span data-n="8" class="ln" id="s1c1l8">    'vhost' =&gt; env('RABBITMQ_VHOST', 'ecommerce'),</span>
+<span data-n="9" class="ln" id="s1c1l9">    'connection_timeout' =&gt; (float) env('RABBITMQ_CONNECTION_TIMEOUT', 3),</span>
+<span data-n="10" class="ln" id="s1c1l10">    'read_write_timeout' =&gt; (float) env('RABBITMQ_READ_WRITE_TIMEOUT', 60),</span>
+<span data-n="11" class="ln" id="s1c1l11">    'heartbeat' =&gt; (int) env('RABBITMQ_HEARTBEAT', 20),</span>
+<span data-n="12" class="ln" id="s1c1l12">    'confirm_timeout' =&gt; (float) env('RABBITMQ_CONFIRM_TIMEOUT', 5),</span>
+<span data-n="13" class="ln hit" id="s1c1l13">    'exchange' =&gt; env('RABBITMQ_EXCHANGE', 'orders.events'),</span>
+<span data-n="14" class="ln hit" id="s1c1l14">    'routing_key' =&gt; 'orders.created',</span>
+<span data-n="15" class="ln hit" id="s1c1l15">    'queue' =&gt; env('RABBITMQ_EMAIL_QUEUE', 'orders.email'),</span>
+<span data-n="16" class="ln hit" id="s1c1l16">    'retry_exchange' =&gt; env('RABBITMQ_RETRY_EXCHANGE', 'orders.retry'),</span>
+<span data-n="17" class="ln hit" id="s1c1l17">    'dead_letter_exchange' =&gt; env('RABBITMQ_DLX', 'orders.dlx'),</span>
+<span data-n="18" class="ln hit" id="s1c1l18">    'dead_letter_queue' =&gt; env('RABBITMQ_DLQ', 'orders.email.dlq'),</span>
+<span data-n="19" class="ln hit" id="s1c1l19">    'dead_letter_routing_key' =&gt; 'orders.failed',</span>
+<span data-n="20" class="ln hit" id="s1c1l20">    // Attempts include the initial delivery; retry delay is capped at the final entry.</span>
+<span data-n="21" class="ln hit" id="s1c1l21">    'max_attempts' =&gt; max(1, min(20, (int) env('RABBITMQ_MAX_ATTEMPTS', 5))),</span>
+<span data-n="22" class="ln hit" id="s1c1l22">    'retry_delays' =&gt; array_map(fn ($delay) =&gt; max(1, min(3600, (int) $delay)), explode(',', (string) env('RABBITMQ_RETRY_DELAYS', '5,30,120,300'))),</span>
+<span data-n="23" class="ln" id="s1c1l23">    'reconnect_delay' =&gt; max(1, min(60, (int) env('RABBITMQ_RECONNECT_DELAY', 5))),</span>
+<span data-n="24" class="ln" id="s1c1l24">    'poll_interval' =&gt; max(1, min(30, (int) env('OUTBOX_POLL_INTERVAL', 1))),</span>
+<span data-n="25" class="ln" id="s1c1l25">    'publisher_max_backoff' =&gt; max(1, min(3600, (int) env('OUTBOX_MAX_BACKOFF', 300))),</span>
+<span data-n="26" class="ln" id="s1c1l26">];</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>أبدأ من سؤال عملي: إذا ضغط الزبون شراء والعامل متوقف، فمن يحمل تأكيد الطلب حتى يعود؟ بعد نشر حدث الشراء تكون الرسالة عند <bdi dir="ltr">RabbitMQ</bdi> في طابور البريد، وليست متغيراً داخل ذاكرة العامل. في ملف الإعداد أميّز بين ثلاثة أماكن منطقية: طابور العمل العادي، وطوابير انتظار للمحاولات المؤجلة، وطابور فشل نهائي نفحص فيه الرسالة بدل حذفها. لذلك توقف العامل وحده لا يعني أننا بحاجة إلى إنشاء طلب جديد.</p><p>القيم الافتراضية تحسب أول محاولة ضمن الخمس. إذا فشل الإرسال مؤقتاً في المرة الأولى نؤجله خمس ثوانٍ، ثم ثلاثين، ثم مئة وعشرين، ثم ثلاثمئة. إذا فشلت المحاولة الخامسة فلا توجد سادسة. هذه مواعيد لإعادة تجربة خطأ قابل للتجاوز، وليست مدة انتظار يفرضها العامل على الزبون. الرسالة التالفة، بالمقابل، لن تصبح صالحة بعد خمس ثوانٍ، ولهذا لها مسار آخر.</p><p>لتثبيت الفكرة أتتبع طلباً واحداً فقط: رقم الطلب ثابت، والتأخير ورقم المحاولة يخصان العمل على تأكيده. لا ننشئ طلب شراء جديداً عند الانتقال بين هذه الطوابير.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-2"><div class="top"><h2>2. أين تنتظر الرسالة الفاشلة؟</h2><span class="clock" dir="ltr">1:30–3:10</span></div><div class="piece"><h3><bdi>declareTopology()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/RabbitMqBroker.php">backend/my-project/app/Services/Messaging/RabbitMqBroker.php</a> · الأسطر <bdi>43–72</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s2c1l45">45–51</a> <a dir="ltr" class="jump" href="#s2c1l53">53–59</a> <a dir="ltr" class="jump" href="#s2c1l61">61–70</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: declareTopology()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/RabbitMqBroker.php" data-start="43" data-end="72"><span data-n="43" class="ln" id="s2c1l43">    private function declareTopology(AMQPChannel $channel): void</span>
+<span data-n="44" class="ln" id="s2c1l44">    {</span>
+<span data-n="45" class="ln hit" id="s2c1l45">        foreach (['exchange', 'retry_exchange', 'dead_letter_exchange'] as $key) {</span>
+<span data-n="46" class="ln hit" id="s2c1l46">            $channel-&gt;exchange_declare(config('rabbitmq.'.$key), 'direct', false, true, false);</span>
+<span data-n="47" class="ln hit" id="s2c1l47">        }</span>
+<span data-n="48" class="ln hit" id="s2c1l48"></span>
+<span data-n="49" class="ln hit" id="s2c1l49">        $quorum = ['x-queue-type' =&gt; 'quorum'];</span>
+<span data-n="50" class="ln hit" id="s2c1l50">        $channel-&gt;queue_declare(config('rabbitmq.dead_letter_queue'), false, true, false, false, false, new AMQPTable($quorum));</span>
+<span data-n="51" class="ln hit" id="s2c1l51">        $channel-&gt;queue_bind(config('rabbitmq.dead_letter_queue'), config('rabbitmq.dead_letter_exchange'), config('rabbitmq.dead_letter_routing_key'));</span>
+<span data-n="52" class="ln" id="s2c1l52"></span>
+<span data-n="53" class="ln hit" id="s2c1l53">        $channel-&gt;queue_declare(config('rabbitmq.queue'), false, true, false, false, false, new AMQPTable($quorum + [</span>
+<span data-n="54" class="ln hit" id="s2c1l54">            'x-dead-letter-exchange' =&gt; config('rabbitmq.dead_letter_exchange'),</span>
+<span data-n="55" class="ln hit" id="s2c1l55">            'x-dead-letter-routing-key' =&gt; config('rabbitmq.dead_letter_routing_key'),</span>
+<span data-n="56" class="ln hit" id="s2c1l56">            'x-dead-letter-strategy' =&gt; 'at-least-once',</span>
+<span data-n="57" class="ln hit" id="s2c1l57">            'x-overflow' =&gt; 'reject-publish',</span>
+<span data-n="58" class="ln hit" id="s2c1l58">        ]));</span>
+<span data-n="59" class="ln hit" id="s2c1l59">        $channel-&gt;queue_bind(config('rabbitmq.queue'), config('rabbitmq.exchange'), config('rabbitmq.routing_key'));</span>
+<span data-n="60" class="ln" id="s2c1l60"></span>
+<span data-n="61" class="ln hit" id="s2c1l61">        foreach (config('rabbitmq.retry_delays') as $index =&gt; $seconds) {</span>
+<span data-n="62" class="ln hit" id="s2c1l62">            $queue = config('rabbitmq.queue').'.retry.'.($index + 1);</span>
+<span data-n="63" class="ln hit" id="s2c1l63">            $channel-&gt;queue_declare($queue, false, true, false, false, false, new AMQPTable($quorum + [</span>
+<span data-n="64" class="ln hit" id="s2c1l64">                'x-message-ttl' =&gt; $seconds * 1000,</span>
+<span data-n="65" class="ln hit" id="s2c1l65">                'x-dead-letter-exchange' =&gt; config('rabbitmq.exchange'),</span>
+<span data-n="66" class="ln hit" id="s2c1l66">                'x-dead-letter-routing-key' =&gt; config('rabbitmq.routing_key'),</span>
+<span data-n="67" class="ln hit" id="s2c1l67">                'x-dead-letter-strategy' =&gt; 'at-least-once',</span>
+<span data-n="68" class="ln hit" id="s2c1l68">                'x-overflow' =&gt; 'reject-publish',</span>
+<span data-n="69" class="ln hit" id="s2c1l69">            ]));</span>
+<span data-n="70" class="ln hit" id="s2c1l70">            $channel-&gt;queue_bind($queue, config('rabbitmq.retry_exchange'), 'retry.'.($index + 1));</span>
+<span data-n="71" class="ln" id="s2c1l71">        }</span>
+<span data-n="72" class="ln" id="s2c1l72">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في <bdi dir="ltr">declareTopology</bdi> أقرأ أسماء الخيارات لأنها تشرح الآلية. الـ<bdi dir="ltr">exchange</bdi> موزّع يختار وجهة باستخدام <bdi dir="ltr">routing</bdi> <bdi dir="ltr">key</bdi>، أما الـ<bdi dir="ltr">queue</bdi> فهي التي تحتفظ بالرسالة. لهذا نصرّح بطابور الفشل ثم نربطه بموزّعه ومفتاحه؛ إنشاء طابور بلا هذا الربط لا يجعل رسائل الفشل تصل إليه تلقائياً. الخيار <bdi dir="ltr">durable</bdi> في تعريف الطابور يطلب بقاء تعريفه بعد إعادة تشغيل الوسيط مع بقاء بياناته. ونستخدم نوع <bdi dir="ltr">quorum</bdi>؛ هذا وحده لا يعني أن عرضنا المحلي مشغّل على عدة وسطاء.</p><p>انظر الآن إلى طابور الانتظار الأول. قيمة <bdi dir="ltr">x-message-ttl</bdi> هي عمر الرسالة بالميلي ثانية، ولذلك يتحول تأخير خمس ثوانٍ إلى خمسة آلاف. وعند انقضاء الوقت يحدد <bdi dir="ltr">x-dead-letter-exchange</bdi> ورفيقه الخاص بمفتاح التوجيه رحلة العودة إلى المسار العادي. كلمة <bdi dir="ltr">dead-letter</bdi> هنا لا تعني أن كل رسالة منتهية ذاهبة إلى طابور الفشل النهائي؛ في طابور الانتظار ضبطنا الوجهة لتكون موزّع العمل العادي. لذلك يستطيع العامل معالجة رسائل أخرى أثناء الانتظار.</p><p>بهذا التوجيه تعود رسالة مهلة الخمس ثواني إلى نفس مسار بقية رسائل البريد. لا يلزم عامل متخصص بكل مدة، ولا نحجز عاملاً ليظل نائماً فوق رسالة واحدة.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-3"><div class="top"><h2>3. سحب الرسالة دون حذفها</h2><span class="clock" dir="ltr">3:10–4:40</span></div><div class="piece"><h3><bdi>receive()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/RabbitMqBroker.php">backend/my-project/app/Services/Messaging/RabbitMqBroker.php</a> · الأسطر <bdi>103–118</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c1l105">105–117</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: receive()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/RabbitMqBroker.php" data-start="103" data-end="118"><span data-n="103" class="ln" id="s3c1l103">    public function receive(): ?IncomingMessage</span>
+<span data-n="104" class="ln" id="s3c1l104">    {</span>
+<span data-n="105" class="ln hit" id="s3c1l105">        // Polling keeps heartbeat/socket handling bounded, including on an idle queue.</span>
+<span data-n="106" class="ln hit" id="s3c1l106">        $message = $this-&gt;channel()-&gt;basic_get(config('rabbitmq.queue'), false);</span>
+<span data-n="107" class="ln hit" id="s3c1l107">        if ($message === null) {</span>
+<span data-n="108" class="ln hit" id="s3c1l108">            return null;</span>
+<span data-n="109" class="ln hit" id="s3c1l109">        }</span>
+<span data-n="110" class="ln hit" id="s3c1l110">        $headers = $message-&gt;has('application_headers') ? $message-&gt;get('application_headers')-&gt;getNativeData() : [];</span>
+<span data-n="111" class="ln hit" id="s3c1l111">        $attempt = filter_var($headers['attempt'] ?? 1, FILTER_VALIDATE_INT);</span>
+<span data-n="112" class="ln hit" id="s3c1l112"></span>
+<span data-n="113" class="ln hit" id="s3c1l113">        return new IncomingMessage(</span>
+<span data-n="114" class="ln hit" id="s3c1l114">            $message-&gt;getBody(),</span>
+<span data-n="115" class="ln hit" id="s3c1l115">            $attempt === false ? 1 : max(1, $attempt),</span>
+<span data-n="116" class="ln hit" id="s3c1l116">            fn () =&gt; $message-&gt;ack(),</span>
+<span data-n="117" class="ln hit" id="s3c1l117">        );</span>
+<span data-n="118" class="ln" id="s3c1l118">    }</span></code></pre></div></div><div class="piece"><h3><bdi>handle()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Console/Commands/OrderEmailWorker.php">backend/my-project/app/Console/Commands/OrderEmailWorker.php</a> · الأسطر <bdi>19–60</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c2l34">34–40</a> <a dir="ltr" class="jump" href="#s3c2l42">42–50</a> <a dir="ltr" class="jump" href="#s3c2l54">54–56</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: handle()"><pre dir="ltr"><code data-path="backend/my-project/app/Console/Commands/OrderEmailWorker.php" data-start="19" data-end="60"><span data-n="19" class="ln" id="s3c2l19">    public function handle(MessageBroker $broker, EmailMessageProcessor $processor, MailDeliveryConfiguration $mailConfiguration): int</span>
+<span data-n="20" class="ln" id="s3c2l20">    {</span>
+<span data-n="21" class="ln" id="s3c2l21">        try {</span>
+<span data-n="22" class="ln" id="s3c2l22">            // Check before connecting to the database or consuming any message.</span>
+<span data-n="23" class="ln" id="s3c2l23">            $mode = $mailConfiguration-&gt;assertDeliverable();</span>
+<span data-n="24" class="ln" id="s3c2l24">        } catch (MailDeliveryConfigurationException $exception) {</span>
+<span data-n="25" class="ln" id="s3c2l25">            $this-&gt;error($exception-&gt;getMessage());</span>
+<span data-n="26" class="ln" id="s3c2l26"></span>
+<span data-n="27" class="ln" id="s3c2l27">            return self::FAILURE;</span>
+<span data-n="28" class="ln" id="s3c2l28">        }</span>
+<span data-n="29" class="ln" id="s3c2l29">        if ($mode === 'mock') {</span>
+<span data-n="30" class="ln" id="s3c2l30">            $this-&gt;warn('MOCK DELIVERY enabled: order confirmations will not send external email.');</span>
+<span data-n="31" class="ln" id="s3c2l31">            Log::warning('MOCK DELIVERY enabled for order email worker; no external email will be sent');</span>
+<span data-n="32" class="ln" id="s3c2l32">        }</span>
+<span data-n="33" class="ln" id="s3c2l33">        DB::connection()-&gt;useWriteConnectionWhenReading();</span>
+<span data-n="34" class="ln hit" id="s3c2l34">        do {</span>
+<span data-n="35" class="ln hit" id="s3c2l35">            try {</span>
+<span data-n="36" class="ln hit" id="s3c2l36">                $message = $broker-&gt;receive();</span>
+<span data-n="37" class="ln hit" id="s3c2l37">                if ($message !== null) {</span>
+<span data-n="38" class="ln hit" id="s3c2l38">                    $processor-&gt;handle($message);</span>
+<span data-n="39" class="ln hit" id="s3c2l39">                } elseif (! $this-&gt;option('once')) {</span>
+<span data-n="40" class="ln hit" id="s3c2l40">                    sleep(1);</span>
+<span data-n="41" class="ln" id="s3c2l41">                }</span>
+<span data-n="42" class="ln hit" id="s3c2l42">            } catch (MailDeliveryConfigurationException $exception) {</span>
+<span data-n="43" class="ln hit" id="s3c2l43">                $broker-&gt;close();</span>
+<span data-n="44" class="ln hit" id="s3c2l44">                $this-&gt;error($exception-&gt;getMessage());</span>
+<span data-n="45" class="ln hit" id="s3c2l45"></span>
+<span data-n="46" class="ln hit" id="s3c2l46">                return self::FAILURE;</span>
+<span data-n="47" class="ln hit" id="s3c2l47">            } catch (\Throwable $exception) {</span>
+<span data-n="48" class="ln hit" id="s3c2l48">                // Closing leaves the delivery unacknowledged; RabbitMQ redelivers on recovery.</span>
+<span data-n="49" class="ln hit" id="s3c2l49">                $broker-&gt;close();</span>
+<span data-n="50" class="ln hit" id="s3c2l50">                Log::error('Order email worker recovering', ['error_type' =&gt; $exception::class]);</span>
+<span data-n="51" class="ln" id="s3c2l51">                if ($this-&gt;option('once')) {</span>
+<span data-n="52" class="ln" id="s3c2l52">                    return self::FAILURE;</span>
+<span data-n="53" class="ln" id="s3c2l53">                }</span>
+<span data-n="54" class="ln hit" id="s3c2l54">                sleep(config('rabbitmq.reconnect_delay'));</span>
+<span data-n="55" class="ln hit" id="s3c2l55">            }</span>
+<span data-n="56" class="ln hit" id="s3c2l56">        } while (! $this-&gt;option('once'));</span>
+<span data-n="57" class="ln" id="s3c2l57">        $broker-&gt;close();</span>
+<span data-n="58" class="ln" id="s3c2l58"></span>
+<span data-n="59" class="ln" id="s3c2l59">        return self::SUCCESS;</span>
+<span data-n="60" class="ln" id="s3c2l60">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في <bdi dir="ltr">receive</bdi> الفكرة ليست السحب فقط، بل توقيت حذف مسؤولية الوسيط. المعامل الثاني لـ<bdi dir="ltr">basic_get</bdi> هو <bdi dir="ltr">no_ack</bdi>، ووضع <bdi dir="ltr">false</bdi> يعني أن الإقرار يدوي. يحصل العامل على جسم الرسالة ومعه وسيلة لتنفيذ الإقرار لاحقاً. لا تُستدعى تلك الوسيلة بمجرد تكوين النتيجة. إذا تعطّل العامل الآن، بعد الاستلام وقبل الإقرار، يستطيع الوسيط إعادة تسليم الأصل بعد انقطاع الاتصال.</p><p>في حلقة العامل أفرّق بين ثلاث لحظات: لو كان متوقفاً قبل السحب تبقى الرسالة جاهزة؛ ولو كان يحملها ولم يؤكدها تكون غير مُقرّ بها؛ ولو أنهى العمل وأكدها لا نطلب إعادتها بسبب إعادة تشغيله. إغلاق الاتصال عند خطأ غير متوقع يترك ما لم يُقَرّ به قابلاً للتسليم مجدداً. هذا ليس نفس مسار إعادة المحاولة المؤجلة: إعادة التسليم بسبب انقطاع العامل وحدها لا تعني أننا زدنا ترويسة رقم المحاولة.</p><p>أفضل سؤال عند توقف الخدمة ليس «هل كانت الحاوية شغالة؟»، بل «هل تأكد الوسيط أن هذه الرسالة انتهت؟». مكان التوقف بالنسبة للإقرار هو الذي يغير الجواب.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-4"><div class="top"><h2>4. قرار واحد: نجاح أم إعادة أم عزل؟</h2><span class="clock" dir="ltr">4:40–6:15</span></div><div class="piece"><h3><bdi>handle()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/EmailMessageProcessor.php">backend/my-project/app/Services/Messaging/EmailMessageProcessor.php</a> · الأسطر <bdi>13–45</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s4c1l17">17–32</a> <a dir="ltr" class="jump" href="#s4c1l38">38–44</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: handle()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/EmailMessageProcessor.php" data-start="13" data-end="45"><span data-n="13" class="ln" id="s4c1l13">    public function handle(IncomingMessage $message): void</span>
+<span data-n="14" class="ln" id="s4c1l14">    {</span>
+<span data-n="15" class="ln" id="s4c1l15">        $event = null;</span>
+<span data-n="16" class="ln" id="s4c1l16">        try {</span>
+<span data-n="17" class="ln hit" id="s4c1l17">            $event = $this-&gt;decode($message-&gt;body);</span>
+<span data-n="18" class="ln hit" id="s4c1l18">            Log::info('Order email processing', ['event_id' =&gt; $event['event_id'], 'attempt' =&gt; $message-&gt;attempt]);</span>
+<span data-n="19" class="ln hit" id="s4c1l19">            $this-&gt;sender-&gt;send($event);</span>
+<span data-n="20" class="ln hit" id="s4c1l20">        } catch (MailDeliveryConfigurationException $exception) {</span>
+<span data-n="21" class="ln hit" id="s4c1l21">            // Misconfiguration is operational, not a failed delivery attempt. Preserve the original message.</span>
+<span data-n="22" class="ln hit" id="s4c1l22">            throw $exception;</span>
+<span data-n="23" class="ln hit" id="s4c1l23">        } catch (\Throwable $exception) {</span>
+<span data-n="24" class="ln hit" id="s4c1l24">            $permanent = $exception instanceof PermanentMessageException || $exception instanceof JsonException;</span>
+<span data-n="25" class="ln hit" id="s4c1l25">            $exhausted = $message-&gt;attempt &gt;= config('rabbitmq.max_attempts');</span>
+<span data-n="26" class="ln hit" id="s4c1l26">            $eventId = $event['event_id'] ?? (string) Str::uuid();</span>
+<span data-n="27" class="ln hit" id="s4c1l27">            if ($permanent || $exhausted) {</span>
+<span data-n="28" class="ln hit" id="s4c1l28">                // Confirm the DLQ publication before acknowledging the original delivery.</span>
+<span data-n="29" class="ln hit" id="s4c1l29">                $this-&gt;broker-&gt;publish($message-&gt;body, $eventId, config('rabbitmq.dead_letter_exchange'), config('rabbitmq.dead_letter_routing_key'), $message-&gt;attempt);</span>
+<span data-n="30" class="ln hit" id="s4c1l30">            } else {</span>
+<span data-n="31" class="ln hit" id="s4c1l31">                $retryIndex = min($message-&gt;attempt, count(config('rabbitmq.retry_delays')));</span>
+<span data-n="32" class="ln hit" id="s4c1l32">                $this-&gt;broker-&gt;publish($message-&gt;body, $eventId, config('rabbitmq.retry_exchange'), 'retry.'.$retryIndex, $message-&gt;attempt + 1);</span>
+<span data-n="33" class="ln" id="s4c1l33">            }</span>
+<span data-n="34" class="ln" id="s4c1l34">            Log::warning('Order email deferred', [</span>
+<span data-n="35" class="ln" id="s4c1l35">                'event_id' =&gt; $eventId, 'attempt' =&gt; $message-&gt;attempt,</span>
+<span data-n="36" class="ln" id="s4c1l36">                'destination' =&gt; $permanent || $exhausted ? 'dead_letter' : 'retry', 'error_type' =&gt; $exception::class,</span>
+<span data-n="37" class="ln" id="s4c1l37">            ]);</span>
+<span data-n="38" class="ln hit" id="s4c1l38">            $message-&gt;acknowledge();</span>
+<span data-n="39" class="ln hit" id="s4c1l39"></span>
+<span data-n="40" class="ln hit" id="s4c1l40">            return;</span>
+<span data-n="41" class="ln hit" id="s4c1l41">        }</span>
+<span data-n="42" class="ln hit" id="s4c1l42"></span>
+<span data-n="43" class="ln hit" id="s4c1l43">        Log::info('Order email processed', ['event_id' =&gt; $event['event_id'], 'attempt' =&gt; $message-&gt;attempt]);</span>
+<span data-n="44" class="ln hit" id="s4c1l44">        $message-&gt;acknowledge();</span>
+<span data-n="45" class="ln" id="s4c1l45">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في المعالج أشرح القرار كوحدة واحدة. النجاح واضح: نفهم الحدث، نرسل البريد، ثم نؤكد الأصل. خطأ إعداد البريد حالة مختلفة؛ إذا كانت المشكلة في إعداد الخدمة كله، لا يصح أن نحرق رصيد محاولات كل زبون. لذلك يُرفع الاستثناء للعامل من دون إقرار الأصل. أما بقية الأخطاء فيسأل الكود: هل الحدث تالف أو غير صالح، أم أننا استنفدنا الحد المسموح؟</p><p>إذا كان الجواب نعم، ننشر الجسم إلى طابور الفشل بمفتاحه ونحتفظ برقم المحاولة. إذا كان الخطأ مؤقتاً وما زالت هناك فرصة، نختار مرحلة التأخير وننشر نسخة برقم محاولة أعلى. في الفرعين تأتي عملية إقرار الأصل بعد نشر البديل، لا قبله. مثلاً إذا تعطّل الوسيط ونحن نحاول نقل رسالة إلى الانتظار، لا نريد أن نكون قد حذفنا الأصل اعتماداً على نسخة لا نعرف إن كانت وصلت. معنى «لا تضيع» يتوقف على هذا الترتيب.</p><p>هذا أيضاً يفسر لماذا نحتاج طابوراً للفشل النهائي: نحتفظ بالحمولة الأصلية لفهم السبب، ولا نستهلك وقت التشغيل بإعادة حدث نعرف أن بياناته الأساسية غير صالحة.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-5"><div class="top"><h2>5. تأكيد البديل قبل إقرار الأصل</h2><span class="clock" dir="ltr">6:15–7:45</span></div><div class="piece"><h3><bdi>channel()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/RabbitMqBroker.php">backend/my-project/app/Services/Messaging/RabbitMqBroker.php</a> · الأسطر <bdi>17–41</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s5c1l35">35–37</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: channel()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/RabbitMqBroker.php" data-start="17" data-end="41"><span data-n="17" class="ln" id="s5c1l17">    private function channel(): AMQPChannel</span>
+<span data-n="18" class="ln" id="s5c1l18">    {</span>
+<span data-n="19" class="ln" id="s5c1l19">        if ($this-&gt;channel !== null &amp;&amp; $this-&gt;channel-&gt;is_open()) {</span>
+<span data-n="20" class="ln" id="s5c1l20">            return $this-&gt;channel;</span>
+<span data-n="21" class="ln" id="s5c1l21">        }</span>
+<span data-n="22" class="ln" id="s5c1l22"></span>
+<span data-n="23" class="ln" id="s5c1l23">        $this-&gt;connection = new AMQPStreamConnection(</span>
+<span data-n="24" class="ln" id="s5c1l24">            host: config('rabbitmq.host'),</span>
+<span data-n="25" class="ln" id="s5c1l25">            port: config('rabbitmq.port'),</span>
+<span data-n="26" class="ln" id="s5c1l26">            user: config('rabbitmq.user'),</span>
+<span data-n="27" class="ln" id="s5c1l27">            password: config('rabbitmq.password'),</span>
+<span data-n="28" class="ln" id="s5c1l28">            vhost: config('rabbitmq.vhost'),</span>
+<span data-n="29" class="ln" id="s5c1l29">            connection_timeout: config('rabbitmq.connection_timeout'),</span>
+<span data-n="30" class="ln" id="s5c1l30">            read_write_timeout: config('rabbitmq.read_write_timeout'),</span>
+<span data-n="31" class="ln" id="s5c1l31">            keepalive: function_exists('socket_import_stream'),</span>
+<span data-n="32" class="ln" id="s5c1l32">            heartbeat: config('rabbitmq.heartbeat'),</span>
+<span data-n="33" class="ln" id="s5c1l33">            channel_rpc_timeout: config('rabbitmq.confirm_timeout'),</span>
+<span data-n="34" class="ln" id="s5c1l34">        );</span>
+<span data-n="35" class="ln hit" id="s5c1l35">        $this-&gt;channel = $this-&gt;connection-&gt;channel();</span>
+<span data-n="36" class="ln hit" id="s5c1l36">        $this-&gt;declareTopology($this-&gt;channel);</span>
+<span data-n="37" class="ln hit" id="s5c1l37">        $this-&gt;channel-&gt;confirm_select();</span>
+<span data-n="38" class="ln" id="s5c1l38">        $this-&gt;channel-&gt;basic_qos(0, 1, false);</span>
+<span data-n="39" class="ln" id="s5c1l39"></span>
+<span data-n="40" class="ln" id="s5c1l40">        return $this-&gt;channel;</span>
+<span data-n="41" class="ln" id="s5c1l41">    }</span></code></pre></div></div><div class="piece"><h3><bdi>publish()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/RabbitMqBroker.php">backend/my-project/app/Services/Messaging/RabbitMqBroker.php</a> · الأسطر <bdi>74–101</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s5c2l77">77–87</a> <a dir="ltr" class="jump" href="#s5c2l90">90–99</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: publish()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/RabbitMqBroker.php" data-start="74" data-end="101"><span data-n="74" class="ln" id="s5c2l74">    public function publish(string $body, string $eventId, string $exchange, string $routingKey, int $attempt = 1): void</span>
+<span data-n="75" class="ln" id="s5c2l75">    {</span>
+<span data-n="76" class="ln" id="s5c2l76">        $channel = $this-&gt;channel();</span>
+<span data-n="77" class="ln hit" id="s5c2l77">        $confirmed = false;</span>
+<span data-n="78" class="ln hit" id="s5c2l78">        $failed = false;</span>
+<span data-n="79" class="ln hit" id="s5c2l79">        $channel-&gt;set_ack_handler(function () use (&amp;$confirmed): void {</span>
+<span data-n="80" class="ln hit" id="s5c2l80">            $confirmed = true;</span>
+<span data-n="81" class="ln hit" id="s5c2l81">        });</span>
+<span data-n="82" class="ln hit" id="s5c2l82">        $channel-&gt;set_nack_handler(function () use (&amp;$failed): void {</span>
+<span data-n="83" class="ln hit" id="s5c2l83">            $failed = true;</span>
+<span data-n="84" class="ln hit" id="s5c2l84">        });</span>
+<span data-n="85" class="ln hit" id="s5c2l85">        $channel-&gt;set_return_listener(function () use (&amp;$failed): void {</span>
+<span data-n="86" class="ln hit" id="s5c2l86">            $failed = true;</span>
+<span data-n="87" class="ln hit" id="s5c2l87">        });</span>
+<span data-n="88" class="ln" id="s5c2l88">        $message = new AMQPMessage($body, [</span>
+<span data-n="89" class="ln" id="s5c2l89">            'content_type' =&gt; 'application/json',</span>
+<span data-n="90" class="ln hit" id="s5c2l90">            'delivery_mode' =&gt; AMQPMessage::DELIVERY_MODE_PERSISTENT,</span>
+<span data-n="91" class="ln hit" id="s5c2l91">            'message_id' =&gt; $eventId,</span>
+<span data-n="92" class="ln hit" id="s5c2l92">            'type' =&gt; 'OrderCreated',</span>
+<span data-n="93" class="ln hit" id="s5c2l93">            'timestamp' =&gt; time(),</span>
+<span data-n="94" class="ln hit" id="s5c2l94">            'application_headers' =&gt; new AMQPTable(['attempt' =&gt; $attempt]),</span>
+<span data-n="95" class="ln hit" id="s5c2l95">        ]);</span>
+<span data-n="96" class="ln hit" id="s5c2l96">        $channel-&gt;basic_publish($message, $exchange, $routingKey, true);</span>
+<span data-n="97" class="ln hit" id="s5c2l97">        $channel-&gt;wait_for_pending_acks_returns(config('rabbitmq.confirm_timeout'));</span>
+<span data-n="98" class="ln hit" id="s5c2l98">        if (! $confirmed || $failed) {</span>
+<span data-n="99" class="ln hit" id="s5c2l99">            throw new RuntimeException('RabbitMQ did not confirm a routed message.');</span>
+<span data-n="100" class="ln" id="s5c2l100">        }</span>
+<span data-n="101" class="ln" id="s5c2l101">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>هنا يوجد تأكيدان متعاكسان، وأشير إلى كل منهما باسمه. تفعيل <bdi dir="ltr">confirm_select</bdi> يجعل <bdi dir="ltr">RabbitMQ</bdi> يخبر الناشر بنتيجة نشر البديل. أما <bdi dir="ltr">ACK</bdi> الذي شرحناه سابقاً فيرسله المستهلك للوسيط ليقول إنه انتهى من الأصل. الأول يشهد على النشر، والثاني يسمح بالتخلي عن الرسالة المستلمة؛ لا يجوز أن يحل أحدهما محل الآخر.</p><p>في <bdi dir="ltr">publish</bdi> نطلب حفظ الرسالة بشكل دائم ونرسلها مع <bdi dir="ltr">mandatory</bdi> مفعّلاً لكي لا نعتبر رسالة غير قابلة للتوجيه نجاحاً. ننتظر ردود التأكيد والإرجاع ضمن مهلة، ونرفع استثناءً إذا غاب التأكيد أو ظهر رفض أو إرجاع. لذلك لا يصل المعالج إلى إقرار الأصل حين لا يثبت نجاح النقل. والعكس ممكن أيضاً: قد يصل البديل ثم يتوقف العامل قبل إقرار الأصل، فتظهر نسخة مكررة. نقبل احتمال التكرار لأنه أفضل من ضياع تأكيد الشراء.</p><p>لاحظ أن معرّف الحدث يبقى كما هو في النقل، بينما ترويسة المحاولة وحدها تتقدم عند إعادة المحاولة المبرمجة. نستطيع بذلك الربط بين المراحل المختلفة لنفس التأكيد.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-6"><div class="top"><h2>6. تكرار التسليم لا يعني إرسال بريد جديد دائماً</h2><span class="clock" dir="ltr">7:45–9:15</span></div><div class="piece"><h3><bdi>send()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/OrderConfirmationSender.php">backend/my-project/app/Services/Messaging/OrderConfirmationSender.php</a> · الأسطر <bdi>18–55</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s6c1l28">28–36</a> <a dir="ltr" class="jump" href="#s6c1l44">44–49</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: send()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/OrderConfirmationSender.php" data-start="18" data-end="55"><span data-n="18" class="ln" id="s6c1l18">    public function send(array $event): void</span>
+<span data-n="19" class="ln" id="s6c1l19">    {</span>
+<span data-n="20" class="ln" id="s6c1l20">        $mode = $this-&gt;mailConfiguration-&gt;assertDeliverable();</span>
+<span data-n="21" class="ln" id="s6c1l21"></span>
+<span data-n="22" class="ln" id="s6c1l22">        $outbox = OutboxEvent::query()-&gt;useWritePdo()-&gt;find($event['event_id']);</span>
+<span data-n="23" class="ln" id="s6c1l23">        if ($outbox === null || $outbox-&gt;event_type !== 'OrderCreated' || $outbox-&gt;order_id !== $event['order_id']) {</span>
+<span data-n="24" class="ln" id="s6c1l24">            throw new PermanentMessageException('Message does not identify a recorded order event.');</span>
+<span data-n="25" class="ln" id="s6c1l25">        }</span>
+<span data-n="26" class="ln" id="s6c1l26"></span>
+<span data-n="27" class="ln" id="s6c1l27">        // Unique row + row lock serializes duplicate deliveries, even across worker processes.</span>
+<span data-n="28" class="ln hit" id="s6c1l28">        DB::table('notification_deliveries')-&gt;insertOrIgnore([</span>
+<span data-n="29" class="ln hit" id="s6c1l29">            'event_id' =&gt; $event['event_id'], 'order_id' =&gt; $event['order_id'],</span>
+<span data-n="30" class="ln hit" id="s6c1l30">            'created_at' =&gt; now(), 'updated_at' =&gt; now(),</span>
+<span data-n="31" class="ln hit" id="s6c1l31">        ]);</span>
+<span data-n="32" class="ln hit" id="s6c1l32">        DB::transaction(function () use ($event, $mode): void {</span>
+<span data-n="33" class="ln hit" id="s6c1l33">            $delivery = NotificationDelivery::query()-&gt;whereKey($event['event_id'])-&gt;lockForUpdate()-&gt;firstOrFail();</span>
+<span data-n="34" class="ln hit" id="s6c1l34">            if ($delivery-&gt;delivered_at !== null) {</span>
+<span data-n="35" class="ln hit" id="s6c1l35">                // A provider change does not automatically replay earlier mock or unclassified deliveries.</span>
+<span data-n="36" class="ln hit" id="s6c1l36">                return;</span>
+<span data-n="37" class="ln" id="s6c1l37">            }</span>
+<span data-n="38" class="ln" id="s6c1l38"></span>
+<span data-n="39" class="ln" id="s6c1l39">            $order = Order::query()-&gt;useWritePdo()-&gt;with(['user', 'items.product'])-&gt;find($event['order_id']);</span>
+<span data-n="40" class="ln" id="s6c1l40">            if ($order === null || $order-&gt;user === null || ! filter_var($order-&gt;user-&gt;email, FILTER_VALIDATE_EMAIL)) {</span>
+<span data-n="41" class="ln" id="s6c1l41">                throw new PermanentMessageException('Order recipient is unavailable.');</span>
+<span data-n="42" class="ln" id="s6c1l42">            }</span>
+<span data-n="43" class="ln" id="s6c1l43"></span>
+<span data-n="44" class="ln hit" id="s6c1l44">            $sent = Mail::to($order-&gt;user-&gt;email)-&gt;send(new OrderConfirmation($order, $event['event_id']));</span>
+<span data-n="45" class="ln hit" id="s6c1l45">            if ($sent === null) {</span>
+<span data-n="46" class="ln hit" id="s6c1l46">                throw new RuntimeException('Mail delivery was cancelled before sending.');</span>
+<span data-n="47" class="ln hit" id="s6c1l47">            }</span>
+<span data-n="48" class="ln hit" id="s6c1l48">            // SMTP cannot participate in this transaction. A crash here can resend; stable Message-ID helps providers deduplicate.</span>
+<span data-n="49" class="ln hit" id="s6c1l49">            $delivery-&gt;update(['delivered_at' =&gt; now(), 'delivery_mode' =&gt; $mode]);</span>
+<span data-n="50" class="ln" id="s6c1l50">            Log::info($mode === 'mock' ? 'MOCK DELIVERY: order confirmation processed without an external email' : 'Order confirmation accepted by delivery transport', [</span>
+<span data-n="51" class="ln" id="s6c1l51">                'event_id' =&gt; $event['event_id'], 'delivery_mode' =&gt; $mode,</span>
+<span data-n="52" class="ln" id="s6c1l52">                'transport_message_id' =&gt; substr(preg_replace('/[^A-Za-z0-9@._:+\/-]/', '', $sent-&gt;getMessageId()), 0, 255),</span>
+<span data-n="53" class="ln" id="s6c1l53">            ]);</span>
+<span data-n="54" class="ln" id="s6c1l54">        }, 1);</span>
+<span data-n="55" class="ln" id="s6c1l55">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>آخر جزء يفسر ما يفعله النظام عندما تصل الواقعة نفسها مرتين. معرّف الحدث ثابت، ولدينا سجل تسليم مرتبط به في قاعدة البيانات. يأخذ العامل قفلاً على ذلك السجل، ثم ينظر إلى وقت التسليم. إذا كان مسجلاً من معالجة سابقة يرجع بلا إرسال جديد؛ فلا يتحول كل تكرار على الطابور تلقائياً إلى رسالة ثانية في بريد الزبون.</p><p>الحد المهم أمام الدكتور هو المسافة بين استدعاء مزوّد البريد وتثبيت نتيجة الإرسال محلياً. لو قبل المزوّد الرسالة ثم تعطلت العملية قبل حفظ الوقت، لا نملك معاملة واحدة تشمل المزوّد و<bdi dir="ltr">MySQL</bdi>. لذلك الوصف الدقيق هو أن توقف العامل قبل الإقرار لا يُسقط الرسالة، وأن عندنا حماية من الإرسال المكرر في المعالجات المسجلة. لا نستنتج أن البريد الخارجي سيخرج مرة واحدة بالضبط في كل توقيت ممكن للانهيار.</p><p>فإذا رجع العامل بعد دقيقة مثلاً، لا نقول له أرسل كل طلبات آخر دقيقة يدوياً؛ يكمل ما يسلّمه الوسيط ويستعين بسجل التسليم لمعرفة ما أتمّه سابقاً.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+</main><script>document.querySelectorAll(".pane").forEach(box=>{const first=box.querySelector(".hit");if(first)box.scrollTop=Math.max(0,first.getBoundingClientRect().top-box.getBoundingClientRect().top-42);});</script></body></html>

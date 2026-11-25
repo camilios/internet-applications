@@ -1,0 +1,370 @@
+<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>كيف تتغير حالة الطلب في صفحتي الزبون؟</title><style>
+:root{--ink:#153044;--bg:#f1f5f8;--line:#c9d7e1;--link:#075873;--focus:#ffe8a3;--soft:#f3f7fa;color-scheme:light}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.85 system-ui,'Segoe UI',Tahoma,sans-serif}main{max-width:67rem;margin:auto;padding:1rem}header,section{background:white;border:1px solid var(--line);border-radius:12px;padding:clamp(1rem,3vw,1.8rem);margin:.9rem 0}header{border-top:5px solid var(--link)}h1,h2,h3{line-height:1.45;margin:.2rem 0 .6rem}h1{font-size:clamp(1.45rem,3vw,2.2rem)}h2{font-size:1.35rem}h3{font-size:1rem}p{margin:.5rem 0}.tag,.clock{font-weight:700;color:var(--link)}a{color:var(--link);text-underline-offset:3px}nav,.jumps{display:flex;flex-wrap:wrap;gap:.25rem .9rem}nav{margin-top:.8rem}.top{display:flex;justify-content:space-between;align-items:baseline;gap:.7rem}.clock,.path,code{font-family:Consolas,monospace}.clock{white-space:nowrap}.path{display:inline-block;overflow-wrap:anywhere;max-width:100%;font-size:.85rem}.piece{padding:.7rem 0}.open,.jumps{font-size:.87rem}.pane{direction:ltr;text-align:left;max-height:20rem;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:6px;background:#fafcfd;scroll-padding-top:2.5rem}.pane pre{line-height:1.6;font-size:13px;tab-size:4;margin:0;min-width:100%;width:max-content;padding:.25rem 0}.ln{display:inline-block;min-width:100%;padding-right:.55rem;color:#31475b}.ln:before{content:attr(data-n);display:inline-block;width:3.25rem;margin-right:.6rem;padding-right:.55rem;text-align:right;font-size:.82em;color:#526678;border-right:1px solid #c5d1da;user-select:none}.hit{background:var(--focus);color:#222}.ln:target{outline:2px solid #b16b00;outline-offset:-2px}.jumps{margin:.3rem 0 .45rem}.talk{margin-top:.8rem;border-inline-start:4px solid #30828b;padding:.35rem 1rem;background:#f2f8f8}.talk p+p{margin-top:.8rem}.guide{font-size:.92rem}.key{background:var(--focus);padding:.02rem .25rem}.piece:focus-within{border-color:#91abb1}a:focus-visible,.pane:focus-visible{outline:2px solid #086984}.navback{font-size:.82rem} @media print{body{background:white;font-size:11pt}main{max-width:none;margin:0;padding:0}header,section{border:0;padding:.4rem 0}nav,.jumps,.navback{display:none}.pane{max-height:none;overflow:visible}.pane pre{font-size:8pt;white-space:pre-wrap;overflow-wrap:anywhere;width:auto}.ln{display:inline;min-width:0}.hit{background:#fff0b8;print-color-adjust:exact}.top,h3{break-after:avoid}}</style></head><body><main id="top">
+<header><div class="tag">المتطلب الرابع · الفكرة الرابعة</div><h1>كيف تتغير حالة الطلب في صفحتي الزبون؟</h1><p><strong>مدة العرض كاملًا: نحو <bdi dir="ltr">8:20</bdi> دقائق.</strong> اقرأ فقرات «ما تقوله» فقط وانتقل إلى الكود المشار إليه. التوقيت يشمل الانتقال بين المواضع؛ لا تقرأ الدالة كاملة بصوت عالٍ.</p><p class="guide">كل دالة معروضة من تعريفها إلى نهايتها. <span class="key">التظليل</span> يحدد الجزء المتعلق بالفكرة؛ بقية الكود موجود لتفهم السياق. روابط الأرقام تنقلك إلى مواضع الشرح داخل الدالة.</p><nav aria-label="محطات العرض"><a href="#step-1">1. من الموافقة إلى حدث بعد الحفظ</a> · <a href="#step-2">2. قناة للطلب وشرط لمالكه</a> · <a href="#step-3">3. صفحة التفاصيل: وصول الحدث ثم جلب الحالة</a> · <a href="#step-4">4. صفحة القائمة: الاشتراك في الصفوف الظاهرة</a> · <a href="#step-5">5. تنبيه واحد للواقعة نفسها</a></nav></header>
+<section id="step-1"><div class="top"><h2>1. من الموافقة إلى حدث بعد الحفظ</h2><span class="clock" dir="ltr">0:00–1:40</span></div><div class="piece"><h3><bdi>updateStatus()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/OrderService.php">backend/my-project/app/Services/OrderService.php</a> · الأسطر <bdi>328–364</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s1c1l330">330–334</a> <a dir="ltr" class="jump" href="#s1c1l341">341–348</a> <a dir="ltr" class="jump" href="#s1c1l356">356–360</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: updateStatus()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/OrderService.php" data-start="328" data-end="364"><span data-n="328" class="ln" id="s1c1l328">    public function updateStatus(Order $order, string $status): Order</span>
+<span data-n="329" class="ln" id="s1c1l329">    {</span>
+<span data-n="330" class="ln hit" id="s1c1l330">        $updated = DB::transaction(function () use ($order, $status): Order {</span>
+<span data-n="331" class="ln hit" id="s1c1l331">            // Route-bound models may be stale after another request changes the order.</span>
+<span data-n="332" class="ln hit" id="s1c1l332">            $order = Order::query()-&gt;whereKey($order-&gt;getKey())-&gt;lockForUpdate()-&gt;firstOrFail();</span>
+<span data-n="333" class="ln hit" id="s1c1l333">            $validTransitions = [</span>
+<span data-n="334" class="ln hit" id="s1c1l334">                'pending' =&gt; ['confirmed', 'cancelled'],</span>
+<span data-n="335" class="ln" id="s1c1l335">                'confirmed' =&gt; ['processing', 'cancelled'],</span>
+<span data-n="336" class="ln" id="s1c1l336">                'processing' =&gt; ['shipped', 'cancelled'],</span>
+<span data-n="337" class="ln" id="s1c1l337">                'shipped' =&gt; ['delivered'],</span>
+<span data-n="338" class="ln" id="s1c1l338">                'delivered' =&gt; [],</span>
+<span data-n="339" class="ln" id="s1c1l339">                'cancelled' =&gt; [],</span>
+<span data-n="340" class="ln" id="s1c1l340">            ];</span>
+<span data-n="341" class="ln hit" id="s1c1l341">            $currentStatus = $order-&gt;status;</span>
+<span data-n="342" class="ln hit" id="s1c1l342"></span>
+<span data-n="343" class="ln hit" id="s1c1l343">            if (! isset($validTransitions[$currentStatus]) ||</span>
+<span data-n="344" class="ln hit" id="s1c1l344">                ! in_array($status, $validTransitions[$currentStatus])) {</span>
+<span data-n="345" class="ln hit" id="s1c1l345">                throw new \InvalidArgumentException(</span>
+<span data-n="346" class="ln hit" id="s1c1l346">                    "Cannot transition from '{$currentStatus}' to '{$status}'."</span>
+<span data-n="347" class="ln hit" id="s1c1l347">                );</span>
+<span data-n="348" class="ln hit" id="s1c1l348">            }</span>
+<span data-n="349" class="ln" id="s1c1l349"></span>
+<span data-n="350" class="ln" id="s1c1l350">            if ($status === 'cancelled' &amp;&amp; $order-&gt;reservation_id !== null) {</span>
+<span data-n="351" class="ln" id="s1c1l351">                if (! $this-&gt;inventoryClient-&gt;releaseStock($order-&gt;reservation_id)) {</span>
+<span data-n="352" class="ln" id="s1c1l352">                    throw new InventoryUnavailableException('Stock release could not be confirmed.');</span>
+<span data-n="353" class="ln" id="s1c1l353">                }</span>
+<span data-n="354" class="ln" id="s1c1l354">            }</span>
+<span data-n="355" class="ln" id="s1c1l355"></span>
+<span data-n="356" class="ln hit" id="s1c1l356">            $order-&gt;update(['status' =&gt; $status]);</span>
+<span data-n="357" class="ln hit" id="s1c1l357">            $this-&gt;notifyAfterCommit($order-&gt;user, $order, 'order_status_updated');</span>
+<span data-n="358" class="ln hit" id="s1c1l358">            $this-&gt;broadcastAfterCommit($order, new OrderStatusUpdated((string) Str::uuid(), $order-&gt;id, $status, now()-&gt;toISOString()));</span>
+<span data-n="359" class="ln hit" id="s1c1l359"></span>
+<span data-n="360" class="ln hit" id="s1c1l360">            return $order-&gt;fresh('items.product');</span>
+<span data-n="361" class="ln" id="s1c1l361">        });</span>
+<span data-n="362" class="ln" id="s1c1l362"></span>
+<span data-n="363" class="ln" id="s1c1l363">        return $updated;</span>
+<span data-n="364" class="ln" id="s1c1l364">    }</span></code></pre></div></div><div class="piece"><h3><bdi>broadcastAfterCommit()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/OrderService.php">backend/my-project/app/Services/OrderService.php</a> · الأسطر <bdi>366–381</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s1c2l368">368–375</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: broadcastAfterCommit()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/OrderService.php" data-start="366" data-end="381"><span data-n="366" class="ln" id="s1c2l366">    private function broadcastAfterCommit(Order $order, OrderCreated|OrderStatusUpdated $event): void</span>
+<span data-n="367" class="ln" id="s1c2l367">    {</span>
+<span data-n="368" class="ln hit" id="s1c2l368">        DB::afterCommit(function () use ($order, $event): void {</span>
+<span data-n="369" class="ln hit" id="s1c2l369">            try {</span>
+<span data-n="370" class="ln hit" id="s1c2l370">                DashboardCache::forgetCache($order-&gt;user_id);</span>
+<span data-n="371" class="ln hit" id="s1c2l371">            } catch (\Throwable $exception) {</span>
+<span data-n="372" class="ln hit" id="s1c2l372">                Log::error('Order dashboard cache invalidation failed', ['order_id' =&gt; $order-&gt;id, 'error_type' =&gt; $exception::class]);</span>
+<span data-n="373" class="ln hit" id="s1c2l373">            }</span>
+<span data-n="374" class="ln hit" id="s1c2l374">            try {</span>
+<span data-n="375" class="ln hit" id="s1c2l375">                event($event);</span>
+<span data-n="376" class="ln" id="s1c2l376">            } catch (\Throwable $exception) {</span>
+<span data-n="377" class="ln" id="s1c2l377">                // A committed order must not be compensated due to a secondary broadcast failure.</span>
+<span data-n="378" class="ln" id="s1c2l378">                Log::error('Order broadcast enqueue failed after commit', ['order_id' =&gt; $order-&gt;id, 'error_type' =&gt; $exception::class]);</span>
+<span data-n="379" class="ln" id="s1c2l379">            }</span>
+<span data-n="380" class="ln" id="s1c2l380">        });</span>
+<span data-n="381" class="ln" id="s1c2l381">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>لنفترض أن الزبون يشاهد الطلب ٤٢ بحالة معلّق، وأن المسؤول وافق عليه من متصفح آخر. في <bdi dir="ltr">updateStatus</bdi> نعيد قراءة صف الطلب ونقفله أثناء الانتقال. هذه الخطوة تمنع موافقتين مبنيتين على حالة قديمة من إنتاج روايتين متناقضتين. إذا كان الانتقال صالحاً تُكتب الحالة الجديدة، ثم ننشئ حدثاً يصف رقم الطلب والحالة ووقت التغيير ومعرّف الواقعة. ما يعنينا في هذه الدالة هو تتابع الحفظ ثم التبليغ، لا بقية حالات الانتقال أو معالجة المخزون.</p><p>في <bdi dir="ltr">broadcastAfterCommit</bdi> نؤخر إطلاق الحدث إلى ما بعد تثبيت المعاملة. لو أبلغنا الصفحة قبل الحفظ، فقد تعيد الجلب وتحصل على حالة معلّق مرة أخرى. والأسوأ أن يرى الزبون موافقة ثم تتراجع عنها قاعدة البيانات بسبب فشل المعاملة. الآن يصبح معنى الإشارة واضحاً: يوجد تحديث محفوظ لهذا الطلب، ويمكن للواجهة أن تسأل عنه بثقة. لا تعيد <bdi dir="ltr">Laravel</bdi> رسم الصفحة بنفسها، بل تبلغ مشتركاً يستطيع إعادة رسمها.</p><p>في تجربتي أترك صفحة الزبون مفتوحة قبل الضغط على الموافقة. إن لم تتغير أسأل أولاً هل صار الطلب مؤكداً فعلاً في قاعدة البيانات، ثم أتتبع وصول الإشارة؛ التشخيصان مختلفان.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-2"><div class="top"><h2>2. قناة للطلب وشرط لمالكه</h2><span class="clock" dir="ltr">1:40–3:15</span></div><div class="piece"><h3><bdi>الصنف OrderStatusUpdated</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Events/OrderStatusUpdated.php">backend/my-project/app/Events/OrderStatusUpdated.php</a> · الأسطر <bdi>9–34</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s2c1l9">9–13</a> <a dir="ltr" class="jump" href="#s2c1l17">17</a> <a dir="ltr" class="jump" href="#s2c1l22">22</a> <a dir="ltr" class="jump" href="#s2c1l27">27</a> <a dir="ltr" class="jump" href="#s2c1l32">32</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: الصنف OrderStatusUpdated"><pre dir="ltr"><code data-path="backend/my-project/app/Events/OrderStatusUpdated.php" data-start="9" data-end="34"><span data-n="9" class="ln hit" id="s2c1l9">class OrderStatusUpdated implements ShouldBroadcast, ShouldDispatchAfterCommit</span>
+<span data-n="10" class="ln hit" id="s2c1l10">{</span>
+<span data-n="11" class="ln hit" id="s2c1l11">    public string $connection = 'database';</span>
+<span data-n="12" class="ln hit" id="s2c1l12"></span>
+<span data-n="13" class="ln hit" id="s2c1l13">    public function __construct(public readonly string $eventId, public readonly int $orderId, public readonly string $status, public readonly string $occurredAt) {}</span>
+<span data-n="14" class="ln" id="s2c1l14"></span>
+<span data-n="15" class="ln" id="s2c1l15">    public function broadcastOn(): array</span>
+<span data-n="16" class="ln" id="s2c1l16">    {</span>
+<span data-n="17" class="ln hit" id="s2c1l17">        return [new PrivateChannel('orders.'.$this-&gt;orderId)];</span>
+<span data-n="18" class="ln" id="s2c1l18">    }</span>
+<span data-n="19" class="ln" id="s2c1l19"></span>
+<span data-n="20" class="ln" id="s2c1l20">    public function broadcastAs(): string</span>
+<span data-n="21" class="ln" id="s2c1l21">    {</span>
+<span data-n="22" class="ln hit" id="s2c1l22">        return 'OrderStatusUpdated';</span>
+<span data-n="23" class="ln" id="s2c1l23">    }</span>
+<span data-n="24" class="ln" id="s2c1l24"></span>
+<span data-n="25" class="ln" id="s2c1l25">    public function broadcastQueue(): string</span>
+<span data-n="26" class="ln" id="s2c1l26">    {</span>
+<span data-n="27" class="ln hit" id="s2c1l27">        return 'broadcasts';</span>
+<span data-n="28" class="ln" id="s2c1l28">    }</span>
+<span data-n="29" class="ln" id="s2c1l29"></span>
+<span data-n="30" class="ln" id="s2c1l30">    public function broadcastWith(): array</span>
+<span data-n="31" class="ln" id="s2c1l31">    {</span>
+<span data-n="32" class="ln hit" id="s2c1l32">        return ['event_id' =&gt; $this-&gt;eventId, 'order_id' =&gt; $this-&gt;orderId, 'status' =&gt; $this-&gt;status, 'occurred_at' =&gt; $this-&gt;occurredAt];</span>
+<span data-n="33" class="ln" id="s2c1l33">    }</span>
+<span data-n="34" class="ln" id="s2c1l34">}</span></code></pre></div></div><div class="piece"><h3><bdi>قاعدة قناة الطلب كاملة</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/routes/channels.php">backend/my-project/routes/channels.php</a> · الأسطر <bdi>9–12</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s2c2l9">9–12</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: قاعدة قناة الطلب كاملة"><pre dir="ltr"><code data-path="backend/my-project/routes/channels.php" data-start="9" data-end="12"><span data-n="9" class="ln hit" id="s2c2l9">Broadcast::channel('orders.{orderId}', function (User $user, string $orderId): bool {</span>
+<span data-n="10" class="ln hit" id="s2c2l10">    return ctype_digit($orderId) &amp;&amp; Order::query()-&gt;useWritePdo()</span>
+<span data-n="11" class="ln hit" id="s2c2l11">        -&gt;whereKey($orderId)-&gt;where('user_id', $user-&gt;getKey())-&gt;exists();</span>
+<span data-n="12" class="ln hit" id="s2c2l12">}, ['guards' =&gt; ['api']]);</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>السؤال التالي: أي متصفح يسمع الإشارة؟ في صنف الحدث أبدأ من اسم القناة. الاسم يبنى من رقم الطلب، فيذهب تحديث ٤٢ إلى قناة ٤٢، لا إلى قناة عامة لكل زبائن المتجر. اسم الحدث معروف للواجهة، والحمولة تكفي لتحديد ما تغير من دون تضمين بريد الزبون أو كل بنود الشراء. البث يمر بطابور البث الخاص به؛ عامل البريد ليس حلقة ضمن مسار عرض الحالة.</p><p>وجود رقم في اسم القناة لا يثبت الخصوصية بمفرده. لهذا أفتح قاعدة التفويض: يدخل إليها المستخدم المصادق عليه ورقم الطلب المطلوب، ثم تتحقق من وجود صف يجمع هذا الرقم ومعرّف ذلك المستخدم. لو طلب زبون آخر سماع القناة ذاتها، يبقى رقم الطلب صحيحاً ولكن شرط الملكية يفشل. فحص الواجهة يحسن السلوك المعتاد، أما هذا القرار على خادم <bdi dir="ltr">Laravel</bdi> فهو ما يمنع الاشتراك نفسه.</p><p>المعلومة التي تعرضها الشارة يمكن جلبها أيضاً عبر <bdi dir="ltr">HTTP</bdi>، لكن حق قراءة تفاصيل الطلب عبر ذلك المسار لا يحول القناة تلقائياً إلى قناة مسموحة. لكل قناة طلب تفويض خاص بها.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-3"><div class="top"><h2>3. صفحة التفاصيل: وصول الحدث ثم جلب الحالة</h2><span class="clock" dir="ltr">3:15–5:00</span></div><div class="piece"><h3><bdi>OrderDetailsPage()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="frontend/src/routes/_authenticated/orders/$orderId.tsx">frontend/src/routes/_authenticated/orders/$orderId.tsx</a> · الأسطر <bdi>20–102</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c1l21">21–25</a> <a dir="ltr" class="jump" href="#s3c1l54">54–56</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: OrderDetailsPage()"><pre dir="ltr"><code data-path="frontend/src/routes/_authenticated/orders/$orderId.tsx" data-start="20" data-end="102"><span data-n="20" class="ln" id="s3c1l20">function OrderDetailsPage() {</span>
+<span data-n="21" class="ln hit" id="s3c1l21">  const { orderId } = Route.useParams()</span>
+<span data-n="22" class="ln hit" id="s3c1l22">  const id = Number(orderId)</span>
+<span data-n="23" class="ln hit" id="s3c1l23">  const isAdmin = useAuthStore((state) =&gt; state.user?.role === ROLES.ADMIN)</span>
+<span data-n="24" class="ln hit" id="s3c1l24">  const { data: order, isLoading, error } = useOrder(id)</span>
+<span data-n="25" class="ln hit" id="s3c1l25">  useOrderStatusRealtime(order)</span>
+<span data-n="26" class="ln" id="s3c1l26">  const updateStatus = useUpdateOrderStatus(id)</span>
+<span data-n="27" class="ln" id="s3c1l27"></span>
+<span data-n="28" class="ln" id="s3c1l28">  if (isLoading) return &lt;LoadingSpinner text="جاري تحميل الطلب..." /&gt;</span>
+<span data-n="29" class="ln" id="s3c1l29">  if (error || !order) {</span>
+<span data-n="30" class="ln" id="s3c1l30">    return (</span>
+<span data-n="31" class="ln" id="s3c1l31">      &lt;EmptyState</span>
+<span data-n="32" class="ln" id="s3c1l32">        title="تعذر العثور على الطلب"</span>
+<span data-n="33" class="ln" id="s3c1l33">        description={error?.message ?? "الطلب غير موجود أو لا تملك صلاحية عرضه."}</span>
+<span data-n="34" class="ln" id="s3c1l34">        action={&lt;Button asChild variant="outline"&gt;&lt;Link to="/orders"&gt;العودة للطلبات&lt;/Link&gt;&lt;/Button&gt;}</span>
+<span data-n="35" class="ln" id="s3c1l35">      /&gt;</span>
+<span data-n="36" class="ln" id="s3c1l36">    )</span>
+<span data-n="37" class="ln" id="s3c1l37">  }</span>
+<span data-n="38" class="ln" id="s3c1l38"></span>
+<span data-n="39" class="ln" id="s3c1l39">  return (</span>
+<span data-n="40" class="ln" id="s3c1l40">    &lt;div className="space-y-6"&gt;</span>
+<span data-n="41" class="ln" id="s3c1l41">      &lt;PageHeader</span>
+<span data-n="42" class="ln" id="s3c1l42">        title={`تفاصيل الطلب #${order.id}`}</span>
+<span data-n="43" class="ln" id="s3c1l43">        description={`تاريخ الطلب: ${formatDate(order.created_at)}`}</span>
+<span data-n="44" class="ln" id="s3c1l44">        actions={&lt;Button asChild variant="outline"&gt;</span>
+<span data-n="45" class="ln" id="s3c1l45">          &lt;Link to="/orders"&gt;&lt;ArrowRight className="ml-2 h-4 w-4" /&gt;العودة&lt;/Link&gt;</span>
+<span data-n="46" class="ln" id="s3c1l46">        &lt;/Button&gt;}</span>
+<span data-n="47" class="ln" id="s3c1l47">      /&gt;</span>
+<span data-n="48" class="ln" id="s3c1l48">      &lt;Card&gt;</span>
+<span data-n="49" class="ln" id="s3c1l49">        &lt;CardHeader&gt;</span>
+<span data-n="50" class="ln" id="s3c1l50">          &lt;CardTitle&gt;ملخص الطلب&lt;/CardTitle&gt;</span>
+<span data-n="51" class="ln" id="s3c1l51">        &lt;/CardHeader&gt;</span>
+<span data-n="52" class="ln" id="s3c1l52">        &lt;CardContent className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-3"&gt;</span>
+<span data-n="53" class="ln" id="s3c1l53">          &lt;div&gt;</span>
+<span data-n="54" class="ln hit" id="s3c1l54">            &lt;p className="text-sm text-muted-foreground"&gt;الحالة&lt;/p&gt;</span>
+<span data-n="55" class="ln hit" id="s3c1l55">            &lt;span className={`mt-1 inline-block rounded-full px-2.5 py-1 text-xs font-medium ${ORDER_STATUS_COLORS[order.status]}`}&gt;</span>
+<span data-n="56" class="ln hit" id="s3c1l56">              {ORDER_STATUS_LABELS[order.status]}</span>
+<span data-n="57" class="ln" id="s3c1l57">            &lt;/span&gt;</span>
+<span data-n="58" class="ln" id="s3c1l58">          &lt;/div&gt;</span>
+<span data-n="59" class="ln" id="s3c1l59">          {isAdmin &amp;&amp; order.user &amp;&amp; (</span>
+<span data-n="60" class="ln" id="s3c1l60">            &lt;div className="min-w-0"&gt;</span>
+<span data-n="61" class="ln" id="s3c1l61">              &lt;p className="text-sm text-muted-foreground"&gt;الزبون&lt;/p&gt;</span>
+<span data-n="62" class="ln" id="s3c1l62">              &lt;p className="break-words font-medium"&gt;{order.user.name}&lt;/p&gt;</span>
+<span data-n="63" class="ln" id="s3c1l63">              &lt;p className="break-all text-sm text-muted-foreground"&gt;{order.user.email}&lt;/p&gt;</span>
+<span data-n="64" class="ln" id="s3c1l64">            &lt;/div&gt;</span>
+<span data-n="65" class="ln" id="s3c1l65">          )}</span>
+<span data-n="66" class="ln" id="s3c1l66">          &lt;div&gt;</span>
+<span data-n="67" class="ln" id="s3c1l67">            &lt;p className="text-sm text-muted-foreground"&gt;الإجمالي&lt;/p&gt;</span>
+<span data-n="68" class="ln" id="s3c1l68">            &lt;p className="break-words font-semibold"&gt;{formatCurrency(order.total)}&lt;/p&gt;</span>
+<span data-n="69" class="ln" id="s3c1l69">          &lt;/div&gt;</span>
+<span data-n="70" class="ln" id="s3c1l70">        &lt;/CardContent&gt;</span>
+<span data-n="71" class="ln" id="s3c1l71">        {isAdmin &amp;&amp; (</span>
+<span data-n="72" class="ln" id="s3c1l72">          &lt;OrderStatusControl status={order.status} isPending={updateStatus.isPending} onStatusChange={(status) =&gt; updateStatus.mutate(status)} /&gt;</span>
+<span data-n="73" class="ln" id="s3c1l73">        )}</span>
+<span data-n="74" class="ln" id="s3c1l74">      &lt;/Card&gt;</span>
+<span data-n="75" class="ln" id="s3c1l75">      &lt;Card&gt;</span>
+<span data-n="76" class="ln" id="s3c1l76">        &lt;CardHeader&gt;&lt;CardTitle&gt;عناصر الطلب&lt;/CardTitle&gt;&lt;/CardHeader&gt;</span>
+<span data-n="77" class="ln" id="s3c1l77">        &lt;CardContent className="space-y-4"&gt;</span>
+<span data-n="78" class="ln" id="s3c1l78">          {order.items.map((item) =&gt; (</span>
+<span data-n="79" class="ln" id="s3c1l79">            &lt;div key={item.id} className="flex min-w-0 flex-col gap-3 border-b pb-4 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4"&gt;</span>
+<span data-n="80" class="ln" id="s3c1l80">              &lt;div className="flex min-w-0 items-center gap-3"&gt;</span>
+<span data-n="81" class="ln" id="s3c1l81">                {item.product.image_url &amp;&amp; (</span>
+<span data-n="82" class="ln" id="s3c1l82">                  &lt;img src={item.product.image_url} alt="" className="h-14 w-14 shrink-0 rounded-md object-cover" /&gt;</span>
+<span data-n="83" class="ln" id="s3c1l83">                )}</span>
+<span data-n="84" class="ln" id="s3c1l84">                &lt;div className="min-w-0"&gt;</span>
+<span data-n="85" class="ln" id="s3c1l85">                  &lt;p className="break-words font-medium"&gt;{item.product.name}&lt;/p&gt;</span>
+<span data-n="86" class="ln" id="s3c1l86">                  &lt;p className="break-words text-sm text-muted-foreground"&gt;</span>
+<span data-n="87" class="ln" id="s3c1l87">                    {formatCurrency(item.unit_price)} × {item.quantity}</span>
+<span data-n="88" class="ln" id="s3c1l88">                  &lt;/p&gt;</span>
+<span data-n="89" class="ln" id="s3c1l89">                &lt;/div&gt;</span>
+<span data-n="90" class="ln" id="s3c1l90">              &lt;/div&gt;</span>
+<span data-n="91" class="ln" id="s3c1l91">              &lt;p className="break-words font-semibold sm:shrink-0"&gt;{formatCurrency(item.subtotal)}&lt;/p&gt;</span>
+<span data-n="92" class="ln" id="s3c1l92">            &lt;/div&gt;</span>
+<span data-n="93" class="ln" id="s3c1l93">          ))}</span>
+<span data-n="94" class="ln" id="s3c1l94">          &lt;div className="flex flex-wrap justify-between gap-2 border-t pt-4 font-bold"&gt;</span>
+<span data-n="95" class="ln" id="s3c1l95">            &lt;span&gt;الإجمالي&lt;/span&gt;</span>
+<span data-n="96" class="ln" id="s3c1l96">            &lt;span&gt;{formatCurrency(order.total)}&lt;/span&gt;</span>
+<span data-n="97" class="ln" id="s3c1l97">          &lt;/div&gt;</span>
+<span data-n="98" class="ln" id="s3c1l98">        &lt;/CardContent&gt;</span>
+<span data-n="99" class="ln" id="s3c1l99">      &lt;/Card&gt;</span>
+<span data-n="100" class="ln" id="s3c1l100">    &lt;/div&gt;</span>
+<span data-n="101" class="ln" id="s3c1l101">  )</span>
+<span data-n="102" class="ln" id="s3c1l102">}</span></code></pre></div></div><div class="piece"><h3><bdi>useOrderStatusRealtime()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="frontend/src/features/orders/hooks/use-order-realtime.ts">frontend/src/features/orders/hooks/use-order-realtime.ts</a> · الأسطر <bdi>65–102</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c2l73">73</a> <a dir="ltr" class="jump" href="#s3c2l75">75–85</a> <a dir="ltr" class="jump" href="#s3c2l89">89–100</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: useOrderStatusRealtime()"><pre dir="ltr"><code data-path="frontend/src/features/orders/hooks/use-order-realtime.ts" data-start="65" data-end="102"><span data-n="65" class="ln" id="s3c2l65">export function useOrderStatusRealtime(order: Pick&lt;Order, "id" | "user_id"&gt; | undefined) {</span>
+<span data-n="66" class="ln" id="s3c2l66">  const manager = useRealtimeConnection()</span>
+<span data-n="67" class="ln" id="s3c2l67">  const queryClient = useQueryClient()</span>
+<span data-n="68" class="ln" id="s3c2l68">  const userId = useAuthStore((state) =&gt; state.isAuthenticated ? state.user?.id : undefined)</span>
+<span data-n="69" class="ln" id="s3c2l69">  const orderId = order?.id</span>
+<span data-n="70" class="ln" id="s3c2l70">  const ownerId = order?.user_id</span>
+<span data-n="71" class="ln" id="s3c2l71"></span>
+<span data-n="72" class="ln" id="s3c2l72">  useEffect(() =&gt; {</span>
+<span data-n="73" class="ln hit" id="s3c2l73">    if (!manager || !orderId || !Number.isInteger(orderId) || ownerId !== userId || !userId) return</span>
+<span data-n="74" class="ln" id="s3c2l74">    let active = true</span>
+<span data-n="75" class="ln hit" id="s3c2l75">    const filters: QueryFilters[] = [</span>
+<span data-n="76" class="ln hit" id="s3c2l76">      { queryKey: orderKeys.detail(orderId), exact: true },</span>
+<span data-n="77" class="ln hit" id="s3c2l77">      { queryKey: orderKeys.lists() },</span>
+<span data-n="78" class="ln hit" id="s3c2l78">    ]</span>
+<span data-n="79" class="ln hit" id="s3c2l79">    const resynchronize = () =&gt; {</span>
+<span data-n="80" class="ln hit" id="s3c2l80">      for (const filter of filters) {</span>
+<span data-n="81" class="ln hit" id="s3c2l81">        void queryClient.cancelQueries(filter).then(() =&gt; {</span>
+<span data-n="82" class="ln hit" id="s3c2l82">          const state = useAuthStore.getState()</span>
+<span data-n="83" class="ln hit" id="s3c2l83">          if (active &amp;&amp; state.isAuthenticated &amp;&amp; state.user?.id === ownerId) {</span>
+<span data-n="84" class="ln hit" id="s3c2l84">            return queryClient.invalidateQueries(filter)</span>
+<span data-n="85" class="ln hit" id="s3c2l85">          }</span>
+<span data-n="86" class="ln" id="s3c2l86">        })</span>
+<span data-n="87" class="ln" id="s3c2l87">      }</span>
+<span data-n="88" class="ln" id="s3c2l88">    }</span>
+<span data-n="89" class="ln hit" id="s3c2l89">    const unsubscribe = manager.subscribe({</span>
+<span data-n="90" class="ln hit" id="s3c2l90">      channel: `orders.${orderId}`,</span>
+<span data-n="91" class="ln hit" id="s3c2l91">      event: ".OrderStatusUpdated",</span>
+<span data-n="92" class="ln hit" id="s3c2l92">      isAllowed: (session) =&gt; session.userId === ownerId,</span>
+<span data-n="93" class="ln hit" id="s3c2l93">      onEvent: (payload) =&gt; {</span>
+<span data-n="94" class="ln hit" id="s3c2l94">        if (eventOrderId(payload) !== orderId) return</span>
+<span data-n="95" class="ln hit" id="s3c2l95">        resynchronize()</span>
+<span data-n="96" class="ln hit" id="s3c2l96">        announceOrderStatus(manager, payload, orderId, userId)</span>
+<span data-n="97" class="ln hit" id="s3c2l97">      },</span>
+<span data-n="98" class="ln hit" id="s3c2l98">      onSubscribed: resynchronize,</span>
+<span data-n="99" class="ln hit" id="s3c2l99">    })</span>
+<span data-n="100" class="ln hit" id="s3c2l100">    return () =&gt; { active = false; unsubscribe() }</span>
+<span data-n="101" class="ln" id="s3c2l101">  }, [manager, queryClient, userId, orderId, ownerId])</span>
+<span data-n="102" class="ln" id="s3c2l102">}</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في صفحة التفاصيل أبدأ من العلاقة بين الاستعلام والخطاف والشارة. الصفحة تجلب الطلب أول مرة لتعرض بياناته حتى لو لم يصل أي بث. بعد وصول البيانات يمرّر المكوّن الطلب إلى خطاف الاستماع، وفي العرض تُشتق تسمية الحالة من بيانات الاستعلام نفسه. لهذا لا نحتاج إلى نسخة ثانية من الحالة في متغير مستقل قد يختلف مع الخادم.</p><p>في الخطاف نتحقق من المالك ونستمع إلى القناة الخاصة برقم الطلب وإلى اسم الحدث الذي قرأناه في الخلفية. حين تصل إشارة مطابقة نلغي الجلب السابق ثم نعلّم بيانات التفاصيل والقائمة أنها بحاجة إلى تحديث، فتجلب الاستعلامات المفتوحة القيم الحالية. الغرض من إلغاء الجلب القديم أن رداً انطلق قبل الموافقة قد يصل متأخراً. وعند نجاح الاشتراك نعيد المزامنة أيضاً؛ لو حصلت الموافقة أثناء انقطاع الشبكة فلا نعتمد على أن يعيد <bdi dir="ltr">WebSocket</bdi> تشغيل التاريخ الذي فاتنا. النتيجة هي تحديث البيانات التي ترسم الشارة، لا طلب إعادة تحميل الصفحة.</p><p>يمكن اختبار الفكرة ذهنياً بإغلاق الاتصال للحظة: لن تصل إشارة الموافقة في وقتها، لكن أول إعادة مزامنة ناجحة تستطيع إظهار القيمة الحالية. ما نحتاجه للشارة هو أحدث حالة، وليس إعادة كل حالة وسيطة.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-4"><div class="top"><h2>4. صفحة القائمة: الاشتراك في الصفوف الظاهرة</h2><span class="clock" dir="ltr">5:00–6:45</span></div><div class="piece"><h3><bdi>OrdersPage()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="frontend/src/routes/_authenticated/orders/index.tsx">frontend/src/routes/_authenticated/orders/index.tsx</a> · الأسطر <bdi>29–108</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s4c1l32">32–34</a> <a dir="ltr" class="jump" href="#s4c1l49">49–52</a> <a dir="ltr" class="jump" href="#s4c1l89">89–92</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: OrdersPage()"><pre dir="ltr"><code data-path="frontend/src/routes/_authenticated/orders/index.tsx" data-start="29" data-end="108"><span data-n="29" class="ln" id="s4c1l29">function OrdersPage() {</span>
+<span data-n="30" class="ln" id="s4c1l30">  const { page = 1, status } = Route.useSearch()</span>
+<span data-n="31" class="ln" id="s4c1l31">  const navigate = useNavigate({ from: Route.fullPath })</span>
+<span data-n="32" class="ln hit" id="s4c1l32">  const isAdmin = useAuthStore((state) =&gt; state.user?.role === ROLES.ADMIN)</span>
+<span data-n="33" class="ln hit" id="s4c1l33">  const { data, isLoading, error } = useOrders(page, status, isAdmin)</span>
+<span data-n="34" class="ln hit" id="s4c1l34">  useOrderListStatusRealtime(isAdmin ? undefined : data?.data)</span>
+<span data-n="35" class="ln" id="s4c1l35"></span>
+<span data-n="36" class="ln" id="s4c1l36">  const columns: ColumnDef&lt;Order&gt;[] = [</span>
+<span data-n="37" class="ln" id="s4c1l37">    { accessorKey: "id", header: "رقم الطلب", cell: ({ row }) =&gt; `#${row.original.id}` },</span>
+<span data-n="38" class="ln" id="s4c1l38">  ]</span>
+<span data-n="39" class="ln" id="s4c1l39">  if (isAdmin) {</span>
+<span data-n="40" class="ln" id="s4c1l40">    columns.push({</span>
+<span data-n="41" class="ln" id="s4c1l41">      id: "customer",</span>
+<span data-n="42" class="ln" id="s4c1l42">      header: "الزبون",</span>
+<span data-n="43" class="ln" id="s4c1l43">      cell: ({ row }) =&gt; row.original.user?.name ?? `مستخدم #${row.original.user_id}`,</span>
+<span data-n="44" class="ln" id="s4c1l44">    })</span>
+<span data-n="45" class="ln" id="s4c1l45">  }</span>
+<span data-n="46" class="ln" id="s4c1l46">  columns.push(</span>
+<span data-n="47" class="ln" id="s4c1l47">    { id: "items", header: "عدد المنتجات", cell: ({ row }) =&gt; row.original.items.reduce((sum, item) =&gt; sum + item.quantity, 0) },</span>
+<span data-n="48" class="ln" id="s4c1l48">    { accessorKey: "total", header: "الإجمالي", cell: ({ row }) =&gt; formatCurrency(row.original.total) },</span>
+<span data-n="49" class="ln hit" id="s4c1l49">    { accessorKey: "status", header: "الحالة", cell: ({ row }) =&gt; (</span>
+<span data-n="50" class="ln hit" id="s4c1l50">      &lt;span className={`rounded-full px-2.5 py-1 text-xs font-medium ${ORDER_STATUS_COLORS[row.original.status]}`}&gt;</span>
+<span data-n="51" class="ln hit" id="s4c1l51">        {ORDER_STATUS_LABELS[row.original.status]}</span>
+<span data-n="52" class="ln hit" id="s4c1l52">      &lt;/span&gt;</span>
+<span data-n="53" class="ln" id="s4c1l53">    ) },</span>
+<span data-n="54" class="ln" id="s4c1l54">    { accessorKey: "created_at", header: "التاريخ", cell: ({ row }) =&gt; formatDate(row.original.created_at) },</span>
+<span data-n="55" class="ln" id="s4c1l55">    { id: "actions", header: "", cell: ({ row }) =&gt; (</span>
+<span data-n="56" class="ln" id="s4c1l56">      &lt;Button asChild size="sm" variant="outline"&gt;</span>
+<span data-n="57" class="ln" id="s4c1l57">        &lt;Link to="/orders/$orderId" params={{ orderId: String(row.original.id) }}&gt;</span>
+<span data-n="58" class="ln" id="s4c1l58">          &lt;Eye className="ml-2 h-4 w-4" /&gt;</span>
+<span data-n="59" class="ln" id="s4c1l59">          التفاصيل</span>
+<span data-n="60" class="ln" id="s4c1l60">        &lt;/Link&gt;</span>
+<span data-n="61" class="ln" id="s4c1l61">      &lt;/Button&gt;</span>
+<span data-n="62" class="ln" id="s4c1l62">    ) },</span>
+<span data-n="63" class="ln" id="s4c1l63">  )</span>
+<span data-n="64" class="ln" id="s4c1l64"></span>
+<span data-n="65" class="ln" id="s4c1l65">  return (</span>
+<span data-n="66" class="ln" id="s4c1l66">    &lt;div className="space-y-4"&gt;</span>
+<span data-n="67" class="ln" id="s4c1l67">      &lt;PageHeader title="الطلبات" description={isAdmin ? "متابعة وإدارة جميع طلبات المتجر" : "متابعة طلباتك"} /&gt;</span>
+<span data-n="68" class="ln" id="s4c1l68">      &lt;div className="max-w-xs"&gt;</span>
+<span data-n="69" class="ln" id="s4c1l69">        &lt;label htmlFor="order-status" className="mb-2 block text-sm font-medium"&gt;تصفية حسب الحالة&lt;/label&gt;</span>
+<span data-n="70" class="ln" id="s4c1l70">        &lt;select</span>
+<span data-n="71" class="ln" id="s4c1l71">          id="order-status"</span>
+<span data-n="72" class="ln" id="s4c1l72">          value={status ?? ""}</span>
+<span data-n="73" class="ln" id="s4c1l73">          onChange={(event) =&gt; {</span>
+<span data-n="74" class="ln" id="s4c1l74">            const next = event.target.value as OrderStatus | ""</span>
+<span data-n="75" class="ln" id="s4c1l75">            void navigate({ search: (previous) =&gt; ({ ...previous, page: 1, status: next || undefined }) })</span>
+<span data-n="76" class="ln" id="s4c1l76">          }}</span>
+<span data-n="77" class="ln" id="s4c1l77">          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"</span>
+<span data-n="78" class="ln" id="s4c1l78">        &gt;</span>
+<span data-n="79" class="ln" id="s4c1l79">          &lt;option value=""&gt;كل الحالات&lt;/option&gt;</span>
+<span data-n="80" class="ln" id="s4c1l80">          {Object.values(ORDER_STATUS).map((value) =&gt; (</span>
+<span data-n="81" class="ln" id="s4c1l81">            &lt;option key={value} value={value}&gt;{ORDER_STATUS_LABELS[value]}&lt;/option&gt;</span>
+<span data-n="82" class="ln" id="s4c1l82">          ))}</span>
+<span data-n="83" class="ln" id="s4c1l83">        &lt;/select&gt;</span>
+<span data-n="84" class="ln" id="s4c1l84">      &lt;/div&gt;</span>
+<span data-n="85" class="ln" id="s4c1l85">      {error ? (</span>
+<span data-n="86" class="ln" id="s4c1l86">        &lt;EmptyState title="تعذر تحميل الطلبات" description={error.message} /&gt;</span>
+<span data-n="87" class="ln" id="s4c1l87">      ) : (</span>
+<span data-n="88" class="ln" id="s4c1l88">        &lt;&gt;</span>
+<span data-n="89" class="ln hit" id="s4c1l89">          &lt;DataTable</span>
+<span data-n="90" class="ln hit" id="s4c1l90">            columns={columns}</span>
+<span data-n="91" class="ln hit" id="s4c1l91">            data={data?.data ?? []}</span>
+<span data-n="92" class="ln hit" id="s4c1l92">            isLoading={isLoading}</span>
+<span data-n="93" class="ln" id="s4c1l93">            emptyTitle="لا توجد طلبات"</span>
+<span data-n="94" class="ln" id="s4c1l94">            emptyDescription="لم يتم العثور على طلبات بهذه الحالة."</span>
+<span data-n="95" class="ln" id="s4c1l95">            renderMobileRow={(order) =&gt; &lt;OrderSummaryCard order={order} showCustomer={isAdmin} /&gt;}</span>
+<span data-n="96" class="ln" id="s4c1l96">          /&gt;</span>
+<span data-n="97" class="ln" id="s4c1l97">          {data?.meta &amp;&amp; (</span>
+<span data-n="98" class="ln" id="s4c1l98">            &lt;Pagination</span>
+<span data-n="99" class="ln" id="s4c1l99">              page={data.meta.current_page}</span>
+<span data-n="100" class="ln" id="s4c1l100">              lastPage={data.meta.last_page}</span>
+<span data-n="101" class="ln" id="s4c1l101">              onPageChange={(nextPage) =&gt; void navigate({ search: (previous) =&gt; ({ ...previous, page: nextPage }) })}</span>
+<span data-n="102" class="ln" id="s4c1l102">            /&gt;</span>
+<span data-n="103" class="ln" id="s4c1l103">          )}</span>
+<span data-n="104" class="ln" id="s4c1l104">        &lt;/&gt;</span>
+<span data-n="105" class="ln" id="s4c1l105">      )}</span>
+<span data-n="106" class="ln" id="s4c1l106">    &lt;/div&gt;</span>
+<span data-n="107" class="ln" id="s4c1l107">  )</span>
+<span data-n="108" class="ln" id="s4c1l108">}</span></code></pre></div></div><div class="piece"><h3><bdi>useOrderListStatusRealtime()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="frontend/src/features/orders/hooks/use-order-realtime.ts">frontend/src/features/orders/hooks/use-order-realtime.ts</a> · الأسطر <bdi>105–163</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s4c2l108">108–115</a> <a dir="ltr" class="jump" href="#s4c2l119">119–123</a> <a dir="ltr" class="jump" href="#s4c2l130">130–143</a> <a dir="ltr" class="jump" href="#s4c2l145">145–155</a> <a dir="ltr" class="jump" href="#s4c2l157">157–160</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: useOrderListStatusRealtime()"><pre dir="ltr"><code data-path="frontend/src/features/orders/hooks/use-order-realtime.ts" data-start="105" data-end="163"><span data-n="105" class="ln" id="s4c2l105">export function useOrderListStatusRealtime(orders: readonly Pick&lt;Order, "id" | "user_id"&gt;[] | undefined) {</span>
+<span data-n="106" class="ln" id="s4c2l106">  const manager = useRealtimeConnection()</span>
+<span data-n="107" class="ln" id="s4c2l107">  const queryClient = useQueryClient()</span>
+<span data-n="108" class="ln hit" id="s4c2l108">  const userId = useAuthStore((state) =&gt; state.isAuthenticated &amp;&amp; state.user?.role === ROLES.CUSTOMER ? state.user.id : undefined)</span>
+<span data-n="109" class="ln hit" id="s4c2l109">  // A REST refetch returns new objects. Keep subscriptions stable when the visible IDs are unchanged.</span>
+<span data-n="110" class="ln hit" id="s4c2l110">  const orderIds = [...new Set((orders ?? [])</span>
+<span data-n="111" class="ln hit" id="s4c2l111">    .filter((order) =&gt; order.user_id === userId &amp;&amp; Number.isInteger(order.id) &amp;&amp; order.id &gt; 0)</span>
+<span data-n="112" class="ln hit" id="s4c2l112">    .map((order) =&gt; order.id))].sort((left, right) =&gt; left - right).join(",")</span>
+<span data-n="113" class="ln hit" id="s4c2l113"></span>
+<span data-n="114" class="ln hit" id="s4c2l114">  useEffect(() =&gt; {</span>
+<span data-n="115" class="ln hit" id="s4c2l115">    if (!manager || !userId || !orderIds) return</span>
+<span data-n="116" class="ln" id="s4c2l116">    let active = true</span>
+<span data-n="117" class="ln" id="s4c2l117">    let timer: ReturnType&lt;typeof setTimeout&gt; | undefined</span>
+<span data-n="118" class="ln" id="s4c2l118">    const pendingIds = new Set&lt;number&gt;()</span>
+<span data-n="119" class="ln hit" id="s4c2l119">    const resynchronize = (orderId: number) =&gt; {</span>
+<span data-n="120" class="ln hit" id="s4c2l120">      pendingIds.add(orderId)</span>
+<span data-n="121" class="ln hit" id="s4c2l121">      if (timer !== undefined) return</span>
+<span data-n="122" class="ln hit" id="s4c2l122">      // Coalesce the page's subscription-success/event burst into one list refetch.</span>
+<span data-n="123" class="ln hit" id="s4c2l123">      timer = setTimeout(() =&gt; {</span>
+<span data-n="124" class="ln" id="s4c2l124">        timer = undefined</span>
+<span data-n="125" class="ln" id="s4c2l125">        const state = useAuthStore.getState()</span>
+<span data-n="126" class="ln" id="s4c2l126">        if (!active || !state.isAuthenticated || state.user?.id !== userId || state.user.role !== ROLES.CUSTOMER) {</span>
+<span data-n="127" class="ln" id="s4c2l127">          pendingIds.clear()</span>
+<span data-n="128" class="ln" id="s4c2l128">          return</span>
+<span data-n="129" class="ln" id="s4c2l129">        }</span>
+<span data-n="130" class="ln hit" id="s4c2l130">        const filters: QueryFilters[] = [</span>
+<span data-n="131" class="ln hit" id="s4c2l131">          { queryKey: orderKeys.lists() },</span>
+<span data-n="132" class="ln hit" id="s4c2l132">          ...[...pendingIds].map((id) =&gt; ({ queryKey: orderKeys.detail(id), exact: true })),</span>
+<span data-n="133" class="ln hit" id="s4c2l133">        ]</span>
+<span data-n="134" class="ln hit" id="s4c2l134">        pendingIds.clear()</span>
+<span data-n="135" class="ln hit" id="s4c2l135">        for (const filter of filters) {</span>
+<span data-n="136" class="ln hit" id="s4c2l136">          void queryClient.cancelQueries(filter).then(() =&gt; {</span>
+<span data-n="137" class="ln hit" id="s4c2l137">            const state = useAuthStore.getState()</span>
+<span data-n="138" class="ln hit" id="s4c2l138">            if (active &amp;&amp; state.isAuthenticated &amp;&amp; state.user?.id === userId &amp;&amp; state.user.role === ROLES.CUSTOMER) {</span>
+<span data-n="139" class="ln hit" id="s4c2l139">              return queryClient.invalidateQueries(filter)</span>
+<span data-n="140" class="ln hit" id="s4c2l140">            }</span>
+<span data-n="141" class="ln hit" id="s4c2l141">          })</span>
+<span data-n="142" class="ln hit" id="s4c2l142">        }</span>
+<span data-n="143" class="ln hit" id="s4c2l143">      }, 20)</span>
+<span data-n="144" class="ln" id="s4c2l144">    }</span>
+<span data-n="145" class="ln hit" id="s4c2l145">    const unsubscribe = orderIds.split(",").map(Number).map((orderId) =&gt; manager.subscribe({</span>
+<span data-n="146" class="ln hit" id="s4c2l146">      channel: `orders.${orderId}`,</span>
+<span data-n="147" class="ln hit" id="s4c2l147">      event: ".OrderStatusUpdated",</span>
+<span data-n="148" class="ln hit" id="s4c2l148">      isAllowed: (session) =&gt; session.userId === userId &amp;&amp; session.role === ROLES.CUSTOMER,</span>
+<span data-n="149" class="ln hit" id="s4c2l149">      onEvent: (payload) =&gt; {</span>
+<span data-n="150" class="ln hit" id="s4c2l150">        if (eventOrderId(payload) !== orderId) return</span>
+<span data-n="151" class="ln hit" id="s4c2l151">        resynchronize(orderId)</span>
+<span data-n="152" class="ln hit" id="s4c2l152">        announceOrderStatus(manager, payload, orderId, userId)</span>
+<span data-n="153" class="ln hit" id="s4c2l153">      },</span>
+<span data-n="154" class="ln hit" id="s4c2l154">      onSubscribed: () =&gt; resynchronize(orderId),</span>
+<span data-n="155" class="ln hit" id="s4c2l155">    }))</span>
+<span data-n="156" class="ln" id="s4c2l156">    return () =&gt; {</span>
+<span data-n="157" class="ln hit" id="s4c2l157">      active = false</span>
+<span data-n="158" class="ln hit" id="s4c2l158">      if (timer !== undefined) clearTimeout(timer)</span>
+<span data-n="159" class="ln hit" id="s4c2l159">      pendingIds.clear()</span>
+<span data-n="160" class="ln hit" id="s4c2l160">      for (const release of unsubscribe) release()</span>
+<span data-n="161" class="ln" id="s4c2l161">    }</span>
+<span data-n="162" class="ln" id="s4c2l162">  }, [manager, queryClient, userId, orderIds])</span>
+<span data-n="163" class="ln" id="s4c2l163">}</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>الآن أرجع للسيناريو الذي كان يسبب اللبس: الزبون يقف على قائمة طلباته، ولم يفتح صفحة التفاصيل أصلاً. لو اكتفينا بالخطاف السابق فلن يوجد في هذه الشاشة مستمع يعمل نيابة عنها. لهذا تربط صفحة القائمة بيانات الصفحة الحالية بخطاف مستقل، في حين يعرض كل صف تسمية الحالة الآتية من بيانات ذلك الصف. إذا تغيّرت نتيجة الاستعلام يتغير الصف من تلقاء نفسه.</p><p>في خطاف القائمة ننتقي الطلبات المملوكة للمستخدم والظاهرة حالياً، ونحوّلها إلى مجموعة أرقام مستقرة. عند تبدّل كائنات <bdi dir="ltr">React</bdi> بسبب جلب جديد مع بقاء نفس الأرقام لا نريد فك الاشتراك وتركيبه من الصفر بلا سبب. ينشأ مستمع لكل طلب ظاهر، وإذا وصلت عدة إشارات متقاربة تُجمع خلال نافذة قصيرة ثم تحدَّث القائمة والتفاصيل المتأثرة. لذلك قد تختفي بطاقة من قائمة تعرض المعلّق فقط بعد أن يصبح الطلب مؤكداً. هذا اختفاء صحيح تفرضه التصفية، وليس فقداناً للتحديث. وعند مغادرة الصفحة يحرر الخطاف اشتراكاتها.</p><p>هذه النقطة تفسر اختلافاً عملياً بين الشاشتين: التفاصيل تعرف رقماً واحداً طوال وجودها، أما القائمة فمجموعة أرقامها تتبدل عند الانتقال بين الصفحات أو تغيير الفلتر. لذلك يختلف إعداد المستمعين مع أن الحدث واحد.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-5"><div class="top"><h2>5. تنبيه واحد للواقعة نفسها</h2><span class="clock" dir="ltr">6:45–8:20</span></div><div class="piece"><h3><bdi>announceOrderStatus()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="frontend/src/features/orders/realtime/order-status-notifications.ts">frontend/src/features/orders/realtime/order-status-notifications.ts</a> · الأسطر <bdi>11–37</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s5c1l17">17–31</a> <a dir="ltr" class="jump" href="#s5c1l33">33–36</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: announceOrderStatus()"><pre dir="ltr"><code data-path="frontend/src/features/orders/realtime/order-status-notifications.ts" data-start="11" data-end="37"><span data-n="11" class="ln" id="s5c1l11">export function announceOrderStatus(</span>
+<span data-n="12" class="ln" id="s5c1l12">  manager: RealtimeConnectionManager,</span>
+<span data-n="13" class="ln" id="s5c1l13">  payload: unknown,</span>
+<span data-n="14" class="ln" id="s5c1l14">  orderId: number,</span>
+<span data-n="15" class="ln" id="s5c1l15">  ownerId: number,</span>
+<span data-n="16" class="ln" id="s5c1l16">) {</span>
+<span data-n="17" class="ln hit" id="s5c1l17">  const state = useAuthStore.getState()</span>
+<span data-n="18" class="ln hit" id="s5c1l18">  if (!state.isAuthenticated || !state.token || state.user?.role !== ROLES.CUSTOMER || state.user.id !== ownerId ||</span>
+<span data-n="19" class="ln hit" id="s5c1l19">    !payload || typeof payload !== "object" || !("order_id" in payload) || payload.order_id !== orderId ||</span>
+<span data-n="20" class="ln hit" id="s5c1l20">    !("event_id" in payload) || typeof payload.event_id !== "string" || !eventIdPattern.test(payload.event_id) ||</span>
+<span data-n="21" class="ln hit" id="s5c1l21">    !("status" in payload) || typeof payload.status !== "string" || !Object.hasOwn(ORDER_STATUS_LABELS, payload.status)) return</span>
+<span data-n="22" class="ln hit" id="s5c1l22"></span>
+<span data-n="23" class="ln hit" id="s5c1l23">  const generation = manager.getSessionGeneration()</span>
+<span data-n="24" class="ln hit" id="s5c1l24">  let delivery = announced.get(manager)</span>
+<span data-n="25" class="ln hit" id="s5c1l25">  if (!delivery || delivery.generation !== generation) {</span>
+<span data-n="26" class="ln hit" id="s5c1l26">    delivery = { generation, eventIds: new Set() }</span>
+<span data-n="27" class="ln hit" id="s5c1l27">    announced.set(manager, delivery)</span>
+<span data-n="28" class="ln hit" id="s5c1l28">  }</span>
+<span data-n="29" class="ln hit" id="s5c1l29">  if (delivery.eventIds.has(payload.event_id)) return</span>
+<span data-n="30" class="ln hit" id="s5c1l30">  delivery.eventIds.add(payload.event_id)</span>
+<span data-n="31" class="ln hit" id="s5c1l31">  if (delivery.eventIds.size &gt; 100) delivery.eventIds.delete(delivery.eventIds.values().next().value!)</span>
+<span data-n="32" class="ln" id="s5c1l32"></span>
+<span data-n="33" class="ln hit" id="s5c1l33">  toastService.info(</span>
+<span data-n="34" class="ln hit" id="s5c1l34">    `تم تحديث حالة الطلب #${orderId}`,</span>
+<span data-n="35" class="ln hit" id="s5c1l35">    `الحالة الجديدة: ${ORDER_STATUS_LABELS[payload.status as OrderStatus]}`,</span>
+<span data-n="36" class="ln hit" id="s5c1l36">  )</span>
+<span data-n="37" class="ln" id="s5c1l37">}</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>أخيراً أميّز بين ما أراه في الشارة وما أراه في التنبيه. الشارة تعكس أحدث بيانات الطلب التي جلبتها الصفحة، أما التنبيه فيصف واقعة التغيير لحظة وصولها. في الصفحتين نستدعي دالة الإعلان نفسها. قبل عرض شيء تتأكد أن المستخدم الحالي هو الزبون المالك وأن الرقم والحالة ومعرّف الحدث صالحون. لذلك لن تعرض نصاً مجهولاً أو تنبيهاً لطلب آخر لمجرد أن هناك اتصالاً مفتوحاً.</p><p>ممّا قد يحدث أن يصل الحدث نفسه لأكثر من مستمع، أو أن ينتقل الزبون بين القائمة والتفاصيل أثناء المعالجة. تحتفظ الدالة بمجموعة محدودة من معرّفات الإعلانات الحديثة للجلسة؛ إذا رأت المعرّف نفسه لا تكرر التنبيه، أما تحديث آخر لنفس الطلب فله معرّف جديد. ما ننتظره أمام الدكتور هو أن تتغير الحالة في الشاشة المفتوحة دون تحديث يدوي، ويظهر تنبيه واحد للتغيير الجديد، ويبقى مستخدم الحساب الآخر خارج القناة.</p><p>لو انتقلت إلى التفاصيل بعد حدوث الموافقة فلا يلزم أن يظهر تنبيه جديد لمجرد أنك فتحتها. الذي ينبغي أن تجده هناك هو الحالة الصحيحة؛ التنبيه مخصص لواقعة وصلت أثناء المتابعة.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+</main><script>document.querySelectorAll(".pane").forEach(box=>{const first=box.querySelector(".hit");if(first)box.scrollTop=Math.max(0,first.getBoundingClientRect().top-box.getBoundingClientRect().top-42);});</script></body></html>

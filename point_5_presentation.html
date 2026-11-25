@@ -1,0 +1,538 @@
+<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>كيف يظهر الطلب الجديد فوراً عند المسؤول؟</title><style>
+:root{--ink:#153044;--bg:#f1f5f8;--line:#c9d7e1;--link:#075873;--focus:#ffe8a3;--soft:#f3f7fa;color-scheme:light}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.85 system-ui,'Segoe UI',Tahoma,sans-serif}main{max-width:67rem;margin:auto;padding:1rem}header,section{background:white;border:1px solid var(--line);border-radius:12px;padding:clamp(1rem,3vw,1.8rem);margin:.9rem 0}header{border-top:5px solid var(--link)}h1,h2,h3{line-height:1.45;margin:.2rem 0 .6rem}h1{font-size:clamp(1.45rem,3vw,2.2rem)}h2{font-size:1.35rem}h3{font-size:1rem}p{margin:.5rem 0}.tag,.clock{font-weight:700;color:var(--link)}a{color:var(--link);text-underline-offset:3px}nav,.jumps{display:flex;flex-wrap:wrap;gap:.25rem .9rem}nav{margin-top:.8rem}.top{display:flex;justify-content:space-between;align-items:baseline;gap:.7rem}.clock,.path,code{font-family:Consolas,monospace}.clock{white-space:nowrap}.path{display:inline-block;overflow-wrap:anywhere;max-width:100%;font-size:.85rem}.piece{padding:.7rem 0}.open,.jumps{font-size:.87rem}.pane{direction:ltr;text-align:left;max-height:20rem;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:6px;background:#fafcfd;scroll-padding-top:2.5rem}.pane pre{line-height:1.6;font-size:13px;tab-size:4;margin:0;min-width:100%;width:max-content;padding:.25rem 0}.ln{display:inline-block;min-width:100%;padding-right:.55rem;color:#31475b}.ln:before{content:attr(data-n);display:inline-block;width:3.25rem;margin-right:.6rem;padding-right:.55rem;text-align:right;font-size:.82em;color:#526678;border-right:1px solid #c5d1da;user-select:none}.hit{background:var(--focus);color:#222}.ln:target{outline:2px solid #b16b00;outline-offset:-2px}.jumps{margin:.3rem 0 .45rem}.talk{margin-top:.8rem;border-inline-start:4px solid #30828b;padding:.35rem 1rem;background:#f2f8f8}.talk p+p{margin-top:.8rem}.guide{font-size:.92rem}.key{background:var(--focus);padding:.02rem .25rem}.piece:focus-within{border-color:#91abb1}a:focus-visible,.pane:focus-visible{outline:2px solid #086984}.navback{font-size:.82rem} @media print{body{background:white;font-size:11pt}main{max-width:none;margin:0;padding:0}header,section{border:0;padding:.4rem 0}nav,.jumps,.navback{display:none}.pane{max-height:none;overflow:visible}.pane pre{font-size:8pt;white-space:pre-wrap;overflow-wrap:anywhere;width:auto}.ln{display:inline;min-width:0}.hit{background:#fff0b8;print-color-adjust:exact}.top,h3{break-after:avoid}}</style></head><body><main id="top">
+<header><div class="tag">المتطلب الرابع · الفكرة الخامسة</div><h1>كيف يظهر الطلب الجديد فوراً عند المسؤول؟</h1><p><strong>مدة العرض كاملًا: نحو <bdi dir="ltr">8:15</bdi> دقائق.</strong> اقرأ فقرات «ما تقوله» فقط وانتقل إلى الكود المشار إليه. التوقيت يشمل الانتقال بين المواضع؛ لا تقرأ الدالة كاملة بصوت عالٍ.</p><p class="guide">كل دالة معروضة من تعريفها إلى نهايتها. <span class="key">التظليل</span> يحدد الجزء المتعلق بالفكرة؛ بقية الكود موجود لتفهم السياق. روابط الأرقام تنقلك إلى مواضع الشرح داخل الدالة.</p><nav aria-label="محطات العرض"><a href="#step-1">1. حدث جديد بعد اكتمال الشراء</a> · <a href="#step-2">2. لماذا نُبطل ملخص الخادم؟</a> · <a href="#step-3">3. قناة الإدارة والبيانات الإدارية</a> · <a href="#step-4">4. من يلتقط الإشارة؟</a> · <a href="#step-5">5. عداد اللوحة وصف القائمة</a></nav></header>
+<section id="step-1"><div class="top"><h2>1. حدث جديد بعد اكتمال الشراء</h2><span class="clock" dir="ltr">0:00–1:40</span></div><div class="piece"><h3><bdi>createOrder()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/OrderService.php">backend/my-project/app/Services/OrderService.php</a> · الأسطر <bdi>37–287</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s1c1l183">183–193</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: createOrder()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/OrderService.php" data-start="37" data-end="287"><span data-n="37" class="ln" id="s1c1l37">    public function createOrder(User $user, array $items, string $idempotencyKey): Order</span>
+<span data-n="38" class="ln" id="s1c1l38">    {</span>
+<span data-n="39" class="ln" id="s1c1l39">        $normalizedItems = collect($items)</span>
+<span data-n="40" class="ln" id="s1c1l40">            -&gt;map(fn (array $item) =&gt; [</span>
+<span data-n="41" class="ln" id="s1c1l41">                'product_id' =&gt; (int) $item['product_id'],</span>
+<span data-n="42" class="ln" id="s1c1l42">                'quantity' =&gt; (int) $item['quantity'],</span>
+<span data-n="43" class="ln" id="s1c1l43">            ])</span>
+<span data-n="44" class="ln" id="s1c1l44">            -&gt;sortBy(['product_id', 'quantity'])</span>
+<span data-n="45" class="ln" id="s1c1l45">            -&gt;values()</span>
+<span data-n="46" class="ln" id="s1c1l46">            -&gt;all();</span>
+<span data-n="47" class="ln" id="s1c1l47">        $requestHash = hash('sha256', json_encode($normalizedItems, JSON_THROW_ON_ERROR));</span>
+<span data-n="48" class="ln" id="s1c1l48"></span>
+<span data-n="49" class="ln" id="s1c1l49">        DB::table('inventory_operations')-&gt;insertOrIgnore([</span>
+<span data-n="50" class="ln" id="s1c1l50">            'idempotency_key' =&gt; $idempotencyKey,</span>
+<span data-n="51" class="ln" id="s1c1l51">            'user_id' =&gt; $user-&gt;id,</span>
+<span data-n="52" class="ln" id="s1c1l52">            'request_hash' =&gt; $requestHash,</span>
+<span data-n="53" class="ln" id="s1c1l53">            'status' =&gt; 'pending',</span>
+<span data-n="54" class="ln" id="s1c1l54">            'created_at' =&gt; now(),</span>
+<span data-n="55" class="ln" id="s1c1l55">            'updated_at' =&gt; now(),</span>
+<span data-n="56" class="ln" id="s1c1l56">        ]);</span>
+<span data-n="57" class="ln" id="s1c1l57">        $operation = InventoryOperation::where('idempotency_key', $idempotencyKey)-&gt;firstOrFail();</span>
+<span data-n="58" class="ln" id="s1c1l58"></span>
+<span data-n="59" class="ln" id="s1c1l59">        if ($operation-&gt;user_id !== $user-&gt;id || ! hash_equals($operation-&gt;request_hash, $requestHash)) {</span>
+<span data-n="60" class="ln" id="s1c1l60">            throw new \InvalidArgumentException('This Idempotency-Key was already used for a different order.');</span>
+<span data-n="61" class="ln" id="s1c1l61">        }</span>
+<span data-n="62" class="ln" id="s1c1l62">        if ($operation-&gt;status === 'completed') {</span>
+<span data-n="63" class="ln" id="s1c1l63">            return Order::with('items.product')-&gt;findOrFail($operation-&gt;order_id);</span>
+<span data-n="64" class="ln" id="s1c1l64">        }</span>
+<span data-n="65" class="ln" id="s1c1l65">        if ($operation-&gt;status === 'compensation_pending') {</span>
+<span data-n="66" class="ln" id="s1c1l66">            throw new InventoryOutcomeUnknownException('A prior compensation is still pending.');</span>
+<span data-n="67" class="ln" id="s1c1l67">        }</span>
+<span data-n="68" class="ln" id="s1c1l68">        if ($operation-&gt;status === 'compensated') {</span>
+<span data-n="69" class="ln" id="s1c1l69">            throw new \InvalidArgumentException('The previous attempt was compensated. Use a new Idempotency-Key.');</span>
+<span data-n="70" class="ln" id="s1c1l70">        }</span>
+<span data-n="71" class="ln" id="s1c1l71"></span>
+<span data-n="72" class="ln" id="s1c1l72">        $productIds = array_column($items, 'product_id');</span>
+<span data-n="73" class="ln" id="s1c1l73">        $products = Product::whereIn('id', $productIds)</span>
+<span data-n="74" class="ln" id="s1c1l74">            -&gt;where('is_active', true)</span>
+<span data-n="75" class="ln" id="s1c1l75">            -&gt;get()</span>
+<span data-n="76" class="ln" id="s1c1l76">            -&gt;keyBy('id');</span>
+<span data-n="77" class="ln" id="s1c1l77"></span>
+<span data-n="78" class="ln" id="s1c1l78">        // Check all products exist and are active</span>
+<span data-n="79" class="ln" id="s1c1l79">        foreach ($items as $item) {</span>
+<span data-n="80" class="ln" id="s1c1l80">            if (! $products-&gt;has($item['product_id'])) {</span>
+<span data-n="81" class="ln" id="s1c1l81">                throw new \InvalidArgumentException(</span>
+<span data-n="82" class="ln" id="s1c1l82">                    "Product ID {$item['product_id']} not found or is inactive."</span>
+<span data-n="83" class="ln" id="s1c1l83">                );</span>
+<span data-n="84" class="ln" id="s1c1l84">            }</span>
+<span data-n="85" class="ln" id="s1c1l85">        }</span>
+<span data-n="86" class="ln" id="s1c1l86"></span>
+<span data-n="87" class="ln" id="s1c1l87">        $orderItems = [];</span>
+<span data-n="88" class="ln" id="s1c1l88">        $total = '0.00';</span>
+<span data-n="89" class="ln" id="s1c1l89">        foreach ($items as $item) {</span>
+<span data-n="90" class="ln" id="s1c1l90">            $product = $products[$item['product_id']];</span>
+<span data-n="91" class="ln" id="s1c1l91">            $unitPrice = $product-&gt;price;</span>
+<span data-n="92" class="ln" id="s1c1l92">            $subtotal = bcmul($unitPrice, (string) $item['quantity'], 2);</span>
+<span data-n="93" class="ln" id="s1c1l93">            $total = bcadd($total, $subtotal, 2);</span>
+<span data-n="94" class="ln" id="s1c1l94"></span>
+<span data-n="95" class="ln" id="s1c1l95">            $orderItems[] = [</span>
+<span data-n="96" class="ln" id="s1c1l96">                'product_id' =&gt; $product-&gt;id,</span>
+<span data-n="97" class="ln" id="s1c1l97">                'quantity' =&gt; $item['quantity'],</span>
+<span data-n="98" class="ln" id="s1c1l98">                'unit_price' =&gt; $unitPrice,</span>
+<span data-n="99" class="ln" id="s1c1l99">                'subtotal' =&gt; $subtotal,</span>
+<span data-n="100" class="ln" id="s1c1l100">            ];</span>
+<span data-n="101" class="ln" id="s1c1l101">        }</span>
+<span data-n="102" class="ln" id="s1c1l102"></span>
+<span data-n="103" class="ln" id="s1c1l103">        $reservationId = null;</span>
+<span data-n="104" class="ln" id="s1c1l104">        try {</span>
+<span data-n="105" class="ln" id="s1c1l105">            $reservedOperation = DB::transaction(function () use (</span>
+<span data-n="106" class="ln" id="s1c1l106">                $operation,</span>
+<span data-n="107" class="ln" id="s1c1l107">                $items,</span>
+<span data-n="108" class="ln" id="s1c1l108">                $idempotencyKey</span>
+<span data-n="109" class="ln" id="s1c1l109">            ) {</span>
+<span data-n="110" class="ln" id="s1c1l110">                $lockedOperation = InventoryOperation::query()</span>
+<span data-n="111" class="ln" id="s1c1l111">                    -&gt;whereKey($operation-&gt;id)</span>
+<span data-n="112" class="ln" id="s1c1l112">                    -&gt;lockForUpdate()</span>
+<span data-n="113" class="ln" id="s1c1l113">                    -&gt;firstOrFail();</span>
+<span data-n="114" class="ln" id="s1c1l114"></span>
+<span data-n="115" class="ln" id="s1c1l115">                if ($lockedOperation-&gt;status === 'completed') {</span>
+<span data-n="116" class="ln" id="s1c1l116">                    return $lockedOperation;</span>
+<span data-n="117" class="ln" id="s1c1l117">                }</span>
+<span data-n="118" class="ln" id="s1c1l118">                if ($lockedOperation-&gt;status === 'compensation_pending') {</span>
+<span data-n="119" class="ln" id="s1c1l119">                    throw new InventoryOutcomeUnknownException('A prior compensation is still pending.');</span>
+<span data-n="120" class="ln" id="s1c1l120">                }</span>
+<span data-n="121" class="ln" id="s1c1l121">                if ($lockedOperation-&gt;status === 'compensated') {</span>
+<span data-n="122" class="ln" id="s1c1l122">                    throw new \InvalidArgumentException('The previous attempt was compensated. Use a new Idempotency-Key.');</span>
+<span data-n="123" class="ln" id="s1c1l123">                }</span>
+<span data-n="124" class="ln" id="s1c1l124"></span>
+<span data-n="125" class="ln" id="s1c1l125">                if ($lockedOperation-&gt;status === 'pending') {</span>
+<span data-n="126" class="ln" id="s1c1l126">                    $reservation = $this-&gt;inventoryClient-&gt;reserveStock($items, $idempotencyKey);</span>
+<span data-n="127" class="ln" id="s1c1l127">                    if (! $reservation-&gt;success) {</span>
+<span data-n="128" class="ln" id="s1c1l128">                        throw new InsufficientStockException(</span>
+<span data-n="129" class="ln" id="s1c1l129">                            $reservation-&gt;reason ?: 'Insufficient stock for one or more products.'</span>
+<span data-n="130" class="ln" id="s1c1l130">                        );</span>
+<span data-n="131" class="ln" id="s1c1l131">                    }</span>
+<span data-n="132" class="ln" id="s1c1l132">                    if (! $reservation-&gt;reservationId) {</span>
+<span data-n="133" class="ln" id="s1c1l133">                        throw new InventoryOutcomeUnknownException('Reservation was not confirmed with an ID.');</span>
+<span data-n="134" class="ln" id="s1c1l134">                    }</span>
+<span data-n="135" class="ln" id="s1c1l135"></span>
+<span data-n="136" class="ln" id="s1c1l136">                    $lockedOperation-&gt;update([</span>
+<span data-n="137" class="ln" id="s1c1l137">                        'status' =&gt; 'reserved',</span>
+<span data-n="138" class="ln" id="s1c1l138">                        'reservation_id' =&gt; $reservation-&gt;reservationId,</span>
+<span data-n="139" class="ln" id="s1c1l139">                    ]);</span>
+<span data-n="140" class="ln" id="s1c1l140">                }</span>
+<span data-n="141" class="ln" id="s1c1l141"></span>
+<span data-n="142" class="ln" id="s1c1l142">                if ($lockedOperation-&gt;status !== 'reserved' || ! $lockedOperation-&gt;reservation_id) {</span>
+<span data-n="143" class="ln" id="s1c1l143">                    throw new InventoryOutcomeUnknownException('Reservation operation is not in a recoverable state.');</span>
+<span data-n="144" class="ln" id="s1c1l144">                }</span>
+<span data-n="145" class="ln" id="s1c1l145"></span>
+<span data-n="146" class="ln" id="s1c1l146">                return $lockedOperation-&gt;fresh();</span>
+<span data-n="147" class="ln" id="s1c1l147">            });</span>
+<span data-n="148" class="ln" id="s1c1l148">            $reservationId = $reservedOperation-&gt;reservation_id;</span>
+<span data-n="149" class="ln" id="s1c1l149"></span>
+<span data-n="150" class="ln" id="s1c1l150">            if ($reservedOperation-&gt;status === 'completed') {</span>
+<span data-n="151" class="ln" id="s1c1l151">                return Order::with('items.product')-&gt;findOrFail($reservedOperation-&gt;order_id);</span>
+<span data-n="152" class="ln" id="s1c1l152">            }</span>
+<span data-n="153" class="ln" id="s1c1l153"></span>
+<span data-n="154" class="ln" id="s1c1l154">            $order = DB::transaction(function () use ($operation, $user, $total, $orderItems) {</span>
+<span data-n="155" class="ln" id="s1c1l155">                $lockedOperation = InventoryOperation::query()</span>
+<span data-n="156" class="ln" id="s1c1l156">                    -&gt;whereKey($operation-&gt;id)</span>
+<span data-n="157" class="ln" id="s1c1l157">                    -&gt;lockForUpdate()</span>
+<span data-n="158" class="ln" id="s1c1l158">                    -&gt;firstOrFail();</span>
+<span data-n="159" class="ln" id="s1c1l159"></span>
+<span data-n="160" class="ln" id="s1c1l160">                if ($lockedOperation-&gt;status === 'completed') {</span>
+<span data-n="161" class="ln" id="s1c1l161">                    return Order::with('items.product')-&gt;findOrFail($lockedOperation-&gt;order_id);</span>
+<span data-n="162" class="ln" id="s1c1l162">                }</span>
+<span data-n="163" class="ln" id="s1c1l163">                if ($lockedOperation-&gt;status !== 'reserved' || ! $lockedOperation-&gt;reservation_id) {</span>
+<span data-n="164" class="ln" id="s1c1l164">                    throw new InventoryOutcomeUnknownException('Confirmed reservation state is unavailable.');</span>
+<span data-n="165" class="ln" id="s1c1l165">                }</span>
+<span data-n="166" class="ln" id="s1c1l166"></span>
+<span data-n="167" class="ln" id="s1c1l167">                $order = Order::create([</span>
+<span data-n="168" class="ln" id="s1c1l168">                    'user_id' =&gt; $user-&gt;id,</span>
+<span data-n="169" class="ln" id="s1c1l169">                    'total' =&gt; $total,</span>
+<span data-n="170" class="ln" id="s1c1l170">                    'status' =&gt; 'pending',</span>
+<span data-n="171" class="ln" id="s1c1l171">                    'reservation_id' =&gt; $lockedOperation-&gt;reservation_id,</span>
+<span data-n="172" class="ln" id="s1c1l172">                ]);</span>
+<span data-n="173" class="ln" id="s1c1l173"></span>
+<span data-n="174" class="ln" id="s1c1l174">                foreach ($orderItems as $item) {</span>
+<span data-n="175" class="ln" id="s1c1l175">                    $order-&gt;items()-&gt;create($item);</span>
+<span data-n="176" class="ln" id="s1c1l176">                }</span>
+<span data-n="177" class="ln" id="s1c1l177"></span>
+<span data-n="178" class="ln" id="s1c1l178">                $lockedOperation-&gt;update([</span>
+<span data-n="179" class="ln" id="s1c1l179">                    'status' =&gt; 'completed',</span>
+<span data-n="180" class="ln" id="s1c1l180">                    'order_id' =&gt; $order-&gt;id,</span>
+<span data-n="181" class="ln" id="s1c1l181">                    'last_error' =&gt; null,</span>
+<span data-n="182" class="ln" id="s1c1l182">                ]);</span>
+<span data-n="183" class="ln hit" id="s1c1l183">                $eventId = (string) Str::uuid();</span>
+<span data-n="184" class="ln hit" id="s1c1l184">                $occurredAt = now()-&gt;toISOString();</span>
+<span data-n="185" class="ln hit" id="s1c1l185">                OutboxEvent::create([</span>
+<span data-n="186" class="ln hit" id="s1c1l186">                    'event_id' =&gt; $eventId,</span>
+<span data-n="187" class="ln hit" id="s1c1l187">                    'order_id' =&gt; $order-&gt;id,</span>
+<span data-n="188" class="ln hit" id="s1c1l188">                    'event_type' =&gt; 'OrderCreated',</span>
+<span data-n="189" class="ln hit" id="s1c1l189">                    'payload' =&gt; ['event_id' =&gt; $eventId, 'type' =&gt; 'OrderCreated', 'order_id' =&gt; $order-&gt;id, 'occurred_at' =&gt; $occurredAt],</span>
+<span data-n="190" class="ln hit" id="s1c1l190">                    'available_at' =&gt; now(),</span>
+<span data-n="191" class="ln hit" id="s1c1l191">                ]);</span>
+<span data-n="192" class="ln hit" id="s1c1l192">                $this-&gt;notifyAfterCommit($user, $order, 'order_created');</span>
+<span data-n="193" class="ln hit" id="s1c1l193">                $this-&gt;broadcastAfterCommit($order, new OrderCreated($eventId, $order-&gt;id, $occurredAt));</span>
+<span data-n="194" class="ln" id="s1c1l194"></span>
+<span data-n="195" class="ln" id="s1c1l195">                return $order;</span>
+<span data-n="196" class="ln" id="s1c1l196">            });</span>
+<span data-n="197" class="ln" id="s1c1l197">        } catch (InsufficientStockException|InventoryUnavailableException $exception) {</span>
+<span data-n="198" class="ln" id="s1c1l198">            throw $exception;</span>
+<span data-n="199" class="ln" id="s1c1l199">        } catch (\Throwable $e) {</span>
+<span data-n="200" class="ln" id="s1c1l200">            if ($reservationId === null) {</span>
+<span data-n="201" class="ln" id="s1c1l201">                try {</span>
+<span data-n="202" class="ln" id="s1c1l202">                    $durableOperation = InventoryOperation::find($operation-&gt;id);</span>
+<span data-n="203" class="ln" id="s1c1l203">                    if ($durableOperation?-&gt;status === 'completed') {</span>
+<span data-n="204" class="ln" id="s1c1l204">                        return Order::with('items.product')-&gt;findOrFail($durableOperation-&gt;order_id);</span>
+<span data-n="205" class="ln" id="s1c1l205">                    }</span>
+<span data-n="206" class="ln" id="s1c1l206">                    $reservationId = $durableOperation?-&gt;reservation_id;</span>
+<span data-n="207" class="ln" id="s1c1l207">                } catch (\Throwable $lookupException) {</span>
+<span data-n="208" class="ln" id="s1c1l208">                    Log::critical('Could not determine whether an order reservation was persisted', [</span>
+<span data-n="209" class="ln" id="s1c1l209">                        'operation_id' =&gt; $operation-&gt;id,</span>
+<span data-n="210" class="ln" id="s1c1l210">                        'error' =&gt; $lookupException-&gt;getMessage(),</span>
+<span data-n="211" class="ln" id="s1c1l211">                    ]);</span>
+<span data-n="212" class="ln" id="s1c1l212">                    throw new InventoryOutcomeUnknownException('Order persistence outcome is not known.');</span>
+<span data-n="213" class="ln" id="s1c1l213">                }</span>
+<span data-n="214" class="ln" id="s1c1l214">            }</span>
+<span data-n="215" class="ln" id="s1c1l215"></span>
+<span data-n="216" class="ln" id="s1c1l216">            if ($reservationId === null) {</span>
+<span data-n="217" class="ln" id="s1c1l217">                throw $e;</span>
+<span data-n="218" class="ln" id="s1c1l218">            }</span>
+<span data-n="219" class="ln" id="s1c1l219"></span>
+<span data-n="220" class="ln" id="s1c1l220">            try {</span>
+<span data-n="221" class="ln" id="s1c1l221">                $durableOperation = InventoryOperation::find($operation-&gt;id);</span>
+<span data-n="222" class="ln" id="s1c1l222">                if ($durableOperation?-&gt;status === 'completed') {</span>
+<span data-n="223" class="ln" id="s1c1l223">                    return Order::with('items.product')-&gt;findOrFail($durableOperation-&gt;order_id);</span>
+<span data-n="224" class="ln" id="s1c1l224">                }</span>
+<span data-n="225" class="ln" id="s1c1l225">            } catch (\Throwable $lookupException) {</span>
+<span data-n="226" class="ln" id="s1c1l226">                Log::critical('Could not verify order persistence before compensation', [</span>
+<span data-n="227" class="ln" id="s1c1l227">                    'operation_id' =&gt; $operation-&gt;id,</span>
+<span data-n="228" class="ln" id="s1c1l228">                    'reservation_id' =&gt; $reservationId,</span>
+<span data-n="229" class="ln" id="s1c1l229">                    'error' =&gt; $lookupException-&gt;getMessage(),</span>
+<span data-n="230" class="ln" id="s1c1l230">                ]);</span>
+<span data-n="231" class="ln" id="s1c1l231">                throw new InventoryOutcomeUnknownException('Order persistence outcome is not known.');</span>
+<span data-n="232" class="ln" id="s1c1l232">            }</span>
+<span data-n="233" class="ln" id="s1c1l233"></span>
+<span data-n="234" class="ln" id="s1c1l234">            Log::error('Order creation failed, attempting stock release', [</span>
+<span data-n="235" class="ln" id="s1c1l235">                'reservation_id' =&gt; $reservationId,</span>
+<span data-n="236" class="ln" id="s1c1l236">                'error' =&gt; $e-&gt;getMessage(),</span>
+<span data-n="237" class="ln" id="s1c1l237">            ]);</span>
+<span data-n="238" class="ln" id="s1c1l238"></span>
+<span data-n="239" class="ln" id="s1c1l239">            $released = false;</span>
+<span data-n="240" class="ln" id="s1c1l240">            $compensationError = null;</span>
+<span data-n="241" class="ln" id="s1c1l241">            try {</span>
+<span data-n="242" class="ln" id="s1c1l242">                $released = $this-&gt;inventoryClient-&gt;releaseStock($reservationId);</span>
+<span data-n="243" class="ln" id="s1c1l243">                if (! $released) {</span>
+<span data-n="244" class="ln" id="s1c1l244">                    $compensationError = 'Inventory service did not confirm the release.';</span>
+<span data-n="245" class="ln" id="s1c1l245">                }</span>
+<span data-n="246" class="ln" id="s1c1l246">            } catch (\Throwable $releaseException) {</span>
+<span data-n="247" class="ln" id="s1c1l247">                $compensationError = $releaseException-&gt;getMessage();</span>
+<span data-n="248" class="ln" id="s1c1l248">            }</span>
+<span data-n="249" class="ln" id="s1c1l249"></span>
+<span data-n="250" class="ln" id="s1c1l250">            DB::transaction(function () use ($operation, $reservationId, $released, $compensationError, $e) {</span>
+<span data-n="251" class="ln" id="s1c1l251">                $lockedOperation = InventoryOperation::query()</span>
+<span data-n="252" class="ln" id="s1c1l252">                    -&gt;whereKey($operation-&gt;id)</span>
+<span data-n="253" class="ln" id="s1c1l253">                    -&gt;lockForUpdate()</span>
+<span data-n="254" class="ln" id="s1c1l254">                    -&gt;firstOrFail();</span>
+<span data-n="255" class="ln" id="s1c1l255">                $lockedOperation-&gt;update([</span>
+<span data-n="256" class="ln" id="s1c1l256">                    'status' =&gt; $released ? 'compensated' : 'compensation_pending',</span>
+<span data-n="257" class="ln" id="s1c1l257">                    'reservation_id' =&gt; $reservationId,</span>
+<span data-n="258" class="ln" id="s1c1l258">                    'last_error' =&gt; $released ? $e-&gt;getMessage() : $compensationError,</span>
+<span data-n="259" class="ln" id="s1c1l259">                ]);</span>
+<span data-n="260" class="ln" id="s1c1l260"></span>
+<span data-n="261" class="ln" id="s1c1l261">                if (! $released) {</span>
+<span data-n="262" class="ln" id="s1c1l262">                    FailedCompensation::firstOrCreate(</span>
+<span data-n="263" class="ln" id="s1c1l263">                        ['operation_id' =&gt; $lockedOperation-&gt;id],</span>
+<span data-n="264" class="ln" id="s1c1l264">                        [</span>
+<span data-n="265" class="ln" id="s1c1l265">                            'reservation_id' =&gt; $reservationId,</span>
+<span data-n="266" class="ln" id="s1c1l266">                            'status' =&gt; 'pending',</span>
+<span data-n="267" class="ln" id="s1c1l267">                            'error_message' =&gt; $compensationError,</span>
+<span data-n="268" class="ln" id="s1c1l268">                            'attempts' =&gt; 1,</span>
+<span data-n="269" class="ln" id="s1c1l269">                            'last_attempted_at' =&gt; now(),</span>
+<span data-n="270" class="ln" id="s1c1l270">                        ]</span>
+<span data-n="271" class="ln" id="s1c1l271">                    );</span>
+<span data-n="272" class="ln" id="s1c1l272">                }</span>
+<span data-n="273" class="ln" id="s1c1l273">            });</span>
+<span data-n="274" class="ln" id="s1c1l274"></span>
+<span data-n="275" class="ln" id="s1c1l275">            if (! $released) {</span>
+<span data-n="276" class="ln" id="s1c1l276">                Log::critical('Stock compensation recorded for retry', [</span>
+<span data-n="277" class="ln" id="s1c1l277">                    'operation_id' =&gt; $operation-&gt;id,</span>
+<span data-n="278" class="ln" id="s1c1l278">                    'reservation_id' =&gt; $reservationId,</span>
+<span data-n="279" class="ln" id="s1c1l279">                    'error' =&gt; $compensationError,</span>
+<span data-n="280" class="ln" id="s1c1l280">                ]);</span>
+<span data-n="281" class="ln" id="s1c1l281">            }</span>
+<span data-n="282" class="ln" id="s1c1l282"></span>
+<span data-n="283" class="ln" id="s1c1l283">            throw $e;</span>
+<span data-n="284" class="ln" id="s1c1l284">        }</span>
+<span data-n="285" class="ln" id="s1c1l285"></span>
+<span data-n="286" class="ln" id="s1c1l286">        return $order-&gt;load('items.product');</span>
+<span data-n="287" class="ln" id="s1c1l287">    }</span></code></pre></div></div><div class="piece"><h3><bdi>broadcastAfterCommit()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/OrderService.php">backend/my-project/app/Services/OrderService.php</a> · الأسطر <bdi>366–381</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s1c2l368">368–375</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: broadcastAfterCommit()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/OrderService.php" data-start="366" data-end="381"><span data-n="366" class="ln" id="s1c2l366">    private function broadcastAfterCommit(Order $order, OrderCreated|OrderStatusUpdated $event): void</span>
+<span data-n="367" class="ln" id="s1c2l367">    {</span>
+<span data-n="368" class="ln hit" id="s1c2l368">        DB::afterCommit(function () use ($order, $event): void {</span>
+<span data-n="369" class="ln hit" id="s1c2l369">            try {</span>
+<span data-n="370" class="ln hit" id="s1c2l370">                DashboardCache::forgetCache($order-&gt;user_id);</span>
+<span data-n="371" class="ln hit" id="s1c2l371">            } catch (\Throwable $exception) {</span>
+<span data-n="372" class="ln hit" id="s1c2l372">                Log::error('Order dashboard cache invalidation failed', ['order_id' =&gt; $order-&gt;id, 'error_type' =&gt; $exception::class]);</span>
+<span data-n="373" class="ln hit" id="s1c2l373">            }</span>
+<span data-n="374" class="ln hit" id="s1c2l374">            try {</span>
+<span data-n="375" class="ln hit" id="s1c2l375">                event($event);</span>
+<span data-n="376" class="ln" id="s1c2l376">            } catch (\Throwable $exception) {</span>
+<span data-n="377" class="ln" id="s1c2l377">                // A committed order must not be compensated due to a secondary broadcast failure.</span>
+<span data-n="378" class="ln" id="s1c2l378">                Log::error('Order broadcast enqueue failed after commit', ['order_id' =&gt; $order-&gt;id, 'error_type' =&gt; $exception::class]);</span>
+<span data-n="379" class="ln" id="s1c2l379">            }</span>
+<span data-n="380" class="ln" id="s1c2l380">        });</span>
+<span data-n="381" class="ln" id="s1c2l381">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>تخيّل لوحة المسؤول مفتوحة على إجمالي عشرة طلبات. اشترى زبون من متصفح آخر، ونريد أن يرى المسؤول أحد عشر من دون الضغط على تحديث. داخل دالة الإنشاء أذهب مباشرة إلى الحدث المُعدّ للبث بعد حفظ الطلب. في نفس المنطقة يوجد سجل الأحداث الذي يقرؤه ناشر <bdi dir="ltr">RabbitMQ</bdi>، لكن هذا ليس ما تشترك به لوحة المسؤول. هناك عملان انطلقا من واقعة شراء واحدة: تأكيد بريد يصل إلى الزبون، وإشارة بث تصل للإدارة؛ لا تنتظر الواحدة منهما انتهاء الأخرى.</p><p>في الدالة التالية يظهر سبب تأجيل الإشارة. لا تُرسل الدعوة إلى إعادة جلب القائمة قبل أن يصبح الطلب قابلاً للقراءة بعد تثبيت المعاملة. ثم نطلب التخلص من نتائج الإحصاءات القديمة قبل إطلاق الحدث. إذا اختل هذا الترتيب قد يعمل الاتصال اللحظي تماماً ويظهر التنبيه، ومع ذلك تقرأ اللوحة العدد السابق. لذلك أتتبع مصدر الأرقام قبل فتح كود <bdi dir="ltr">WebSocket</bdi>.</p><p>المعرّف المستخدم للتنبيه يميز الواقعة، أما رقم الطلب فيدل المسؤول على السجل الذي يفتحه. قد نحتاج كليهما: واحد لمنع تكرار الإعلان، وآخر لمعرفة أي طلب يريد المسؤول مراجعته.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-2"><div class="top"><h2>2. لماذا نُبطل ملخص الخادم؟</h2><span class="clock" dir="ltr">1:40–3:15</span></div><div class="piece"><h3><bdi>الصنف DashboardCache</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/DashboardCache.php">backend/my-project/app/Services/DashboardCache.php</a> · الأسطر <bdi>7–24</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s2c1l11">11</a> <a dir="ltr" class="jump" href="#s2c1l16">16–17</a> <a dir="ltr" class="jump" href="#s2c1l22">22</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: الصنف DashboardCache"><pre dir="ltr"><code data-path="backend/my-project/app/Services/DashboardCache.php" data-start="7" data-end="24"><span data-n="7" class="ln" id="s2c1l7">class DashboardCache</span>
+<span data-n="8" class="ln" id="s2c1l8">{</span>
+<span data-n="9" class="ln" id="s2c1l9">    public static function cacheKey(int $userId, bool $isAdmin): string</span>
+<span data-n="10" class="ln" id="s2c1l10">    {</span>
+<span data-n="11" class="ln hit" id="s2c1l11">        return $isAdmin ? 'dashboard:admin' : "dashboard:user:{$userId}";</span>
+<span data-n="12" class="ln" id="s2c1l12">    }</span>
+<span data-n="13" class="ln" id="s2c1l13"></span>
+<span data-n="14" class="ln" id="s2c1l14">    public static function forgetCache(int $userId): void</span>
+<span data-n="15" class="ln" id="s2c1l15">    {</span>
+<span data-n="16" class="ln hit" id="s2c1l16">        Cache::forget(self::cacheKey($userId, false));</span>
+<span data-n="17" class="ln hit" id="s2c1l17">        self::forgetAdmin();</span>
+<span data-n="18" class="ln" id="s2c1l18">    }</span>
+<span data-n="19" class="ln" id="s2c1l19"></span>
+<span data-n="20" class="ln" id="s2c1l20">    public static function forgetAdmin(): void</span>
+<span data-n="21" class="ln" id="s2c1l21">    {</span>
+<span data-n="22" class="ln hit" id="s2c1l22">        Cache::forget('dashboard:admin');</span>
+<span data-n="23" class="ln" id="s2c1l23">    }</span>
+<span data-n="24" class="ln" id="s2c1l24">}</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في <bdi dir="ltr">DashboardCache</bdi> يوجد مفتاح للإدارة ومفتاح يخص كل زبون. نتيجة شراء واحد تؤثر في الاثنين: ازداد عدد طلبات صاحب الحساب وازداد إجمالي المتجر. لهذا تحذف الدالة ملخص الزبون وتطلب أيضاً حذف مفتاح ملخص المسؤول. هذه ليست عملية تزيد رقماً محفوظاً يدوياً؛ ما نحذفه نسخة مشتقة يمكن للخادم أن يحسبها مجدداً من الطلبات.</p><p>إذا سألني الدكتور لماذا نحتاج هذه الخطوة مع أن الواجهة ستعيد الجلب، أرجع إلى مثال العدد عشرة. <bdi dir="ltr">React</bdi> يستطيع إعادة إرسال طلب الملخص عند وصول الحدث، لكنه لا يقرر ماذا تعيد <bdi dir="ltr">Laravel</bdi>. إذا أعطاه كاش الخادم القديم فسيعرض عشرة مرة ثانية رغم أن الطلب الحادي عشر موجود. أما إذا حذفنا المفتاح هنا ثم طلبت الواجهة الملخص، يستطيع الخادم حساب القيمة الجديدة. كاش الخادم وكاش المتصفح مكانان مختلفان، وكل طرف يعالج النسخة التي يملكها.</p><p>بالمقابل، إبطال مفتاح الخادم وحده لا يدفع متصفحاً مفتوحاً إلى القراءة. ستظهر نتيجة الحذف عند الجلب التالي فقط، ولذلك نحتاج إلى إشارة تجعل ذلك الجلب يحصل الآن لا عند التحديث اليدوي القادم.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-3"><div class="top"><h2>3. قناة الإدارة والبيانات الإدارية</h2><span class="clock" dir="ltr">3:15–4:55</span></div><div class="piece"><h3><bdi>الصنف OrderCreated</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Events/OrderCreated.php">backend/my-project/app/Events/OrderCreated.php</a> · الأسطر <bdi>9–34</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c1l9">9</a> <a dir="ltr" class="jump" href="#s3c1l17">17</a> <a dir="ltr" class="jump" href="#s3c1l22">22</a> <a dir="ltr" class="jump" href="#s3c1l27">27</a> <a dir="ltr" class="jump" href="#s3c1l32">32</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: الصنف OrderCreated"><pre dir="ltr"><code data-path="backend/my-project/app/Events/OrderCreated.php" data-start="9" data-end="34"><span data-n="9" class="ln hit" id="s3c1l9">class OrderCreated implements ShouldBroadcast, ShouldDispatchAfterCommit</span>
+<span data-n="10" class="ln" id="s3c1l10">{</span>
+<span data-n="11" class="ln" id="s3c1l11">    public string $connection = 'database';</span>
+<span data-n="12" class="ln" id="s3c1l12"></span>
+<span data-n="13" class="ln" id="s3c1l13">    public function __construct(public readonly string $eventId, public readonly int $orderId, public readonly string $occurredAt) {}</span>
+<span data-n="14" class="ln" id="s3c1l14"></span>
+<span data-n="15" class="ln" id="s3c1l15">    public function broadcastOn(): array</span>
+<span data-n="16" class="ln" id="s3c1l16">    {</span>
+<span data-n="17" class="ln hit" id="s3c1l17">        return [new PrivateChannel('admin.orders')];</span>
+<span data-n="18" class="ln" id="s3c1l18">    }</span>
+<span data-n="19" class="ln" id="s3c1l19"></span>
+<span data-n="20" class="ln" id="s3c1l20">    public function broadcastAs(): string</span>
+<span data-n="21" class="ln" id="s3c1l21">    {</span>
+<span data-n="22" class="ln hit" id="s3c1l22">        return 'OrderCreated';</span>
+<span data-n="23" class="ln" id="s3c1l23">    }</span>
+<span data-n="24" class="ln" id="s3c1l24"></span>
+<span data-n="25" class="ln" id="s3c1l25">    public function broadcastQueue(): string</span>
+<span data-n="26" class="ln" id="s3c1l26">    {</span>
+<span data-n="27" class="ln hit" id="s3c1l27">        return 'broadcasts';</span>
+<span data-n="28" class="ln" id="s3c1l28">    }</span>
+<span data-n="29" class="ln" id="s3c1l29"></span>
+<span data-n="30" class="ln" id="s3c1l30">    public function broadcastWith(): array</span>
+<span data-n="31" class="ln" id="s3c1l31">    {</span>
+<span data-n="32" class="ln hit" id="s3c1l32">        return ['event_id' =&gt; $this-&gt;eventId, 'order_id' =&gt; $this-&gt;orderId, 'occurred_at' =&gt; $this-&gt;occurredAt];</span>
+<span data-n="33" class="ln" id="s3c1l33">    }</span>
+<span data-n="34" class="ln" id="s3c1l34">}</span></code></pre></div></div><div class="piece"><h3><bdi>قاعدة قناة الإدارة كاملة</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/routes/channels.php">backend/my-project/routes/channels.php</a> · الأسطر <bdi>7–7</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c2l7">7</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: قاعدة قناة الإدارة كاملة"><pre dir="ltr"><code data-path="backend/my-project/routes/channels.php" data-start="7" data-end="7"><span data-n="7" class="ln hit" id="s3c2l7">Broadcast::channel('admin.orders', fn (User $user): bool =&gt; $user-&gt;role === 'admin', ['guards' =&gt; ['api']]);</span></code></pre></div></div><div class="piece"><h3><bdi>مجموعة مسارات admin كاملة</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/routes/api.php">backend/my-project/routes/api.php</a> · الأسطر <bdi>48–62</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c3l48">48</a> <a dir="ltr" class="jump" href="#s3c3l58">58–60</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: مجموعة مسارات admin كاملة"><pre dir="ltr"><code data-path="backend/my-project/routes/api.php" data-start="48" data-end="62"><span data-n="48" class="ln hit" id="s3c3l48">        Route::middleware('admin')-&gt;group(function () {</span>
+<span data-n="49" class="ln" id="s3c3l49">            Route::middleware('throttle:categories')-&gt;group(function () {</span>
+<span data-n="50" class="ln" id="s3c3l50">                Route::apiResource('categories', CategoryController::class)-&gt;except(['index', 'show']);</span>
+<span data-n="51" class="ln" id="s3c3l51">            });</span>
+<span data-n="52" class="ln" id="s3c3l52">            Route::middleware('throttle:products')-&gt;group(function () {</span>
+<span data-n="53" class="ln" id="s3c3l53">                Route::apiResource('products', ProductController::class)-&gt;except(['index', 'show']);</span>
+<span data-n="54" class="ln" id="s3c3l54">            });</span>
+<span data-n="55" class="ln" id="s3c3l55">            Route::middleware('throttle:general')-&gt;group(function () {</span>
+<span data-n="56" class="ln" id="s3c3l56">                Route::get('/users', [UserController::class, 'index']);</span>
+<span data-n="57" class="ln" id="s3c3l57">            });</span>
+<span data-n="58" class="ln hit" id="s3c3l58">            Route::middleware('throttle:orders')-&gt;group(function () {</span>
+<span data-n="59" class="ln hit" id="s3c3l59">                Route::get('/admin/orders', [OrderController::class, 'adminIndex']);</span>
+<span data-n="60" class="ln hit" id="s3c3l60">                Route::patch('/admin/orders/{order}/status', [OrderController::class, 'updateStatus']);</span>
+<span data-n="61" class="ln" id="s3c3l61">            });</span>
+<span data-n="62" class="ln" id="s3c3l62">        });</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في صنف <bdi dir="ltr">OrderCreated</bdi> نختار قناة إدارة واحدة. هذا مناسب لإعلان الطلبات الجديدة، لأن المسؤول لا يعرف سلفاً أرقام الطلبات التي ستنشأ كي يشترك في كل رقم منها. الحدث يحمل رقم الطلب ومعرّف الواقعة ووقتها فقط؛ لا يحمل صفاً كاملاً جاهزاً للجدول، ولا أسماء الزبائن أو مشترياتهم. عامل البث ينقله عبر <bdi dir="ltr">Reverb</bdi> بالاسم الذي سيستمع إليه المتصفح.</p><p>ثم أفتح قاعدتي الحماية معاً. في ملف القنوات يجب أن يكون المستخدم الذي عرّفه حارس <bdi dir="ltr">API</bdi> مسؤولاً قبل دخول قناة الإدارة. وفي ملف المسارات تقع قائمة جميع الطلبات تحت فحص دور الإدارة أيضاً. لماذا نحتاج الاثنين؟ لأن استقبال خبر عن طلب وقراءة تفاصيل المتجر عمليتان مختلفتان. حتى لو عرف زبون اسم القناة أو عنوان قائمة الإدارة، لا تتحول جلسته العادية إلى جلسة مسؤول. صفحة الملخص نفسها قد تخدم زبوناً ملخصَه الشخصي، أما الأرقام والقائمة الإدارية فتخصان الدور الإداري.</p><p>اختيار قناة إدارية واحدة يحل مشكلة الطلب الذي لا تعرفه الواجهة بعد. أما قناة الزبون المرتبطة برقم طلبه فتخدم سؤالاً آخر تماماً: ماذا تغيّر في طلب أعرفه وأملكه بالفعل؟</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-4"><div class="top"><h2>4. من يلتقط الإشارة؟</h2><span class="clock" dir="ltr">4:55–6:35</span></div><div class="piece"><h3><bdi>AppShell()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="frontend/src/components/layout/app-shell.tsx">frontend/src/components/layout/app-shell.tsx</a> · الأسطر <bdi>14–41</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s4c1l15">15</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: AppShell()"><pre dir="ltr"><code data-path="frontend/src/components/layout/app-shell.tsx" data-start="14" data-end="41"><span data-n="14" class="ln" id="s4c1l14">export function AppShell() {</span>
+<span data-n="15" class="ln hit" id="s4c1l15">  useAdminOrderRealtime()</span>
+<span data-n="16" class="ln" id="s4c1l16">  const { sidebarOpen, setMobileSidebarOpen } = useUiStore()</span>
+<span data-n="17" class="ln" id="s4c1l17">  const isDesktop = useIsDesktop()</span>
+<span data-n="18" class="ln" id="s4c1l18"></span>
+<span data-n="19" class="ln" id="s4c1l19">  // Drawer state is separate from desktop expansion, so resizing cannot open it.</span>
+<span data-n="20" class="ln" id="s4c1l20">  useEffect(() =&gt; {</span>
+<span data-n="21" class="ln" id="s4c1l21">    setMobileSidebarOpen(false)</span>
+<span data-n="22" class="ln" id="s4c1l22">  }, [isDesktop, setMobileSidebarOpen])</span>
+<span data-n="23" class="ln" id="s4c1l23"></span>
+<span data-n="24" class="ln" id="s4c1l24">  return (</span>
+<span data-n="25" class="ln" id="s4c1l25">    &lt;div className="relative flex min-h-screen bg-background"&gt;</span>
+<span data-n="26" class="ln" id="s4c1l26">      &lt;Sidebar /&gt;</span>
+<span data-n="27" class="ln" id="s4c1l27"></span>
+<span data-n="28" class="ln" id="s4c1l28">      &lt;div</span>
+<span data-n="29" class="ln" id="s4c1l29">        className={cn(</span>
+<span data-n="30" class="ln" id="s4c1l30">          "min-w-0 flex flex-1 flex-col transition-[margin] duration-300 motion-reduce:transition-none",</span>
+<span data-n="31" class="ln" id="s4c1l31">          isDesktop &amp;&amp; (sidebarOpen ? "lg:mr-64" : "lg:mr-16")</span>
+<span data-n="32" class="ln" id="s4c1l32">        )}</span>
+<span data-n="33" class="ln" id="s4c1l33">      &gt;</span>
+<span data-n="34" class="ln" id="s4c1l34">        &lt;Header /&gt;</span>
+<span data-n="35" class="ln" id="s4c1l35">        &lt;main className="min-w-0 flex-1 p-4 sm:p-6 xl:p-8"&gt;</span>
+<span data-n="36" class="ln" id="s4c1l36">          &lt;Outlet /&gt;</span>
+<span data-n="37" class="ln" id="s4c1l37">        &lt;/main&gt;</span>
+<span data-n="38" class="ln" id="s4c1l38">      &lt;/div&gt;</span>
+<span data-n="39" class="ln" id="s4c1l39">    &lt;/div&gt;</span>
+<span data-n="40" class="ln" id="s4c1l40">  )</span>
+<span data-n="41" class="ln" id="s4c1l41">}</span></code></pre></div></div><div class="piece"><h3><bdi>useAdminOrderRealtime()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="frontend/src/features/orders/hooks/use-order-realtime.ts">frontend/src/features/orders/hooks/use-order-realtime.ts</a> · الأسطر <bdi>18–63</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s4c2l21">21–25</a> <a dir="ltr" class="jump" href="#s4c2l28">28–37</a> <a dir="ltr" class="jump" href="#s4c2l42">42–49</a> <a dir="ltr" class="jump" href="#s4c2l50">50–61</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: useAdminOrderRealtime()"><pre dir="ltr"><code data-path="frontend/src/features/orders/hooks/use-order-realtime.ts" data-start="18" data-end="63"><span data-n="18" class="ln" id="s4c2l18">export function useAdminOrderRealtime() {</span>
+<span data-n="19" class="ln" id="s4c2l19">  const manager = useRealtimeConnection()</span>
+<span data-n="20" class="ln" id="s4c2l20">  const queryClient = useQueryClient()</span>
+<span data-n="21" class="ln hit" id="s4c2l21">  const isAdmin = useAuthStore((state) =&gt; state.isAuthenticated &amp;&amp; state.user?.role === ROLES.ADMIN)</span>
+<span data-n="22" class="ln hit" id="s4c2l22">  const announcedEvents = useRef(new Set&lt;string&gt;())</span>
+<span data-n="23" class="ln hit" id="s4c2l23"></span>
+<span data-n="24" class="ln hit" id="s4c2l24">  useEffect(() =&gt; {</span>
+<span data-n="25" class="ln hit" id="s4c2l25">    if (!manager || !isAdmin) return</span>
+<span data-n="26" class="ln" id="s4c2l26">    let active = true</span>
+<span data-n="27" class="ln" id="s4c2l27">    const resynchronize = () =&gt; {</span>
+<span data-n="28" class="ln hit" id="s4c2l28">      const filters: QueryFilters[] = [</span>
+<span data-n="29" class="ln hit" id="s4c2l29">        { queryKey: orderKeys.lists() },</span>
+<span data-n="30" class="ln hit" id="s4c2l30">        { queryKey: dashboardKeys.summary, exact: true },</span>
+<span data-n="31" class="ln hit" id="s4c2l31">      ]</span>
+<span data-n="32" class="ln hit" id="s4c2l32">      for (const filter of filters) {</span>
+<span data-n="33" class="ln hit" id="s4c2l33">        // Cancel even an initial fetch so a response started before the event cannot win.</span>
+<span data-n="34" class="ln hit" id="s4c2l34">        void queryClient.cancelQueries(filter).then(() =&gt; {</span>
+<span data-n="35" class="ln hit" id="s4c2l35">          const state = useAuthStore.getState()</span>
+<span data-n="36" class="ln hit" id="s4c2l36">          if (active &amp;&amp; state.isAuthenticated &amp;&amp; state.user?.role === ROLES.ADMIN) {</span>
+<span data-n="37" class="ln hit" id="s4c2l37">            return queryClient.invalidateQueries(filter)</span>
+<span data-n="38" class="ln" id="s4c2l38">          }</span>
+<span data-n="39" class="ln" id="s4c2l39">        })</span>
+<span data-n="40" class="ln" id="s4c2l40">      }</span>
+<span data-n="41" class="ln" id="s4c2l41">    }</span>
+<span data-n="42" class="ln hit" id="s4c2l42">    const unsubscribe = manager.subscribe({</span>
+<span data-n="43" class="ln hit" id="s4c2l43">      channel: "admin.orders",</span>
+<span data-n="44" class="ln hit" id="s4c2l44">      event: ".OrderCreated",</span>
+<span data-n="45" class="ln hit" id="s4c2l45">      isAllowed: (session) =&gt; session.role === ROLES.ADMIN,</span>
+<span data-n="46" class="ln hit" id="s4c2l46">      onEvent: (payload) =&gt; {</span>
+<span data-n="47" class="ln hit" id="s4c2l47">        const orderId = eventOrderId(payload)</span>
+<span data-n="48" class="ln hit" id="s4c2l48">        if (orderId === null) return</span>
+<span data-n="49" class="ln hit" id="s4c2l49">        resynchronize()</span>
+<span data-n="50" class="ln hit" id="s4c2l50">        if (!payload || typeof payload !== "object" || !("event_id" in payload) ||</span>
+<span data-n="51" class="ln hit" id="s4c2l51">          typeof payload.event_id !== "string" || payload.event_id.length === 0 ||</span>
+<span data-n="52" class="ln hit" id="s4c2l52">          announcedEvents.current.has(payload.event_id)) return</span>
+<span data-n="53" class="ln hit" id="s4c2l53">        announcedEvents.current.add(payload.event_id)</span>
+<span data-n="54" class="ln hit" id="s4c2l54">        if (announcedEvents.current.size &gt; 100) {</span>
+<span data-n="55" class="ln hit" id="s4c2l55">          announcedEvents.current.delete(announcedEvents.current.values().next().value!)</span>
+<span data-n="56" class="ln hit" id="s4c2l56">        }</span>
+<span data-n="57" class="ln hit" id="s4c2l57">        toastService.info(`طلب جديد #${orderId}`, "يمكنك عرض تفاصيله من صفحة الطلبات")</span>
+<span data-n="58" class="ln hit" id="s4c2l58">      },</span>
+<span data-n="59" class="ln hit" id="s4c2l59">      onSubscribed: resynchronize,</span>
+<span data-n="60" class="ln hit" id="s4c2l60">    })</span>
+<span data-n="61" class="ln hit" id="s4c2l61">    return () =&gt; { active = false; unsubscribe() }</span>
+<span data-n="62" class="ln" id="s4c2l62">  }, [manager, queryClient, isAdmin])</span>
+<span data-n="63" class="ln" id="s4c2l63">}</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في الواجهة رُكّب الخطاف داخل غلاف التطبيق. لهذا يصل الإشعار عندما يقف المسؤول على الملخص، وليس فقط عندما يكون جدول الطلبات مركّباً. داخل الخطاف نقرأ دور الجلسة ولا نركّب الاشتراك الإداري إلا لمسؤول، ثم نتفق مع الخادم على القناة واسم الحدث. هذا الشرط المحلي يمنع اتصالات غير لازمة؛ الحماية التي تمنع غير المخوّل من الاستماع موجودة في <bdi dir="ltr">Laravel</bdi> كما رأينا.</p><p>عندما تصل الإشارة نفحص رقم الطلب ثم نعيد مزامنة نوعين من البيانات: قوائم الطلبات وملخص اللوحة. نلغي الجلبات القديمة المطابقة حتى لا تصل نتيجة انطلقت قبل الشراء وتعيد العداد إلى عشرة. بعدها نطلب تحديث الاستعلامات المعنية ما دامت الجلسة إدارية. التنبيه عملية منفصلة: نتذكر معرّف الواقعة ضمن مجموعة محدودة حتى لا يُعلَن الطلب نفسه مرتين. وعند نجاح الاشتراك بعد انقطاع نعيد مزامنة البيانات أيضاً؛ نستطيع إصلاح العداد دون أن نزعم أن كل تنبيه فات سيظهر مجدداً.</p><p>إذا كان المسؤول يتصفح الإعدادات وقت الشراء، يستطيع تلقي التنبيه من الغلاف المشترك. البيانات غير المعروضة ليس من الضروري تنزيلها كلها فوراً؛ المهم أن يعرف الاستعلام أنها تحتاج تحديثاً عند العودة.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-5"><div class="top"><h2>5. عداد اللوحة وصف القائمة</h2><span class="clock" dir="ltr">6:35–8:15</span></div><div class="piece"><h3><bdi>DashboardPage()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="frontend/src/routes/_authenticated/index.tsx">frontend/src/routes/_authenticated/index.tsx</a> · الأسطر <bdi>18–75</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s5c1l19">19–20</a> <a dir="ltr" class="jump" href="#s5c1l33">33–39</a> <a dir="ltr" class="jump" href="#s5c1l57">57</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: DashboardPage()"><pre dir="ltr"><code data-path="frontend/src/routes/_authenticated/index.tsx" data-start="18" data-end="75"><span data-n="18" class="ln" id="s5c1l18">function DashboardPage() {</span>
+<span data-n="19" class="ln hit" id="s5c1l19">  const isAdmin = useAuthStore((state) =&gt; state.user?.role === ROLES.ADMIN)</span>
+<span data-n="20" class="ln hit" id="s5c1l20">  const { data: summary, isLoading, error, refetch } = useDashboard()</span>
+<span data-n="21" class="ln" id="s5c1l21"></span>
+<span data-n="22" class="ln" id="s5c1l22">  if (isLoading) return &lt;LoadingSpinner text="جاري تحميل لوحة التحكم..." /&gt;</span>
+<span data-n="23" class="ln" id="s5c1l23">  if (error || !summary) {</span>
+<span data-n="24" class="ln" id="s5c1l24">    return (</span>
+<span data-n="25" class="ln" id="s5c1l25">      &lt;EmptyState</span>
+<span data-n="26" class="ln" id="s5c1l26">        title="تعذر تحميل لوحة التحكم"</span>
+<span data-n="27" class="ln" id="s5c1l27">        description={error?.message ?? "حاول تحديث الصفحة."}</span>
+<span data-n="28" class="ln" id="s5c1l28">        action={&lt;Button onClick={() =&gt; void refetch()}&gt;إعادة المحاولة&lt;/Button&gt;}</span>
+<span data-n="29" class="ln" id="s5c1l29">      /&gt;</span>
+<span data-n="30" class="ln" id="s5c1l30">    )</span>
+<span data-n="31" class="ln" id="s5c1l31">  }</span>
+<span data-n="32" class="ln" id="s5c1l32"></span>
+<span data-n="33" class="ln hit" id="s5c1l33">  const stats = [</span>
+<span data-n="34" class="ln hit" id="s5c1l34">    { title: "المنتجات النشطة", value: summary.total_products, icon: Package },</span>
+<span data-n="35" class="ln hit" id="s5c1l35">    { title: isAdmin ? "طلبات اليوم" : "طلباتي اليوم", value: summary.orders_today, icon: ShoppingCart },</span>
+<span data-n="36" class="ln hit" id="s5c1l36">    ...(isAdmin &amp;&amp; summary.total_users !== null</span>
+<span data-n="37" class="ln hit" id="s5c1l37">      ? [{ title: "المستخدمون", value: summary.total_users, icon: Users }]</span>
+<span data-n="38" class="ln hit" id="s5c1l38">      : []),</span>
+<span data-n="39" class="ln hit" id="s5c1l39">    { title: isAdmin ? "إجمالي الطلبات" : "إجمالي طلباتي", value: summary.total_orders, icon: TrendingUp },</span>
+<span data-n="40" class="ln" id="s5c1l40">  ]</span>
+<span data-n="41" class="ln" id="s5c1l41"></span>
+<span data-n="42" class="ln" id="s5c1l42">  return (</span>
+<span data-n="43" class="ln" id="s5c1l43">    &lt;div className="space-y-6"&gt;</span>
+<span data-n="44" class="ln" id="s5c1l44">      &lt;PageHeader</span>
+<span data-n="45" class="ln" id="s5c1l45">        title="لوحة التحكم"</span>
+<span data-n="46" class="ln" id="s5c1l46">        description="نظرة عامة على أداء المتجر"</span>
+<span data-n="47" class="ln" id="s5c1l47">      /&gt;</span>
+<span data-n="48" class="ln" id="s5c1l48"></span>
+<span data-n="49" class="ln" id="s5c1l49">      &lt;div className={`grid gap-4 sm:grid-cols-2 ${isAdmin ? "xl:grid-cols-4" : "xl:grid-cols-3"}`}&gt;</span>
+<span data-n="50" class="ln" id="s5c1l50">        {stats.map((stat) =&gt; (</span>
+<span data-n="51" class="ln" id="s5c1l51">          &lt;Card key={stat.title}&gt;</span>
+<span data-n="52" class="ln" id="s5c1l52">            &lt;CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"&gt;</span>
+<span data-n="53" class="ln" id="s5c1l53">              &lt;CardTitle className="text-sm font-medium"&gt;{stat.title}&lt;/CardTitle&gt;</span>
+<span data-n="54" class="ln" id="s5c1l54">              &lt;stat.icon className="h-4 w-4 shrink-0 text-muted-foreground" /&gt;</span>
+<span data-n="55" class="ln" id="s5c1l55">            &lt;/CardHeader&gt;</span>
+<span data-n="56" class="ln" id="s5c1l56">            &lt;CardContent&gt;</span>
+<span data-n="57" class="ln hit" id="s5c1l57">              &lt;div className="text-2xl font-bold"&gt;{stat.value}&lt;/div&gt;</span>
+<span data-n="58" class="ln" id="s5c1l58">            &lt;/CardContent&gt;</span>
+<span data-n="59" class="ln" id="s5c1l59">          &lt;/Card&gt;</span>
+<span data-n="60" class="ln" id="s5c1l60">        ))}</span>
+<span data-n="61" class="ln" id="s5c1l61">      &lt;/div&gt;</span>
+<span data-n="62" class="ln" id="s5c1l62">      &lt;Card&gt;</span>
+<span data-n="63" class="ln" id="s5c1l63">        &lt;CardHeader&gt;</span>
+<span data-n="64" class="ln" id="s5c1l64">          &lt;CardTitle&gt;{isAdmin ? "إجمالي المبيعات" : "إجمالي قيمة طلباتي"}&lt;/CardTitle&gt;</span>
+<span data-n="65" class="ln" id="s5c1l65">        &lt;/CardHeader&gt;</span>
+<span data-n="66" class="ln" id="s5c1l66">        &lt;CardContent className="flex flex-wrap items-center justify-between gap-4"&gt;</span>
+<span data-n="67" class="ln" id="s5c1l67">          &lt;p className="min-w-0 break-words text-2xl font-bold"&gt;{formatCurrency(summary.total_sales)}&lt;/p&gt;</span>
+<span data-n="68" class="ln" id="s5c1l68">          &lt;Button asChild variant="outline"&gt;</span>
+<span data-n="69" class="ln" id="s5c1l69">            &lt;Link to="/orders"&gt;عرض الطلبات&lt;/Link&gt;</span>
+<span data-n="70" class="ln" id="s5c1l70">          &lt;/Button&gt;</span>
+<span data-n="71" class="ln" id="s5c1l71">        &lt;/CardContent&gt;</span>
+<span data-n="72" class="ln" id="s5c1l72">      &lt;/Card&gt;</span>
+<span data-n="73" class="ln" id="s5c1l73">    &lt;/div&gt;</span>
+<span data-n="74" class="ln" id="s5c1l74">  )</span>
+<span data-n="75" class="ln" id="s5c1l75">}</span></code></pre></div></div><div class="piece"><h3><bdi>OrdersPage()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="frontend/src/routes/_authenticated/orders/index.tsx">frontend/src/routes/_authenticated/orders/index.tsx</a> · الأسطر <bdi>29–108</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s5c2l32">32–34</a> <a dir="ltr" class="jump" href="#s5c2l89">89–92</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: OrdersPage()"><pre dir="ltr"><code data-path="frontend/src/routes/_authenticated/orders/index.tsx" data-start="29" data-end="108"><span data-n="29" class="ln" id="s5c2l29">function OrdersPage() {</span>
+<span data-n="30" class="ln" id="s5c2l30">  const { page = 1, status } = Route.useSearch()</span>
+<span data-n="31" class="ln" id="s5c2l31">  const navigate = useNavigate({ from: Route.fullPath })</span>
+<span data-n="32" class="ln hit" id="s5c2l32">  const isAdmin = useAuthStore((state) =&gt; state.user?.role === ROLES.ADMIN)</span>
+<span data-n="33" class="ln hit" id="s5c2l33">  const { data, isLoading, error } = useOrders(page, status, isAdmin)</span>
+<span data-n="34" class="ln hit" id="s5c2l34">  useOrderListStatusRealtime(isAdmin ? undefined : data?.data)</span>
+<span data-n="35" class="ln" id="s5c2l35"></span>
+<span data-n="36" class="ln" id="s5c2l36">  const columns: ColumnDef&lt;Order&gt;[] = [</span>
+<span data-n="37" class="ln" id="s5c2l37">    { accessorKey: "id", header: "رقم الطلب", cell: ({ row }) =&gt; `#${row.original.id}` },</span>
+<span data-n="38" class="ln" id="s5c2l38">  ]</span>
+<span data-n="39" class="ln" id="s5c2l39">  if (isAdmin) {</span>
+<span data-n="40" class="ln" id="s5c2l40">    columns.push({</span>
+<span data-n="41" class="ln" id="s5c2l41">      id: "customer",</span>
+<span data-n="42" class="ln" id="s5c2l42">      header: "الزبون",</span>
+<span data-n="43" class="ln" id="s5c2l43">      cell: ({ row }) =&gt; row.original.user?.name ?? `مستخدم #${row.original.user_id}`,</span>
+<span data-n="44" class="ln" id="s5c2l44">    })</span>
+<span data-n="45" class="ln" id="s5c2l45">  }</span>
+<span data-n="46" class="ln" id="s5c2l46">  columns.push(</span>
+<span data-n="47" class="ln" id="s5c2l47">    { id: "items", header: "عدد المنتجات", cell: ({ row }) =&gt; row.original.items.reduce((sum, item) =&gt; sum + item.quantity, 0) },</span>
+<span data-n="48" class="ln" id="s5c2l48">    { accessorKey: "total", header: "الإجمالي", cell: ({ row }) =&gt; formatCurrency(row.original.total) },</span>
+<span data-n="49" class="ln" id="s5c2l49">    { accessorKey: "status", header: "الحالة", cell: ({ row }) =&gt; (</span>
+<span data-n="50" class="ln" id="s5c2l50">      &lt;span className={`rounded-full px-2.5 py-1 text-xs font-medium ${ORDER_STATUS_COLORS[row.original.status]}`}&gt;</span>
+<span data-n="51" class="ln" id="s5c2l51">        {ORDER_STATUS_LABELS[row.original.status]}</span>
+<span data-n="52" class="ln" id="s5c2l52">      &lt;/span&gt;</span>
+<span data-n="53" class="ln" id="s5c2l53">    ) },</span>
+<span data-n="54" class="ln" id="s5c2l54">    { accessorKey: "created_at", header: "التاريخ", cell: ({ row }) =&gt; formatDate(row.original.created_at) },</span>
+<span data-n="55" class="ln" id="s5c2l55">    { id: "actions", header: "", cell: ({ row }) =&gt; (</span>
+<span data-n="56" class="ln" id="s5c2l56">      &lt;Button asChild size="sm" variant="outline"&gt;</span>
+<span data-n="57" class="ln" id="s5c2l57">        &lt;Link to="/orders/$orderId" params={{ orderId: String(row.original.id) }}&gt;</span>
+<span data-n="58" class="ln" id="s5c2l58">          &lt;Eye className="ml-2 h-4 w-4" /&gt;</span>
+<span data-n="59" class="ln" id="s5c2l59">          التفاصيل</span>
+<span data-n="60" class="ln" id="s5c2l60">        &lt;/Link&gt;</span>
+<span data-n="61" class="ln" id="s5c2l61">      &lt;/Button&gt;</span>
+<span data-n="62" class="ln" id="s5c2l62">    ) },</span>
+<span data-n="63" class="ln" id="s5c2l63">  )</span>
+<span data-n="64" class="ln" id="s5c2l64"></span>
+<span data-n="65" class="ln" id="s5c2l65">  return (</span>
+<span data-n="66" class="ln" id="s5c2l66">    &lt;div className="space-y-4"&gt;</span>
+<span data-n="67" class="ln" id="s5c2l67">      &lt;PageHeader title="الطلبات" description={isAdmin ? "متابعة وإدارة جميع طلبات المتجر" : "متابعة طلباتك"} /&gt;</span>
+<span data-n="68" class="ln" id="s5c2l68">      &lt;div className="max-w-xs"&gt;</span>
+<span data-n="69" class="ln" id="s5c2l69">        &lt;label htmlFor="order-status" className="mb-2 block text-sm font-medium"&gt;تصفية حسب الحالة&lt;/label&gt;</span>
+<span data-n="70" class="ln" id="s5c2l70">        &lt;select</span>
+<span data-n="71" class="ln" id="s5c2l71">          id="order-status"</span>
+<span data-n="72" class="ln" id="s5c2l72">          value={status ?? ""}</span>
+<span data-n="73" class="ln" id="s5c2l73">          onChange={(event) =&gt; {</span>
+<span data-n="74" class="ln" id="s5c2l74">            const next = event.target.value as OrderStatus | ""</span>
+<span data-n="75" class="ln" id="s5c2l75">            void navigate({ search: (previous) =&gt; ({ ...previous, page: 1, status: next || undefined }) })</span>
+<span data-n="76" class="ln" id="s5c2l76">          }}</span>
+<span data-n="77" class="ln" id="s5c2l77">          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"</span>
+<span data-n="78" class="ln" id="s5c2l78">        &gt;</span>
+<span data-n="79" class="ln" id="s5c2l79">          &lt;option value=""&gt;كل الحالات&lt;/option&gt;</span>
+<span data-n="80" class="ln" id="s5c2l80">          {Object.values(ORDER_STATUS).map((value) =&gt; (</span>
+<span data-n="81" class="ln" id="s5c2l81">            &lt;option key={value} value={value}&gt;{ORDER_STATUS_LABELS[value]}&lt;/option&gt;</span>
+<span data-n="82" class="ln" id="s5c2l82">          ))}</span>
+<span data-n="83" class="ln" id="s5c2l83">        &lt;/select&gt;</span>
+<span data-n="84" class="ln" id="s5c2l84">      &lt;/div&gt;</span>
+<span data-n="85" class="ln" id="s5c2l85">      {error ? (</span>
+<span data-n="86" class="ln" id="s5c2l86">        &lt;EmptyState title="تعذر تحميل الطلبات" description={error.message} /&gt;</span>
+<span data-n="87" class="ln" id="s5c2l87">      ) : (</span>
+<span data-n="88" class="ln" id="s5c2l88">        &lt;&gt;</span>
+<span data-n="89" class="ln hit" id="s5c2l89">          &lt;DataTable</span>
+<span data-n="90" class="ln hit" id="s5c2l90">            columns={columns}</span>
+<span data-n="91" class="ln hit" id="s5c2l91">            data={data?.data ?? []}</span>
+<span data-n="92" class="ln hit" id="s5c2l92">            isLoading={isLoading}</span>
+<span data-n="93" class="ln" id="s5c2l93">            emptyTitle="لا توجد طلبات"</span>
+<span data-n="94" class="ln" id="s5c2l94">            emptyDescription="لم يتم العثور على طلبات بهذه الحالة."</span>
+<span data-n="95" class="ln" id="s5c2l95">            renderMobileRow={(order) =&gt; &lt;OrderSummaryCard order={order} showCustomer={isAdmin} /&gt;}</span>
+<span data-n="96" class="ln" id="s5c2l96">          /&gt;</span>
+<span data-n="97" class="ln" id="s5c2l97">          {data?.meta &amp;&amp; (</span>
+<span data-n="98" class="ln" id="s5c2l98">            &lt;Pagination</span>
+<span data-n="99" class="ln" id="s5c2l99">              page={data.meta.current_page}</span>
+<span data-n="100" class="ln" id="s5c2l100">              lastPage={data.meta.last_page}</span>
+<span data-n="101" class="ln" id="s5c2l101">              onPageChange={(nextPage) =&gt; void navigate({ search: (previous) =&gt; ({ ...previous, page: nextPage }) })}</span>
+<span data-n="102" class="ln" id="s5c2l102">            /&gt;</span>
+<span data-n="103" class="ln" id="s5c2l103">          )}</span>
+<span data-n="104" class="ln" id="s5c2l104">        &lt;/&gt;</span>
+<span data-n="105" class="ln" id="s5c2l105">      )}</span>
+<span data-n="106" class="ln" id="s5c2l106">    &lt;/div&gt;</span>
+<span data-n="107" class="ln" id="s5c2l107">  )</span>
+<span data-n="108" class="ln" id="s5c2l108">}</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>أختم بما يستطيع المسؤول ملاحظته. في صفحة الملخص تعرض البطاقات بيانات الاستعلام، ومنها عدد الطلبات اليوم والإجمالي. لا توجد عملية تجمع واحداً عند وصول التنبيه. إذا وصل طلبان أثناء انقطاع قصير، لا تحتاج اللوحة إلى تخمين العدد من عدد التنبيهات؛ يكفي أن تقرأ الإجمالي الصحيح من الخادم عند عودة الاتصال. ولهذا نربط شكل البطاقة بمصدر البيانات ونترك البث يحدد متى نحتاج قراءة جديدة.</p><p>في صفحة القائمة يتلقى الجدول عناصر الصفحة الحالية التي أعادتها <bdi dir="ltr">API</bdi>. عند مشاهدة أول صفحة دون فلتر يُتوقع أن يظهر الطلب الجديد وفق ترتيب الخادم. أما إذا كان المسؤول يعرض الطلبات المُسلَّمة فقط فلن نضيف طلباً معلّقاً إلى تلك القائمة لمجرد أن تنبيهه وصل. قد يتغير الإجمالي ويظهر التنبيه وتظل القائمة المصفاة كما هي؛ هذا تطبيق صحيح للتصفية. هكذا أشرح ثلاثة آثار منفصلة لنفس الحدث: تنبيه فوري، وملخص حديث، وصفوف تحترم الصفحة والفلتر الحاليين.</p><p>لذلك أختار في العرض صفحة غير مصفاة ورقم طلب واضحاً. هذا يجعل العلاقة بين الحدث والنتيجة سهلة الملاحظة، ويمنع الخلط بين طلب لم يصل إطلاقاً وطلب استبعده الفلتر بصورة صحيحة.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+</main><script>document.querySelectorAll(".pane").forEach(box=>{const first=box.querySelector(".hit");if(first)box.scrollTop=Math.max(0,first.getBoundingClientRect().top-box.getBoundingClientRect().top-42);});</script></body></html>

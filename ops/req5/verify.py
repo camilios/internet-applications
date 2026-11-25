@@ -34,8 +34,8 @@ def check(condition, message):
         raise RuntimeError(message)
 
 
-def containers(service, count):
-    ids = command(*COMPOSE, 'ps', '-q', service).splitlines()
+def containers(service, count, compose=COMPOSE):
+    ids = command(*compose, 'ps', '-q', service).splitlines()
     check(len(ids) == count, f'Expected {count} running {service} containers, found {len(ids)}')
     found = []
     for cid in ids:

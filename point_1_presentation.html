@@ -1,0 +1,392 @@
+<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>هل ينتظر الزبون نشر حدث الطلب في RabbitMQ؟</title><style>
+:root{--ink:#153044;--bg:#f1f5f8;--line:#c9d7e1;--link:#075873;--focus:#ffe8a3;--soft:#f3f7fa;color-scheme:light}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.85 system-ui,'Segoe UI',Tahoma,sans-serif}main{max-width:67rem;margin:auto;padding:1rem}header,section{background:white;border:1px solid var(--line);border-radius:12px;padding:clamp(1rem,3vw,1.8rem);margin:.9rem 0}header{border-top:5px solid var(--link)}h1,h2,h3{line-height:1.45;margin:.2rem 0 .6rem}h1{font-size:clamp(1.45rem,3vw,2.2rem)}h2{font-size:1.35rem}h3{font-size:1rem}p{margin:.5rem 0}.tag,.clock{font-weight:700;color:var(--link)}a{color:var(--link);text-underline-offset:3px}nav,.jumps{display:flex;flex-wrap:wrap;gap:.25rem .9rem}nav{margin-top:.8rem}.top{display:flex;justify-content:space-between;align-items:baseline;gap:.7rem}.clock,.path,code{font-family:Consolas,monospace}.clock{white-space:nowrap}.path{display:inline-block;overflow-wrap:anywhere;max-width:100%;font-size:.85rem}.piece{padding:.7rem 0}.open,.jumps{font-size:.87rem}.pane{direction:ltr;text-align:left;max-height:20rem;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:6px;background:#fafcfd;scroll-padding-top:2.5rem}.pane pre{line-height:1.6;font-size:13px;tab-size:4;margin:0;min-width:100%;width:max-content;padding:.25rem 0}.ln{display:inline-block;min-width:100%;padding-right:.55rem;color:#31475b}.ln:before{content:attr(data-n);display:inline-block;width:3.25rem;margin-right:.6rem;padding-right:.55rem;text-align:right;font-size:.82em;color:#526678;border-right:1px solid #c5d1da;user-select:none}.hit{background:var(--focus);color:#222}.ln:target{outline:2px solid #b16b00;outline-offset:-2px}.jumps{margin:.3rem 0 .45rem}.talk{margin-top:.8rem;border-inline-start:4px solid #30828b;padding:.35rem 1rem;background:#f2f8f8}.talk p+p{margin-top:.8rem}.guide{font-size:.92rem}.key{background:var(--focus);padding:.02rem .25rem}.piece:focus-within{border-color:#91abb1}a:focus-visible,.pane:focus-visible{outline:2px solid #086984}.navback{font-size:.82rem} @media print{body{background:white;font-size:11pt}main{max-width:none;margin:0;padding:0}header,section{border:0;padding:.4rem 0}nav,.jumps,.navback{display:none}.pane{max-height:none;overflow:visible}.pane pre{font-size:8pt;white-space:pre-wrap;overflow-wrap:anywhere;width:auto}.ln{display:inline;min-width:0}.hit{background:#fff0b8;print-color-adjust:exact}.top,h3{break-after:avoid}}</style></head><body><main id="top">
+<header><div class="tag">المتطلب الرابع · الفكرة الأولى</div><h1>هل ينتظر الزبون نشر حدث الطلب في RabbitMQ؟</h1><p><strong>مدة العرض كاملًا: نحو <bdi dir="ltr">8:05</bdi> دقائق.</strong> اقرأ فقرات «ما تقوله» فقط وانتقل إلى الكود المشار إليه. التوقيت يشمل الانتقال بين المواضع؛ لا تقرأ الدالة كاملة بصوت عالٍ.</p><p class="guide">كل دالة معروضة من تعريفها إلى نهايتها. <span class="key">التظليل</span> يحدد الجزء المتعلق بالفكرة؛ بقية الكود موجود لتفهم السياق. روابط الأرقام تنقلك إلى مواضع الشرح داخل الدالة.</p><nav aria-label="محطات العرض"><a href="#step-1">1. استجابة الشراء</a> · <a href="#step-2">2. تثبيت الطلب والحدث معاً</a> · <a href="#step-3">3. من يشغّل الناشر؟</a> · <a href="#step-4">4. اختيار حدث لم يُنشر</a> · <a href="#step-5">5. دليل قبول الوسيط</a></nav></header>
+<section id="step-1"><div class="top"><h2>1. استجابة الشراء</h2><span class="clock" dir="ltr">0:00–1:35</span></div><div class="piece"><h3><bdi>store()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Http/Controllers/OrderController.php">backend/my-project/app/Http/Controllers/OrderController.php</a> · الأسطر <bdi>24–46</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s1c1l27">27–31</a> <a dir="ltr" class="jump" href="#s1c1l45">45</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: store()"><pre dir="ltr"><code data-path="backend/my-project/app/Http/Controllers/OrderController.php" data-start="24" data-end="46"><span data-n="24" class="ln" id="s1c1l24">    public function store(StoreOrderRequest $request): JsonResponse</span>
+<span data-n="25" class="ln" id="s1c1l25">    {</span>
+<span data-n="26" class="ln" id="s1c1l26">        try {</span>
+<span data-n="27" class="ln hit" id="s1c1l27">            $order = $this-&gt;orders-&gt;createOrder(</span>
+<span data-n="28" class="ln hit" id="s1c1l28">                Auth::guard('api')-&gt;user(),</span>
+<span data-n="29" class="ln hit" id="s1c1l29">                $request-&gt;validated('items'),</span>
+<span data-n="30" class="ln hit" id="s1c1l30">                $request-&gt;validated('idempotency_key')</span>
+<span data-n="31" class="ln hit" id="s1c1l31">            );</span>
+<span data-n="32" class="ln" id="s1c1l32">        } catch (InsufficientStockException $exception) {</span>
+<span data-n="33" class="ln" id="s1c1l33">            return response()-&gt;json(['message' =&gt; $exception-&gt;getMessage(), 'code' =&gt; 'INSUFFICIENT_STOCK'], 409);</span>
+<span data-n="34" class="ln" id="s1c1l34">        } catch (InventoryOutcomeUnknownException $exception) {</span>
+<span data-n="35" class="ln" id="s1c1l35">            return response()-&gt;json([</span>
+<span data-n="36" class="ln" id="s1c1l36">                'message' =&gt; 'The reservation result is not yet known. Retry with the same Idempotency-Key.',</span>
+<span data-n="37" class="ln" id="s1c1l37">                'code' =&gt; 'RESERVATION_OUTCOME_UNKNOWN',</span>
+<span data-n="38" class="ln" id="s1c1l38">            ], 503);</span>
+<span data-n="39" class="ln" id="s1c1l39">        } catch (InventoryUnavailableException $exception) {</span>
+<span data-n="40" class="ln" id="s1c1l40">            return response()-&gt;json(['message' =&gt; 'Inventory service is unavailable. Please retry.', 'code' =&gt; $exception-&gt;getCodeName()], 503);</span>
+<span data-n="41" class="ln" id="s1c1l41">        } catch (\InvalidArgumentException $exception) {</span>
+<span data-n="42" class="ln" id="s1c1l42">            throw ValidationException::withMessages(['items' =&gt; [$exception-&gt;getMessage()]]);</span>
+<span data-n="43" class="ln" id="s1c1l43">        }</span>
+<span data-n="44" class="ln" id="s1c1l44"></span>
+<span data-n="45" class="ln hit" id="s1c1l45">        return (new OrderResource($order))-&gt;response()-&gt;setStatusCode(201);</span>
+<span data-n="46" class="ln" id="s1c1l46">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>لنتتبع طلباً واحداً من لحظة ضغط الزبون على زر الشراء. في المتحكم أشير إلى استدعاء خدمة الطلبات، ثم إلى الرد في أسفل الدالة. بين الموضعين تنتظر الصفحة نتيجة إنشاء الطلب فعلاً؛ لا نرجع نجاحاً قبل التحقق من العناصر والمخزون وتثبيت الطلب. الذي أخرجناه من وقت انتظار الزبون هو الاتصال بوسيط الرسائل وما سيحدث بعده. لذلك لا أبحث في هذا المتحكم عن أمر يرسل بريداً أو ينتظر موافقة <bdi dir="ltr">RabbitMQ</bdi>.</p><p>عندما ترجع الخدمة بنجاح نحول الطلب إلى استجابة تحمل 201 ورقمه. معنى هذه الإجابة محدد: أصبح لدى الزبون طلب محفوظ. قد يكون البريد قيد الانتظار في هذه اللحظة، وهذا طبيعي. والسؤال الذي يأخذني إلى الملف التالي هو: إذا أغلق الزبون الصفحة فور ظهور الرقم، أين حفظنا المعلومة التي ستدفع النظام إلى نشر الحدث؟</p><p>في مثال طلبنا، يمكن أن يصل الرد للمتصفح بينما حدثه لم يغادر <bdi dir="ltr">MySQL</bdi> بعد. لا توجد منافسة مطلوبة بين سرعة المتصفح وسرعة الناشر؛ حتى لو سبق الناشر الرد مرة، لا تعتمد صحة الرد على ذلك السباق.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-2"><div class="top"><h2>2. تثبيت الطلب والحدث معاً</h2><span class="clock" dir="ltr">1:35–3:15</span></div><div class="piece"><h3><bdi>createOrder()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/OrderService.php">backend/my-project/app/Services/OrderService.php</a> · الأسطر <bdi>37–287</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s2c1l154">154–162</a> <a dir="ltr" class="jump" href="#s2c1l167">167–172</a> <a dir="ltr" class="jump" href="#s2c1l183">183–191</a> <a dir="ltr" class="jump" href="#s2c1l195">195–196</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: createOrder()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/OrderService.php" data-start="37" data-end="287"><span data-n="37" class="ln" id="s2c1l37">    public function createOrder(User $user, array $items, string $idempotencyKey): Order</span>
+<span data-n="38" class="ln" id="s2c1l38">    {</span>
+<span data-n="39" class="ln" id="s2c1l39">        $normalizedItems = collect($items)</span>
+<span data-n="40" class="ln" id="s2c1l40">            -&gt;map(fn (array $item) =&gt; [</span>
+<span data-n="41" class="ln" id="s2c1l41">                'product_id' =&gt; (int) $item['product_id'],</span>
+<span data-n="42" class="ln" id="s2c1l42">                'quantity' =&gt; (int) $item['quantity'],</span>
+<span data-n="43" class="ln" id="s2c1l43">            ])</span>
+<span data-n="44" class="ln" id="s2c1l44">            -&gt;sortBy(['product_id', 'quantity'])</span>
+<span data-n="45" class="ln" id="s2c1l45">            -&gt;values()</span>
+<span data-n="46" class="ln" id="s2c1l46">            -&gt;all();</span>
+<span data-n="47" class="ln" id="s2c1l47">        $requestHash = hash('sha256', json_encode($normalizedItems, JSON_THROW_ON_ERROR));</span>
+<span data-n="48" class="ln" id="s2c1l48"></span>
+<span data-n="49" class="ln" id="s2c1l49">        DB::table('inventory_operations')-&gt;insertOrIgnore([</span>
+<span data-n="50" class="ln" id="s2c1l50">            'idempotency_key' =&gt; $idempotencyKey,</span>
+<span data-n="51" class="ln" id="s2c1l51">            'user_id' =&gt; $user-&gt;id,</span>
+<span data-n="52" class="ln" id="s2c1l52">            'request_hash' =&gt; $requestHash,</span>
+<span data-n="53" class="ln" id="s2c1l53">            'status' =&gt; 'pending',</span>
+<span data-n="54" class="ln" id="s2c1l54">            'created_at' =&gt; now(),</span>
+<span data-n="55" class="ln" id="s2c1l55">            'updated_at' =&gt; now(),</span>
+<span data-n="56" class="ln" id="s2c1l56">        ]);</span>
+<span data-n="57" class="ln" id="s2c1l57">        $operation = InventoryOperation::where('idempotency_key', $idempotencyKey)-&gt;firstOrFail();</span>
+<span data-n="58" class="ln" id="s2c1l58"></span>
+<span data-n="59" class="ln" id="s2c1l59">        if ($operation-&gt;user_id !== $user-&gt;id || ! hash_equals($operation-&gt;request_hash, $requestHash)) {</span>
+<span data-n="60" class="ln" id="s2c1l60">            throw new \InvalidArgumentException('This Idempotency-Key was already used for a different order.');</span>
+<span data-n="61" class="ln" id="s2c1l61">        }</span>
+<span data-n="62" class="ln" id="s2c1l62">        if ($operation-&gt;status === 'completed') {</span>
+<span data-n="63" class="ln" id="s2c1l63">            return Order::with('items.product')-&gt;findOrFail($operation-&gt;order_id);</span>
+<span data-n="64" class="ln" id="s2c1l64">        }</span>
+<span data-n="65" class="ln" id="s2c1l65">        if ($operation-&gt;status === 'compensation_pending') {</span>
+<span data-n="66" class="ln" id="s2c1l66">            throw new InventoryOutcomeUnknownException('A prior compensation is still pending.');</span>
+<span data-n="67" class="ln" id="s2c1l67">        }</span>
+<span data-n="68" class="ln" id="s2c1l68">        if ($operation-&gt;status === 'compensated') {</span>
+<span data-n="69" class="ln" id="s2c1l69">            throw new \InvalidArgumentException('The previous attempt was compensated. Use a new Idempotency-Key.');</span>
+<span data-n="70" class="ln" id="s2c1l70">        }</span>
+<span data-n="71" class="ln" id="s2c1l71"></span>
+<span data-n="72" class="ln" id="s2c1l72">        $productIds = array_column($items, 'product_id');</span>
+<span data-n="73" class="ln" id="s2c1l73">        $products = Product::whereIn('id', $productIds)</span>
+<span data-n="74" class="ln" id="s2c1l74">            -&gt;where('is_active', true)</span>
+<span data-n="75" class="ln" id="s2c1l75">            -&gt;get()</span>
+<span data-n="76" class="ln" id="s2c1l76">            -&gt;keyBy('id');</span>
+<span data-n="77" class="ln" id="s2c1l77"></span>
+<span data-n="78" class="ln" id="s2c1l78">        // Check all products exist and are active</span>
+<span data-n="79" class="ln" id="s2c1l79">        foreach ($items as $item) {</span>
+<span data-n="80" class="ln" id="s2c1l80">            if (! $products-&gt;has($item['product_id'])) {</span>
+<span data-n="81" class="ln" id="s2c1l81">                throw new \InvalidArgumentException(</span>
+<span data-n="82" class="ln" id="s2c1l82">                    "Product ID {$item['product_id']} not found or is inactive."</span>
+<span data-n="83" class="ln" id="s2c1l83">                );</span>
+<span data-n="84" class="ln" id="s2c1l84">            }</span>
+<span data-n="85" class="ln" id="s2c1l85">        }</span>
+<span data-n="86" class="ln" id="s2c1l86"></span>
+<span data-n="87" class="ln" id="s2c1l87">        $orderItems = [];</span>
+<span data-n="88" class="ln" id="s2c1l88">        $total = '0.00';</span>
+<span data-n="89" class="ln" id="s2c1l89">        foreach ($items as $item) {</span>
+<span data-n="90" class="ln" id="s2c1l90">            $product = $products[$item['product_id']];</span>
+<span data-n="91" class="ln" id="s2c1l91">            $unitPrice = $product-&gt;price;</span>
+<span data-n="92" class="ln" id="s2c1l92">            $subtotal = bcmul($unitPrice, (string) $item['quantity'], 2);</span>
+<span data-n="93" class="ln" id="s2c1l93">            $total = bcadd($total, $subtotal, 2);</span>
+<span data-n="94" class="ln" id="s2c1l94"></span>
+<span data-n="95" class="ln" id="s2c1l95">            $orderItems[] = [</span>
+<span data-n="96" class="ln" id="s2c1l96">                'product_id' =&gt; $product-&gt;id,</span>
+<span data-n="97" class="ln" id="s2c1l97">                'quantity' =&gt; $item['quantity'],</span>
+<span data-n="98" class="ln" id="s2c1l98">                'unit_price' =&gt; $unitPrice,</span>
+<span data-n="99" class="ln" id="s2c1l99">                'subtotal' =&gt; $subtotal,</span>
+<span data-n="100" class="ln" id="s2c1l100">            ];</span>
+<span data-n="101" class="ln" id="s2c1l101">        }</span>
+<span data-n="102" class="ln" id="s2c1l102"></span>
+<span data-n="103" class="ln" id="s2c1l103">        $reservationId = null;</span>
+<span data-n="104" class="ln" id="s2c1l104">        try {</span>
+<span data-n="105" class="ln" id="s2c1l105">            $reservedOperation = DB::transaction(function () use (</span>
+<span data-n="106" class="ln" id="s2c1l106">                $operation,</span>
+<span data-n="107" class="ln" id="s2c1l107">                $items,</span>
+<span data-n="108" class="ln" id="s2c1l108">                $idempotencyKey</span>
+<span data-n="109" class="ln" id="s2c1l109">            ) {</span>
+<span data-n="110" class="ln" id="s2c1l110">                $lockedOperation = InventoryOperation::query()</span>
+<span data-n="111" class="ln" id="s2c1l111">                    -&gt;whereKey($operation-&gt;id)</span>
+<span data-n="112" class="ln" id="s2c1l112">                    -&gt;lockForUpdate()</span>
+<span data-n="113" class="ln" id="s2c1l113">                    -&gt;firstOrFail();</span>
+<span data-n="114" class="ln" id="s2c1l114"></span>
+<span data-n="115" class="ln" id="s2c1l115">                if ($lockedOperation-&gt;status === 'completed') {</span>
+<span data-n="116" class="ln" id="s2c1l116">                    return $lockedOperation;</span>
+<span data-n="117" class="ln" id="s2c1l117">                }</span>
+<span data-n="118" class="ln" id="s2c1l118">                if ($lockedOperation-&gt;status === 'compensation_pending') {</span>
+<span data-n="119" class="ln" id="s2c1l119">                    throw new InventoryOutcomeUnknownException('A prior compensation is still pending.');</span>
+<span data-n="120" class="ln" id="s2c1l120">                }</span>
+<span data-n="121" class="ln" id="s2c1l121">                if ($lockedOperation-&gt;status === 'compensated') {</span>
+<span data-n="122" class="ln" id="s2c1l122">                    throw new \InvalidArgumentException('The previous attempt was compensated. Use a new Idempotency-Key.');</span>
+<span data-n="123" class="ln" id="s2c1l123">                }</span>
+<span data-n="124" class="ln" id="s2c1l124"></span>
+<span data-n="125" class="ln" id="s2c1l125">                if ($lockedOperation-&gt;status === 'pending') {</span>
+<span data-n="126" class="ln" id="s2c1l126">                    $reservation = $this-&gt;inventoryClient-&gt;reserveStock($items, $idempotencyKey);</span>
+<span data-n="127" class="ln" id="s2c1l127">                    if (! $reservation-&gt;success) {</span>
+<span data-n="128" class="ln" id="s2c1l128">                        throw new InsufficientStockException(</span>
+<span data-n="129" class="ln" id="s2c1l129">                            $reservation-&gt;reason ?: 'Insufficient stock for one or more products.'</span>
+<span data-n="130" class="ln" id="s2c1l130">                        );</span>
+<span data-n="131" class="ln" id="s2c1l131">                    }</span>
+<span data-n="132" class="ln" id="s2c1l132">                    if (! $reservation-&gt;reservationId) {</span>
+<span data-n="133" class="ln" id="s2c1l133">                        throw new InventoryOutcomeUnknownException('Reservation was not confirmed with an ID.');</span>
+<span data-n="134" class="ln" id="s2c1l134">                    }</span>
+<span data-n="135" class="ln" id="s2c1l135"></span>
+<span data-n="136" class="ln" id="s2c1l136">                    $lockedOperation-&gt;update([</span>
+<span data-n="137" class="ln" id="s2c1l137">                        'status' =&gt; 'reserved',</span>
+<span data-n="138" class="ln" id="s2c1l138">                        'reservation_id' =&gt; $reservation-&gt;reservationId,</span>
+<span data-n="139" class="ln" id="s2c1l139">                    ]);</span>
+<span data-n="140" class="ln" id="s2c1l140">                }</span>
+<span data-n="141" class="ln" id="s2c1l141"></span>
+<span data-n="142" class="ln" id="s2c1l142">                if ($lockedOperation-&gt;status !== 'reserved' || ! $lockedOperation-&gt;reservation_id) {</span>
+<span data-n="143" class="ln" id="s2c1l143">                    throw new InventoryOutcomeUnknownException('Reservation operation is not in a recoverable state.');</span>
+<span data-n="144" class="ln" id="s2c1l144">                }</span>
+<span data-n="145" class="ln" id="s2c1l145"></span>
+<span data-n="146" class="ln" id="s2c1l146">                return $lockedOperation-&gt;fresh();</span>
+<span data-n="147" class="ln" id="s2c1l147">            });</span>
+<span data-n="148" class="ln" id="s2c1l148">            $reservationId = $reservedOperation-&gt;reservation_id;</span>
+<span data-n="149" class="ln" id="s2c1l149"></span>
+<span data-n="150" class="ln" id="s2c1l150">            if ($reservedOperation-&gt;status === 'completed') {</span>
+<span data-n="151" class="ln" id="s2c1l151">                return Order::with('items.product')-&gt;findOrFail($reservedOperation-&gt;order_id);</span>
+<span data-n="152" class="ln" id="s2c1l152">            }</span>
+<span data-n="153" class="ln" id="s2c1l153"></span>
+<span data-n="154" class="ln hit" id="s2c1l154">            $order = DB::transaction(function () use ($operation, $user, $total, $orderItems) {</span>
+<span data-n="155" class="ln hit" id="s2c1l155">                $lockedOperation = InventoryOperation::query()</span>
+<span data-n="156" class="ln hit" id="s2c1l156">                    -&gt;whereKey($operation-&gt;id)</span>
+<span data-n="157" class="ln hit" id="s2c1l157">                    -&gt;lockForUpdate()</span>
+<span data-n="158" class="ln hit" id="s2c1l158">                    -&gt;firstOrFail();</span>
+<span data-n="159" class="ln hit" id="s2c1l159"></span>
+<span data-n="160" class="ln hit" id="s2c1l160">                if ($lockedOperation-&gt;status === 'completed') {</span>
+<span data-n="161" class="ln hit" id="s2c1l161">                    return Order::with('items.product')-&gt;findOrFail($lockedOperation-&gt;order_id);</span>
+<span data-n="162" class="ln hit" id="s2c1l162">                }</span>
+<span data-n="163" class="ln" id="s2c1l163">                if ($lockedOperation-&gt;status !== 'reserved' || ! $lockedOperation-&gt;reservation_id) {</span>
+<span data-n="164" class="ln" id="s2c1l164">                    throw new InventoryOutcomeUnknownException('Confirmed reservation state is unavailable.');</span>
+<span data-n="165" class="ln" id="s2c1l165">                }</span>
+<span data-n="166" class="ln" id="s2c1l166"></span>
+<span data-n="167" class="ln hit" id="s2c1l167">                $order = Order::create([</span>
+<span data-n="168" class="ln hit" id="s2c1l168">                    'user_id' =&gt; $user-&gt;id,</span>
+<span data-n="169" class="ln hit" id="s2c1l169">                    'total' =&gt; $total,</span>
+<span data-n="170" class="ln hit" id="s2c1l170">                    'status' =&gt; 'pending',</span>
+<span data-n="171" class="ln hit" id="s2c1l171">                    'reservation_id' =&gt; $lockedOperation-&gt;reservation_id,</span>
+<span data-n="172" class="ln hit" id="s2c1l172">                ]);</span>
+<span data-n="173" class="ln" id="s2c1l173"></span>
+<span data-n="174" class="ln" id="s2c1l174">                foreach ($orderItems as $item) {</span>
+<span data-n="175" class="ln" id="s2c1l175">                    $order-&gt;items()-&gt;create($item);</span>
+<span data-n="176" class="ln" id="s2c1l176">                }</span>
+<span data-n="177" class="ln" id="s2c1l177"></span>
+<span data-n="178" class="ln" id="s2c1l178">                $lockedOperation-&gt;update([</span>
+<span data-n="179" class="ln" id="s2c1l179">                    'status' =&gt; 'completed',</span>
+<span data-n="180" class="ln" id="s2c1l180">                    'order_id' =&gt; $order-&gt;id,</span>
+<span data-n="181" class="ln" id="s2c1l181">                    'last_error' =&gt; null,</span>
+<span data-n="182" class="ln" id="s2c1l182">                ]);</span>
+<span data-n="183" class="ln hit" id="s2c1l183">                $eventId = (string) Str::uuid();</span>
+<span data-n="184" class="ln hit" id="s2c1l184">                $occurredAt = now()-&gt;toISOString();</span>
+<span data-n="185" class="ln hit" id="s2c1l185">                OutboxEvent::create([</span>
+<span data-n="186" class="ln hit" id="s2c1l186">                    'event_id' =&gt; $eventId,</span>
+<span data-n="187" class="ln hit" id="s2c1l187">                    'order_id' =&gt; $order-&gt;id,</span>
+<span data-n="188" class="ln hit" id="s2c1l188">                    'event_type' =&gt; 'OrderCreated',</span>
+<span data-n="189" class="ln hit" id="s2c1l189">                    'payload' =&gt; ['event_id' =&gt; $eventId, 'type' =&gt; 'OrderCreated', 'order_id' =&gt; $order-&gt;id, 'occurred_at' =&gt; $occurredAt],</span>
+<span data-n="190" class="ln hit" id="s2c1l190">                    'available_at' =&gt; now(),</span>
+<span data-n="191" class="ln hit" id="s2c1l191">                ]);</span>
+<span data-n="192" class="ln" id="s2c1l192">                $this-&gt;notifyAfterCommit($user, $order, 'order_created');</span>
+<span data-n="193" class="ln" id="s2c1l193">                $this-&gt;broadcastAfterCommit($order, new OrderCreated($eventId, $order-&gt;id, $occurredAt));</span>
+<span data-n="194" class="ln" id="s2c1l194"></span>
+<span data-n="195" class="ln hit" id="s2c1l195">                return $order;</span>
+<span data-n="196" class="ln hit" id="s2c1l196">            });</span>
+<span data-n="197" class="ln" id="s2c1l197">        } catch (InsufficientStockException|InventoryUnavailableException $exception) {</span>
+<span data-n="198" class="ln" id="s2c1l198">            throw $exception;</span>
+<span data-n="199" class="ln" id="s2c1l199">        } catch (\Throwable $e) {</span>
+<span data-n="200" class="ln" id="s2c1l200">            if ($reservationId === null) {</span>
+<span data-n="201" class="ln" id="s2c1l201">                try {</span>
+<span data-n="202" class="ln" id="s2c1l202">                    $durableOperation = InventoryOperation::find($operation-&gt;id);</span>
+<span data-n="203" class="ln" id="s2c1l203">                    if ($durableOperation?-&gt;status === 'completed') {</span>
+<span data-n="204" class="ln" id="s2c1l204">                        return Order::with('items.product')-&gt;findOrFail($durableOperation-&gt;order_id);</span>
+<span data-n="205" class="ln" id="s2c1l205">                    }</span>
+<span data-n="206" class="ln" id="s2c1l206">                    $reservationId = $durableOperation?-&gt;reservation_id;</span>
+<span data-n="207" class="ln" id="s2c1l207">                } catch (\Throwable $lookupException) {</span>
+<span data-n="208" class="ln" id="s2c1l208">                    Log::critical('Could not determine whether an order reservation was persisted', [</span>
+<span data-n="209" class="ln" id="s2c1l209">                        'operation_id' =&gt; $operation-&gt;id,</span>
+<span data-n="210" class="ln" id="s2c1l210">                        'error' =&gt; $lookupException-&gt;getMessage(),</span>
+<span data-n="211" class="ln" id="s2c1l211">                    ]);</span>
+<span data-n="212" class="ln" id="s2c1l212">                    throw new InventoryOutcomeUnknownException('Order persistence outcome is not known.');</span>
+<span data-n="213" class="ln" id="s2c1l213">                }</span>
+<span data-n="214" class="ln" id="s2c1l214">            }</span>
+<span data-n="215" class="ln" id="s2c1l215"></span>
+<span data-n="216" class="ln" id="s2c1l216">            if ($reservationId === null) {</span>
+<span data-n="217" class="ln" id="s2c1l217">                throw $e;</span>
+<span data-n="218" class="ln" id="s2c1l218">            }</span>
+<span data-n="219" class="ln" id="s2c1l219"></span>
+<span data-n="220" class="ln" id="s2c1l220">            try {</span>
+<span data-n="221" class="ln" id="s2c1l221">                $durableOperation = InventoryOperation::find($operation-&gt;id);</span>
+<span data-n="222" class="ln" id="s2c1l222">                if ($durableOperation?-&gt;status === 'completed') {</span>
+<span data-n="223" class="ln" id="s2c1l223">                    return Order::with('items.product')-&gt;findOrFail($durableOperation-&gt;order_id);</span>
+<span data-n="224" class="ln" id="s2c1l224">                }</span>
+<span data-n="225" class="ln" id="s2c1l225">            } catch (\Throwable $lookupException) {</span>
+<span data-n="226" class="ln" id="s2c1l226">                Log::critical('Could not verify order persistence before compensation', [</span>
+<span data-n="227" class="ln" id="s2c1l227">                    'operation_id' =&gt; $operation-&gt;id,</span>
+<span data-n="228" class="ln" id="s2c1l228">                    'reservation_id' =&gt; $reservationId,</span>
+<span data-n="229" class="ln" id="s2c1l229">                    'error' =&gt; $lookupException-&gt;getMessage(),</span>
+<span data-n="230" class="ln" id="s2c1l230">                ]);</span>
+<span data-n="231" class="ln" id="s2c1l231">                throw new InventoryOutcomeUnknownException('Order persistence outcome is not known.');</span>
+<span data-n="232" class="ln" id="s2c1l232">            }</span>
+<span data-n="233" class="ln" id="s2c1l233"></span>
+<span data-n="234" class="ln" id="s2c1l234">            Log::error('Order creation failed, attempting stock release', [</span>
+<span data-n="235" class="ln" id="s2c1l235">                'reservation_id' =&gt; $reservationId,</span>
+<span data-n="236" class="ln" id="s2c1l236">                'error' =&gt; $e-&gt;getMessage(),</span>
+<span data-n="237" class="ln" id="s2c1l237">            ]);</span>
+<span data-n="238" class="ln" id="s2c1l238"></span>
+<span data-n="239" class="ln" id="s2c1l239">            $released = false;</span>
+<span data-n="240" class="ln" id="s2c1l240">            $compensationError = null;</span>
+<span data-n="241" class="ln" id="s2c1l241">            try {</span>
+<span data-n="242" class="ln" id="s2c1l242">                $released = $this-&gt;inventoryClient-&gt;releaseStock($reservationId);</span>
+<span data-n="243" class="ln" id="s2c1l243">                if (! $released) {</span>
+<span data-n="244" class="ln" id="s2c1l244">                    $compensationError = 'Inventory service did not confirm the release.';</span>
+<span data-n="245" class="ln" id="s2c1l245">                }</span>
+<span data-n="246" class="ln" id="s2c1l246">            } catch (\Throwable $releaseException) {</span>
+<span data-n="247" class="ln" id="s2c1l247">                $compensationError = $releaseException-&gt;getMessage();</span>
+<span data-n="248" class="ln" id="s2c1l248">            }</span>
+<span data-n="249" class="ln" id="s2c1l249"></span>
+<span data-n="250" class="ln" id="s2c1l250">            DB::transaction(function () use ($operation, $reservationId, $released, $compensationError, $e) {</span>
+<span data-n="251" class="ln" id="s2c1l251">                $lockedOperation = InventoryOperation::query()</span>
+<span data-n="252" class="ln" id="s2c1l252">                    -&gt;whereKey($operation-&gt;id)</span>
+<span data-n="253" class="ln" id="s2c1l253">                    -&gt;lockForUpdate()</span>
+<span data-n="254" class="ln" id="s2c1l254">                    -&gt;firstOrFail();</span>
+<span data-n="255" class="ln" id="s2c1l255">                $lockedOperation-&gt;update([</span>
+<span data-n="256" class="ln" id="s2c1l256">                    'status' =&gt; $released ? 'compensated' : 'compensation_pending',</span>
+<span data-n="257" class="ln" id="s2c1l257">                    'reservation_id' =&gt; $reservationId,</span>
+<span data-n="258" class="ln" id="s2c1l258">                    'last_error' =&gt; $released ? $e-&gt;getMessage() : $compensationError,</span>
+<span data-n="259" class="ln" id="s2c1l259">                ]);</span>
+<span data-n="260" class="ln" id="s2c1l260"></span>
+<span data-n="261" class="ln" id="s2c1l261">                if (! $released) {</span>
+<span data-n="262" class="ln" id="s2c1l262">                    FailedCompensation::firstOrCreate(</span>
+<span data-n="263" class="ln" id="s2c1l263">                        ['operation_id' =&gt; $lockedOperation-&gt;id],</span>
+<span data-n="264" class="ln" id="s2c1l264">                        [</span>
+<span data-n="265" class="ln" id="s2c1l265">                            'reservation_id' =&gt; $reservationId,</span>
+<span data-n="266" class="ln" id="s2c1l266">                            'status' =&gt; 'pending',</span>
+<span data-n="267" class="ln" id="s2c1l267">                            'error_message' =&gt; $compensationError,</span>
+<span data-n="268" class="ln" id="s2c1l268">                            'attempts' =&gt; 1,</span>
+<span data-n="269" class="ln" id="s2c1l269">                            'last_attempted_at' =&gt; now(),</span>
+<span data-n="270" class="ln" id="s2c1l270">                        ]</span>
+<span data-n="271" class="ln" id="s2c1l271">                    );</span>
+<span data-n="272" class="ln" id="s2c1l272">                }</span>
+<span data-n="273" class="ln" id="s2c1l273">            });</span>
+<span data-n="274" class="ln" id="s2c1l274"></span>
+<span data-n="275" class="ln" id="s2c1l275">            if (! $released) {</span>
+<span data-n="276" class="ln" id="s2c1l276">                Log::critical('Stock compensation recorded for retry', [</span>
+<span data-n="277" class="ln" id="s2c1l277">                    'operation_id' =&gt; $operation-&gt;id,</span>
+<span data-n="278" class="ln" id="s2c1l278">                    'reservation_id' =&gt; $reservationId,</span>
+<span data-n="279" class="ln" id="s2c1l279">                    'error' =&gt; $compensationError,</span>
+<span data-n="280" class="ln" id="s2c1l280">                ]);</span>
+<span data-n="281" class="ln" id="s2c1l281">            }</span>
+<span data-n="282" class="ln" id="s2c1l282"></span>
+<span data-n="283" class="ln" id="s2c1l283">            throw $e;</span>
+<span data-n="284" class="ln" id="s2c1l284">        }</span>
+<span data-n="285" class="ln" id="s2c1l285"></span>
+<span data-n="286" class="ln" id="s2c1l286">        return $order-&gt;load('items.product');</span>
+<span data-n="287" class="ln" id="s2c1l287">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>داخل <bdi dir="ltr">createOrder</bdi> أذهب مباشرة إلى المعاملة المميزة. تخيّل حلّاً يحفظ الطلب أولاً، ثم يحاول النشر من الذاكرة: لو تعطلت العملية بين الخطوتين، سيجد الزبون طلبه في حسابه لكن لا يبقى شيء يخبر الناشر بأن لهذا الطلب حدثاً. هنا وضعنا إنشاء سجل الطلب وكتابة سجل الحدث في المعاملة نفسها. فإذا تراجعت المعاملة لا يبقى حدث لطلب لم يكتمل، وإذا نجحت يبقى سجل يمكن لعملية أخرى قراءته حتى بعد انتهاء عملية <bdi dir="ltr">HTTP</bdi>.</p><p>أنظر إلى الحمولة بصفتها وصفاً لواقعة واحدة: رقم الطلب يحدد أيّ طلب نعنيه، ومعرّف الحدث يميّز واقعة الإنشاء، والوقت يبيّن متى حصلت. نعيّن وقت الإتاحة الآن؛ هذا يجعل الحدث مستحقاً للنشر، ولا يعني أن الوسيط استلمه. وإذا كانت عملية الشراء قد اكتملت سابقاً، فالمسار الذي يسترجع الطلب الموجود لا ينشئ له حدثاً جديداً في كل إعادة محاولة. لهذا أميّز بين مفتاح محاولة الشراء ومعرّف رسالة النشر.</p><p>في الجدول نفسه يربط رقم الطلب سجل الحدث بسجل الشراء. لو كنا نتحقق من طلب واحد بعد عودة الخدمة لاستطعنا تتبع واقعة الشراء بهذا الرقم، ثم تتبع محاولات نشر الواقعة بمعرّفها الثابت.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-3"><div class="top"><h2>3. من يشغّل الناشر؟</h2><span class="clock" dir="ltr">3:15–4:50</span></div><div class="piece"><h3><bdi>خدمة outbox-publisher</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="docker-compose.yml">docker-compose.yml</a> · الأسطر <bdi>224–249</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c1l224">224</a> <a dir="ltr" class="jump" href="#s3c1l231">231</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: خدمة outbox-publisher"><pre dir="ltr"><code data-path="docker-compose.yml" data-start="224" data-end="249"><span data-n="224" class="ln hit" id="s3c1l224">  outbox-publisher: &amp;order-worker</span>
+<span data-n="225" class="ln" id="s3c1l225">    build: *laravel-build</span>
+<span data-n="226" class="ln" id="s3c1l226">    restart: unless-stopped</span>
+<span data-n="227" class="ln" id="s3c1l227">    environment: &amp;order-worker-environment</span>
+<span data-n="228" class="ln" id="s3c1l228">      &lt;&lt;: *laravel-environment</span>
+<span data-n="229" class="ln" id="s3c1l229">      SKIP_MIGRATIONS: "true"</span>
+<span data-n="230" class="ln" id="s3c1l230">      DB_REPLICA_ENABLED: "false"</span>
+<span data-n="231" class="ln hit" id="s3c1l231">    command: ["php", "artisan", "outbox:publish"]</span>
+<span data-n="232" class="ln" id="s3c1l232">    stop_grace_period: 45s</span>
+<span data-n="233" class="ln" id="s3c1l233">    volumes:</span>
+<span data-n="234" class="ln" id="s3c1l234">      - backend_storage:/var/www/html/storage/app/public</span>
+<span data-n="235" class="ln" id="s3c1l235">    depends_on:</span>
+<span data-n="236" class="ln" id="s3c1l236">      backend:</span>
+<span data-n="237" class="ln" id="s3c1l237">        condition: service_healthy</span>
+<span data-n="238" class="ln" id="s3c1l238">      rabbitmq:</span>
+<span data-n="239" class="ln" id="s3c1l239">        condition: service_healthy</span>
+<span data-n="240" class="ln" id="s3c1l240">    networks:</span>
+<span data-n="241" class="ln" id="s3c1l241">      - ecommerce-network</span>
+<span data-n="242" class="ln" id="s3c1l242">    secrets:</span>
+<span data-n="243" class="ln" id="s3c1l243">      - mysql_password</span>
+<span data-n="244" class="ln" id="s3c1l244">    healthcheck:</span>
+<span data-n="245" class="ln" id="s3c1l245">      test: ["CMD", "php", "artisan", "messaging:health"]</span>
+<span data-n="246" class="ln" id="s3c1l246">      interval: 30s</span>
+<span data-n="247" class="ln" id="s3c1l247">      timeout: 15s</span>
+<span data-n="248" class="ln" id="s3c1l248">      retries: 3</span>
+<span data-n="249" class="ln" id="s3c1l249">      start_period: 30s</span></code></pre></div></div><div class="piece"><h3><bdi>handle()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Console/Commands/PublishOutbox.php">backend/my-project/app/Console/Commands/PublishOutbox.php</a> · الأسطر <bdi>17–40</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s3c2l19">19–22</a> <a dir="ltr" class="jump" href="#s3c2l33">33–36</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: handle()"><pre dir="ltr"><code data-path="backend/my-project/app/Console/Commands/PublishOutbox.php" data-start="17" data-end="40"><span data-n="17" class="ln" id="s3c2l17">    public function handle(OutboxPublisher $publisher, MessageBroker $broker): int</span>
+<span data-n="18" class="ln" id="s3c2l18">    {</span>
+<span data-n="19" class="ln hit" id="s3c2l19">        DB::connection()-&gt;useWriteConnectionWhenReading();</span>
+<span data-n="20" class="ln hit" id="s3c2l20">        do {</span>
+<span data-n="21" class="ln hit" id="s3c2l21">            try {</span>
+<span data-n="22" class="ln hit" id="s3c2l22">                $worked = $publisher-&gt;publishNext();</span>
+<span data-n="23" class="ln" id="s3c2l23">            } catch (\Throwable $exception) {</span>
+<span data-n="24" class="ln" id="s3c2l24">                $broker-&gt;close();</span>
+<span data-n="25" class="ln" id="s3c2l25">                Log::error('Outbox publisher recovering', ['error_type' =&gt; $exception::class]);</span>
+<span data-n="26" class="ln" id="s3c2l26">                if ($this-&gt;option('once')) {</span>
+<span data-n="27" class="ln" id="s3c2l27">                    return self::FAILURE;</span>
+<span data-n="28" class="ln" id="s3c2l28">                }</span>
+<span data-n="29" class="ln" id="s3c2l29">                sleep(config('rabbitmq.reconnect_delay'));</span>
+<span data-n="30" class="ln" id="s3c2l30"></span>
+<span data-n="31" class="ln" id="s3c2l31">                continue;</span>
+<span data-n="32" class="ln" id="s3c2l32">            }</span>
+<span data-n="33" class="ln hit" id="s3c2l33">            if (! $this-&gt;option('once') &amp;&amp; ! $worked) {</span>
+<span data-n="34" class="ln hit" id="s3c2l34">                sleep(config('rabbitmq.poll_interval'));</span>
+<span data-n="35" class="ln hit" id="s3c2l35">            }</span>
+<span data-n="36" class="ln hit" id="s3c2l36">        } while (! $this-&gt;option('once'));</span>
+<span data-n="37" class="ln" id="s3c2l37">        $broker-&gt;close();</span>
+<span data-n="38" class="ln" id="s3c2l38"></span>
+<span data-n="39" class="ln" id="s3c2l39">        return self::SUCCESS;</span>
+<span data-n="40" class="ln" id="s3c2l40">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>الآن صار الطلب محفوظاً وخرج الزبون من المسار. في <bdi dir="ltr">Compose</bdi> أفتح تعريف خدمة الناشر وأشير إلى أمر التشغيل. نفس مشروع <bdi dir="ltr">Laravel</bdi> له هنا عملية أخرى مستقلة عن خادم الويب: خادم الويب يستقبل الشراء، وهذه الحاوية تشغّل أمر نشر الأحداث. لو أوقفنا الناشر بعد حفظ الطلب، لا نحتاج من الزبون أن يعيد شراء السلة. السجل باقٍ في قاعدة البيانات ويمكن للناشر اكتشافه عندما يعود.</p><p>داخل أمر <bdi dir="ltr">Artisan</bdi> نقرأ من الاتصال الرئيسي ونطلب معالجة حدث واحد في كل دورة. اختيار الاتصال مهم لحدث كُتب للتو، حتى لا تقرر العملية خطأً أن لا عمل لديها بسبب تأخر نسخة القراءة. إذا وجدت عملاً تنتقل للدورة التالية، وإذا لم تجده تنتظر قليلاً قبل السؤال من جديد. هذا الانتظار يخص عملية الناشر؛ لا يوجد متصفح فاتح اتصال شراء ينتظر انتهاء هذه الحلقة.</p><p>وهذا يفسر لماذا لدينا عمليتان خلفيتان مختلفتان. إذا أردت معرفة لماذا لم يصل الحدث إلى الوسيط أبدأ من الناشر. أما إذا كان الحدث منشوراً والبريد متأخراً فموضع الفحص التالي هو المستهلك.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-4"><div class="top"><h2>4. اختيار حدث لم يُنشر</h2><span class="clock" dir="ltr">4:50–6:25</span></div><div class="piece"><h3><bdi>publishNext()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/OutboxPublisher.php">backend/my-project/app/Services/Messaging/OutboxPublisher.php</a> · الأسطر <bdi>14–50</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s4c1l16">16–21</a> <a dir="ltr" class="jump" href="#s4c1l25">25–30</a> <a dir="ltr" class="jump" href="#s4c1l32">32–38</a> <a dir="ltr" class="jump" href="#s4c1l45">45</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: publishNext()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/OutboxPublisher.php" data-start="14" data-end="50"><span data-n="14" class="ln" id="s4c1l14">    public function publishNext(): bool</span>
+<span data-n="15" class="ln" id="s4c1l15">    {</span>
+<span data-n="16" class="ln hit" id="s4c1l16">        return DB::transaction(function (): bool {</span>
+<span data-n="17" class="ln hit" id="s4c1l17">            $event = OutboxEvent::query()-&gt;useWritePdo()</span>
+<span data-n="18" class="ln hit" id="s4c1l18">                -&gt;whereNull('published_at')-&gt;where('available_at', '&lt;=', now())</span>
+<span data-n="19" class="ln hit" id="s4c1l19">                -&gt;orderBy('available_at')-&gt;orderBy('event_id')-&gt;lockForUpdate()-&gt;first();</span>
+<span data-n="20" class="ln hit" id="s4c1l20">            if ($event === null) {</span>
+<span data-n="21" class="ln hit" id="s4c1l21">                return false;</span>
+<span data-n="22" class="ln" id="s4c1l22">            }</span>
+<span data-n="23" class="ln" id="s4c1l23"></span>
+<span data-n="24" class="ln" id="s4c1l24">            try {</span>
+<span data-n="25" class="ln hit" id="s4c1l25">                $this-&gt;broker-&gt;publish(</span>
+<span data-n="26" class="ln hit" id="s4c1l26">                    json_encode($event-&gt;payload, JSON_THROW_ON_ERROR),</span>
+<span data-n="27" class="ln hit" id="s4c1l27">                    $event-&gt;event_id,</span>
+<span data-n="28" class="ln hit" id="s4c1l28">                    config('rabbitmq.exchange'),</span>
+<span data-n="29" class="ln hit" id="s4c1l29">                    config('rabbitmq.routing_key'),</span>
+<span data-n="30" class="ln hit" id="s4c1l30">                );</span>
+<span data-n="31" class="ln" id="s4c1l31">            } catch (\Throwable $exception) {</span>
+<span data-n="32" class="ln hit" id="s4c1l32">                $attempts = $event-&gt;attempts + 1;</span>
+<span data-n="33" class="ln hit" id="s4c1l33">                $event-&gt;update([</span>
+<span data-n="34" class="ln hit" id="s4c1l34">                    'attempts' =&gt; $attempts,</span>
+<span data-n="35" class="ln hit" id="s4c1l35">                    'available_at' =&gt; now()-&gt;addSeconds(min(config('rabbitmq.publisher_max_backoff'), 2 ** min($attempts, 12))),</span>
+<span data-n="36" class="ln hit" id="s4c1l36">                    'last_error' =&gt; $exception::class,</span>
+<span data-n="37" class="ln hit" id="s4c1l37">                ]);</span>
+<span data-n="38" class="ln hit" id="s4c1l38">                $this-&gt;broker-&gt;close();</span>
+<span data-n="39" class="ln" id="s4c1l39">                Log::warning('Outbox publication deferred', ['event_id' =&gt; $event-&gt;event_id, 'attempt' =&gt; $attempts, 'error_type' =&gt; $exception::class]);</span>
+<span data-n="40" class="ln" id="s4c1l40"></span>
+<span data-n="41" class="ln" id="s4c1l41">                return true;</span>
+<span data-n="42" class="ln" id="s4c1l42">            }</span>
+<span data-n="43" class="ln" id="s4c1l43"></span>
+<span data-n="44" class="ln" id="s4c1l44">            // A crash after the confirm but before this commit republishes the same event ID.</span>
+<span data-n="45" class="ln hit" id="s4c1l45">            $event-&gt;update(['published_at' =&gt; now(), 'attempts' =&gt; $event-&gt;attempts + 1, 'last_error' =&gt; null]);</span>
+<span data-n="46" class="ln" id="s4c1l46">            Log::info('Outbox publication confirmed', ['event_id' =&gt; $event-&gt;event_id]);</span>
+<span data-n="47" class="ln" id="s4c1l47"></span>
+<span data-n="48" class="ln" id="s4c1l48">            return true;</span>
+<span data-n="49" class="ln" id="s4c1l49">        }, 1);</span>
+<span data-n="50" class="ln" id="s4c1l50">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>في <bdi dir="ltr">publishNext</bdi> لا نختار أي صف من الجدول. نريد حدثاً لم يحصل على تاريخ نشر، وقد حان موعده. نرتب النتائج ونقفل صفاً واحداً داخل معاملة حتى لا تتعامل عمليتان مع السجل نفسه على أنهما أول من اختاره. بعد ذلك تتحول الحمولة المحفوظة إلى <bdi dir="ltr">JSON</bdi>، ويُمرَّر معها معرّف الحدث واسم الموزّع ومفتاح التوجيه. الموزّع يستقبل الرسالة، والمفتاح يحدد أي ربط بالطوابير يطابقها.</p><p>قبل الانتقال إلى تنفيذ النشر، أشير إلى نهايتي الدالة. عند الفشل نحفظ عدد المحاولات وموعداً لاحقاً يتباعد إلى حد مضبوط، ويظل تاريخ النشر فارغاً. أما تعيين تاريخ النشر فيقع في مسار النجاح فقط. لو انعكس الترتيب وسجّلنا النجاح قبل الاتصال بالوسيط، فقد يختفي الحدث من قائمة الانتظار مع أنه لم يغادر قاعدة البيانات. الذي يحدد أي المسارين نتخذ ليس نجاح حفظ الطلب، بل نتيجة عملية النشر التالية.</p><p>مثلاً إذا انقطع الاتصال عشر ثوانٍ، لا نعلن فشل عملية الشراء التي انتهت أصلاً. ما أخفق هو محاولة إرسال الحدث. نجعل وقت الإتاحة في المستقبل ثم نعود للأحداث المستحقة الأخرى.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+<section id="step-5"><div class="top"><h2>5. دليل قبول الوسيط</h2><span class="clock" dir="ltr">6:25–8:05</span></div><div class="piece"><h3><bdi>publish()</bdi></h3><div class="open">افتح: <a class="path" dir="ltr" href="backend/my-project/app/Services/Messaging/RabbitMqBroker.php">backend/my-project/app/Services/Messaging/RabbitMqBroker.php</a> · الأسطر <bdi>74–101</bdi></div><div class="jumps">انتقل إلى موضع الشرح: <a dir="ltr" class="jump" href="#s5c1l79">79–87</a> <a dir="ltr" class="jump" href="#s5c1l88">88–96</a> <a dir="ltr" class="jump" href="#s5c1l97">97–100</a></div><div class="pane" tabindex="0" role="region" aria-label="الكود الكامل: publish()"><pre dir="ltr"><code data-path="backend/my-project/app/Services/Messaging/RabbitMqBroker.php" data-start="74" data-end="101"><span data-n="74" class="ln" id="s5c1l74">    public function publish(string $body, string $eventId, string $exchange, string $routingKey, int $attempt = 1): void</span>
+<span data-n="75" class="ln" id="s5c1l75">    {</span>
+<span data-n="76" class="ln" id="s5c1l76">        $channel = $this-&gt;channel();</span>
+<span data-n="77" class="ln" id="s5c1l77">        $confirmed = false;</span>
+<span data-n="78" class="ln" id="s5c1l78">        $failed = false;</span>
+<span data-n="79" class="ln hit" id="s5c1l79">        $channel-&gt;set_ack_handler(function () use (&amp;$confirmed): void {</span>
+<span data-n="80" class="ln hit" id="s5c1l80">            $confirmed = true;</span>
+<span data-n="81" class="ln hit" id="s5c1l81">        });</span>
+<span data-n="82" class="ln hit" id="s5c1l82">        $channel-&gt;set_nack_handler(function () use (&amp;$failed): void {</span>
+<span data-n="83" class="ln hit" id="s5c1l83">            $failed = true;</span>
+<span data-n="84" class="ln hit" id="s5c1l84">        });</span>
+<span data-n="85" class="ln hit" id="s5c1l85">        $channel-&gt;set_return_listener(function () use (&amp;$failed): void {</span>
+<span data-n="86" class="ln hit" id="s5c1l86">            $failed = true;</span>
+<span data-n="87" class="ln hit" id="s5c1l87">        });</span>
+<span data-n="88" class="ln hit" id="s5c1l88">        $message = new AMQPMessage($body, [</span>
+<span data-n="89" class="ln hit" id="s5c1l89">            'content_type' =&gt; 'application/json',</span>
+<span data-n="90" class="ln hit" id="s5c1l90">            'delivery_mode' =&gt; AMQPMessage::DELIVERY_MODE_PERSISTENT,</span>
+<span data-n="91" class="ln hit" id="s5c1l91">            'message_id' =&gt; $eventId,</span>
+<span data-n="92" class="ln hit" id="s5c1l92">            'type' =&gt; 'OrderCreated',</span>
+<span data-n="93" class="ln hit" id="s5c1l93">            'timestamp' =&gt; time(),</span>
+<span data-n="94" class="ln hit" id="s5c1l94">            'application_headers' =&gt; new AMQPTable(['attempt' =&gt; $attempt]),</span>
+<span data-n="95" class="ln hit" id="s5c1l95">        ]);</span>
+<span data-n="96" class="ln hit" id="s5c1l96">        $channel-&gt;basic_publish($message, $exchange, $routingKey, true);</span>
+<span data-n="97" class="ln hit" id="s5c1l97">        $channel-&gt;wait_for_pending_acks_returns(config('rabbitmq.confirm_timeout'));</span>
+<span data-n="98" class="ln hit" id="s5c1l98">        if (! $confirmed || $failed) {</span>
+<span data-n="99" class="ln hit" id="s5c1l99">            throw new RuntimeException('RabbitMQ did not confirm a routed message.');</span>
+<span data-n="100" class="ln hit" id="s5c1l100">        }</span>
+<span data-n="101" class="ln" id="s5c1l101">    }</span></code></pre></div></div><div class="talk"><h3>ما تقوله</h3><p>هذا موضع النشر الفعلي في <bdi dir="ltr">RabbitMQ</bdi>. نجهز الرسالة بمعرّف الحدث ذاته ونختار لها وضع الحفظ الدائم. الدوام خاصية للرسالة أيضاً، وليس مجرد تسمية للطابور. في <bdi dir="ltr">basic_publish</bdi> الوسيط الأخير <bdi dir="ltr">true</bdi> يعني <bdi dir="ltr">mandatory</bdi>: إذا لم يجد الموزّع طريقاً من مفتاح التوجيه إلى طابور مطابق، نريد أن يعرف الناشر أن الرسالة رجعت. الاتصال بالشبكة وحده ليس كافياً لإعلان النجاح.</p><p>بعد النشر ننتظر التأكيد أو الإرجاع ضمن مهلة. جواب التأكيد يأتي من <bdi dir="ltr">RabbitMQ</bdi> إلى الناشر؛ لا يخبرنا أن الزبون قرأ بريده أو أن العامل أنهى الإرسال. إذا رُفضت الرسالة أو لم يصل التأكيد المطلوب، يرمي الكود استثناءً فيعود التنفيذ إلى مسار التأجيل الذي شرحناه. ولو قبلها الوسيط ثم تعطّل الناشر قبل تسجيل النجاح في قاعدة البيانات، قد يُعاد نشر المعرّف نفسه. النتيجة التي نستطيع الدفاع عنها هي أن الحدث لا يُنسى بين إنشاء الطلب والنشر، لا أن الشبكة تضمن وصوله مرة واحدة فقط.</p><p>إذا سُئلت أين انتهى النشر بالنسبة للتطبيق، أشير إلى موضعين لا موضع واحد: قبول رسالة موجّهة هنا، ثم تثبيت تاريخ نشرها في السجل السابق. أما تسليم رسالة البريد للمزوّد فقصة تالية.</p></div><a href="#top" class="navback">العودة إلى الفهرس</a></section>
+</main><script>document.querySelectorAll(".pane").forEach(box=>{const first=box.querySelector(".hit");if(first)box.scrollTop=Math.max(0,first.getBoundingClientRect().top-box.getBoundingClientRect().top-42);});</script></body></html>

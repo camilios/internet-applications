@@ -4,6 +4,7 @@
 <body>
     <h1>Thank you for your order</h1>
     <p>Your order #{{ $order->id }} has been placed successfully.</p>
+    <p>Order placed at: {{ $order->created_at->timezone('Asia/Damascus')->format('d M Y, h:i A') }}</p>
     <ul>
         @foreach ($order->items as $item)
             <li>{{ $item->product?->name ?? 'Product' }} &times; {{ $item->quantity }} — {{ $item->subtotal }}</li>
