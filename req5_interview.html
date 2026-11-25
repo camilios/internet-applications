@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>المتطلب الخامس | دليل المقابلة بعد التحديث</title>
+<style>
+:root{--paper:#faf9f5;--white:#fff;--ink:#152f37;--dim:#425e65;--line:#cfd9d8;--green:#006352;--wash:#e8f3ee;--dark:#102c35;--gold:#f3c471}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.85 "Segoe UI",Tahoma,Arial,sans-serif}
+main,header>div,nav>div{max-width:58rem;margin:auto;padding-inline:clamp(1rem,4vw,2.6rem)}
+header{background:var(--dark);color:white;border-block-end:4px solid var(--gold);padding-block:2.2rem 1.8rem}
+header small,.time{font-weight:700;letter-spacing:.025em}header small{color:#a9d5c9}header p{color:#e3eeeb;max-width:49rem}
+h1,h2,h3{line-height:1.45;margin:0}h1{font-size:clamp(1.8rem,4vw,2.55rem);margin:.25rem 0 .4rem}h2{font-size:1.55rem}h3{font-size:1.12rem;margin-top:1.35rem}
+nav{border-bottom:1px solid var(--line);background:var(--white)}nav>div{display:flex;gap:.3rem 1.25rem;flex-wrap:wrap;padding-block:.65rem}
+a{color:var(--green);text-underline-offset:.2em}nav a{font-weight:650;font-size:.93rem}
+section{padding-block:1.8rem;border-bottom:1px solid var(--line)}p{margin:.65rem 0}.time{color:var(--green);font-size:.86rem}
+code,.src bdi{font: .89em/1.6 Consolas,"Courier New",monospace;unicode-bidi:isolate;overflow-wrap:anywhere}
+p code,td code,li code{color:#154d55;background:#eaf0ef;border-radius:.24em;padding:.06em .24em}
+details{background:var(--white);border:1px solid var(--line);border-radius:.55rem;margin:.65rem 0}
+summary{cursor:pointer;padding:.55rem .9rem;color:#174e50;font-weight:650}details[open] summary{border-bottom:1px solid var(--line)}
+.src{font-size:.86rem;padding:.5rem .9rem;color:var(--dim)}pre{direction:ltr;text-align:left;margin:0;padding:.8rem 1rem;overflow:auto;max-height:24rem;background:#eef3f2;tab-size:4;border-radius:0 0 .5rem .5rem;line-height:1.6}
+pre code{font-size:.81rem;overflow-wrap:normal}.terminal{background:var(--dark);color:#eff8f7;border-radius:.55rem;margin:.55rem 0 1rem}blockquote{border-inline-start:4px solid var(--green);padding:.55rem 1rem;background:var(--wash);margin:1rem 0}
+table{width:100%;border-collapse:collapse;font-size:.94rem;background:white}caption{text-align:start;font-weight:650;padding:.45rem 0}th,td{padding:.5rem .65rem;text-align:start;border:1px solid var(--line);vertical-align:top}thead{background:#e6eeec}.scroll{overflow:auto}
+ol{padding-inline-start:1.55rem}li{margin-block:.4rem}.note{font-size:.9rem;color:var(--dim)}a:focus-visible,summary:focus-visible,pre:focus-visible{outline:3px solid #ba7024;outline-offset:1px}
+@media print{body{font-size:11pt;background:white}header{color:var(--ink);background:white;padding:.4rem 0}header p,header small{color:var(--ink)}nav{display:none}main,header>div{max-width:none}section{padding-block:.8rem}pre{max-height:none;white-space:pre-wrap;overflow-wrap:anywhere}.terminal{color:var(--ink);background:#eee}h2,h3,summary{break-after:avoid}tr{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header><div><small>المتطلب الخامس · عرض عملي في نحو ٨ دقائق و٤٥ ثانية</small>
+<h1>كيف يستمر المتجر إذا أوقفنا إحدى نسخه؟</h1>
+<p>الزبون يرسل طلبه إلى عنوان واحد. خلف هذا العنوان ثلاث نسخ من Laravel تجيب عن طلبات الويب، وثلاثة عمّال يرسلون تأكيدات الشراء. سنراقب أين ذهب كل طلب، ثم نوقف نسخة أثناء الضغط ونعدّ الرسائل التي وصلت فعلاً.</p></div></header>
+<nav aria-label="فهرس العرض"><div><a href="#routing">النسخ والتوزيع</a><a href="#load">التوقف تحت الضغط</a><a href="#mail">العمّال والبريد</a><a href="#state">ما كان محلياً</a><a href="#demo">أوامر المقابلة</a></div></nav>
+<main>
+
+<section id="routing"><div class="time">الدقيقة <bdi>0:00–1:45</bdi></div><h2>مَن يختار النسخة التي تجيب؟</h2>
+<p>ابدأ من خدمة <code dir="ltr">api</code> في ملف Compose. السطر <code dir="ltr">&lt;&lt;: *laravel</code> يجعل النسخ ترث صورة التطبيق وإعداداته، و<code dir="ltr">replicas: 3</code> يطلب من Docker إنشاء ثلاث حاويات مستقلة. لكل حاوية عنوان داخلي وتستمع كلها على المنفذ 8000. في خدمة <code dir="ltr">gateway</code> تربط عبارة <code dir="ltr">127.0.0.1:8015:80</code> منفذ جهازك 8015 بالمنفذ 80 في Nginx. لهذا تبقى وجهة Postman ثابتة أثناء التجربة.</p>
+<details><summary>خدمتا التطبيق والبوابة في Compose</summary><div class="src"><a href="docker-compose.req5.yml"><bdi dir="ltr">docker-compose.req5.yml</bdi></a> <span>· الأسطر <bdi dir="ltr">121–138</bdi></span></div><pre dir="ltr" tabindex="0"><code data-file="docker-compose.req5.yml" data-start="121" data-end="138">  api:
+    &lt;&lt;: *laravel
+    deploy: {replicas: 3}
+    networks: [edge, default]
+    healthcheck:
+      test: [CMD, curl, -fsS, 'http://127.0.0.1:8000/up']
+      interval: 5s
+      timeout: 4s
+      retries: 15
+  gateway:
+    image: ${REQ5_NGINX_IMAGE:-nginx:1.28-alpine}
+    restart: unless-stopped
+    ports: ['127.0.0.1:8015:80']
+    volumes: ['./ops/req5/nginx.conf:/etc/nginx/conf.d/default.conf:ro']
+    networks:
+      edge: {}
+    depends_on:
+      api: {condition: service_healthy}</code></pre></details>
+<p>افتح إعداد Nginx. الاسم <code dir="ltr">req5_api</code> يجمع عناوين خدمة <code dir="ltr">api</code>. يحصل عليها Nginx من DNS الخاص بـDocker عبر <code dir="ltr">resolver 127.0.0.11</code>، وتتيح <code dir="ltr">resolve</code> تحديثها أثناء التشغيل. توجّه <code dir="ltr">proxy_pass</code> الطلب إلى هذه المجموعة. تُطبَّق <bdi>Round Robin</bdi> افتراضياً بأوزان متساوية؛ لذلك لا يظهر اسم الاستراتيجية كأمر مستقل في الملف.</p>
+<blockquote>«اخترنا التناوب لأن النسخ لها الإعداد نفسه، وطلبات القراءة القصيرة في العرض متقاربة الكلفة. الجلسة والكاش مشتركان، فيستطيع الزبون الانتقال بين النسخ. ما نوازنه هنا هو عدد الطلبات؛ قد يستهلك طلب شراء وقتاً أطول من طلب فحص الصحة».</blockquote>
+<details><summary>إعداد Nginx الذي يختار النسخة ويكشف عنوانها</summary><div class="src"><a href="ops/req5/nginx.conf"><bdi dir="ltr">ops/req5/nginx.conf</bdi></a> <span>· الأسطر <bdi dir="ltr">1–35</bdi></span></div><pre dir="ltr" tabindex="0"><code data-file="ops/req5/nginx.conf" data-start="1" data-end="35">resolver 127.0.0.11 valid=2s ipv6=off;
+upstream req5_api {
+    zone req5_api 64k;
+    # Default: equal-weight round robin over the current Docker DNS records.
+    server api:8000 resolve max_fails=1 fail_timeout=2s;
+}
+server {
+    listen 80;
+    client_max_body_size 24m;
+    proxy_http_version 1.1;
+    proxy_set_header Host $http_host;
+    proxy_set_header Connection &quot;&quot;;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $http_host;
+    proxy_set_header X-Forwarded-Port 8015;
+    proxy_set_header Forwarded &quot;&quot;;
+    proxy_connect_timeout 1s;
+    proxy_next_upstream error timeout http_502 http_503 http_504;
+    proxy_next_upstream_tries 3;
+    add_header X-Req5-Upstream $upstream_addr always;
+
+    location / {
+        proxy_pass http://req5_api;
+        error_page 502 = @retry_read;
+    }
+
+    location @retry_read {
+        # Docker DNS can change the upstream membership between two attempts.
+        # Only reads may restart selection after a gateway-generated 502.
+        if ($request_method !~ ^(GET|HEAD)$) { return 502; }
+        set $req5_read_target api:8000;
+        proxy_pass http://$req5_read_target;
+    }
+}</code></pre></details>
+<p><strong>ما تعرضه.</strong> أرسل <code dir="ltr">GET http://127.0.0.1:8015/up</code> من Postman وافتح <bdi>Headers → X-Req5-Upstream</bdi>. مصدر الترويسة هو <code dir="ltr">$upstream_addr</code>. إذا جرّب Nginx أكثر من عنوان، يستخدم الاختبار آخر عنوان فيها لتحديد النسخة التي أجابت. طابقه مع <code dir="ltr">initial_ip_to_container</code> في التقرير. في العينة الأولى أجابت كل نسخة عن ثلاثة من تسعة طلبات.</p>
+</section>
+<section id="load"><div class="time">الدقيقة <bdi>1:45–4:00</bdi></div><h2>ماذا يحدث عندما نوقف النسخة الأولى أثناء الـ٥٠٠ طلب؟</h2>
+<p>افتح الدالة <code dir="ltr">live_load()</code>. فيها ١٢ عميلاً يرسلون <code dir="ltr">GET /up</code> إلى البوابة. عند اكتمال ١٠٠ نتيجة، تعطي <code dir="ltr">trigger.set()</code> إشارة لمهمة مستقلة تنفّذ <code dir="ltr">docker stop -t 2</code> على النسخة الأولى. تواصل بقية المهام إرسال الطلبات. وبعد أن يؤكد <code dir="ltr">docker inspect</code> أن الحاوية توقفت، يرفع الاختبار الإشارة <code dir="ltr">down</code>. آخر ٦٠ طلباً تنتظر هذه الإشارة عمداً، حتى نعرف يقيناً أن الزبائن استخدموا الخدمة والنسخة متوقفة.</p>
+<p>في Nginx، تسمح <code dir="ltr">proxy_next_upstream</code> بتجربة عنوان آخر إذا فشل الاتصال، انتهت مهلته، أو رجعت إحدى الحالات المضبوطة مثل <code dir="ltr">502</code>. تحدد <code dir="ltr">proxy_next_upstream_tries 3</code> سقف محاولات اختيار نسخة في كل مرحلة. وعند تسجيل إخفاق وفق <code dir="ltr">max_fails=1 fail_timeout=2s</code> يتجنب Nginx العنوان مؤقتاً. إذا انتهت محاولة الاتصال بخطأ 502 من البوابة أثناء تغيّر عناوين النسخ، يعيد المسار <code dir="ltr">@retry_read</code> اختيار عنوان من خدمة Docker لطلبات القراءة GET وHEAD فقط. تبقى طريقة الطلب ومساره والترويسات كما هي. العميل نفسه يرسل كل طلب مرة واحدة، لذلك نحسب أي خطأ وصل إليه ضمن النتيجة.</p>
+<details><summary>دالة اختبار الحمل كاملة، بما فيها الإيقاف وإعادة التشغيل</summary><div class="src"><a href="ops/req5/interview.py"><bdi dir="ltr">ops/req5/interview.py</bdi></a> <span>· الأسطر <bdi dir="ltr">65–124</bdi></span></div><pre dir="ltr" tabindex="0"><code data-file="ops/req5/interview.py" data-start="65" data-end="124">def live_load(first, name, peers):
+    trigger, stopping, down = Event(), Event(), Event()
+    lock = Lock()
+    counts = Counter()
+    failures = Counter()
+    rows = []
+    started = time.monotonic()
+    marks = {}
+
+    def stop_one():
+        if not trigger.wait(60):
+            raise RuntimeError('Load did not reach the stop threshold')
+        marks['stop_requested_s'] = time.monotonic() - started
+        stopping.set()
+        v.command('docker','stop','-t','2',first)
+        v.check(v.command('docker','inspect','-f','{{.State.Running}}',first)=='false','Replica still running')
+        marks['stop_confirmed_s'] = time.monotonic() - started
+        down.set()
+
+    def one(i):
+        # Keep the same pool active through the stop, and reserve a tail issued
+        # only after Docker confirms it. No client retries or hidden exclusions.
+        if i &gt;= 440 and not down.wait(45):
+            raise RuntimeError('Stop not confirmed during load')
+        time.sleep(0.06)
+        phase = 'down' if down.is_set() else 'transition' if stopping.is_set() else 'before'
+        try:
+            code, ip, _ = v.http('/up')
+            who = peers.get(ip)
+            ok = code == 200 and who is not None
+            error = str(code) if code != 200 else 'unknown upstream'
+        except (OSError, URLError) as exc:
+            who, ok, error = None, False, type(exc).__name__
+        with lock:
+            if ok:
+                counts[phase,who] += 1
+            else:
+                failures[error] += 1
+            rows.append((phase,ok))
+            if len(rows) == 100:
+                trigger.set()
+
+    try:
+        with futures.ThreadPoolExecutor(max_workers=1) as control, futures.ThreadPoolExecutor(max_workers=12) as clients:
+            stop_result = control.submit(stop_one)
+            list(clients.map(one,range(500)))
+            stop_result.result()
+        results = {p:{w:c for (ph,w),c in counts.items() if ph==p}
+                   for p in ('before','transition','down')}
+        stats = {'attempted':len(rows),'http_200':sum(counts.values()),'errors':dict(failures),
+                 'error_percent':100*sum(failures.values())/len(rows),'replicas':results,'stop_target':name,
+                 'elapsed_s':round(time.monotonic()-started,3),**{k:round(val,3) for k,val in marks.items()}}
+        print('500 requests / 12 clients:',json.dumps(stats),flush=True)
+        v.check(len(rows)==500 and sum(failures.values())&lt;=2,'More than 2 user-visible errors in 500 requests')
+        v.check(set(results['before'].keys())==set(peers.values()),'Not all three served before the stop')
+        v.check(set(results['down'].keys())==set(peers.values())-{name},'Unexpected distribution after confirmed stop')
+        v.check(sum(results['transition'].values())&gt;0,'No successful requests observed during the stop command')
+        return stats
+    finally:
+        start_healthy(first)</code></pre></details>
+<div class="scroll"><table><caption>طلبات فحص الصحة حسب حالة النسخة لحظة بدء الطلب، من تشغيل ٢٥ تشرين الثاني ٢٠٢٦</caption>
+<thead><tr><th scope="col">توقيت الإرسال</th><th scope="col"><bdi>api-1</bdi></th><th scope="col"><bdi>api-2</bdi></th><th scope="col"><bdi>api-3</bdi></th><th scope="col">المجموع</th></tr></thead><tbody>
+<tr><th scope="row">قبل بدء الإيقاف</th><td>٣٥</td><td>٣٤</td><td>٣٤</td><td>١٠٣</td></tr><tr><th scope="row">أثناء تنفيذ أمر الإيقاف</th><td>٥٠</td><td>١٤٤</td><td>١٤٣</td><td>٣٣٧</td></tr><tr><th scope="row">بعد تأكيد التوقف</th><td>٠</td><td>٣٠</td><td>٣٠</td><td>٦٠</td></tr></tbody></table></div>
+<p><strong>النتيجة المسجّلة</strong> هي ٥٠٠ استجابة ناجحة من أصل ٥٠٠. ظهر ١٠٣ طلباً في المرحلة الأولى لأن العملاء يعملون بالتوازي؛ قد يبدأ طلب آخر بين تسجيل النتيجة رقم ١٠٠ وبدء أمر الإيقاف. بعد تأكيد التوقف أجابت النسختان الباقيتان عن ٦٠ طلباً. يقبل السكربت حتى خطأين، بينما عدد الأخطاء في هذا التشغيل كان صفراً.</p>
+<p>في <code dir="ltr">finally</code> يعيد السكربت تشغيل النسخة الأولى، ثم يتأكد من سلامتها وعودة عنوانها إلى الترويسة. بعد ذلك يوقف الثانية ويعيدها، ويفعل الشيء نفسه مع الثالثة. في كل مرة أجابت النسختان الباقيتان عن ستة طلبات فعلية لقائمة التصنيفات <code dir="ltr">GET /api/categories</code>. هكذا يمكنك عرض قراءة من المتجر أيضاً.</p>
+<details><summary>اختبار كل نسخة منفردة على مسار التصنيفات</summary><div class="src"><a href="ops/req5/interview.py"><bdi dir="ltr">ops/req5/interview.py</bdi></a> <span>· الأسطر <bdi dir="ltr">51–62</bdi></span></div><pre dir="ltr" tabindex="0"><code data-file="ops/req5/interview.py" data-start="51" data-end="62">def check_individual_replica(name, cid, apis):
+    survivors = {ip: peer for ip, peer in edge_addresses(apis).items() if peer != name}
+    try:
+        v.command('docker', 'stop', '-t', '2', cid)
+        v.check(v.command('docker', 'inspect', '-f', '{{.State.Running}}', cid) == 'false',
+                name + ' did not stop')
+        while_down = v.sample(6, survivors, path='/api/categories', concurrency=1)
+    finally:
+        start_healthy(cid)
+    rejoined = sample_after_restore(apis)
+    print('Individual stop:', name, 'catalog responses:', while_down, 'after restart:', rejoined, flush=True)
+    return {'while_down_get_categories': while_down, 'after_restart_get_up': rejoined}</code></pre></details>
+</section>
+<section id="mail"><div class="time">الدقيقة <bdi>4:00–6:30</bdi></div><h2>كيف نعرف أيّ عامل أرسل البريد، وكم نسخة وصلت؟</h2>
+<p>بعد تجربة القراءة، يُنشئ الاختبار زبوناً ومنتجاً بمخزون كافٍ، ثم يرسل ٢٤ عملية شراء عبر <code dir="ltr">POST /api/orders</code> بمفتاح <code dir="ltr">Idempotency-Key</code> مستقل لكل طلب. ترجع الواجهة <code dir="ltr">201</code> ورقم الطلب. يحفظ التطبيق حدث <code dir="ltr">OrderCreated</code> في جدول الأحداث، ويقرأه <code dir="ltr">outbox-publisher</code> لينشره إلى RabbitMQ. هكذا يكون لدينا رقم طلب تجاري ومعرّف حدث يمكن تتبّعه.</p>
+<p>افتح خدمة <code dir="ltr">email-worker</code>. الأمر <code dir="ltr">orders:email-worker</code> نفسه يعمل في ثلاث حاويات. تستدعي كل واحدة <code dir="ltr">receive()</code> لتسحب الرسالة التالية من الطابور المشترك <code dir="ltr">orders.email</code>. القيمة <code dir="ltr">false</code> في <code dir="ltr">basic_get</code> تجعل تأكيد الاستلام يدوياً، فتظل الرسالة قيد المعالجة حتى يؤكدها العامل. يحصل العامل المتاح على المهمة التالية، لذلك قد تختلف الحصص الثلاث عند تكرار العرض.</p>
+<details><summary>إعداد العمّال الثلاثة والناشر الوحيد</summary><div class="src"><a href="docker-compose.req5.yml"><bdi dir="ltr">docker-compose.req5.yml</bdi></a> <span>· الأسطر <bdi dir="ltr">139–150</bdi></span></div><pre dir="ltr" tabindex="0"><code data-file="docker-compose.req5.yml" data-start="139" data-end="150">  email-worker:
+    &lt;&lt;: *laravel
+    deploy: {replicas: 3}
+    command: [php, artisan, 'orders:email-worker']
+    stop_grace_period: 45s
+    depends_on: &amp;messaging
+      &lt;&lt;: *ready
+      rabbitmq: {condition: service_healthy}
+  outbox-publisher:
+    &lt;&lt;: *laravel
+    command: [php, artisan, 'outbox:publish']
+    depends_on: *messaging</code></pre></details>
+<details><summary>استلام مهمة واحدة من الطابور، مع دالة تأكيدها</summary><div class="src"><a href="backend/my-project/app/Services/Messaging/RabbitMqBroker.php"><bdi dir="ltr">backend/my-project/app/Services/Messaging/RabbitMqBroker.php</bdi></a> <span>· الأسطر <bdi dir="ltr">103–118</bdi></span></div><pre dir="ltr" tabindex="0"><code data-file="backend/my-project/app/Services/Messaging/RabbitMqBroker.php" data-start="103" data-end="118">    public function receive(): ?IncomingMessage
+    {
+        // Polling keeps heartbeat/socket handling bounded, including on an idle queue.
+        $message = $this-&gt;channel()-&gt;basic_get(config('rabbitmq.queue'), false);
+        if ($message === null) {
+            return null;
+        }
+        $headers = $message-&gt;has('application_headers') ? $message-&gt;get('application_headers')-&gt;getNativeData() : [];
+        $attempt = filter_var($headers['attempt'] ?? 1, FILTER_VALIDATE_INT);
+
+        return new IncomingMessage(
+            $message-&gt;getBody(),
+            $attempt === false ? 1 : max(1, $attempt),
+            fn () =&gt; $message-&gt;ack(),
+        );
+    }</code></pre></details>
+<p>ملف Compose الإضافي يوجّه بريد العمّال إلى <code dir="ltr">mailpit:1025</code> عبر SMTP. المنفذ ١٠٢٥ يستقبل الرسالة داخل شبكة Docker، والمنفذ ٨٠٢٥ يعرض الصندوق في المتصفح. يطابق الاختبار <code dir="ltr">event_id</code> من سجلات الحاويات مع رقم الطلب، ثم يعدّ الرسائل حسب عنوانها مثل <code dir="ltr">Order #175 confirmation</code> ومعرّف كل رسالة داخل الصندوق. مجرد ظهور السطر في سجل العامل يثبت المعالجة؛ وعدّ الرسائل يثبت ماذا استلم الصندوق فعلاً.</p>
+<details><summary>صندوق SMTP وإعدادات البريد التي ترثها حاويات العمّال</summary><div class="src"><a href="docker-compose.req5-interview.yml"><bdi dir="ltr">docker-compose.req5-interview.yml</bdi></a> <span>· الأسطر <bdi dir="ltr">2–25</bdi></span></div><pre dir="ltr" tabindex="0"><code data-file="docker-compose.req5-interview.yml" data-start="2" data-end="25">services:
+  mailpit:
+    image: axllent/mailpit:v1.27.4
+    restart: unless-stopped
+    ports: [&quot;127.0.0.1:8025:8025&quot;]
+    volumes: [interview_mail:/data]
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    healthcheck:
+      test: [CMD, /mailpit, readyz]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  email-worker:
+    environment:
+      MAIL_MAILER: smtp
+      MAIL_SCHEME: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: &quot;1025&quot;
+      ORDER_EMAIL_ALLOW_MOCK: &quot;false&quot;
+    depends_on:
+      mailpit: {condition: service_healthy}
+volumes:
+  interview_mail: {}</code></pre></details>
+<p><strong>تتبّع طلب حقيقي من التقرير.</strong> عالج العمّال ٨ و٨ و٨ مهام على الترتيب. تجد الطلب <code dir="ltr">#199</code> مرتبطاً بـ<code dir="ltr">email-worker-3</code>، وبمعرّف الحدث <code dir="ltr">4d0fec71-5562-4c8c-97ae-d7d0f3b054ab</code>. أعاد الاختبار نشر هذا المعرّف نفسه، وانتظر ظهور المعالجة الثانية في السجل. بقي عدد رسائل هذا الطلب واحدة، وعدد رسائل الدفعة كلها ٢٤.</p>
+<p>لماذا؟ عند معالجة الحدث تنشئ <code dir="ltr">send()</code> سجل التسليم بمعرّف الحدث وتستخدم <code dir="ltr">lockForUpdate()</code> داخل معاملة MySQL. إذا وصل العامل الثاني إلى الحدث نفسه، ينتظر القفل، ثم يفحص <code dir="ltr">delivered_at</code>. وجود القيمة يجعله ينهي المهمة قبل استدعاء البريد. في المرة الأولى يرسل العامل الرسالة ثم يسجّل وقت التسليم. تبقى نافذة قصيرة بين قبول خادم SMTP للرسالة وتثبيت المعاملة؛ إذا انهار العامل في تلك اللحظة فقد تتكرر الرسالة. التجربة أثبتت منع التكرار عند إعادة حدث اكتمل تسجيل تسليمه.</p>
+<details><summary>الدالة الكاملة التي تسجّل التسليم وتمنع تكرار الحدث المكتمل</summary><div class="src"><a href="backend/my-project/app/Services/Messaging/OrderConfirmationSender.php"><bdi dir="ltr">backend/my-project/app/Services/Messaging/OrderConfirmationSender.php</bdi></a> <span>· الأسطر <bdi dir="ltr">18–55</bdi></span></div><pre dir="ltr" tabindex="0"><code data-file="backend/my-project/app/Services/Messaging/OrderConfirmationSender.php" data-start="18" data-end="55">    public function send(array $event): void
+    {
+        $mode = $this-&gt;mailConfiguration-&gt;assertDeliverable();
+
+        $outbox = OutboxEvent::query()-&gt;useWritePdo()-&gt;find($event['event_id']);
+        if ($outbox === null || $outbox-&gt;event_type !== 'OrderCreated' || $outbox-&gt;order_id !== $event['order_id']) {
+            throw new PermanentMessageException('Message does not identify a recorded order event.');
+        }
+
+        // Unique row + row lock serializes duplicate deliveries, even across worker processes.
+        DB::table('notification_deliveries')-&gt;insertOrIgnore([
+            'event_id' =&gt; $event['event_id'], 'order_id' =&gt; $event['order_id'],
+            'created_at' =&gt; now(), 'updated_at' =&gt; now(),
+        ]);
+        DB::transaction(function () use ($event, $mode): void {
+            $delivery = NotificationDelivery::query()-&gt;whereKey($event['event_id'])-&gt;lockForUpdate()-&gt;firstOrFail();
+            if ($delivery-&gt;delivered_at !== null) {
+                // A provider change does not automatically replay earlier mock or unclassified deliveries.
+                return;
+            }
+
+            $order = Order::query()-&gt;useWritePdo()-&gt;with(['user', 'items.product'])-&gt;find($event['order_id']);
+            if ($order === null || $order-&gt;user === null || ! filter_var($order-&gt;user-&gt;email, FILTER_VALIDATE_EMAIL)) {
+                throw new PermanentMessageException('Order recipient is unavailable.');
+            }
+
+            $sent = Mail::to($order-&gt;user-&gt;email)-&gt;send(new OrderConfirmation($order, $event['event_id']));
+            if ($sent === null) {
+                throw new RuntimeException('Mail delivery was cancelled before sending.');
+            }
+            // SMTP cannot participate in this transaction. A crash here can resend; stable Message-ID helps providers deduplicate.
+            $delivery-&gt;update(['delivered_at' =&gt; now(), 'delivery_mode' =&gt; $mode]);
+            Log::info($mode === 'mock' ? 'MOCK DELIVERY: order confirmation processed without an external email' : 'Order confirmation accepted by delivery transport', [
+                'event_id' =&gt; $event['event_id'], 'delivery_mode' =&gt; $mode,
+                'transport_message_id' =&gt; substr(preg_replace('/[^A-Za-z0-9@._:+\/-]/', '', $sent-&gt;getMessageId()), 0, 255),
+            ]);
+        }, 1);
+    }</code></pre></details>
+<details><summary>دالة عدّ الرسائل الواصلة لكل رقم طلب في الصندوق</summary><div class="src"><a href="ops/req5/interview.py"><bdi dir="ltr">ops/req5/interview.py</bdi></a> <span>· الأسطر <bdi dir="ltr">140–155</bdi></span></div><pre dir="ltr" tabindex="0"><code data-file="ops/req5/interview.py" data-start="140" data-end="155">def inbox_counts():
+    query = urlencode({'query':'to:'+RECIPIENT,'limit':100})
+    with v.opener.open(INBOX+'/api/v1/search?'+query,timeout=8) as response:
+        box = json.load(response)
+    # Count distinct actual mailbox entries by order; never use Message-ID as a
+    # unique count, since a duplicate may have the exact same Message-ID.
+    ids, mail = set(), Counter()
+    for msg in box['messages']:
+        if not any(x['Address']==RECIPIENT for x in msg['To']):
+            continue
+        v.check(msg['ID'] not in ids,'Mailbox returned the same entry twice')
+        ids.add(msg['ID'])
+        m = re.fullmatch(r'Order #(\d+) confirmation',msg['Subject'])
+        v.check(bool(m),'Unexpected email to the run-specific recipient')
+        mail[int(m[1])] += 1
+    return mail</code></pre></details>
+<p class="note">لتتبّع إنشاء زبون الاختبار وإعادة نشر الحدث افتح <a href="ops/req5/interview-fixture.php"><bdi dir="ltr">ops/req5/interview-fixture.php</bdi></a>. ولمراجعة الربط بين رقم الطلب والعامل والنسخ المستلمة افتح <a href="docs/req5-interview-evidence.json"><bdi dir="ltr">docs/req5-interview-evidence.json</bdi></a>.</p>
+</section>
+<section id="state"><div class="time">الدقيقة <bdi>6:30–8:00</bdi></div><h2>ما الذي كشفه الانتقال من نسخة إلى ثلاث؟</h2>
+<p>لو كتب الزبون معلومة في حاوية ثم وصل طلبه التالي إلى حاوية ثانية، فأين ستبحث عنها؟ تظهر الإجابة في إعدادات التخزين المشتركة وفي تجربة سابقة كُتبت فيها علامة من النسخة الأولى ثم قُرئت من الثلاث.</p>
+<div class="scroll"><table><thead><tr><th scope="col">موضع المشكلة</th><th scope="col">قبل التوسّع</th><th scope="col">الإعداد الحالي وكيف تحققنا منه</th></tr></thead><tbody>
+<tr><th scope="row">الاسم والمنفذ</th><td>اسم الحاوية ثابت، ويُنشَر المنفذ ٨٠٠٠ من التطبيق. رفض Docker تكرار الاسم، كما أن منفذ المضيف لا يمكن حجزه ثلاث مرات.</td><td>يسمّي Compose كل نسخة على حدة، وتُنشر بوابة HTTP واحدة على ٨٠١٥. الترويسة تكشف ثلاث وجهات خلفها.</td></tr>
+<tr><th scope="row">ترحيلات قاعدة البيانات</th><td>نقطة الإقلاع قادرة على تنفيذ الترحيل عند البدء. تشغيل ثلاث نسخ معاً يعرّض المخطط لترحيلات متزامنة؛ كان ذلك خطراً اكتُشف بمراجعة الكود.</td><td>تشغّل خدمة <bdi>migrate</bdi> الترحيل مرة، وتنتظر النسخ نجاحه. يطلب <bdi>SKIP_MIGRATIONS</bdi> من كل نسخة تجاوز الترحيل عند إقلاعها.</td></tr>
+<tr><th scope="row">سجل Laravel</th><td>عند الكتابة إلى ملف السجل المحلي ظهر أثر التجربة على النسخة الأولى وحدها.</td><td>مع <bdi>LOG_CHANNEL=stderr</bdi> يعرض Docker سجلات الخدمة مجتمعة، ويظهر اسم العامل بجانب كل سطر.</td></tr>
+<tr><th scope="row">صور المنتجات</th><td>الصور تُكتب في <bdi>storage/app/public</bdi>. كان المشروع يستخدم وحدة تخزين لهذا المسار أصلاً.</td><td>تركب النسخ نفس الوحدة <bdi>public_uploads</bdi>. ملف التجربة الذي كتبته النسخة الأولى ظهر في الثلاث على مضيف Docker نفسه.</td></tr>
+<tr><th scope="row">هوية المستخدم والكاش</th><td>مفاتيح JWT والكاش كانت مشتركة أصلاً. أي اختلاف في المفاتيح بين النسخ يجعل رمز الزبون يفشل عند انتقاله.</td><td>ترث النسخ مفاتيح التطبيق نفسها وتشارك Redis للكاش والجلسات. نجح طلب <bdi>/api/me</bdi> بنفس الرمز عبر النسخ، وبعد تسجيل الخروج أعادت الثلاث <bdi>401</bdi>.</td></tr>
+</tbody></table></div>
+<p>ملفات Blade المترجمة وكاش الإعدادات يمكن لكل حاوية إعادة توليدها. أمّا الطلبات وسجلات التسليم فتحفظها MySQL، ويحتفظ RabbitMQ بالرسائل. نطاق العرض هو توقف حاوية تطبيق على مضيف واحد؛ ما زال المضيف والبوابة وقاعدة البيانات نقاطاً تعتمد عليها النسخ الثلاث.</p>
+<p class="note">للمقارنة بين إعداد النسخة الواحدة وإعداد التوسّع وقراءة نتائج فحص التخزين افتح <a href="docker-compose.yml">إعداد المشروع الأصلي</a>، <a href="docker-compose.req5.yml">إعداد النسخ الثلاث</a>، و<a href="docs/req5-evidence.json">تقرير فحص الحالة المشتركة</a>.</p>
+</section>
+<section id="demo"><div class="time">الدقيقة <bdi>8:00–8:45</bdi></div><h2>ماذا أفتح أمام الدكتور؟</h2>
+<ol><li><strong>Postman.</strong> أرسل طلب الصحة عدة مرات واعرض ترويسة النسخة في الرد. <a href="http://127.0.0.1:8015/up">عنوان البوابة</a></li>
+<li><strong>نافذة الأوامر.</strong> شغّل الاختبار الآلي من جذر المشروع. نفّذ أمر جهازك من الأسطر أدناه. عند ظهور <code dir="ltr">PASS</code> افتح تقرير ذلك التشغيل واعرض <code dir="ltr">load.replicas.down</code> ثم <code dir="ltr">initial_worker_jobs</code>.</li>
+<li><strong>صندوق البريد.</strong> انسخ <code dir="ltr">test_recipient</code> من التقرير وابحث عنه في الصندوق لعزل رسائل آخر تجربة. اختر رقماً من <code dir="ltr">orders</code> وطابق عنوان الرسالة مع رقم الطلب والعامل وعدد النسخ المستلمة. <a href="http://127.0.0.1:8025">فتح Mailpit</a> · <a href="docs/req5-interview-evidence.json">فتح تقرير التشغيل</a></li></ol>
+<p class="note">الوقت المقدّر للشرح مع الإشارة إلى الكود هو ٨:٤٥ دقائق. جهّز الصور والحاويات مسبقاً وشغّل الاختبار في بداية العرض ليكون التقرير جاهزاً عند الوصول إلى هذه الفقرة. الأرقام المعروضة في هذا الملف لقطة محفوظة من يوم ٢٥ تشرين الثاني ٢٠٢٦؛ يتحدّث ملف JSON عند نجاح تشغيل جديد.</p>
+<h3>أمر المقابلة على جهاز ملاد</h3>
+<p>من PowerShell، عندما تكون حاويات المقابلة شغالة في Ubuntu:</p>
+<pre class="terminal" dir="ltr" tabindex="0"><code>Set-Location 'E:\Projects\internet-applications'
+wsl -d Ubuntu -- python3 ops/req5/interview.py</code></pre>
+<h3>جهاز الزميل مع Docker Desktop</h3>
+<p>من PowerShell في مشروع الزميل، تأكد من وجود ملف البيئة ومجلد الأسرار المحليين. نفّذ كل سطر كاملاً وانتظر نجاحه. إذا كان بناء الصور جارياً بالفعل، تابع من سطر التشغيل بعد اكتماله.</p>
+<pre class="terminal" dir="ltr" tabindex="0"><code>Set-Location 'C:\Users\NEW MSI\Desktop\see'
+git pull --ff-only origin main
+docker compose -f docker-compose.req5.yml -f docker-compose.req5-interview.yml build migrate inventory-service
+docker compose -f docker-compose.req5.yml -f docker-compose.req5-interview.yml up -d --no-build --wait
+docker compose -f docker-compose.req5.yml -f docker-compose.req5-interview.yml ps api email-worker
+py -3 -X utf8 .\ops\req5\interview.py</code></pre>
+<p>في أول تحضير يبني Docker صورة Laravel التي تتضمن امتداد gRPC. إذا بلغ سجل البناء حد العرض، اترك الأمر حتى يعود مؤشر PowerShell وافحص <code dir="ltr">$LASTEXITCODE</code>. الصفر يعني نجاح البناء. عند تجهيز الخدمات مسبقاً يكفي تشغيل سطر الاختبار الأخير من مجلد المشروع.</p>
+<h3>لإظهار السجلات والرسائل على جهاز الزميل</h3>
+<pre class="terminal" dir="ltr" tabindex="0"><code>docker compose -f docker-compose.req5.yml -f docker-compose.req5-interview.yml logs --since=5m email-worker | Select-String 'Order email processed'
+$proof = Get-Content -Raw .\docs\req5-interview-evidence.json | ConvertFrom-Json
+$proof.test_recipient
+$proof.orders | Format-Table id, worker, received_copies
+Start-Process 'http://127.0.0.1:8025'</code></pre>
+<h3>إذا طلب الدكتور إيقاف نسخة بيدك</h3>
+<p>بعد انتهاء الاختبار الآلي، اختر زوجاً واحداً. نفّذ سطر الإيقاف ثم أرسل من Postman عدة طلبات إلى العنوان نفسه. بعدها نفّذ سطر التشغيل وانتظر رجوع عنوان النسخة إلى الترويسة قبل تجربة النسخة التالية. على جهاز ملاد نفّذ أوامر Docker داخل Ubuntu، وعلى جهاز الزميل في PowerShell.</p>
+<pre class="terminal" dir="ltr" tabindex="0"><code>docker stop ecommerce-req5-api-1
+docker start ecommerce-req5-api-1
+
+docker stop ecommerce-req5-api-2
+docker start ecommerce-req5-api-2
+
+docker stop ecommerce-req5-api-3
+docker start ecommerce-req5-api-3</code></pre>
+</section></main></body></html>

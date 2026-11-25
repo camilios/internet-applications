@@ -65,7 +65,9 @@ def http(path, token=None, method='GET'):
     except HTTPError as error:
         response = error
     with response:
-        address = response.headers.get('X-Req5-Upstream', '').split(',')[-1].strip().split(':')[0]
+        upstreams = response.headers.get('X-Req5-Upstream', '')
+        # Nginx separates retry attempts with commas and internal redirects with " : ".
+        address = upstreams.rsplit(' : ', 1)[-1].rsplit(',', 1)[-1].strip().split(':')[0]
         return response.status, address, response.read()
 
 
