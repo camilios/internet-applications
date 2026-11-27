@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مقاييس المتطلب السادس | من Nginx وRabbitMQ إلى Grafana</title>
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#eef3f6;color:#192f41;font:17px/1.85 "Segoe UI",Tahoma,Arial,sans-serif}main{width:min(calc(100% - 2rem),68rem);margin:1.8rem auto 4rem}header,nav,section,footer{background:#fff;border:1px solid #d7e3ec;border-radius:.85rem;padding:clamp(1rem,3vw,2rem);margin:1.15rem 0}header{background:#123449;color:#f5fbff;border:0}header p{max-width:52rem;color:#e4f3f9}h1,h2,h3,h4{margin:.25rem 0 .6rem;line-height:1.5}h1{font-size:clamp(1.6rem,4vw,2.55rem)}h2{color:#124c63;font-size:1.45rem}h3{color:#15566c;font-size:1.15rem;margin-top:1.55rem}h4{font-size:1rem}p{margin:.45rem 0 1rem}a{color:#0d587b;text-underline-offset:.2em}nav ol{display:flex;gap:.4rem 1.9rem;flex-wrap:wrap;margin:0;padding-inline-start:1.3rem}li{margin:.38rem 0}code,bdi{unicode-bidi:isolate}code{font-family:Consolas,"Courier New",monospace;direction:ltr}p code,li code,td code,dd code,dt code,figcaption code{background:#e9f1f6;color:#153d58;border-radius:.25rem;padding:.07rem .28rem;overflow-wrap:anywhere}pre{direction:ltr;text-align:left;overflow:auto;max-height:32rem;background:#eaf1f6;border-left:3px solid #3e7187;border-radius:.4rem;padding:.8rem 1rem;margin:.4rem 0 1rem;tab-size:4;line-height:1.6;font-size:.85rem}pre.shell{background:#142d3e;color:#f0faff}figure{margin:1rem 0}img{display:block;width:100%;height:auto;border-radius:.6rem}figcaption,.source,.small{font-size:.92rem;color:#4a6271}dl{margin:.8rem 0}dt{font-weight:700;color:#124c63}dd{margin:0 0 .65rem}blockquote,.callout{margin:1rem 0;border-inline-start:4px solid #35907c;background:#e9f6f0;padding:.8rem 1rem;border-radius:.35rem}blockquote p{margin:.22rem 0}.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;margin:.65rem 0}th,td{border:1px solid #d4e2e9;padding:.55rem .7rem;vertical-align:top;text-align:start}th{background:#e5f0f4}summary{cursor:pointer;padding:.55rem .8rem;color:#0d587b;font-weight:650}details{border:1px solid #d9e5eb;border-radius:.42rem;margin:.7rem 0;padding:0 .5rem .15rem}a:focus-visible,summary:focus-visible,pre:focus-visible{outline:3px solid #ad6419;outline-offset:2px}section{scroll-margin-top:1rem}.sub{color:#b8e2ee;font-size:.9rem;font-weight:650}ol,ul{padding-inline-start:1.6rem}pre.pipeline{white-space:pre-wrap;max-height:none;font-size:.95rem}@media print{header,section,footer{padding:.4rem;border:0}nav{display:none}header{background:white;color:#124c63}header p,.sub{color:#124c63}pre{max-height:none;white-space:pre-wrap;overflow-wrap:anywhere}tr{break-inside:avoid}body{background:white;font-size:10.5pt}main{width:100%;margin:0}}
+</style>
+</head>
+<body><main>
+<header>
+<div class="sub">المتطلب السادس · المراقبة وتتبع الأعطال</div>
+<h1>كيف جمعنا المقاييس وعرضناها في Grafana؟</h1>
+<p>دليل المقابلة لنقطة المقاييس. فيه الكود الفعلي من المشروع، وسبب اختيار مكان كل إضافة، ومعنى كل جزء، وأوامر تشغيل تقودك من أول طلب HTTP إلى الرسم الذي يراه الأستاذ.</p>
+</header>
+<nav aria-label="محتويات الملف"><h2>محتويات الملف</h2><ol>
+<li><a href="#flow">مسار المقاييس</a></li><li><a href="#files">الملفات وأدوارها</a></li><li><a href="#compose">ربط الخدمات في Docker</a></li><li><a href="#nginx">قياس HTTP عند Nginx</a></li><li><a href="#exporter">مجمّع Node.js</a></li><li><a href="#prom">RabbitMQ وPrometheus</a></li><li><a href="#grafana">Grafana وقراءة الرسوم</a></li><li><a href="#test">خطوات العرض والأوامر</a></li><li><a href="#proof">الدليل وما تقوله للأستاذ</a></li>
+</ol></nav>
+<section id="flow"><h2>١. من أين يأتي كل رقم؟</h2>
+<pre class="pipeline" dir="ltr" tabindex="0">HTTP client → Nginx
+                 ├─ proxies HTTP → Laravel API replica
+                 └─ sends status + duration + upstream over UDP → Node exporter :9108/metrics
+                                                                              ↓
+RabbitMQ :15692/metrics/per-object ───────────────────────────────────────→ Prometheus
+                                                                              ↓ PromQL
+                                                                           Grafana</pre>
+<p>للطلب مسار عادي من العميل إلى Nginx ثم إلى نسخة Laravel. عندما يكتمل الرد، يعرف Nginx عنوان آخر نسخة حاول الاتصال بها وحالة الرد والمدة التي استغرقها من جهة البوابة. يرسل هذه القيم الثلاث إلى مجمّع Node، الذي يحوّلها إلى عدادات وحاويات زمنية. يقرأ Prometheus هذه الأرقام من المجمّع كل خمس ثوانٍ.</p>
+<p>يعرف RabbitMQ وحده عدد الرسائل المنتظرة وعدد الرسائل التي تسلّمها عامل ولم يؤكّدها بعد. لذلك يسحب Prometheus حجم الطابور مباشرة من إضافة RabbitMQ. تقرأ Grafana المصدرين من Prometheus باستعلامات PromQL وتعرضهما على محور زمني واحد.</p>
+<div class="callout"><strong>ما الذي يثبته العرض؟</strong> من نفس جولة الاختبار سترى عدد الردود لكل نسخة وزمنها، وارتفاع الأخطاء عند توقف API، وتراكم الرسائل عند توقف العمال ثم تصريفها بعد رجوعهم.</div>
+</section>
+<section id="files"><h2>٢. أي ملفات أفتح أمام الأستاذ؟</h2>
+<div class="scroll"><table><thead><tr><th>الملف</th><th>التغيير ودوره</th></tr></thead><tbody>
+<tr><td><a href="../../docker-compose.req6.yml">docker-compose.req6.yml</a></td><td>جديد. يضيف خدمات الجمع والعرض، ويثبّت عناوينها ومنافذها، ويربط إعداد القياس بالبوابة وإضافة المقاييس بالوسيط.</td></tr>
+<tr><td><a href="../../ops/req5/nginx.conf">ops/req5/nginx.conf</a></td><td>معدّل. يضمّ إعداد المراقبة داخل خادم Nginx الموجود ويضبط منفذ الطلب الممرّر للتطبيق بحسب عنوان العرض.</td></tr>
+<tr><td><a href="../../ops/req6/nginx-format.conf">nginx-format.conf</a> · <a href="../../ops/req6/nginx-access.conf">nginx-access.conf</a></td><td>جديدان. الأول يحدّد شكل سجل HTTP، والثاني يرسل سجل البوابة إلى المجمّع.</td></tr>
+<tr><td><a href="../../ops/req6/http-metrics.mjs">http-metrics.mjs</a></td><td>جديد. يستقبل قياسات Nginx عبر UDP، ويحسب العدادات والـHistogram، ويعرضها في <code>/metrics</code>.</td></tr>
+<tr><td><a href="../../ops/req6/rabbit-plugins">rabbit-plugins</a> · <a href="../../ops/req6/prometheus.yml">prometheus.yml</a></td><td>جديدان. الأول يفعّل إضافة المقاييس داخل RabbitMQ، والثاني يضبط من أين يسحب Prometheus وإيقاع السحب والمقاييس التي يحتفظ بها.</td></tr>
+<tr><td><a href="../../ops/req6/grafana/provisioning/datasources/prometheus.yml">Grafana datasource</a> · <a href="../../ops/req6/grafana/provisioning/dashboards/orders.yml">Grafana dashboard provider</a> · <a href="../../ops/req6/grafana/dashboards/orders.json">orders.json</a></td><td>ثلاثة ملفات جديدة. تعرّف مصدر البيانات، وطريقة تحميل لوحة الطلبات تلقائياً، واستعلامات الرسوم ووحداتها.</td></tr>
+<tr><td><a href="../../ops/req6/compose.sh">compose.sh</a> · <a href="../../ops/req6/local-sources.yml">local-sources.yml</a> · <a href="../../ops/req6/verify.py">verify.py</a></td><td>جديدة للتشغيل والإثبات. الأول يجمع ملفات Compose، والثاني يتيح استخدام صور جاهزة، والثالث ينفّذ العرض ويطابق الأرقام مع البيانات التي رآها العميل.</td></tr>
+</tbody></table></div>
+<p class="small">يرث المتطلب السادس ثلاث نسخ API وطابور البريد من إعدادات المتطلب الخامس ويستفيد من Mailpit الموجود في إعداد المقابلة. يقاس HTTP في البوابة، ولذلك تعديلات Laravel الخاصة بمعرّف التتبع تنتمي إلى نقطة السجلات. <a href="../../docker-compose.req5.yml">ملف البنية الأساسية</a> · <a href="../../docker-compose.req5-interview.yml">ملف بيئة المقابلة</a></p>
+</section>
+<section id="compose"><h2>٣. كيف ربطنا الخدمات في Docker Compose؟</h2>
+<h3>البوابة والوسيط ومجمّع المقاييس</h3>
+<p class="source">افتح <a href="../../docker-compose.req6.yml"><bdi>docker-compose.req6.yml</bdi></a> · الأسطر <bdi>40–65</bdi></p><pre dir="ltr" tabindex="0"><code data-src="docker-compose.req6.yml" data-first="40" data-last="65">  gateway:
+    ports: !override ['127.0.0.1:8016:80']
+    volumes:
+      - ./ops/req6/nginx-format.conf:/etc/nginx/conf.d/00-format.conf:ro
+      - ./ops/req6/nginx-access.conf:/etc/nginx/app-observability/access.conf:ro
+    depends_on:
+      http-metrics: {condition: service_healthy}
+  mailpit:
+    ports: !override ['127.0.0.1:8026:8025']
+  rabbitmq:
+    environment:
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '+S 2:2 +SDcpu 1 +SDio 1'
+      RABBITMQ_ENABLED_PLUGINS_FILE: /etc/rabbitmq/req6-plugins
+    volumes:
+      - ./ops/req6/rabbit-plugins:/etc/rabbitmq/req6-plugins:ro
+  http-metrics:
+    image: node:22-alpine
+    command: [node, /opt/http-metrics.mjs]
+    volumes: ['./ops/req6/http-metrics.mjs:/opt/http-metrics.mjs:ro']
+    networks:
+      edge: {ipv4_address: 172.30.65.10}
+      default: {}
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, node, -e, &quot;fetch('http://127.0.0.1:9108/metrics').then(r=&gt;process.exit(r.ok ? 0 : 1)).catch(()=&gt;process.exit(1))&quot;]
+      interval: 5s</code></pre>
+<dl>
+<dt><code>gateway.ports</code> و<code>!override</code></dt><dd>تنشر البوابة التي داخل الحاوية على منفذ 80 بعنوان <code>127.0.0.1:8016</code> على الجهاز. تستبدل <code>!override</code> قائمة المنافذ الموروثة حتى يستعمل هذا العرض منفذه المحدد. السطران في <code>volumes</code> يركبان ملف شكل السجل وملف تشغيله للقراءة فقط. <code>depends_on</code> ينتظر نجاح فحص المجمّع عند تشغيل البوابة.</dd>
+<dt><code>rabbitmq.environment</code> و<code>rabbitmq.volumes</code></dt><dd>يحدد <code>RABBITMQ_ENABLED_PLUGINS_FILE</code> المكان الذي يقرأ منه الوسيط قائمة الإضافات. يضع الـmount الملف في المسار ذاته. خيارات Erlang تحدّ من عدد منافذ جدولة التنفيذ داخل البيئة التجريبية. سطر Mailpit المجاور يغيّر منفذ واجهة البريد الظاهرة إلى <code>8026</code> في هذا المشروع.</dd>
+<dt><code>http-metrics</code> و<code>networks</code></dt><dd>يشغّل Docker السكربت المربوط باستخدام Node 22. له عنوان ثابت <code>172.30.65.10</code> على شبكة <code>edge</code> لتستطيع البوابة إرسال UDP إليه. وهو متصل أيضاً بالشبكة الافتراضية حتى يستطيع Prometheus الوصول إليه باسم <code>http-metrics</code>. فحص الصحة يقرأ <code>/metrics</code> دورياً من داخل حاوية المجمّع. حالة <code>healthy</code> تثبت أن endpoint صالح للقراءة حتى في أول تشغيل، قبل ظهور بيانات الحمل.</dd>
+</dl>
+<h3>Prometheus وGrafana</h3>
+<p class="source">افتح <a href="../../docker-compose.req6.yml"><bdi>docker-compose.req6.yml</bdi></a> · الأسطر <bdi>66–98</bdi></p><pre dir="ltr" tabindex="0"><code data-src="docker-compose.req6.yml" data-first="66" data-last="98">  prometheus:
+    image: prom/prometheus@sha256:e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06
+    volumes:
+      - ./ops/req6/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports: ['127.0.0.1:9096:9090']
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana@sha256:0615ec4fbd4072004b7d86b46ded63013a74b7d6eb1119273dd89e8fa25c13cf
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: 'true'
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: 'true'
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+      GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
+      GF_PLUGINS_PREINSTALL_DISABLED: 'true'
+      GF_UNIFIED_ALERTING_MIN_INTERVAL: 10s
+    volumes:
+      - ./ops/req6/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./ops/req6/grafana/dashboards:/opt/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports: ['127.0.0.1:3006:3000']
+    restart: unless-stopped
+
+networks:
+  default:
+    ipam: {config: !override [{subnet: 172.30.66.0/24}]}
+  edge:
+    ipam: {config: !override [{subnet: 172.30.65.0/24}]}
+volumes:
+  prometheus_data: {}
+  grafana_data: {}</code></pre>
+<dl>
+<dt><code>image</code> و<code>ports</code></dt><dd>مرجع <code>sha256</code> يثبّت صورة محددة لكل خدمة. المتصفح يصل إلى Prometheus على <code>9096</code> وإلى Grafana على <code>3006</code>. داخل Docker يخاطب Grafana Prometheus باسم الخدمة ومنفذه <code>9090</code>. كلا منفذي العرض منشوران على loopback.</dd>
+<dt><code>volumes</code></dt><dd>يفصل Compose ملفات الإعداد المقروءة فقط عن بيانات التشغيل. يكتب Prometheus عيناته إلى <code>/prometheus</code> في وحدة <code>prometheus_data</code>، وتحتفظ Grafana ببياناتها في <code>grafana_data</code>. يحدد الـmount أين ستقرأ Grafana ملفات التهيئة وأين ستجد ملف اللوحة.</dd>
+<dt>إعدادات Grafana والشبكات</dt><dd>تهيئة العرض المحلي تسمح بمشاهدة اللوحة بدور <code>Viewer</code>. ضبط الشبكات أسفل الملف يجعل شبكة البوابة <code>172.30.65.0/24</code> متوافقة مع عنوان المجمّع الثابت، والشبكة الثانية <code>172.30.66.0/24</code> للخدمات الداخلية.</dd>
+</dl>
+</section>
+<section id="nginx"><h2>٤. لماذا أخذنا الحالة والزمن وعنوان النسخة من Nginx؟</h2>
+<p>كل عميل في العرض يمرّ من البوابة. لذلك نستخدم زمن الطلب الذي تقيسه البوابة وحالة الرد الذي تُرسله. تستطيع البوابة تسجيل رد <code>502</code> حتى عندما لا تصل أي محاولة إلى Laravel. كما أنها تملك معلومة النسخة التي حاولت الاتصال بها، فتصلح نقطة جمع واحدة للنسخ الثلاث.</p>
+<p class="source">افتح <a href="../../ops/req5/nginx.conf"><bdi>ops/req5/nginx.conf</bdi></a> · الأسطر <bdi>13–26</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req5/nginx.conf" data-first="13" data-last="26">    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $http_host;
+    proxy_set_header X-Forwarded-Port $gateway_public_port;
+    proxy_set_header Forwarded &quot;&quot;;
+    proxy_connect_timeout 1s;
+    proxy_next_upstream error timeout http_502 http_503 http_504;
+    proxy_next_upstream_tries 3;
+    add_header X-Req5-Upstream $upstream_addr always;
+    include /etc/nginx/app-observability/*.conf;
+    location / {
+        proxy_pass http://req5_api;
+        error_page 502 = @retry_read;
+    }</code></pre>
+<p class="source">افتح <a href="../../ops/req5/nginx.conf"><bdi>ops/req5/nginx.conf</bdi></a> · الأسطر <bdi>36–40</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req5/nginx.conf" data-first="36" data-last="40">map $http_host $gateway_public_port {
+    default 8015;
+    &quot;localhost:8016&quot; 8016;
+    &quot;127.0.0.1:8016&quot; 8016;
+}</code></pre>
+<ul>
+<li>أضفنا <code>include</code> داخل <code>server</code> حتى يطبَّق سجل القياس على الطلبات التي يعالجها خادم التطبيق، ومنها الردود التي يُنتجها Nginx نفسه. يركّب Compose ملف إعداد المراقبة الخاص بنقطة القياس في بيئة المتطلب السادس.</li>
+<li>الترويسة الموجودة أصلاً <code>X-Req5-Upstream</code> تكشف <code>$upstream_addr</code> في رد العميل. يستخدمها سكربت الإثبات لمقارنة عدّه بعدادات Prometheus. تستعمل البوابة المتغيّر نفسه في سجلها الداخلي.</li>
+<li>حوّلنا <code>X-Forwarded-Port</code> من قيمة ثابتة إلى <code>$gateway_public_port</code>. كتلة <code>map</code> تعطي الطلب على عنوان المتطلب السادس القيمة 8016، وتبقي القيمة الافتراضية 8015. يساعد ذلك Laravel على معرفة المنفذ الظاهر أمام العميل عند بناء روابط مطلقة، وهو جزء من إعادة استخدام إعداد البوابة في البيئتين.</li>
+</ul>
+<p class="source">افتح <a href="../../ops/req6/nginx-format.conf"><bdi>ops/req6/nginx-format.conf</bdi></a> · الأسطر <bdi>1–2</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/nginx-format.conf" data-first="1" data-last="2"># A fixed telemetry schema. No request URI, query, headers, cookies or body.
+log_format req6_metrics escape=json '{&quot;status&quot;:$status,&quot;seconds&quot;:$request_time,&quot;upstream&quot;:&quot;$upstream_addr&quot;}';</code></pre>
+<dl>
+<dt><code>log_format req6_metrics escape=json</code></dt><dd>يعرّف تنسيقاً مسمّى مع حماية محارف JSON في القيم النصية. لذلك يُحمّل الملف باسم <code>00-format.conf</code> داخل سياق <code>http</code> قبل ملف الخادم الذي يستعمل التنسيق.</dd>
+<dt><code>$status</code> و<code>$request_time</code></dt><dd>الحالة النهائية مثل 200 أو 502. المدة بالثواني من بداية قراءة الطلب حتى اكتمال معالجته عند البوابة، وتشمل وقت المحاولات التي قامت بها البوابة. الزمن هنا زمن HTTP لدى Nginx.</dd>
+<dt><code>$upstream_addr</code></dt><dd>عنوان الخادم الذي اتصلت به البوابة. عند إعادة المحاولة قد يحتوي أكثر من عنوان. ويحتوي JSON على حالة الرد ومدته وعنوانه فقط.</dd>
+</dl>
+<p class="source">افتح <a href="../../ops/req6/nginx-access.conf"><bdi>ops/req6/nginx-access.conf</bdi></a> · الأسطر <bdi>1–3</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/nginx-access.conf" data-first="1" data-last="3">access_log syslog:server=172.30.65.10:5514,tag=req6,nohostname req6_metrics;
+# Nginx diagnostic messages may contain the full request line.
+error_log /dev/null;</code></pre>
+<p>يختار <code>access_log</code> التنسيق المسمّى ويرسله كرسالة Syslog إلى المجمّع. يضع <code>tag=req6</code> علامة تساعد المجمّع على العثور على أول JSON. إعداد <code>error_log /dev/null</code> يبعد سجل Nginx التشخيصي الخام عن تجربة المراقبة لأن سطر الطلب الكامل قد يضم بيانات حساسة. يظل عدّ أخطاء HTTP ممكناً لأن حالة الرد جزء من سجل الوصول.</p>
+</section>
+<section id="exporter"><h2>٥. كيف يتحول سجل HTTP إلى Counter وHistogram؟</h2>
+<h3>هياكل البيانات واستقبال قياس واحد</h3>
+<p class="source">افتح <a href="../../ops/req6/http-metrics.mjs"><bdi>ops/req6/http-metrics.mjs</bdi></a> · الأسطر <bdi>1–24</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/http-metrics.mjs" data-first="1" data-last="24">import dgram from 'node:dgram'
+import http from 'node:http'
+import { isIPv4 } from 'node:net'
+
+const buckets = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 15, 60]
+const replicas = new Map()
+const notifications = new Map()
+const alertNames = new Set(['OrderEmailQueueHigh', 'HttpErrorsHigh'])
+
+function observe({ upstream, status, seconds }) {
+  if (!Number.isInteger(status) || status &lt; 100 || status &gt; 599 ||
+      !Number.isFinite(seconds) || seconds &lt; 0 || typeof upstream !== 'string') return
+  // Nginx may have retried. Charge one client response to the final contacted upstream.
+  const address = upstream.match(/(\d+\.\d+\.\d+\.\d+):8000$/)?.[1]
+  const replica = address &amp;&amp; isIPv4(address) ? address : 'gateway'
+  if (!replicas.has(replica)) {
+    replicas.set(replica, { codes: new Map(), count: 0, sum: 0, buckets: buckets.map(() =&gt; 0) })
+  }
+  const stats = replicas.get(replica)
+  stats.codes.set(status, (stats.codes.get(status) ?? 0) + 1)
+  stats.count++
+  stats.sum += seconds
+  buckets.forEach((bound, i) =&gt; { if (seconds &lt;= bound) stats.buckets[i]++ })
+}</code></pre>
+<dl>
+<dt>الأسطر ١–٣</dt><dd>توفر <code>dgram</code> استقبال UDP، و<code>http</code> نقطة القراءة لـPrometheus، و<code>isIPv4</code> فحص أن القيمة المستخرجة تصلح عنوان نسخة.</dd>
+<dt>الأسطر ٥–٨</dt><dd>تحدد <code>buckets</code> حدود الزمن بالثواني، مثل 0.005 وهي 5 ميلي ثانية. تخزّن <code>replicas</code> العدّادات لكل عنوان. يرتبط <code>notifications</code> و<code>alertNames</code> بتوثيق وصول التنبيه في المجمّع نفسه.</dd>
+<dt>الأسطر ١٠–١٥</dt><dd>تقرأ دالة <code>observe</code> الحقول الثلاثة بأسمائها. تتحقق من أن الحالة عدد صحيح ضمن نطاق HTTP، وأن الزمن عدد صالح غير سالب، وأن قيمة <code>upstream</code> نص. يختار التعبير الذي ينتهي بـ<code>$</code> آخر عنوان IPv4 تابع لمنفذ 8000 في السجل، وينسب إليه الرد النهائي مرة واحدة. إذا تعذّر استخراج ذلك العنوان، يظهر الرد ضمن سلسلة <code>gateway</code>.</dd>
+<dt>الأسطر ١٦–٢٣</dt><dd>يهيئ مدخلاً عند أول رد من عنوان. <code>codes</code> خريطة عدّ لكل حالة، ويسمح <code>?? 0</code> بالبدء من صفر عند أول ظهور للحالة. يزيد <code>count</code> بمقدار واحد، ويضيف المدة إلى <code>sum</code>، ثم يزيد كل حاوية حدها أكبر من المدة أو يساويها.</dd>
+</dl>
+<div class="callout">مثال، رد <code>200</code> من <code>172.30.65.3:8000</code> خلال <code>0.083</code> ثانية يرفع عداد 200 لتلك النسخة بمقدار واحد. الحاويتان <code>le="0.025"</code> و<code>le="0.05"</code> لا تتغيران بهذا القياس. من <code>le="0.1"</code> فما فوق تزيد كل حاوية واحداً، ويزداد المجموع الزمني بـ0.083. هكذا تصبح الحاويات تراكمية.</div>
+<h3>تحويل العدادات إلى النص الذي يقرأه Prometheus</h3>
+<p class="source">افتح <a href="../../ops/req6/http-metrics.mjs"><bdi>ops/req6/http-metrics.mjs</bdi></a> · الأسطر <bdi>26–41</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/http-metrics.mjs" data-first="26" data-last="41">function metrics() {
+  const lines = ['# TYPE order_http_requests_total counter', '# TYPE order_http_duration_seconds histogram',
+    '# TYPE order_alert_notifications_total counter']
+  for (const [replica, stats] of replicas) {
+    const labels = 'replica=&quot;' + replica + '&quot;'
+    for (const [status, count] of stats.codes) {
+      lines.push('order_http_requests_total{' + labels + ',status=&quot;' + status + '&quot;} ' + count)
+    }
+    buckets.forEach((bound, i) =&gt; lines.push('order_http_duration_seconds_bucket{' + labels + ',le=&quot;' + bound + '&quot;} ' + stats.buckets[i]))
+    lines.push('order_http_duration_seconds_bucket{' + labels + ',le=&quot;+Inf&quot;} ' + stats.count,
+      'order_http_duration_seconds_count{' + labels + '} ' + stats.count,
+      'order_http_duration_seconds_sum{' + labels + '} ' + stats.sum)
+  }
+  for (const [labels, count] of notifications) lines.push('order_alert_notifications_total{' + labels + '} ' + count)
+  return lines.join('\n') + '\n'
+}</code></pre>
+<dl>
+<dt><code># TYPE</code> وتسميات السلسلة</dt><dd>يصف كل سطر نوع المقياس. <code>order_http_requests_total</code> عداد تصاعدي؛ يوجد سطر منفصل لكل زوج <code>replica,status</code>. يكتب الكود أسطره من القيم المحسوبة في <code>observe</code> عند طلب المقاييس.</dd>
+<dt><code>_bucket</code> و<code>le</code></dt><dd>كل سطر يصف حاوية ويعطي حدها الأعلى في تسمية <code>le</code>. حد <code>+Inf</code> يشمل كل القياسات مهما كان زمنها، لذلك قيمته تساوي <code>_count</code>. يحفظ <code>_sum</code> إجمالي الثواني. تستعمل لوحة p95 الحاويات وحدودها لحساب تقدير المئين.</dd>
+<dt><code>join('\n')</code></dt><dd>يضع كل مقياس في سطر ويختم النص بسطر جديد حسب صيغة exposition النصية. تُحفظ العدادات الحالية في ذاكرة المجمّع. بعد إعادة تشغيله يبدأ عدّ جديد، وتبقى العينات التي سبق أن حفظها Prometheus في وحدة تخزينه.</dd>
+</dl>
+<h3>من يدخل ومن يقرأ؟</h3>
+<p class="source">افتح <a href="../../ops/req6/http-metrics.mjs"><bdi>ops/req6/http-metrics.mjs</bdi></a> · الأسطر <bdi>43–56</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/http-metrics.mjs" data-first="43" data-last="56">const udp = dgram.createSocket('udp4')
+udp.on('message', packet =&gt; {
+  const line = packet.toString()
+  const marker = line.indexOf('req6: ')
+  if (marker &lt; 0) return
+  try { observe(JSON.parse(line.slice(marker + 6))) } catch { /* Never log untrusted datagrams. */ }
+})
+udp.bind(5514)
+
+http.createServer(async (req, res) =&gt; {
+  if (req.method === 'GET' &amp;&amp; req.url === '/metrics') {
+    res.writeHead(200, {'Content-Type': 'text/plain; version=0.0.4; charset=utf-8'}).end(metrics())
+    return
+  }</code></pre>
+<p>يفتح المجمّع UDP على <code>5514</code>. يبحث عن العلامة <code>req6: </code> في الرسالة، ثم يحلل JSON الذي يبدأ بعد محارف العلامة الستة. يُتجاهل سجل لا يحمل العلامة أو JSON صالحاً. على الطرف الآخر يرد <code>GET /metrics</code> بحالة 200 ونص Prometheus. يبدأ الاستماع لـHTTP على <code>9108</code> في آخر السطر 76. بقية معالج HTTP تخدم الإشعارات المحلية للتنبيهات. قد يفقد UDP عيّنة تحت حمل كبير، لذا يقارن اختبارنا عدد ردود العميل بالأرقام التي التقطتها البوابة بالفعل.</p>
+</section>
+<section id="prom"><h2>٦. كيف قرأ Prometheus عمق الطابور ومقاييس HTTP؟</h2>
+<p class="source">افتح <a href="../../ops/req6/rabbit-plugins"><bdi>ops/req6/rabbit-plugins</bdi></a> · الأسطر <bdi>1–1</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/rabbit-plugins" data-first="1" data-last="1">[rabbitmq_management,rabbitmq_prometheus].</code></pre>
+<p>هذا الملف قائمة إضافات Erlang، وتنهيها النقطة خارج الأقواس. <code>rabbitmq_prometheus</code> هي الإضافة التي تصدّر المقاييس على <code>15692</code> داخل الشبكة. <code>rabbitmq_management</code> تفعّل إدارة الوسيط. نطلب <code>/metrics/per-object</code> لكي نحصل على تسميات الكائنات، ومنها اسم الطابور، ثم نختار <code>orders.email</code> في الاستعلام. <a href="https://www.rabbitmq.com/docs/prometheus">توثيق RabbitMQ للمقاييس</a></p>
+<p class="source">افتح <a href="../../ops/req6/prometheus.yml"><bdi>ops/req6/prometheus.yml</bdi></a> · الأسطر <bdi>1–15</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/prometheus.yml" data-first="1" data-last="15">global:
+  scrape_interval: 5s
+  scrape_timeout: 4s
+scrape_configs:
+  - job_name: gateway
+    static_configs:
+      - targets: ['http-metrics:9108']
+  - job_name: rabbitmq
+    metrics_path: /metrics/per-object
+    static_configs:
+      - targets: ['rabbitmq:15692']
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'rabbitmq_queue_messages(_ready|_unacked)?'
+        action: keep</code></pre>
+<dl>
+<dt><code>scrape_interval: 5s</code> و<code>scrape_timeout: 4s</code></dt><dd>يبدأ Prometheus أخذ عينة كل خمس ثوانٍ لكل هدف. يسمح بأربع ثوانٍ لإتمام السحب. يمكن أن ترى فرقاً قصيراً بين وقت حدوث الرد ووقت ظهوره في الرسم، لأن عرض Grafana له دورة تحديث مستقلة أيضاً.</dd>
+<dt><code>job_name: gateway</code></dt><dd>اسم المهمة الظاهر في Targets. الهدف الحقيقي هو المصدّر <code>http-metrics:9108</code>، فيستعمل المسار الافتراضي <code>/metrics</code>.</dd>
+<dt><code>job_name: rabbitmq</code></dt><dd>المهمة الثانية تصل إلى إضافة الوسيط باسم الخدمة داخل Docker. بعد السحب يقرأ <code>metric_relabel_configs</code> اسم كل مقياس من <code>__name__</code> ويحفظ المطابق فقط، أي عمق الطابور الكلي أو الجاهز أو غير المؤكد. يظل لطوابير الوسيط أكثر من سلسلة، ويضيق استعلام اللوحة الاختيار إلى <code>orders.email</code>.</dd>
+<dt>قراءة قيم الطابور</dt><dd><code>messages_ready</code> رسائل تنتظر مستهلكاً. <code>messages_unacked</code> رسائل خرجت من قائمة الانتظار وهي لدى مستهلك لم يؤكدها. <code>messages</code> هو مجموعهما. هذه القيم Gauges يمكن أن تصعد مع إنشاء الطلبات وتهبط مع معالجة البريد.</dd>
+</dl>
+</section>
+<section id="grafana"><h2>٧. كيف ظهرت الأرقام في Grafana؟</h2>
+<p class="source">افتح <a href="../../ops/req6/grafana/provisioning/datasources/prometheus.yml"><bdi>ops/req6/grafana/provisioning/datasources/prometheus.yml</bdi></a> · الأسطر <bdi>1–9</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/grafana/provisioning/datasources/prometheus.yml" data-first="1" data-last="9">apiVersion: 1
+datasources:
+  - name: Prometheus
+    uid: req6-prom
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData: {timeInterval: 5s}</code></pre>
+<p>تعطي التهيئة مصدر البيانات المعرّف الثابت <code>req6-prom</code>. تختاره الرسوم بنفس المعرّف. <code>access: proxy</code> يجعل خادم Grafana يطلب البيانات من عنوان Docker الداخلي <code>http://prometheus:9090</code>. ويضبط <code>timeInterval</code> الفترة الافتراضية للمصدر على خمس ثوانٍ لتتوافق مع جمع Prometheus. <a href="https://grafana.com/docs/grafana/latest/administration/provisioning/">توثيق التهيئة التلقائية في Grafana</a></p>
+<p class="source">افتح <a href="../../ops/req6/grafana/provisioning/dashboards/orders.yml"><bdi>ops/req6/grafana/provisioning/dashboards/orders.yml</bdi></a> · الأسطر <bdi>1–6</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/grafana/provisioning/dashboards/orders.yml" data-first="1" data-last="6">apiVersion: 1
+providers:
+  - name: Orders
+    folder: Orders
+    type: file
+    options: {path: /opt/dashboards}</code></pre>
+<p>يقرأ Grafana تعريفات اللوحات من الملفات الموجودة في <code>/opt/dashboards</code> ويعرضها في مجلد <code>Orders</code>. هناك يوجد <code>orders.json</code> بسبب الـmount المذكور في Compose.</p>
+<p class="source">افتح <a href="../../ops/req6/grafana/dashboards/orders.json"><bdi>ops/req6/grafana/dashboards/orders.json</bdi></a> · الأسطر <bdi>1–46</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/grafana/dashboards/orders.json" data-first="1" data-last="46">{
+  &quot;uid&quot;: &quot;req6-orders&quot;,
+  &quot;title&quot;: &quot;Orders · Monitoring &amp; Observability&quot;,
+  &quot;schemaVersion&quot;: 39,
+  &quot;version&quot;: 1,
+  &quot;refresh&quot;: &quot;5s&quot;,
+  &quot;timezone&quot;: &quot;browser&quot;,
+  &quot;time&quot;: {
+    &quot;from&quot;: &quot;now-15m&quot;,
+    &quot;to&quot;: &quot;now&quot;
+  },
+  &quot;panels&quot;: [
+    {
+      &quot;id&quot;: 1,
+      &quot;title&quot;: &quot;Requests by API replica&quot;,
+      &quot;description&quot;: &quot;Completed HTTP responses since the collector started. The gateway label means no API address was available.&quot;,
+      &quot;type&quot;: &quot;timeseries&quot;,
+      &quot;datasource&quot;: {
+        &quot;type&quot;: &quot;prometheus&quot;,
+        &quot;uid&quot;: &quot;req6-prom&quot;
+      },
+      &quot;gridPos&quot;: {
+        &quot;x&quot;: 0,
+        &quot;y&quot;: 0,
+        &quot;w&quot;: 12,
+        &quot;h&quot;: 8
+      },
+      &quot;fieldConfig&quot;: {
+        &quot;defaults&quot;: {
+          &quot;unit&quot;: &quot;short&quot;,
+          &quot;min&quot;: 0
+        },
+        &quot;overrides&quot;: []
+      },
+      &quot;targets&quot;: [
+        {
+          &quot;refId&quot;: &quot;A&quot;,
+          &quot;expr&quot;: &quot;sum by (replica) (order_http_requests_total)&quot;,
+          &quot;legendFormat&quot;: &quot;{{replica}}&quot;,
+          &quot;datasource&quot;: {
+            &quot;type&quot;: &quot;prometheus&quot;,
+            &quot;uid&quot;: &quot;req6-prom&quot;
+          }
+        }
+      ]
+    },</code></pre>
+<p>المعرّف <code>req6-orders</code> يظهر في رابط اللوحة. <code>time.from</code> يبدأ العرض بآخر ١٥ دقيقة و<code>refresh</code> يطلب تحديثاً كل خمس ثوانٍ في العرض النسبي. يحدد كل عنصر في <code>panels</code> عنوان الرسم ووحدته وموضعه. يحتوي <code>targets</code> على استعلام <code>expr</code>، و<code>legendFormat</code> يختار تسمية الخط من بيانات السلسلة.</p>
+<div class="scroll"><table><thead><tr><th>عنوان الرسم</th><th>PromQL من المشروع</th><th>القراءة</th></tr></thead><tbody><tr><td><bdi>Requests by API replica</bdi></td><td><code dir="ltr">sum by (replica) (order_http_requests_total)</code></td><td>يجمع حالات HTTP بحسب عنوان <code>replica</code>. كل نقطة قيمة تراكمية منذ بدء تشغيل المجمّع. يظهر عنوان <code>gateway</code> عند تعذّر استخراج عنوان API.</td></tr><tr><td><bdi>Response time · p95</bdi></td><td><code dir="ltr">histogram_quantile(0.95, sum by (le, replica) (rate(order_http_duration_seconds_bucket[1m])))</code></td><td>تحوّل <code>rate(...[1m])</code> عداد كل حاوية إلى معدل في آخر دقيقة. تحتفظ <code>sum by (le, replica)</code> بحد الحاوية والنسخة. بعدها تقدّر <code>histogram_quantile</code> الزمن الذي تقع تحته نحو ٩٥٪ من الردود.</td></tr><tr><td><bdi>HTTP errors per minute</bdi></td><td><code dir="ltr">sum by (status) (increase(order_http_requests_total{status=~&quot;[45]..&quot;}[1m])) or vector(0)</code></td><td>يختار <code>[45]..</code> حالات 4xx و5xx. تحسب <code>increase</code> الزيادة خلال آخر دقيقة، ثم تُجمع السلاسل بحسب <code>status</code> فتظهر 401 و502 و504 كل على حدة. عند غياب السلاسل المطابقة يتيح <code>or vector(0)</code> إظهار الصفر.</td></tr><tr><td><bdi>Email queue depth</bdi></td><td><code dir="ltr">rabbitmq_queue_messages{queue=&quot;orders.email&quot;}</code></td><td>عدد الرسائل الجاهزة وغير المؤكدة في <code>orders.email</code> لحظة العينة.</td></tr><tr><td><bdi>Email messages waiting</bdi></td><td><code dir="ltr">rabbitmq_queue_messages_ready{queue=&quot;orders.email&quot;}</code></td><td>عدد الرسائل الجاهزة وحدها. الفرق بين الرسمين هو عدد الرسائل لدى عمّال لم يؤكدوها بعد.</td></tr><tr><td><bdi>Requests per second</bdi></td><td><code dir="ltr">sum by (replica) (rate(order_http_requests_total[1m]))</code></td><td>معدل الردود في الثانية لكل نسخة، محسوب من عينات آخر دقيقة.</td></tr></tbody></table></div>
+<p class="small">قد تعرض <code>increase()</code> عدداً كسرياً لأنها تقدّر الزيادة حتى حدود نافذة الدقيقة. وقد يظهر منحنى p95 بعد أول مجموعة عينات أو يصبح بلا نقطة حين لا يمرّ أي طلب. يقيس <code>histogram_quantile()</code> قيمة تقريبية ضمن الحاويات. <a href="https://prometheus.io/docs/prometheus/latest/querying/functions/">توثيق دوال PromQL</a></p>
+<details><summary>فتح تعريف اللوحة الكامل بجميع الرسوم الستة</summary><p class="source">افتح <a href="../../ops/req6/grafana/dashboards/orders.json"><bdi>ops/req6/grafana/dashboards/orders.json</bdi></a> · الأسطر <bdi>1–218</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/grafana/dashboards/orders.json" data-first="1" data-last="218">{
+  &quot;uid&quot;: &quot;req6-orders&quot;,
+  &quot;title&quot;: &quot;Orders · Monitoring &amp; Observability&quot;,
+  &quot;schemaVersion&quot;: 39,
+  &quot;version&quot;: 1,
+  &quot;refresh&quot;: &quot;5s&quot;,
+  &quot;timezone&quot;: &quot;browser&quot;,
+  &quot;time&quot;: {
+    &quot;from&quot;: &quot;now-15m&quot;,
+    &quot;to&quot;: &quot;now&quot;
+  },
+  &quot;panels&quot;: [
+    {
+      &quot;id&quot;: 1,
+      &quot;title&quot;: &quot;Requests by API replica&quot;,
+      &quot;description&quot;: &quot;Completed HTTP responses since the collector started. The gateway label means no API address was available.&quot;,
+      &quot;type&quot;: &quot;timeseries&quot;,
+      &quot;datasource&quot;: {
+        &quot;type&quot;: &quot;prometheus&quot;,
+        &quot;uid&quot;: &quot;req6-prom&quot;
+      },
+      &quot;gridPos&quot;: {
+        &quot;x&quot;: 0,
+        &quot;y&quot;: 0,
+        &quot;w&quot;: 12,
+        &quot;h&quot;: 8
+      },
+      &quot;fieldConfig&quot;: {
+        &quot;defaults&quot;: {
+          &quot;unit&quot;: &quot;short&quot;,
+          &quot;min&quot;: 0
+        },
+        &quot;overrides&quot;: []
+      },
+      &quot;targets&quot;: [
+        {
+          &quot;refId&quot;: &quot;A&quot;,
+          &quot;expr&quot;: &quot;sum by (replica) (order_http_requests_total)&quot;,
+          &quot;legendFormat&quot;: &quot;{{replica}}&quot;,
+          &quot;datasource&quot;: {
+            &quot;type&quot;: &quot;prometheus&quot;,
+            &quot;uid&quot;: &quot;req6-prom&quot;
+          }
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: 2,
+      &quot;title&quot;: &quot;Response time · p95&quot;,
+      &quot;description&quot;: &quot;95th percentile client-facing duration at Nginx, including any upstream retry.&quot;,
+      &quot;type&quot;: &quot;timeseries&quot;,
+      &quot;datasource&quot;: {
+        &quot;type&quot;: &quot;prometheus&quot;,
+        &quot;uid&quot;: &quot;req6-prom&quot;
+      },
+      &quot;gridPos&quot;: {
+        &quot;x&quot;: 12,
+        &quot;y&quot;: 0,
+        &quot;w&quot;: 12,
+        &quot;h&quot;: 8
+      },
+      &quot;fieldConfig&quot;: {
+        &quot;defaults&quot;: {
+          &quot;unit&quot;: &quot;s&quot;,
+          &quot;min&quot;: 0
+        },
+        &quot;overrides&quot;: []
+      },
+      &quot;targets&quot;: [
+        {
+          &quot;refId&quot;: &quot;A&quot;,
+          &quot;expr&quot;: &quot;histogram_quantile(0.95, sum by (le, replica) (rate(order_http_duration_seconds_bucket[1m])))&quot;,
+          &quot;legendFormat&quot;: &quot;{{replica}}&quot;,
+          &quot;datasource&quot;: {
+            &quot;type&quot;: &quot;prometheus&quot;,
+            &quot;uid&quot;: &quot;req6-prom&quot;
+          }
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: 3,
+      &quot;title&quot;: &quot;HTTP errors per minute&quot;,
+      &quot;description&quot;: &quot;4xx and 5xx responses returned to clients, including gateway failures.&quot;,
+      &quot;type&quot;: &quot;timeseries&quot;,
+      &quot;datasource&quot;: {
+        &quot;type&quot;: &quot;prometheus&quot;,
+        &quot;uid&quot;: &quot;req6-prom&quot;
+      },
+      &quot;gridPos&quot;: {
+        &quot;x&quot;: 0,
+        &quot;y&quot;: 8,
+        &quot;w&quot;: 12,
+        &quot;h&quot;: 8
+      },
+      &quot;fieldConfig&quot;: {
+        &quot;defaults&quot;: {
+          &quot;unit&quot;: &quot;short&quot;,
+          &quot;min&quot;: 0
+        },
+        &quot;overrides&quot;: []
+      },
+      &quot;targets&quot;: [
+        {
+          &quot;refId&quot;: &quot;A&quot;,
+          &quot;expr&quot;: &quot;sum by (status) (increase(order_http_requests_total{status=~\&quot;[45]..\&quot;}[1m])) or vector(0)&quot;,
+          &quot;legendFormat&quot;: &quot;{{status}}&quot;,
+          &quot;datasource&quot;: {
+            &quot;type&quot;: &quot;prometheus&quot;,
+            &quot;uid&quot;: &quot;req6-prom&quot;
+          }
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: 4,
+      &quot;title&quot;: &quot;Email queue depth&quot;,
+      &quot;description&quot;: &quot;Ready plus unacknowledged messages. The alert below uses ready messages waiting to be consumed.&quot;,
+      &quot;type&quot;: &quot;timeseries&quot;,
+      &quot;datasource&quot;: {
+        &quot;type&quot;: &quot;prometheus&quot;,
+        &quot;uid&quot;: &quot;req6-prom&quot;
+      },
+      &quot;gridPos&quot;: {
+        &quot;x&quot;: 12,
+        &quot;y&quot;: 8,
+        &quot;w&quot;: 12,
+        &quot;h&quot;: 8
+      },
+      &quot;fieldConfig&quot;: {
+        &quot;defaults&quot;: {
+          &quot;unit&quot;: &quot;short&quot;,
+          &quot;min&quot;: 0
+        },
+        &quot;overrides&quot;: []
+      },
+      &quot;targets&quot;: [
+        {
+          &quot;refId&quot;: &quot;A&quot;,
+          &quot;expr&quot;: &quot;rabbitmq_queue_messages{queue=\&quot;orders.email\&quot;}&quot;,
+          &quot;legendFormat&quot;: &quot;{{queue}}&quot;,
+          &quot;datasource&quot;: {
+            &quot;type&quot;: &quot;prometheus&quot;,
+            &quot;uid&quot;: &quot;req6-prom&quot;
+          }
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: 5,
+      &quot;title&quot;: &quot;Email messages waiting&quot;,
+      &quot;description&quot;: &quot;The queue-high alert threshold is five ready messages for 10 seconds.&quot;,
+      &quot;type&quot;: &quot;timeseries&quot;,
+      &quot;datasource&quot;: {
+        &quot;type&quot;: &quot;prometheus&quot;,
+        &quot;uid&quot;: &quot;req6-prom&quot;
+      },
+      &quot;gridPos&quot;: {
+        &quot;x&quot;: 0,
+        &quot;y&quot;: 16,
+        &quot;w&quot;: 12,
+        &quot;h&quot;: 8
+      },
+      &quot;fieldConfig&quot;: {
+        &quot;defaults&quot;: {
+          &quot;unit&quot;: &quot;short&quot;,
+          &quot;min&quot;: 0
+        },
+        &quot;overrides&quot;: []
+      },
+      &quot;targets&quot;: [
+        {
+          &quot;refId&quot;: &quot;A&quot;,
+          &quot;expr&quot;: &quot;rabbitmq_queue_messages_ready{queue=\&quot;orders.email\&quot;}&quot;,
+          &quot;legendFormat&quot;: &quot;ready&quot;,
+          &quot;datasource&quot;: {
+            &quot;type&quot;: &quot;prometheus&quot;,
+            &quot;uid&quot;: &quot;req6-prom&quot;
+          }
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: 6,
+      &quot;title&quot;: &quot;Requests per second&quot;,
+      &quot;description&quot;: &quot;Load distributed across final upstream addresses.&quot;,
+      &quot;type&quot;: &quot;timeseries&quot;,
+      &quot;datasource&quot;: {
+        &quot;type&quot;: &quot;prometheus&quot;,
+        &quot;uid&quot;: &quot;req6-prom&quot;
+      },
+      &quot;gridPos&quot;: {
+        &quot;x&quot;: 12,
+        &quot;y&quot;: 16,
+        &quot;w&quot;: 12,
+        &quot;h&quot;: 8
+      },
+      &quot;fieldConfig&quot;: {
+        &quot;defaults&quot;: {
+          &quot;unit&quot;: &quot;reqps&quot;,
+          &quot;min&quot;: 0
+        },
+        &quot;overrides&quot;: []
+      },
+      &quot;targets&quot;: [
+        {
+          &quot;refId&quot;: &quot;A&quot;,
+          &quot;expr&quot;: &quot;sum by (replica) (rate(order_http_requests_total[1m]))&quot;,
+          &quot;legendFormat&quot;: &quot;{{replica}}&quot;,
+          &quot;datasource&quot;: {
+            &quot;type&quot;: &quot;prometheus&quot;,
+            &quot;uid&quot;: &quot;req6-prom&quot;
+          }
+        }
+      ]
+    }
+  ]
+}</code></pre></details>
+</section>
+<section id="test"><h2>٨. العرض أمام الأستاذ خطوة بخطوة</h2>
+<h3>النافذة الأولى · شغّل بيئة المتطلب السادس في Ubuntu</h3>
+<pre class="shell" dir="ltr" tabindex="0"><code>wsl -d Ubuntu</code></pre>
+<p>نفّذ السطر السابق في PowerShell للدخول إلى Ubuntu. نفّذ من داخله الأوامر التالية على جهاز ملاد المجهّز مسبقاً:</p>
+<pre class="shell" dir="ltr" tabindex="0"><code>cd /mnt/e/Projects/internet-applications
+bash ops/req6/compose.sh --local-sources up -d --no-build --pull never --wait
+bash ops/req6/compose.sh --local-sources ps api gateway http-metrics prometheus grafana rabbitmq email-worker</code></pre>
+<ol>
+<li><code>cd</code> ينتقل إلى جذر المشروع على قرص E.</li>
+<li><code>bash ops/req6/compose.sh</code> يجمع إعداد البنية الثلاثية، وإعداد Mailpit، وإعداد المتطلب السادس. يثبّت اسم المشروع <code>ecommerce-req6</code> لكي تخصّ أوامر العرض حاوياته.</li>
+<li><code>--local-sources</code> وسيط لسكربت المشروع. يفعّل ملف الإعداد الذي يركب مصادر Laravel وملفات JavaScript المترجمة للمستودع للقراءة فقط على صور Laravel وNode الخاصة بالمشروع المجهزة مسبقاً. تأتي بعده خيارات Compose.</li>
+<li><code>up -d</code> ينشئ أو يشغّل الحاويات في الخلفية. <code>--no-build</code> يستخدم الصور الموجودة، و<code>--pull never</code> يوقف تنزيل الصور في هذا التشغيل، و<code>--wait</code> ينتظر بدء الخدمات ونجاح فحوص الصحة التي تملكها.</li>
+<li><code>ps</code> يعرض الحالة. أشر إلى ثلاث حاويات <code>api</code> وثلاث <code>email-worker</code>، وكذلك <code>gateway</code> و<code>http-metrics</code> و<code>prometheus</code> و<code>grafana</code> و<code>rabbitmq</code>. اترك نافذة Ubuntu مفتوحة خلال العرض.</li>
+</ol>
+<details><summary>الكود الذي يربط ملفات Compose ويختار الصور الجاهزة</summary>
+<p class="source">افتح <a href="../../ops/req6/compose.sh"><bdi>ops/req6/compose.sh</bdi></a> · الأسطر <bdi>1–23</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/compose.sh" data-first="1" data-last="23">#!/usr/bin/env bash
+set -euo pipefail
+cd &quot;$(dirname &quot;$0&quot;)/../..&quot;
+# Use the prepared Req5 runtime when present. Fresh checkouts can build its standard images first.
+for pair in 'APP_IMAGE api' 'NGINX_IMAGE gateway' 'RABBIT_IMAGE rabbitmq' 'INVENTORY_IMAGE inventory-service'; do
+  read -r suffix service &lt;&lt;&lt; &quot;$pair&quot;
+  variable=&quot;REQ5_$suffix&quot;
+  if [[ -z &quot;${!variable:-}&quot; ]]; then
+    if runtime=$(docker inspect -f '{{.Config.Image}}' &quot;ecommerce-req5-${service}-1&quot; 2&gt;/dev/null); then
+      export &quot;$variable=$runtime&quot;
+    fi
+  fi
+done
+files=(-f docker-compose.req5.yml -f docker-compose.req5-interview.yml -f docker-compose.req6.yml)
+if [[ ${1:-} == --local-sources ]]; then
+  shift
+  if [[ ! -s inventory-service/dist/grpc/handlers.js || inventory-service/src/grpc/handlers.ts -nt inventory-service/dist/grpc/handlers.js ]]; then
+    echo 'Compile inventory-service first (npm run build inside inventory-service).' &gt;&amp;2
+    exit 1
+  fi
+  files+=(-f ops/req6/local-sources.yml)
+fi
+exec docker compose -p ecommerce-req6 &quot;${files[@]}&quot; &quot;$@&quot;</code></pre>
+<p>تبحث الحلقة عن اسم الصورة المستخدمة حالياً في حاويات المتطلب الخامس، ما لم يكن متغيّر الصورة مضبوطاً مسبقاً. تبني السطر 14 قائمة خيارات <code>-f</code>، ويزيل <code>shift</code> الوسيط <code>--local-sources</code> بعد معالجته. يتحقق السطر 17 من وجود الملف المترجم للمستودع وعمره بالنسبة إلى مصدر الـhandler. يمرّر <code>"$@"</code> آخر السطر أمر Compose وخياراته كما كتبتها.</p>
+<p class="source">افتح <a href="../../ops/req6/local-sources.yml"><bdi>ops/req6/local-sources.yml</bdi></a> · الأسطر <bdi>1–18</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/local-sources.yml" data-first="1" data-last="18"># Optional no-image-build rehearsal on a laptop that already has the Req5 images.
+x-runtime: &amp;runtime
+  image: ${REQ5_APP_IMAGE:-ecommerce-req5-app:local}
+  volumes:
+    - ./backend/my-project/app:/var/www/html/app:ro
+    - ./backend/my-project/bootstrap/app.php:/var/www/html/bootstrap/app.php:ro
+    - ./backend/my-project/config/logging.php:/var/www/html/config/logging.php:ro
+services:
+  migrate: *runtime
+  api: *runtime
+  outbox-publisher: *runtime
+  email-worker: *runtime
+  broadcast-worker: *runtime
+  reverb: *runtime
+  scheduler: *runtime
+  inventory-service:
+    image: ${REQ5_INVENTORY_IMAGE:-ecommerce-req5-inventory:local}
+    volumes: ['./inventory-service/dist:/app/dist:ro']</code></pre>
+<p>تعيد <code>*runtime</code> استخدام تعريف صورة Laravel والملفات المربوطة لعدة خدمات. يركّب تعريف المستودع مجلد <code>dist</code> في مسار Node الذي تتوقعه صورته. خيارات هذا الملف مخصصة لطريقة التشغيل المحلية بالصور الجاهزة.</p>
+</details>
+<details><summary>إذا كان جهاز الأستاذ أو الزميل يبدأ من نسخة جديدة</summary>
+<p>حضّر الصور وملفات البيئة وأسرار MySQL المحلية قبل يوم العرض. عند البناء استخدم Docker Compose يدعم <code>!override</code> وPython 3.9 أو أحدث. يحدد السطر الأول مكان نسخة المشروع حسب الجهاز. <a href="../after-pull-setup.md">دليل تجهيز جهاز آخر</a></p>
+<pre class="shell" dir="ltr" tabindex="0"><code>cd /mnt/e/Projects/internet-applications
+docker compose -f docker-compose.req5.yml build migrate
+bash ops/req6/compose.sh build migrate inventory-service
+bash ops/req6/compose.sh up -d --no-build --wait</code></pre>
+<p>الأمر الأول يبني صورة Laravel الأساسية عند الحاجة. الثاني يبني صورة عرض Laravel وصورة المستودع بالملفات الحالية. الثالث يشغّلها مع Prometheus وGrafana ويمكنه جلب صور الخدمات الجاهزة عند الحاجة. استعمل الخيار <code>--local-sources</code> فقط إذا أردت طريقة الربط المحلية المشروحة أعلاه.</p>
+</details>
+<h3>النافذة الأولى · تحقّق أن القياس يعمل قبل الضغط</h3>
+<pre class="shell" dir="ltr" tabindex="0"><code>curl -fsS --noproxy 127.0.0.1 -i http://127.0.0.1:8016/up
+python3 ops/req6/verify.py --monitoring-only</code></pre>
+<p>الأمر الأول يختبر مسار الصحة عبر البوابة. يعرض <code>-i</code> ترويسات الرد، ومنها <code>X-Req5-Upstream</code> الذي يحوي عنوان نسخة API. خيارات <code>-fsS</code> توقف الأمر عند فشل HTTP، وتخفي عدّاد النقل وتبقي رسالة الخطأ. يجبر <code>--noproxy 127.0.0.1</code> الاتصال المباشر بالبيئة المحلية. الأمر الثاني يقرأ Grafana وPrometheus ويتحقق من وجود اللوحة ومهام الجمع وقواعد التنبيه. النتيجة المتوقعة تشمل <code>"panels": 6</code> وهدفين <code>gateway</code> و<code>rabbitmq</code>.</p>
+<p class="source">افتح <a href="../../ops/req6/verify.py"><bdi>ops/req6/verify.py</bdi></a> · الأسطر <bdi>84–95</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/verify.py" data-first="84" data-last="95">def monitoring():
+    until(lambda:http(GRAFANA+'/api/health')[0]==200,'Grafana startup')
+    until(lambda:http(PROM+'/-/ready')[0]==200,'Prometheus startup')
+    dashboard = get_json(GRAFANA+'/api/dashboards/uid/req6-orders')['dashboard']
+    targets = until(lambda: (points if len(points := query('up{job=~&quot;gateway|rabbitmq&quot;} == 1')) == 2 else None),
+                    'both Prometheus targets')
+    rules = get_json(GRAFANA+'/api/prometheus/grafana/api/v1/rules')['data']['groups']
+    names = {r['name'] for group in rules for r in group['rules']}
+    if not {'OrderEmailQueueHigh', 'HttpErrorsHigh'} &lt;= names:
+        raise RuntimeError('Expected both provisioned rules')
+    return {'dashboard':dashboard['title'],'panels':len(dashboard['panels']),
+            'targets':[p['metric']['job'] for p in targets],'rules':sorted(names)}</code></pre>
+<p>ينتظر الفحص واجهتي الصحة، ثم يطلب تعريف اللوحة بواسطة UID، ويستعلم عن <code>up</code> ويتحقق أن النتيجة الجاهزة تحوي الهدفين. يأخذ أسماء القواعد من Grafana ويعيد ملخصاً. حتى هذه الخطوة يكون الدليل هو الاتصال والتهيئة. يبدأ إثبات تغيّر الأرقام في الخطوة التالية.</p>
+<h3>المتصفح · جهّز Grafana وPrometheus</h3>
+<ol>
+<li>في Grafana افتح اللوحة، واجعل المجال <bdi>Last 15 minutes</bdi> والتحديث <bdi>5s</bdi>. يمكنك استخدام <bdi>Last 5 minutes</bdi> لتكبير وقت التجربة. رتّب نافذة المتصفح بجانب نافذة Ubuntu. <a href="http://127.0.0.1:3006/d/req6-orders/orders?from=now-15m&amp;to=now&amp;refresh=5s">فتح لوحة الطلبات</a></li>
+<li>في تبويب Prometheus افتح <bdi>Targets</bdi> وأشر إلى <bdi>UP</bdi> بجانب <code>gateway</code> و<code>rabbitmq</code>. بيّن أن الأول مصدر HTTP والثاني مصدر الطابور. <a href="http://127.0.0.1:9096/targets">فتح حالة أهداف Prometheus</a></li>
+</ol>
+<h3>النافذة الأولى · ابدأ تجربة المؤشرات الأربعة</h3>
+<pre class="shell" dir="ltr" tabindex="0"><code>python3 -u ops/req6/verify.py</code></pre>
+<p>يعرض <code>-u</code> رسائل التقدم فوراً في الطرفية. يشغّل السكربت السيناريو كاملاً داخل مشروع <code>ecommerce-req6</code>. يهيّئ زبوناً ومنتجاً تجريبيين ويمر عبر HTTP والـAPI والمستودع وRabbitMQ. يوقف خدمات التجربة في مرحلتين ويرجّعها في <code>finally</code>، ثم يحفظ تقريراً عند <code>PASS</code>. لتظل أعداد الجولة معزولة، اترك أوامر القياس اليدوية التي تولد HTTP على البوابة إلى ما بعد انتهاء الدفعة.</p>
+<div class="scroll"><table><thead><tr><th>المرحلة</th><th>شو يعمل السكربت؟</th><th>شو تفرجي للأستاذ؟</th></tr></thead><tbody>
+<tr><td>قبل الدفعة</td><td>يرسل تسعة طلبات إحماء إلى <code>/up</code>، ويتحقق من ظهور النسخ الثلاث ويتريّث إلى أن تدخل عينات الإحماء إلى Prometheus. يلتقط بعدها قيم البداية لكل نسخة.</td><td>في <bdi>Requests by API replica</bdi> يظهر عنوان لكل نسخة. أشر لمفتاح الألوان أسفل الرسم، فقد تتداخل الخطوط لقرب الأعداد.</td></tr>
+<tr><td>العدد والزمن تحت الحمل</td><td>يشغّل ١٠ عملاء ويرسل ٥٠٠ طلب على دفعات من ٢٥. يسأل Grafana عن البيانات وهو في منتصف الدفعة، ثم يطابق الزيادة في Prometheus مع عناوين الردود التي استلمها.</td><td>يظهر ارتفاع في <bdi>Requests by API replica</bdi> و<bdi>Requests per second</bdi>. مرّر المؤشر على <bdi>Response time · p95</bdi> في فترة الحمل. اختر نقطة من زمن الدفعة لتشرح زمنها؛ نقاط العطل اللاحقة تمثل فترة مختلفة.</td></tr>
+<tr><td>عمق الطابور</td><td>يوقف عمّال البريد الثلاثة، وينشئ ست عمليات شراء. ينتظر أن يقرأ Prometheus ست رسائل جاهزة على الأقل، ثم يشغّل العمال.</td><td>افتح <bdi>Email queue depth</bdi> و<bdi>Email messages waiting</bdi>. أثناء التوقف يظهر التراكم، وبعد المعالجة ينخفض الرسم. يشير الصفر إلى أن الوسيط لا يحتفظ برسائل من العمل المعتاد في ذلك الطابور عند تلك العينة.</td></tr>
+<tr><td>الأخطاء</td><td>يوقف نسخ API فقط، وتبقى البوابة شغالة. يطلب <code>/up</code> ويعدّ الردود 5xx، ثم يعيد تشغيل النسخ ويتأكد من عودة <code>200</code>.</td><td>في <bdi>HTTP errors per minute</bdi> أشر إلى خط <code>502</code> ونقاط <code>504</code> إن ظهرت. بعد عودة الخدمة يتراجع الرسم مع خروج الردود القديمة من نافذة الدقيقة. اترك اختبار التعافي يكمل قبل إغلاق الطرفية.</td></tr>
+</tbody></table></div>
+<details><summary>الكود الذي يثبت المؤشرات داخل verify.py</summary>
+<p class="source">افتح <a href="../../ops/req6/verify.py"><bdi>ops/req6/verify.py</bdi></a> · الأسطر <bdi>134–183</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/verify.py" data-first="134" data-last="183">    def totals():
+        return {p['metric']['replica']:int(float(p['value'][1]))
+                for p in query('sum by(replica) (order_http_requests_total{status=&quot;200&quot;,replica!=&quot;gateway&quot;})')}
+    # Seed a baseline for each series before applying load, including on a fresh stack.
+    def read_replica():
+        status, headers, _ = http(BASE+'/up')
+        if status != 200:
+            raise RuntimeError(f'Load request returned HTTP {status}')
+        address = headers.get('X-Req5-Upstream', '').split(',')[-1].strip()
+        if not address.endswith(':8000'):
+            raise RuntimeError('Missing API address on a successful response')
+        return address[:-5]
+
+    initial = totals()
+    warmup = Counter(read_replica() for _ in range(9))
+    if len(warmup) != 3:
+        raise RuntimeError('Warmup did not reach three API replicas')
+    def baseline():
+        current = totals()
+        return current if all(current.get(ip,0) &gt;= initial.get(ip,0)+n for ip,n in warmup.items()) else None
+    before = until(baseline, 'replica counters after warmup')
+    remaining = 500
+    client_counts = Counter()
+    dashboard_query = 'sum by (replica) (order_http_requests_total)'
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        while remaining:
+            batch = min(25, remaining)
+            client_counts.update(pool.map(lambda _: read_replica(), range(batch)))
+            remaining -= batch
+            if remaining == 250:
+                proxy = GRAFANA+'/api/datasources/proxy/uid/req6-prom/api/v1/query?'
+                sample = get_json(proxy+urlencode({'query':dashboard_query}))['data']['result']
+                report['grafana_during_load'] = {p['metric']['replica']:float(p['value'][1]) for p in sample}
+                if len(report['grafana_during_load']) &lt; 3:
+                    raise RuntimeError('Grafana did not return all three replica series during load')
+            time.sleep(.45)
+    if sum(client_counts.values()) != 500 or set(client_counts) != set(warmup):
+        raise RuntimeError('Expected 500 successful load requests')
+    report['client_http_200'] = dict(client_counts)
+    def load_seen():
+        current = totals()
+        delta = {ip:current.get(ip,0)-before[ip] for ip in client_counts}
+        return delta if all(delta[ip] &gt;= n for ip,n in client_counts.items()) else None
+    report['load_200_by_replica'] = until(load_seen,'Prometheus load per replica')
+    points = until(lambda:query('histogram_quantile(0.95,sum by(le)(rate(order_http_duration_seconds_bucket[1m])))'),
+                   'response-time histogram')
+    report['p95_seconds'] = float(points[0]['value'][1])
+    if not (0 &lt;= report['p95_seconds'] &lt; float('inf')):
+        raise RuntimeError('No finite latency sample')
+    print('Load shown on Grafana:', report['load_200_by_replica'], flush=True)</code></pre>
+<p><code>totals()</code> تجمع عداد 200 بحسب النسخة وتستبعد سلسلة البوابة. <code>read_replica()</code> يتأكد من 200 ويقرأ آخر عنوان في ترويسة Nginx ويحذف لاحقة <code>:8000</code>. أُخذت نقطة بداية بعد الإحماء حتى يكون الفرق للدفعة. داخل الحلقة يسأل السكربت Grafana عبر <code>datasources/proxy/uid/req6-prom</code> بعد إرسال 250 طلباً. وفي النهاية يطرح <code>before</code> من القراءة الحالية للنسخ، ثم يشترط أن تكون الزيادة لكل نسخة على الأقل عدد ردودها التي شاهدها العميل. الاستعلام الأخير يجمع كل الحاويات الزمنية حسب <code>le</code> ويحسب p95 إجمالياً، بينما رسم Grafana يحافظ أيضاً على <code>replica</code> ويعرض p95 لكل سلسلة.</p>
+<p class="source">افتح <a href="../../ops/req6/verify.py"><bdi>ops/req6/verify.py</bdi></a> · الأسطر <bdi>184–197</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/verify.py" data-first="184" data-last="197">    queue_alert, error_alert = 'OrderEmailQueueHigh', 'HttpErrorsHigh'
+    q0, e0 = notified(queue_alert,'firing'), notified(error_alert,'firing')
+    qr0, er0 = notified(queue_alert,'resolved'), notified(error_alert,'resolved')
+    try:
+        docker('stop', '-t', '4', *workers)
+        report['order_id'] = checkout(trace)
+        for _ in range(5):
+            checkout(str(uuid4()))
+        ready = until(lambda:query('rabbitmq_queue_messages_ready{queue=&quot;orders.email&quot;} &gt;= 6'), 'six waiting emails')
+        report['queue_ready'] = int(float(ready[0]['value'][1]))
+        until(lambda:notified(queue_alert,'firing') &gt; q0, 'queue alert delivered')
+        print('Queue alert delivered; ready messages:', report['queue_ready'], flush=True)
+    finally:
+        docker('start', *workers)</code></pre>
+<p><code>docker stop</code> يوقف مستهلكي الطابور. عمليات الشراء ترسل حدث الطلب كالمعتاد، فينتظر شرط <code>ready</code> وصول مقياس الرسائل الجاهزة إلى ست. تعيد <code>finally</code> تشغيل العمال لإنهاء هذه المرحلة حتى إن فشل شرط التحقق.</p>
+<p class="source">افتح <a href="../../ops/req6/verify.py"><bdi>ops/req6/verify.py</bdi></a> · الأسطر <bdi>229–242</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/verify.py" data-first="229" data-last="242">    try:
+        docker('stop','-t','2',*apis)
+        errors = 0
+        deadline = time.monotonic()+100
+        while notified(error_alert,'firing') &lt;= e0 and time.monotonic() &lt; deadline:
+            errors += http(BASE+'/up')[0] &gt;= 500
+            time.sleep(.4)
+        if errors &lt; 3 or notified(error_alert,'firing') &lt;= e0:
+            raise RuntimeError('HTTP error alert did not reach its receiver')
+        report['observed_http_5xx'] = errors
+        print('HTTP error alert delivered; observed 5xx:',errors,flush=True)
+    finally:
+        docker('start', *apis)
+    until(lambda:http(BASE+'/up')[0]==200,'API recovery')</code></pre>
+<p>إيقاف API يترك مقياس البوابة قابلاً للتحديث. يزيد المتغير <code>errors</code> عندما تكون الحالة 500 فما فوق. بعد رجوع نسخ API ينتظر السكربت عودة رد 200 قبل اكتمال مراحل التعافي.</p>
+</details>
+<h3>بعد PASS · اعرض الدليل أو اسأل Prometheus مباشرة</h3>
+<pre class="shell" dir="ltr" tabindex="0"><code>python3 -c 'import json; d=json.load(open("docs/req6-evidence.json")); print("HTTP 200 by replica",d["client_http_200"]); print("Prometheus delta",d["load_200_by_replica"]); print("p95 ms",round(d["p95_seconds"]*1000,1)); print("queue ready",d["queue_ready"]); print("observed 5xx",d["observed_http_5xx"]); print("Grafana URL",d["dashboard_url"])'</code></pre>
+<p>يعرض هذا الأمر حقول الجولة الأخيرة الناجحة. انسخ رابط Grafana الناتج للحصول على الفترة الزمنية المثبتة كاملة. عند إعادة التجربة تتغيّر العناوين والأزمنة أو الأرقام بحسب الجولة، فتُظهر نتائج تلك الجولة.</p>
+<details><summary>أوامر اختيارية لمطابقة كل رسم مع البيانات الخام</summary>
+<pre class="shell" dir="ltr" tabindex="0"><code>bash ops/req6/compose.sh --local-sources exec -T http-metrics \
+  node -e 'fetch("http://127.0.0.1:9108/metrics").then(r=&gt;r.text()).then(console.log)' \
+  | grep -E 'order_http_requests_total\{|order_http_duration_seconds_(bucket|count|sum)\{'
+
+prom_query() {
+  curl --noproxy 127.0.0.1 --fail --silent --show-error --get \
+    --data-urlencode "query=$1" \
+    http://127.0.0.1:9096/api/v1/query \
+    | python3 -m json.tool
+}
+prom_query 'up{job=~"gateway|rabbitmq"}'
+prom_query 'sum by (replica) (order_http_requests_total)'
+prom_query 'histogram_quantile(0.95, sum by (le, replica) (rate(order_http_duration_seconds_bucket[1m])))'
+prom_query 'sum by (status) (increase(order_http_requests_total{status=~"[45].."}[1m])) or vector(0)'
+prom_query 'rabbitmq_queue_messages{queue="orders.email"}'</code></pre>
+<p><code>exec -T</code> يفتح عملية داخل حاوية المجمّع من دون TTY. يقرأ Node عنوانه الداخلي ويطبع الأسطر الخام، ويحتفظ <code>grep</code> بأسطر العدّ والزمن. الدالة <code>prom_query</code> ترسل استعلاماً فورياً إلى Prometheus، وتضبط ترميز المسافات والمحارف عبر <code>--data-urlencode</code>، ثم تنسّق JSON. في كل نتيجة راقب <code>metric</code> للتسميات و<code>value</code> لوقت العينة وقيمتها. بعد نهاية العرض يُتوقع أن يتراجع الطابور وأن تتناقص أخطاء الدقيقة إلى الصفر. لرؤية قمة زمنية مرّ عليها وقت، افتح الفترة المحفوظة في Grafana.</p>
+</details>
+<div class="callout"><strong>إذا انفتح الرسم وما ظهر رقم:</strong> تحقّق أولاً من ظهور الهدفين <bdi>UP</bdi>. أرسل طلب <code>/up</code> من نافذة Ubuntu ثم انتظر دورة الجمع والتحديث. اضبط مجال الرسم على زمن الجولة. وإذا فشل تشغيل وضع <code>--local-sources</code> برسالة ترجمة المستودع، استخدم خطوات البناء الموضّحة في قسم تجهيز الجهاز، أو ترجم <code>inventory-service</code> محلياً قبل تشغيله.</div>
+</section>
+<section id="proof"><h2>٩. النتيجة المسجّلة وكيف تشرحها</h2>
+<figure><img src="../req6-dashboard.png" width="1440" height="1020" alt="ست لوحات من Grafana في الجولة المسجلة تبين ازدياد طلبات النسخ الثلاث، وتراكم ست رسائل، ثم موجة من ردود 5xx">
+<figcaption>لقطة من الجولة الفعلية في ٢٧ تشرين الثاني ٢٠٢٦. في الصف الأوسط ترتفع الأخطاء على اليسار ويصل الطابور إلى ست رسائل على اليمين. في الأعلى ترى صعود العدادات ثم تغيّر p95 مع الانتقال من الحمل إلى العطل.</figcaption></figure>
+<div class="scroll"><table><thead><tr><th>المقياس</th><th>أي رقم تعرضه؟</th><th>كيف تقرؤه؟</th></tr></thead><tbody>
+<tr><td>عدد الطلبات</td><td>٥٠٠ رد HTTP 200. وزّعها العميل ١٦٦ و١٦٧ و١٦٧.</td><td>تقرير العميل يحصي طلبات الاختبار. ارتفعت عدادات المجموعة ٥٠١ بسبب طلب فحص إضافي أثناء الجولة. وظهرت ثلاث سلاسل في استعلام Grafana في منتصف الدفعة.</td></tr>
+<tr><td>زمن الاستجابة</td><td>p95 الإجمالي للحمل نحو ٩٧ ميلي ثانية.</td><td>في نافذة قياس الحمل، نحو ٩٥٪ من الردود خلصت خلال هذه المدة تقريباً. يعرض الرسم مئين كل نسخة على مدار الجولة، بما فيها العطل اللاحق.</td></tr>
+<tr><td>الأخطاء</td><td>٦١ ردّ 5xx رصدها عميل الاختبار أثناء الإيقاف.</td><td>الرسوم تحسبها على نافذة متحركة. في الصورة قد تتجاوز قمة الرسم ٦١ قليلاً لأن <code>increase</code> يقدّر القيمة عند حدود النافذة ولأن اللوحة تعرض كل الردود التي رصدتها البوابة.</td></tr>
+<tr><td>الطابور</td><td>ست رسائل جاهزة عند توقف العمال، ثم عاد الرسم إلى الصفر.</td><td>حجم الطابور قيمة لحظية، والعودة للصفر توافق استهلاك الرسائل بعد تشغيل العمال.</td></tr>
+</tbody></table></div>
+<blockquote><p>«هون الطلبات عم تمرّ من Nginx، ومنه أخذنا حالة كل رد ومدّته وعنوان النسخة. كل خط هون نسخة، والـ٥٠٠ طلب توزّعت على الثلاث. الـp95 بيورجينا زمن الاستجابة ضمن نافذة القياس. ووقفنا عمّال البريد فتجمّعت ست رسائل من مشتريات فعلية، ثم رجع الحجم للصفر بعد ما شغّلناهم. ولما وقفنا API ظل Nginx شغّال، فسجّل الأخطاء اللي شافها العميل. بهالشكل بقدر طابق الرسم بمصدره في Prometheus وبالأرقام اللي حفظها الاختبار.»</p></blockquote>
+<p class="small">الدليل محفوظ في المشروع. <a href="../req6-evidence.json">تقرير الجولة بصيغة JSON</a> · <a href="../req6-dashboard.png">صورة Grafana الأصلية</a> · <a href="../req6-monitoring-ar.md">دليل تشغيل المتطلب السادس</a></p>
+</section>
+<footer><h2>بقية ملفات المتطلب السادس</h2><p><a href="req6-alerts.html">التنبيهات</a> · <a href="req6-logs.html">السجلات</a> · <a href="req6-data-protection.html">حماية البيانات</a> · <a href="req6-proof.html">العرض الكامل</a></p></footer>
+</main></body></html>

@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>كيف منعنا تسرّب كلمات المرور والرموز إلى السجلات؟ | المتطلب السادس</title>
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#eef3f6;color:#192f41;font:17px/1.85 "Segoe UI",Tahoma,Arial,sans-serif}main{width:min(calc(100% - 2rem),68rem);margin:1.8rem auto 4rem}header,nav,section,footer{background:#fff;border:1px solid #d7e3ec;border-radius:.85rem;padding:clamp(1rem,3vw,2rem);margin:1.15rem 0}header{background:#123449;color:#f5fbff;border:0}header p{max-width:52rem;color:#e4f3f9}h1,h2,h3,h4{margin:.25rem 0 .6rem;line-height:1.5}h1{font-size:clamp(1.6rem,4vw,2.55rem)}h2{color:#124c63;font-size:1.45rem}h3{color:#15566c;font-size:1.15rem;margin-top:1.55rem}h4{font-size:1rem}p{margin:.45rem 0 1rem}a{color:#0d587b;text-underline-offset:.2em}nav ol{display:flex;gap:.4rem 1.9rem;flex-wrap:wrap;margin:0;padding-inline-start:1.3rem}li{margin:.38rem 0}code,bdi{unicode-bidi:isolate}code{font-family:Consolas,"Courier New",monospace;direction:ltr}p code,li code,td code,dd code,dt code,figcaption code{background:#e9f1f6;color:#153d58;border-radius:.25rem;padding:.07rem .28rem;overflow-wrap:anywhere}pre{direction:ltr;text-align:left;overflow:auto;max-height:32rem;background:#eaf1f6;border-left:3px solid #3e7187;border-radius:.4rem;padding:.8rem 1rem;margin:.4rem 0 1rem;tab-size:4;line-height:1.6;font-size:.85rem}pre.shell{background:#142d3e;color:#f0faff}figure{margin:1rem 0}img{display:block;width:100%;height:auto;border-radius:.6rem}figcaption,.source,.small{font-size:.92rem;color:#4a6271}dl{margin:.8rem 0}dt{font-weight:700;color:#124c63}dd{margin:0 0 .65rem}blockquote,.callout{margin:1rem 0;border-inline-start:4px solid #35907c;background:#e9f6f0;padding:.8rem 1rem;border-radius:.35rem}blockquote p{margin:.22rem 0}.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;margin:.65rem 0}th,td{border:1px solid #d4e2e9;padding:.55rem .7rem;vertical-align:top;text-align:start}th{background:#e5f0f4}summary{cursor:pointer;padding:.55rem .8rem;color:#0d587b;font-weight:650}details{border:1px solid #d9e5eb;border-radius:.42rem;margin:.7rem 0;padding:0 .5rem .15rem}a:focus-visible,summary:focus-visible,pre:focus-visible{outline:3px solid #ad6419;outline-offset:2px}section{scroll-margin-top:1rem}.sub{color:#b8e2ee;font-size:.9rem;font-weight:650}ol,ul{padding-inline-start:1.6rem}pre.pipeline{white-space:pre-wrap;max-height:none;font-size:.95rem}@media print{header,section,footer{padding:.4rem;border:0}nav{display:none}header{background:white;color:#124c63}header p,.sub{color:#124c63}pre{max-height:none;white-space:pre-wrap;overflow-wrap:anywhere}tr{break-inside:avoid}body{background:white;font-size:10.5pt}main{width:100%;margin:0}}
+</style>
+</head>
+<body><main><header><div class="sub">المتطلب السادس · المراقبة وتتبع الأعطال</div><h1>كيف منعنا تسرّب كلمات المرور والرموز إلى السجلات؟</h1><p>الكود الذي يحدد ما يظهر في السجل، وكيف تختبر الحجب عملياً من دون طباعة بيانات دخول حقيقية.</p></header><nav aria-label="محتويات الملف"><h2>محتويات الملف</h2><ol><li><a href="#design">الملفات والسياسة</a></li><li><a href="#php">قناة Laravel</a></li><li><a href="#edge">البوابة والمستودع</a></li><li><a href="#tests">اختبارات الحجب</a></li><li><a href="#demo">الأوامر والنتيجة</a></li></ol></nav><section id="design"><h2>١. الحماية تبدأ قبل كتابة السجل</h2>
+<p>كل خدمة في مسار العرض تكتب حقولاً محددة تحتاجها لمراقبة الطلب. Laravel يبني سطر JSON بقائمة سماح، والمستودع يكتب اسم RPC وحالته ومعرّف التتبع، والبوابة ترسل الحالة والمدة وعنوان النسخة. يصبح مرور بيانات الاعتماد عبر HTTP مستقلاً عن الحقول التي تختارها هذه السجلات.</p>
+<div class="scroll"><table><thead><tr><th>الملف</th><th>ما الذي أضفناه أو عدّلناه؟</th></tr></thead><tbody>
+<tr><td><a href="../../backend/my-project/app/Logging/SafeJsonFormatter.php">SafeJsonFormatter.php</a> · <a href="../../backend/my-project/config/logging.php">logging.php</a></td><td>منسّق جديد وقناة مضافة في الإعداد الموجود. يختاران الحدث والسياق المسموحين قبل كتابة JSON.</td></tr>
+<tr><td><a href="../../backend/my-project/app/Http/Middleware/TraceRequest.php">TraceRequest.php</a> · <a href="../../docker-compose.req6.yml">docker-compose.req6.yml</a> · <a href="../../ops/req6/router.php">router.php</a></td><td>ملفات جديدة تقيّد الترويسة بصيغة UUID، وتفعّل القناة، وتضبط خادم PHP لبيئة العرض.</td></tr>
+<tr><td><a href="../../ops/req6/nginx-format.conf">nginx-format.conf</a> · <a href="../../ops/req6/nginx-access.conf">nginx-access.conf</a> · <a href="../../ops/req5/nginx.conf">nginx.conf</a></td><td>ملفا قياس جديدان يحددان حقول سجل البوابة، وملف Nginx الموجود عُدّل لتحميلهما في بيئة المتطلب السادس.</td></tr>
+<tr><td><a href="../../inventory-service/src/grpc/handlers.ts">handlers.ts</a> · <a href="../../inventory-service/src/server.ts">server.ts</a> · <a href="../../inventory-service/src/database/seed.ts">seed.ts</a></td><td>تعديلات على سجل المستودع. يبقى الخطأ الداخلي رسالة عامة، وتُكتب بيانات العملية المسموحة في موضع موحّد.</td></tr>
+<tr><td><a href="../../backend/my-project/app/Services/OrderService.php">OrderService.php</a> · <a href="../../backend/my-project/app/Console/Commands/RetryInventoryCompensations.php">RetryInventoryCompensations.php</a></td><td>تنظيف سجلات فشل الطلب وتعويض حجز المخزون من نصوص الاستثناء الخام.</td></tr>
+<tr><td><a href="../../backend/my-project/tests/Feature/ObservabilityTest.php">ObservabilityTest.php</a> · <a href="../../ops/req6/verify.py">verify.py</a></td><td>اختبار مستقل للمنسّق والترويسة، واختبار عبر البوابة وخدمات التطبيق الفعلية.</td></tr>
+</tbody></table></div></section>
+<section id="php"><h2>٢. حجب الحقول عند الكتابة من Laravel</h2>
+<p class="source">افتح <a href="../../backend/my-project/app/Logging/SafeJsonFormatter.php"><bdi>backend/my-project/app/Logging/SafeJsonFormatter.php</bdi></a> · الأسطر <bdi>1–57</bdi></p><pre dir="ltr" tabindex="0"><code data-src="backend/my-project/app/Logging/SafeJsonFormatter.php" data-first="1" data-last="57">&lt;?php
+
+namespace App\Logging;
+
+use Illuminate\Support\Str;
+use Monolog\Formatter\JsonFormatter;
+use Monolog\LogRecord;
+use Throwable;
+
+class SafeJsonFormatter extends JsonFormatter
+{
+    // Exception messages, SQL bindings, mail bodies and arbitrary library messages may contain credentials.
+    private const EVENTS = [
+        'HTTP request started', 'HTTP request finished', 'Outbox publication confirmed',
+        'Outbox publication deferred', 'Outbox publisher recovering', 'Order email processing',
+        'Order email processed', 'Order email deferred', 'Order email worker recovering',
+        'Order confirmation accepted by delivery transport',
+        'MOCK DELIVERY: order confirmation processed without an external email',
+        'Could not determine whether an order reservation was persisted',
+        'Could not verify order persistence before compensation',
+        'Order creation failed, attempting stock release', 'Stock compensation recorded for retry',
+        'Inventory compensation retry failed', 'Order dashboard cache invalidation failed',
+        'Order broadcast enqueue failed after commit', 'Order notification failed after commit',
+    ];
+
+    public function formatBatch(array $records): string
+    {
+        return implode('', array_map($this-&gt;format(...), $records));
+    }
+
+    public function format(LogRecord $record): string
+    {
+        $row = ['time' =&gt; $record-&gt;datetime-&gt;format('Y-m-d\TH:i:s.uP'), 'level' =&gt; $record-&gt;level-&gt;getName(),
+            'message' =&gt; in_array($record-&gt;message, self::EVENTS, true) ? $record-&gt;message : 'Application diagnostic'];
+        foreach (['event_id', 'correlation_id'] as $key) {
+            $value = $record-&gt;context[$key] ?? null;
+            if (is_string($value) &amp;&amp; Str::isUuid($value)) {
+                $row[$key] = $value;
+            }
+        }
+        foreach (['order_id', 'attempt', 'status', 'operation_id', 'compensation_id'] as $key) {
+            if (isset($record-&gt;context[$key]) &amp;&amp; is_int($record-&gt;context[$key])) {
+                $row[$key] = $record-&gt;context[$key];
+            }
+        }
+        foreach (['delivery_mode' =&gt; ['external', 'mock'], 'destination' =&gt; ['retry', 'dead_letter']] as $key =&gt; $values) {
+            if (in_array($record-&gt;context[$key] ?? null, $values, true)) {
+                $row[$key] = $record-&gt;context[$key];
+            }
+        }
+        if (($record-&gt;context['exception'] ?? null) instanceof Throwable) {
+            $row['exception_type'] = $record-&gt;context['exception']::class;
+        }
+
+        return json_encode($row, JSON_THROW_ON_ERROR).&quot;\n&quot;;
+    }
+}</code></pre>
+<dl><dt>الأسطر ١٣–٢٤</dt><dd><code>EVENTS</code> قائمة ثابتة من رسائل البرنامج المعروفة. يمنع ذلك نشر نص رسالة ديناميكية إذا اشتمل على بيانات مستخدم أو استثناء. يستخدم الحدث العام <code>Application diagnostic</code> إذا لم يجد نصاً مطابقاً.</dd>
+<dt>الأسطر ٢٦–٣٤</dt><dd>تعيد <code>formatBatch</code> استعمال دالة السطر الواحد، لذلك تغطي السياسة الوضع المفرد والدفعي. يبني <code>$row</code> من الوقت ومستوى السجل والاسم المسموح.</dd>
+<dt>الأسطر ٣٥–٥٠</dt><dd>يُقبل <code>event_id</code> و<code>correlation_id</code> إذا كانا UUID صالحين، وتُقبل حقول الطلب والمحاولة والحالة كأعداد صحيحة فقط. الحقول النصية مثل <code>delivery_mode</code> محدودة بقيم معروفة. لا يضيف الكود <code>password</code> ولا <code>Authorization</code> ولا رؤوس الطلب ولا <code>extra</code>.</dd>
+<dt>الأسطر ٥١–٥٥</dt><dd>إذا كان السياق يحمل استثناء من نوع <code>Throwable</code> يكتب اسم الـclass فقط. قد تضم رسالة استثناء قاعدة البيانات نص SQL وبياناته، لذلك يختار الكود <code>::class</code> ولا ينسخ تفاصيل الاستثناء. يكوّن <code>json_encode</code> السطر النهائي من الحقول التي نجحت في الشروط.</dd></dl>
+<p class="source">افتح <a href="../../backend/my-project/config/logging.php"><bdi>backend/my-project/config/logging.php</bdi></a> · الأسطر <bdi>53–61</bdi></p><pre dir="ltr" tabindex="0"><code data-src="backend/my-project/config/logging.php" data-first="53" data-last="61">    'channels' =&gt; [
+        'observability' =&gt; [
+            'driver' =&gt; 'monolog',
+            'handler' =&gt; StreamHandler::class,
+            'with' =&gt; ['stream' =&gt; 'php://stdout'],
+            'formatter' =&gt; \App\Logging\SafeJsonFormatter::class,
+        ],
+
+        'stack' =&gt; [</code></pre>
+<p class="source">افتح <a href="../../docker-compose.req6.yml"><bdi>docker-compose.req6.yml</bdi></a> · الأسطر <bdi>1–7</bdi></p><pre dir="ltr" tabindex="0"><code data-src="docker-compose.req6.yml" data-first="1" data-last="7">name: ecommerce-req6
+x-app: &amp;app
+  image: ecommerce-req6-app:local
+  environment:
+    LOG_CHANNEL: observability
+    APP_URL: http://localhost:8016
+    TRUSTED_PROXIES: 172.30.65.0/24</code></pre>
+<p>هذه الطبقة موجودة في قناة <code>observability</code> وتتولى تصفية كل سجل يمر بها بغض النظر عن الخدمة التي كتبته. يضبط Compose هذه القناة لمكونات Laravel في معمل المتطلب السادس، ويوصل خرجها إلى Docker بواسطة <code>php://stdout</code>. ويستبدل وسيط الطلب قيمة <code>X-Correlation-ID</code> غير الصالحة حتى لا تُعامل كلمة سر نصية أُرسلت مكان UUID على أنها معرّف تتبع.</p>
+<p class="source">افتح <a href="../../backend/my-project/app/Http/Middleware/TraceRequest.php"><bdi>backend/my-project/app/Http/Middleware/TraceRequest.php</bdi></a> · الأسطر <bdi>13–29</bdi></p><pre dir="ltr" tabindex="0"><code data-src="backend/my-project/app/Http/Middleware/TraceRequest.php" data-first="13" data-last="29">    public function handle(Request $request, Closure $next): Response
+    {
+        $incoming = $request-&gt;header('X-Correlation-ID');
+        $id = is_string($incoming) &amp;&amp; Str::isUuid($incoming) ? strtolower($incoming) : (string) Str::uuid();
+        $request-&gt;attributes-&gt;set('correlation_id', $id);
+        $observed = config('logging.default') === 'observability';
+        if ($observed) {
+            Log::info('HTTP request started', ['correlation_id' =&gt; $id]);
+        }
+        $response = $next($request);
+        $response-&gt;headers-&gt;set('X-Correlation-ID', $id);
+        if ($observed) {
+            Log::info('HTTP request finished', ['correlation_id' =&gt; $id, 'status' =&gt; $response-&gt;getStatusCode()]);
+        }
+
+        return $response;
+    }</code></pre>
+<details><summary>تعديلات إضافية في مسارات الفشل داخل Laravel</summary>
+<p class="source">افتح <a href="../../backend/my-project/app/Services/OrderService.php"><bdi>backend/my-project/app/Services/OrderService.php</bdi></a> · الأسطر <bdi>204–240</bdi></p><pre dir="ltr" tabindex="0"><code data-src="backend/my-project/app/Services/OrderService.php" data-first="204" data-last="240">                    if ($durableOperation?-&gt;status === 'completed') {
+                        return Order::with('items.product')-&gt;findOrFail($durableOperation-&gt;order_id);
+                    }
+                    $reservationId = $durableOperation?-&gt;reservation_id;
+                } catch (\Throwable $lookupException) {
+                    Log::critical('Could not determine whether an order reservation was persisted', [
+                        'operation_id' =&gt; $operation-&gt;id,
+                        'error_type' =&gt; $lookupException::class,
+                    ]);
+                    throw new InventoryOutcomeUnknownException('Order persistence outcome is not known.');
+                }
+            }
+
+            if ($reservationId === null) {
+                throw $e;
+            }
+
+            try {
+                $durableOperation = InventoryOperation::find($operation-&gt;id);
+                if ($durableOperation?-&gt;status === 'completed') {
+                    return Order::with('items.product')-&gt;findOrFail($durableOperation-&gt;order_id);
+                }
+            } catch (\Throwable $lookupException) {
+                Log::critical('Could not verify order persistence before compensation', [
+                    'operation_id' =&gt; $operation-&gt;id,
+                    'reservation_id' =&gt; $reservationId,
+                    'error_type' =&gt; $lookupException::class,
+                ]);
+                throw new InventoryOutcomeUnknownException('Order persistence outcome is not known.');
+            }
+
+            Log::error('Order creation failed, attempting stock release', [
+                'reservation_id' =&gt; $reservationId,
+                'error_type' =&gt; $e::class,
+            ]);
+
+            $released = false;</code></pre>
+<p class="source">افتح <a href="../../backend/my-project/app/Console/Commands/RetryInventoryCompensations.php"><bdi>backend/my-project/app/Console/Commands/RetryInventoryCompensations.php</bdi></a> · الأسطر <bdi>98–108</bdi></p><pre dir="ltr" tabindex="0"><code data-src="backend/my-project/app/Console/Commands/RetryInventoryCompensations.php" data-first="98" data-last="108">                    -&gt;update(['status' =&gt; 'compensated', 'last_error' =&gt; null]);
+            });
+        } catch (\Throwable $exception) {
+            $compensation-&gt;update(['error_message' =&gt; $exception-&gt;getMessage()]);
+            Log::error('Inventory compensation retry failed', [
+                'compensation_id' =&gt; $compensation-&gt;id,
+                'reservation_id' =&gt; $compensation-&gt;reservation_id,
+                'error_type' =&gt; $exception::class,
+            ]);
+            $this-&gt;error(&quot;Compensation {$compensation-&gt;id} remains pending.&quot;);
+        }</code></pre>
+<p>عُدّلت الاستدعاءات لتسجل نوع الخطأ بدل نصّه في سياق السجل. يحتفظ مسار التعويض بحقل <code>error_message</code> التشخيصي في قاعدة البيانات حسب الكود القائم. إثبات هذه النقطة يخصّ خرج السجلات الذي تعرضه الخدمات.</p></details>
+</section>
+<section id="edge"><h2>٣. حماية خرج البوابة والمستودع</h2>
+<p class="source">افتح <a href="../../ops/req6/nginx-format.conf"><bdi>ops/req6/nginx-format.conf</bdi></a> · الأسطر <bdi>1–2</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/nginx-format.conf" data-first="1" data-last="2"># A fixed telemetry schema. No request URI, query, headers, cookies or body.
+log_format req6_metrics escape=json '{&quot;status&quot;:$status,&quot;seconds&quot;:$request_time,&quot;upstream&quot;:&quot;$upstream_addr&quot;}';</code></pre>
+<p class="source">افتح <a href="../../ops/req6/nginx-access.conf"><bdi>ops/req6/nginx-access.conf</bdi></a> · الأسطر <bdi>1–3</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/nginx-access.conf" data-first="1" data-last="3">access_log syslog:server=172.30.65.10:5514,tag=req6,nohostname req6_metrics;
+# Nginx diagnostic messages may contain the full request line.
+error_log /dev/null;</code></pre>
+<p>عند مستوى Nginx نختار الحقول قبل خروج السجل. خيارات <code>$status</code> و<code>$request_time</code> و<code>$upstream_addr</code> تكفي للقياس. تغيب الترويسات والـCookie وجسم الطلب والرابط ومعاملاته من شكل الرسالة. وُضع <code>error_log /dev/null</code> في إعداد المعمل لأن الرسالة التشخيصية الخام في البوابة قد تتضمن سطر الطلب كاملاً.</p>
+<p class="source">افتح <a href="../../docker-compose.req6.yml"><bdi>docker-compose.req6.yml</bdi></a> · الأسطر <bdi>23–27</bdi></p><pre dir="ltr" tabindex="0"><code data-src="docker-compose.req6.yml" data-first="23" data-last="27">  api:
+    &lt;&lt;: *app
+    command: [sh, -c, 'cd public &amp;&amp; exec php -d display_errors=0 -S 0.0.0.0:8000 /opt/req6/router.php 2&gt;/dev/null']
+    volumes:
+      - ./ops/req6/router.php:/opt/req6/router.php:ro</code></pre>
+<p class="source">افتح <a href="../../ops/req6/router.php"><bdi>ops/req6/router.php</bdi></a> · الأسطر <bdi>1–8</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/router.php" data-first="1" data-last="8">&lt;?php
+
+// PHP's development server handles existing public assets. Laravel handles application routes.
+$path = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/');
+if ($path !== '/' &amp;&amp; !str_contains($path, &quot;\0&quot;) &amp;&amp; is_file(getcwd().$path)) {
+    return false;
+}
+require getcwd().'/index.php';</code></pre>
+<p>أمر API يشغّل موجّه PHP البديل لإرسال مسارات التطبيق إلى Laravel. يستخدم <code>display_errors=0</code> لكتم إظهار أخطاء PHP الخام، ويوجّه stderr الخاص بالخادم إلى <code>/dev/null</code> لتفادي سجل التطوير الخام. قناة Laravel المهيّأة ترسل أحداثها المنسقة إلى stdout منفصلاً عن تلك الرسائل.</p>
+<p class="source">افتح <a href="../../inventory-service/src/grpc/handlers.ts"><bdi>inventory-service/src/grpc/handlers.ts</bdi></a> · الأسطر <bdi>8–20</bdi></p><pre dir="ltr" tabindex="0"><code data-src="inventory-service/src/grpc/handlers.ts" data-first="8" data-last="20">function sendInternalError(
+  callback: GrpcCallback
+): void {
+  // The exception may contain SQL bindings. Log the RPC status at the callback boundary instead.
+
+  callback({
+    code: grpc.status.INTERNAL,
+    message: 'Internal server error',
+    name: 'INTERNAL',
+    details: 'Internal server error',
+    metadata: new grpc.Metadata(),
+  });
+}</code></pre>
+<p class="source">افتح <a href="../../inventory-service/src/grpc/handlers.ts"><bdi>inventory-service/src/grpc/handlers.ts</bdi></a> · الأسطر <bdi>163–176</bdi></p><pre dir="ltr" tabindex="0"><code data-src="inventory-service/src/grpc/handlers.ts" data-first="163" data-last="176">  const traced = (operation: keyof typeof handlers) =&gt;
+    (call: grpc.ServerUnaryCall&lt;any, any&gt;, callback: GrpcCallback) =&gt; {
+      const incoming = call.metadata?.get('x-correlation-id')[0];
+      const correlationId = typeof incoming === 'string' &amp;&amp;
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(incoming)
+        ? incoming.toLowerCase() : randomUUID();
+      return handlers[operation](call, (error, response) =&gt; {
+        console.log(JSON.stringify({time: new Date().toISOString(), service: 'inventory',
+          message: 'Inventory RPC finished', operation, correlation_id: correlationId,
+          status: error?.code ?? grpc.status.OK}));
+        callback(error, response);
+      });
+    };
+  return {GetStock: traced('GetStock'), ReserveStock: traced('ReserveStock'), ReleaseStock: traced('ReleaseStock')};</code></pre>
+<p>عُدّل <code>sendInternalError</code> ليعيد رسالة gRPC ثابتة، وأزيل طبع <code>error.message</code>. يسجل الـwrapper اسم العملية وكود النتيجة ومعرّفاً مقيداً بصيغة UUID. لذلك تُستبعد بيانات طلب الحجز ورسالة مزوّد البيانات الخام قبل مرحلة <code>JSON.stringify</code>. كما أصبحت رسائل فشل تشغيل المستودع والبذر ثابتة في ملفات بدء الخدمة. <a href="../../inventory-service/src/server.ts">تشغيل المستودع</a> · <a href="../../inventory-service/src/database/seed.ts">بذر البيانات</a></p>
+</section>
+<section id="tests"><h2>٤. كيف نثبت الحماية باختبارين؟</h2>
+<p class="source">افتح <a href="../../backend/my-project/tests/Feature/ObservabilityTest.php"><bdi>backend/my-project/tests/Feature/ObservabilityTest.php</bdi></a> · الأسطر <bdi>14–35</bdi></p><pre dir="ltr" tabindex="0"><code data-src="backend/my-project/tests/Feature/ObservabilityTest.php" data-first="14" data-last="35">    public function test_http_preserves_a_valid_trace_and_replaces_untrusted_input(): void
+    {
+        $id = (string) Str::uuid();
+        $this-&gt;get('/up', ['X-Correlation-ID' =&gt; $id])-&gt;assertOk()-&gt;assertHeader('X-Correlation-ID', $id);
+        $response = $this-&gt;get('/up', ['X-Correlation-ID' =&gt; 'private-value'])-&gt;assertOk();
+        $this-&gt;assertTrue(Str::isUuid($response-&gt;headers-&gt;get('X-Correlation-ID')));
+    }
+
+    public function test_even_exception_messages_nested_context_and_extras_cannot_leak(): void
+    {
+        $secret = 'test-sensitive-password-token';
+        $id = (string) Str::uuid();
+        $record = new LogRecord(new DateTimeImmutable(), 'test', Level::Error, 'SQL error '.$secret,
+            ['correlation_id' =&gt; $id, 'password' =&gt; $secret, 'exception' =&gt; new \RuntimeException($secret),
+                'headers' =&gt; ['Authorization' =&gt; $secret]], ['extra' =&gt; $secret]);
+        $formatter = new SafeJsonFormatter();
+        $line = $formatter-&gt;formatBatch([$record]);
+        $this-&gt;assertStringNotContainsString($secret, $line);
+        $logged = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
+        $this-&gt;assertSame($id, $logged['correlation_id']);
+        $this-&gt;assertSame(\RuntimeException::class, $logged['exception_type']);
+    }</code></pre>
+<p>الأول يرسل UUID سليماً ويطابق الترويسة المرتجعة، ثم يضع نصاً غير صالح ويتأكد أن الرد يحمل UUID صالحاً. الثاني يبني <code>LogRecord</code> يحمل نفس السر التجريبي ضمن رسالة السجل وداخل الاستثناء والترويسات والسياق الإضافي. يشغّل <code>formatBatch</code> ويفشل إن بقيت القيمة في السطر. يفك JSON ويتأكد أن المعرّف ونوع الخطأ المفيدان ما زالا موجودين.</p>
+<p class="source">افتح <a href="../../ops/req6/verify.py"><bdi>ops/req6/verify.py</bdi></a> · الأسطر <bdi>109–133</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/verify.py" data-first="109" data-last="133">    started = datetime.now(timezone.utc).isoformat(timespec='seconds')
+    started_ms = int(time.time()*1000)
+    tag = str(uuid4())
+    def fixture(cid, action):
+        return json.loads(docker('exec','-i','-e','REQ5_INTERVIEW_RUN='+tag,'-e',
+                                 'REQ5_INTERVIEW_ACTION='+action,cid,'php',data=FIXTURE))
+    if not all(fixture(cid, 'mailer') is True for cid in workers):
+        raise RuntimeError('This demonstration requires local Mailpit delivery')
+    user = fixture(apis[0], 'setup')
+    prepare_inventory(inv, user['product'])
+    marker = 'req6-test-'+tag
+    trace = str(uuid4())
+    def checkout(correlation):
+        status, headers, body = http(BASE+'/api/orders',
+            {'items':[{'product_id':user['product'], 'quantity':1}]},
+            {'Authorization':'Bearer '+user['token'], 'Content-Type':'application/json', 'Accept':'application/json',
+             'Idempotency-Key':str(uuid4()), 'X-Correlation-ID':correlation})
+        if status != 201 or headers.get('X-Correlation-ID') != correlation:
+            raise RuntimeError(f'Checkout or correlation header failed (HTTP {status})')
+        return json.loads(body)['data']['id']
+    # Deliberately synthetic values. Neither the URL query nor the credentials may appear in container logs.
+    http(BASE+'/api/login?probe='+marker, {'email':'req6@example.invalid','password':marker},
+         {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+marker,
+          'Cookie':'probe='+marker,'X-Correlation-ID':marker})
+    report = {'started_utc':started,'monitoring':monitored,'correlation_id':trace}</code></pre>
+<p class="source">افتح <a href="../../ops/req6/verify.py"><bdi>ops/req6/verify.py</bdi></a> · الأسطر <bdi>198–224</bdi></p><pre dir="ltr" tabindex="0"><code data-src="ops/req6/verify.py" data-first="198" data-last="224">    def traced():
+        matches = []
+        for service, ids in [('api',apis),('inventory-service',[inv]),('outbox-publisher',[publisher]),('email-worker',workers)]:
+            for cid in ids:
+                logs = subprocess.run(['docker','logs','--since',started,cid],capture_output=True,text=True,check=True)
+                raw = logs.stdout + logs.stderr
+                if marker in raw or user['token'] in raw:
+                    raise RuntimeError('Sensitive value found in '+service+' logs')
+                for line in raw.splitlines():
+                    if trace not in line: continue
+                    row = json.loads(line)
+                    if row.get('correlation_id')==trace:
+                        matches.append({'service':service, **row})
+        messages={r['message'] for r in matches}
+        needed={'HTTP request started','Inventory RPC finished','HTTP request finished','Outbox publication confirmed',
+                'Order confirmation accepted by delivery transport','Order email processed'}
+        if not needed &lt;= messages:
+            return None
+        events = [r for r in matches if r['message'] in {'Outbox publication confirmed','Order email processed'}]
+        if len({r['event_id'] for r in events}) != 1 or any(r['order_id'] != report['order_id'] for r in events):
+            raise RuntimeError('Trace reached a different order or event')
+        return sorted(matches,key=lambda r:datetime.fromisoformat(r['time'].replace('Z','+00:00')))
+    report['trace'] = until(traced,'complete correlation across services')
+    gateway_logs = subprocess.run(['docker','logs','--since',started,gateway],capture_output=True,text=True,check=True)
+    if any(value in gateway_logs.stdout + gateway_logs.stderr for value in (marker, user['token'])):
+        raise RuntimeError('Sensitive value found in gateway log')
+    inbox = get_json('http://127.0.0.1:8026/api/v1/search?'+urlencode({'query':'to:'+tag+'@example.invalid'}))</code></pre>
+<p>عند تشغيل الجولة يولّد السكربت قيمة اختبار فريدة، ويستخدمها في كلمة مرور وهمية وفي Bearer داخل طلب الدخول التجريبي، وفي Cookie ومعامل الرابط وترويسة Correlation غير صالحة. أما رمز JWT الصالح فيخصّ زبوناً تجريبياً ينشئه السكربت لتجربة شراء محلية. يتحقق من غياب القيمتين عن مخرجات التطبيق والمستودع والناشر والعامل، ويقرأ stdout وstderr للبوابة أيضاً. يظل السر داخل الاختبار، وتظهر عبارة النجاح فقط في التقرير.</p>
+</section>
+<section id="demo"><h2>٥. الأوامر التي تعرضها للأستاذ</h2>
+<p>من PowerShell نفّذ <code>wsl -d Ubuntu</code> واترك نافذة Ubuntu مفتوحة طوال العرض. في Ubuntu على جهاز ملاد المجهّز:</p>
+<pre class="shell" dir="ltr" tabindex="0"><code>cd /mnt/e/Projects/internet-applications
+bash ops/req6/compose.sh --local-sources up -d --no-build --pull never --wait
+python3 ops/req6/verify.py --monitoring-only</code></pre>
+<ol><li><code>cd</code> ينتقل إلى جذر المشروع على قرص E.</li><li>يجمع <code>compose.sh</code> ملفات البنية وإعداد المقابلة والمراقبة ضمن مشروع <code>ecommerce-req6</code>. يفعّل <code>--local-sources</code> ربط الكود الحالي على صور العرض الجاهزة. يشغّل <code>up -d</code> الخدمات في الخلفية، ويطلب <code>--no-build --pull never</code> استخدام الصور المحلية، وينتظر <code>--wait</code> جاهزية الحاويات.</li><li>يتأكد <code>--monitoring-only</code> من ظهور لوحة Grafana ذات الرسوم الستة، ووصول Prometheus إلى مصدرَي HTTP وRabbitMQ، ووجود قاعدتي التنبيه. بعدها تستطيع بدء الاختبار الفعلي.</li></ol>
+<p class="small">لجهاز زميل يبدأ من نسخة جديدة، اتبع أوامر البناء وملفات البيئة في دليل التشغيل. <a href="../req6-monitoring-ar.md">التجهيز على جهاز آخر</a></p>
+<pre class="shell" dir="ltr" tabindex="0"><code>python3 -u ops/req6/verify.py
+python3 -c 'import json; d=json.load(open("docs/req6-evidence.json")); print("Secret probe:",d["secret_probe"]); print("Correlation:",d["correlation_id"])'</code></pre>
+<p>نفّذ الاختبار وانتظر <code>PASS</code> قبل الأمر الثاني. إذا ظهر سرّ الاختبار أو رمز الزبون في سجل مفحوص، يخرج السكربت بخطأ ويذكر الخدمة. بعد النجاح يعرض الأمر الثاني العبارة <code>absent from checked logs</code> ومعرّفاً يصلح للاستعراض. في العرض المسجل تم التحقق من هذه النتيجة.</p>
+<pre class="shell" dir="ltr" tabindex="0"><code>TRACE=$(python3 -c 'import json; print(json.load(open("docs/req6-evidence.json"))["correlation_id"])')
+bash ops/req6/compose.sh logs --no-color api inventory-service outbox-publisher email-worker \
+  | grep -F "$TRACE"</code></pre>
+<p>الأمر الأخير يستعرض ما بقي مفيداً من السجلات، ثم تبحث عن نفس UUID في الخدمات. تقدر أيضاً تعرض اختبار Laravel من بيئة التطوير التي ثبتت اعتماداته. من Ubuntu:</p>
+<pre class="shell" dir="ltr" tabindex="0"><code>cd /mnt/e/Projects/internet-applications/backend/my-project
+php vendor/bin/phpunit --filter ObservabilityTest</code></pre>
+<p>يتطلب PHPUnit اعتماديات التطوير التي يثبتها Composer وتهيئة PHP المناسبة للمشروع. عرض Docker السابق يقدّم الإثبات من المسار الفعلي حتى لو استُخدمت صور التشغيل الجاهزة.</p>
+<blockquote><p>«زرعنا قيمة تجريبية بأماكن ممكن تتسرب منها للسجل، وفحصنا خرج البوابة والخدمات ورمز دخول زبون التجربة. النتيجة بتبين إن القيم غابت من السجلات المفحوصة، وبقي وقت الحدث وحالته ومعرّف التتبع.»</p></blockquote></section><footer><h2>بقية ملفات المتطلب السادس</h2><p><a href="req6-metrics.html">المقاييس</a> · <a href="req6-alerts.html">التنبيهات</a> · <a href="req6-logs.html">السجلات</a> · <a href="req6-proof.html">العرض الكامل</a></p><p><a href="../req6-evidence.json">تقرير الجولة الفعلية</a> · <a href="../req6-dashboard.png">لقطة Grafana</a> · <a href="../req6-monitoring-ar.md">دليل التشغيل العام</a></p></footer></main></body></html>
