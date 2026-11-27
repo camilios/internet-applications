@@ -34,7 +34,7 @@ async function seed(): Promise<void> {
     }
     console.log('Seeding completed successfully.');
   } catch (error) {
-    console.error('Seeding failed:', error);
+    console.error(JSON.stringify({service: 'inventory', message: 'Inventory seeding failed'}));
     throw error;
   } finally {
     await closePool();

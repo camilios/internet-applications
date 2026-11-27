@@ -31,11 +31,10 @@ export function startServer(): Promise<grpc.Server> {
 
     server.bindAsync(address, grpc.ServerCredentials.createInsecure(), (err, port) => {
       if (err) {
-        console.error('Failed to start gRPC server:', err);
         reject(err);
         return;
       }
-      console.log(`gRPC Inventory Service running on port ${port}`);
+      console.log(JSON.stringify({service: 'inventory', message: 'gRPC server listening', port}));
       resolve(server);
     });
   });
@@ -43,5 +42,8 @@ export function startServer(): Promise<grpc.Server> {
 
 // Start server if this is the main module
 if (require.main === module) {
-  startServer().catch(console.error);
+  startServer().catch(() => {
+    console.error(JSON.stringify({service: 'inventory', message: 'gRPC server startup failed'}));
+    process.exitCode = 1;
+  });
 }

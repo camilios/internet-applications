@@ -1,0 +1,18 @@
+# Optional no-image-build rehearsal on a laptop that already has the Req5 images.
+x-runtime: &runtime
+  image: ${REQ5_APP_IMAGE:-ecommerce-req5-app:local}
+  volumes:
+    - ./backend/my-project/app:/var/www/html/app:ro
+    - ./backend/my-project/bootstrap/app.php:/var/www/html/bootstrap/app.php:ro
+    - ./backend/my-project/config/logging.php:/var/www/html/config/logging.php:ro
+services:
+  migrate: *runtime
+  api: *runtime
+  outbox-publisher: *runtime
+  email-worker: *runtime
+  broadcast-worker: *runtime
+  reverb: *runtime
+  scheduler: *runtime
+  inventory-service:
+    image: ${REQ5_INVENTORY_IMAGE:-ecommerce-req5-inventory:local}
+    volumes: ['./inventory-service/dist:/app/dist:ro']

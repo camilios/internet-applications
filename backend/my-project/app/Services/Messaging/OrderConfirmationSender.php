@@ -50,7 +50,7 @@ class OrderConfirmationSender
             Log::info($mode === 'mock' ? 'MOCK DELIVERY: order confirmation processed without an external email' : 'Order confirmation accepted by delivery transport', [
                 'event_id' => $event['event_id'], 'delivery_mode' => $mode,
                 'transport_message_id' => substr(preg_replace('/[^A-Za-z0-9@._:+\/-]/', '', $sent->getMessageId()), 0, 255),
-            ]);
+            ] + array_intersect_key($event, ['correlation_id' => true]));
         }, 1);
     }
 }

@@ -80,7 +80,9 @@ class InventoryGrpcClient
     private function call(string $method, array $request): array
     {
         $client = $this->client();
-        $call = $client->{$method}($request, [], ['timeout' => $this->timeoutMicros]);
+        $trace = request()->attributes->get('correlation_id');
+        $metadata = $trace ? ['x-correlation-id' => [$trace]] : [];
+        $call = $client->{$method}($request, $metadata, ['timeout' => $this->timeoutMicros]);
         [$response, $status] = $call->wait();
 
         if ($status->code !== \Grpc\STATUS_OK) {

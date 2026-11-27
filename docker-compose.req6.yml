@@ -1,0 +1,98 @@
+name: ecommerce-req6
+x-app: &app
+  image: ecommerce-req6-app:local
+  environment:
+    LOG_CHANNEL: observability
+    APP_URL: http://localhost:8016
+    TRUSTED_PROXIES: 172.30.65.0/24
+
+services:
+  # This proof needs small demo databases alongside the other interview stacks.
+  mysql:
+    command: [mysqld, --performance-schema=OFF, --innodb-buffer-pool-size=48M, --max-connections=48]
+  inventory-mysql:
+    command: [mysqld, --performance-schema=OFF, --innodb-buffer-pool-size=48M, --max-connections=32]
+  migrate:
+    <<: *app
+    build: !override
+      context: ./backend/my-project
+      dockerfile: ../../ops/req6/Dockerfile.app
+      args: {BASE: "${REQ5_APP_IMAGE:-ecommerce-req5-app:local}"}
+  inventory-service:
+    image: ecommerce-req6-inventory:local
+  api:
+    <<: *app
+    command: [sh, -c, 'cd public && exec php -d display_errors=0 -S 0.0.0.0:8000 /opt/req6/router.php 2>/dev/null']
+    volumes:
+      - ./ops/req6/router.php:/opt/req6/router.php:ro
+  scheduler:
+    <<: *app
+    profiles: [realtime]
+  outbox-publisher: *app
+  email-worker: *app
+  broadcast-worker:
+    <<: *app
+    profiles: [realtime]
+  reverb:
+    <<: *app
+    profiles: [realtime]
+    ports: !reset []
+  gateway:
+    ports: !override ['127.0.0.1:8016:80']
+    volumes:
+      - ./ops/req6/nginx-format.conf:/etc/nginx/conf.d/00-format.conf:ro
+      - ./ops/req6/nginx-access.conf:/etc/nginx/app-observability/access.conf:ro
+    depends_on:
+      http-metrics: {condition: service_healthy}
+  mailpit:
+    ports: !override ['127.0.0.1:8026:8025']
+  rabbitmq:
+    environment:
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '+S 2:2 +SDcpu 1 +SDio 1'
+      RABBITMQ_ENABLED_PLUGINS_FILE: /etc/rabbitmq/req6-plugins
+    volumes:
+      - ./ops/req6/rabbit-plugins:/etc/rabbitmq/req6-plugins:ro
+  http-metrics:
+    image: node:22-alpine
+    command: [node, /opt/http-metrics.mjs]
+    volumes: ['./ops/req6/http-metrics.mjs:/opt/http-metrics.mjs:ro']
+    networks:
+      edge: {ipv4_address: 172.30.65.10}
+      default: {}
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:9108/metrics').then(r=>process.exit(r.ok ? 0 : 1)).catch(()=>process.exit(1))"]
+      interval: 5s
+  prometheus:
+    image: prom/prometheus@sha256:e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06
+    volumes:
+      - ./ops/req6/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports: ['127.0.0.1:9096:9090']
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana@sha256:0615ec4fbd4072004b7d86b46ded63013a74b7d6eb1119273dd89e8fa25c13cf
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: 'true'
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: 'true'
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+      GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
+      GF_PLUGINS_PREINSTALL_DISABLED: 'true'
+      GF_UNIFIED_ALERTING_MIN_INTERVAL: 10s
+    volumes:
+      - ./ops/req6/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./ops/req6/grafana/dashboards:/opt/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports: ['127.0.0.1:3006:3000']
+    restart: unless-stopped
+
+networks:
+  default:
+    ipam: {config: !override [{subnet: 172.30.66.0/24}]}
+  edge:
+    ipam: {config: !override [{subnet: 172.30.65.0/24}]}
+volumes:
+  prometheus_data: {}
+  grafana_data: {}

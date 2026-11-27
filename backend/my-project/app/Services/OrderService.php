@@ -186,7 +186,8 @@ class OrderService
                     'event_id' => $eventId,
                     'order_id' => $order->id,
                     'event_type' => 'OrderCreated',
-                    'payload' => ['event_id' => $eventId, 'type' => 'OrderCreated', 'order_id' => $order->id, 'occurred_at' => $occurredAt],
+                    'payload' => ['event_id' => $eventId, 'type' => 'OrderCreated', 'order_id' => $order->id,
+                        'occurred_at' => $occurredAt, 'correlation_id' => request()->attributes->get('correlation_id') ?? $eventId],
                     'available_at' => now(),
                 ]);
                 $this->notifyAfterCommit($user, $order, 'order_created');
@@ -207,7 +208,7 @@ class OrderService
                 } catch (\Throwable $lookupException) {
                     Log::critical('Could not determine whether an order reservation was persisted', [
                         'operation_id' => $operation->id,
-                        'error' => $lookupException->getMessage(),
+                        'error_type' => $lookupException::class,
                     ]);
                     throw new InventoryOutcomeUnknownException('Order persistence outcome is not known.');
                 }
@@ -226,14 +227,14 @@ class OrderService
                 Log::critical('Could not verify order persistence before compensation', [
                     'operation_id' => $operation->id,
                     'reservation_id' => $reservationId,
-                    'error' => $lookupException->getMessage(),
+                    'error_type' => $lookupException::class,
                 ]);
                 throw new InventoryOutcomeUnknownException('Order persistence outcome is not known.');
             }
 
             Log::error('Order creation failed, attempting stock release', [
                 'reservation_id' => $reservationId,
-                'error' => $e->getMessage(),
+                'error_type' => $e::class,
             ]);
 
             $released = false;
@@ -276,7 +277,6 @@ class OrderService
                 Log::critical('Stock compensation recorded for retry', [
                     'operation_id' => $operation->id,
                     'reservation_id' => $reservationId,
-                    'error' => $compensationError,
                 ]);
             }
 
@@ -391,7 +391,7 @@ class OrderService
                     'order_id' => $order->id,
                     'user_id' => $user->id,
                     'type' => $type,
-                    'error' => $exception->getMessage(),
+                    'error_type' => $exception::class,
                 ]);
             }
         });

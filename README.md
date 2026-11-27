@@ -5,6 +5,8 @@ including the historical baseline and the current run measured on 2026-11-10.
 
 Latest performance review: [Arabic RTL explanation with actual code](./PERFORMANCE_GUIDE_AR.html)
 
+Requirement 6 monitoring, alert delivery and order tracing are covered in the [Arabic walkthrough and demo commands](docs/req6-monitoring-ar.md).
+
 Requirement 5: [Arabic walkthrough and commands](docs/req5-scalability-ar.md) | [measured load, failover and worker results](docs/req5-evidence.json).
 
 Professor's live scenarios: [stop a replica during 500 requests and verify actual SMTP receipts from all three workers](docs/req5-interview-ar.md).

@@ -1,0 +1,6 @@
+apiVersion: 1
+providers:
+  - name: Orders
+    folder: Orders
+    type: file
+    options: {path: /opt/dashboards}

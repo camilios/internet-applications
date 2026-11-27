@@ -1,6 +1,6 @@
 {
-  "run": "64b418b6-5aaa-4143-b5d4-61eaffacc997",
-  "utc": "2026-11-25T20:06:42+00:00",
+  "run": "15ec9d22-5255-46b8-b1b1-30e77e109d3d",
+  "utc": "2026-11-26T06:12:48+00:00",
   "url": "http://127.0.0.1:8015",
   "before": {
     "ecommerce-req5-api-1": 3,
@@ -14,24 +14,24 @@
     "error_percent": 0.0,
     "replicas": {
       "before": {
-        "ecommerce-req5-api-3": 33,
-        "ecommerce-req5-api-1": 34,
-        "ecommerce-req5-api-2": 33
+        "ecommerce-req5-api-2": 35,
+        "ecommerce-req5-api-1": 35,
+        "ecommerce-req5-api-3": 35
       },
       "transition": {
-        "ecommerce-req5-api-1": 54,
-        "ecommerce-req5-api-2": 143,
-        "ecommerce-req5-api-3": 143
+        "ecommerce-req5-api-3": 139,
+        "ecommerce-req5-api-2": 138,
+        "ecommerce-req5-api-1": 58
       },
       "down": {
-        "ecommerce-req5-api-2": 30,
-        "ecommerce-req5-api-3": 30
+        "ecommerce-req5-api-3": 29,
+        "ecommerce-req5-api-2": 31
       }
     },
     "stop_target": "ecommerce-req5-api-1",
-    "elapsed_s": 3.677,
-    "stop_requested_s": 0.773,
-    "stop_confirmed_s": 3.245
+    "elapsed_s": 7.77,
+    "stop_requested_s": 0.73,
+    "stop_confirmed_s": 6.682
   },
   "after_restore": {
     "ecommerce-req5-api-1": 4,
@@ -70,160 +70,160 @@
   "http_201_orders": 24,
   "worker_queue": "orders.email",
   "initial_worker_jobs": {
-    "ecommerce-req5-email-worker-1": 8,
-    "ecommerce-req5-email-worker-2": 8,
-    "ecommerce-req5-email-worker-3": 8
+    "ecommerce-req5-email-worker-1": 9,
+    "ecommerce-req5-email-worker-2": 9,
+    "ecommerce-req5-email-worker-3": 6
   },
   "smtp_inbox": "http://127.0.0.1:8025",
-  "test_recipient": "64b418b6-5aaa-4143-b5d4-61eaffacc997@example.invalid",
+  "test_recipient": "15ec9d22-5255-46b8-b1b1-30e77e109d3d@example.invalid",
   "distinct_mailbox_entries": 24,
   "orders": [
     {
-      "id": 247,
-      "event_id": "5b77d4c9-3080-4059-b852-d62d90260b35",
-      "worker": "ecommerce-req5-email-worker-3",
-      "received_copies": 1
-    },
-    {
-      "id": 248,
-      "event_id": "3965e77b-7203-4314-b330-0890f3f55120",
-      "worker": "ecommerce-req5-email-worker-3",
-      "received_copies": 1
-    },
-    {
-      "id": 249,
-      "event_id": "78c0ff26-3f9c-4732-a651-b289c0335295",
-      "worker": "ecommerce-req5-email-worker-1",
-      "received_copies": 1
-    },
-    {
-      "id": 250,
-      "event_id": "845aa37e-eb91-4a6a-9a61-0e2538829199",
+      "id": 271,
+      "event_id": "839ba333-9b3f-4075-9649-271a25b97ddd",
       "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     },
     {
-      "id": 251,
-      "event_id": "cf410737-0445-471e-832d-802d95ccd53d",
+      "id": 272,
+      "event_id": "fc196201-d4b6-41de-b90b-bede250354c7",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 273,
+      "event_id": "63fe621d-1d83-4f46-943d-81d9bbae0748",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 274,
+      "event_id": "78e12472-6a8b-48dc-8892-5816d47e3d29",
       "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     },
     {
-      "id": 252,
-      "event_id": "49b7aba1-eb79-4b57-b54a-d6180af830f5",
+      "id": 275,
+      "event_id": "61633e50-49a2-4653-9b60-d4bd3f25b31b",
       "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     },
     {
-      "id": 253,
-      "event_id": "4cfedaa8-6727-4d0b-a00a-26d5c9fc1024",
+      "id": 276,
+      "event_id": "a8bb4ebd-1095-4911-95ca-8f46dd527038",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 277,
+      "event_id": "7eba93e1-9ec0-446a-8f73-3d1da7c47767",
+      "worker": "ecommerce-req5-email-worker-2",
+      "received_copies": 1
+    },
+    {
+      "id": 278,
+      "event_id": "53bb99fd-122b-411a-9134-1eca5d9aba3e",
       "worker": "ecommerce-req5-email-worker-3",
       "received_copies": 1
     },
     {
-      "id": 254,
-      "event_id": "978474ba-c2c5-4555-b421-4651a615d5fd",
-      "worker": "ecommerce-req5-email-worker-1",
-      "received_copies": 1
-    },
-    {
-      "id": 255,
-      "event_id": "3477dc5e-e065-47ed-bd73-d0f1c2ffeed2",
-      "worker": "ecommerce-req5-email-worker-1",
-      "received_copies": 1
-    },
-    {
-      "id": 256,
-      "event_id": "21ebc9d2-fe78-4f81-b78a-49485c4f5344",
+      "id": 279,
+      "event_id": "e33fb249-1071-41f2-bd9c-d53101e51969",
       "worker": "ecommerce-req5-email-worker-3",
       "received_copies": 1
     },
     {
-      "id": 257,
-      "event_id": "e7c060bd-7c49-4ac2-9d57-f0db1ea27b15",
+      "id": 280,
+      "event_id": "447897d7-59d8-41c1-af8d-db67614c0a66",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 281,
+      "event_id": "7da5cb46-5693-4624-94ec-86a2312b8826",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 282,
+      "event_id": "fa37cb52-eba2-41d2-9d9d-dd7d63391a19",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 283,
+      "event_id": "e0c7ea66-f4c4-4023-a54a-e5475f1eb89e",
       "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     },
     {
-      "id": 258,
-      "event_id": "c2da96c0-4ddb-43a9-900b-6707f06828a4",
+      "id": 284,
+      "event_id": "2c6e4be2-802c-4d6b-ab68-1f43797951ec",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 285,
+      "event_id": "e4d67ee4-6fed-4dcf-a457-624eda19741e",
+      "worker": "ecommerce-req5-email-worker-1",
+      "received_copies": 1
+    },
+    {
+      "id": 286,
+      "event_id": "d0a0ef66-36fc-4b56-b284-732b8a6b121f",
+      "worker": "ecommerce-req5-email-worker-2",
+      "received_copies": 1
+    },
+    {
+      "id": 287,
+      "event_id": "f480f749-68f8-488d-a81f-23cf630cd4c4",
       "worker": "ecommerce-req5-email-worker-3",
       "received_copies": 1
     },
     {
-      "id": 259,
-      "event_id": "4f5191a0-e16e-4c87-b374-014b0cefd7cb",
+      "id": 288,
+      "event_id": "1c44b55f-9e20-4867-8d60-fdcc9b477543",
       "worker": "ecommerce-req5-email-worker-3",
       "received_copies": 1
     },
     {
-      "id": 260,
-      "event_id": "3edabc19-4ef9-4380-a0e8-cfb12e54e5f2",
+      "id": 289,
+      "event_id": "3a6e7563-49ff-48d2-ab89-c5d70ceddbd7",
       "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     },
     {
-      "id": 261,
-      "event_id": "3022eede-5b1e-42eb-b1b7-1b9a0955d152",
+      "id": 290,
+      "event_id": "881e1004-10a6-42fd-a769-3723d06c2ea7",
       "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     },
     {
-      "id": 262,
-      "event_id": "54eba490-ec9d-4714-b5a5-a3608e2334ce",
+      "id": 291,
+      "event_id": "22097966-f99f-4218-ae68-7d9085e02efa",
       "worker": "ecommerce-req5-email-worker-1",
       "received_copies": 1
     },
     {
-      "id": 263,
-      "event_id": "2559eb8f-6ff4-4544-8b4d-6b0df993710d",
-      "worker": "ecommerce-req5-email-worker-1",
-      "received_copies": 1
-    },
-    {
-      "id": 264,
-      "event_id": "74fe222d-2bae-447b-ba89-bcbe533bd5bc",
+      "id": 292,
+      "event_id": "28cacda6-2bef-4ce6-8b5d-148d92db08d7",
       "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     },
     {
-      "id": 265,
-      "event_id": "9ae94d07-ca15-4722-97c7-705831c11b34",
-      "worker": "ecommerce-req5-email-worker-1",
-      "received_copies": 1
-    },
-    {
-      "id": 266,
-      "event_id": "34591298-dec2-4b5a-828f-c418b24e1513",
-      "worker": "ecommerce-req5-email-worker-1",
-      "received_copies": 1
-    },
-    {
-      "id": 267,
-      "event_id": "f82d5a62-b5db-4077-be1c-6270f9684e6b",
-      "worker": "ecommerce-req5-email-worker-1",
-      "received_copies": 1
-    },
-    {
-      "id": 268,
-      "event_id": "7bbe2956-c7db-4db8-83ad-8dbd8c8cb07f",
+      "id": 293,
+      "event_id": "347d1f29-b136-4fe0-b092-2f2c68fe1094",
       "worker": "ecommerce-req5-email-worker-3",
       "received_copies": 1
     },
     {
-      "id": 269,
-      "event_id": "2c5b14e7-c505-4a1c-ab05-b3834e37c1f3",
+      "id": 294,
+      "event_id": "dd0d1aa8-8ec6-4278-bc95-16e7215eb7b9",
       "worker": "ecommerce-req5-email-worker-3",
-      "received_copies": 1
-    },
-    {
-      "id": 270,
-      "event_id": "cbef57a8-4b7f-411a-b2c7-77bc72ba849c",
-      "worker": "ecommerce-req5-email-worker-2",
       "received_copies": 1
     }
   ],
-  "replayed_event": "5b77d4c9-3080-4059-b852-d62d90260b35",
+  "replayed_event": "839ba333-9b3f-4075-9649-271a25b97ddd",
   "processed_again": true,
   "extra_mail_after_replay": 0
 }

@@ -51,6 +51,12 @@ return [
     */
 
     'channels' => [
+        'observability' => [
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'with' => ['stream' => 'php://stdout'],
+            'formatter' => \App\Logging\SafeJsonFormatter::class,
+        ],
 
         'stack' => [
             'driver' => 'stack',

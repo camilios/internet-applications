@@ -1,0 +1,109 @@
+{
+  "started_utc": "2026-11-27T12:33:57+00:00",
+  "monitoring": {
+    "dashboard": "Orders · Monitoring & Observability",
+    "panels": 6,
+    "targets": [
+      "rabbitmq",
+      "gateway"
+    ],
+    "rules": [
+      "HttpErrorsHigh",
+      "OrderEmailQueueHigh"
+    ]
+  },
+  "correlation_id": "094e7a9f-7914-4683-a6a8-9c4c2aaf9e37",
+  "grafana_during_load": {
+    "172.30.65.5": 54.0,
+    "172.30.65.3": 54.0,
+    "172.30.65.4": 54.0
+  },
+  "client_http_200": {
+    "172.30.65.5": 166,
+    "172.30.65.3": 167,
+    "172.30.65.4": 167
+  },
+  "load_200_by_replica": {
+    "172.30.65.5": 167,
+    "172.30.65.3": 167,
+    "172.30.65.4": 167
+  },
+  "p95_seconds": 0.09690068204755896,
+  "order_id": 1,
+  "queue_ready": 6,
+  "trace": [
+    {
+      "service": "api",
+      "time": "2026-11-27T12:34:27.452796+00:00",
+      "level": "INFO",
+      "message": "HTTP request started",
+      "correlation_id": "094e7a9f-7914-4683-a6a8-9c4c2aaf9e37"
+    },
+    {
+      "service": "inventory",
+      "time": "2026-11-27T12:34:28.870Z",
+      "message": "Inventory RPC finished",
+      "operation": "ReserveStock",
+      "correlation_id": "094e7a9f-7914-4683-a6a8-9c4c2aaf9e37",
+      "status": 0
+    },
+    {
+      "service": "api",
+      "time": "2026-11-27T12:34:29.427372+00:00",
+      "level": "INFO",
+      "message": "HTTP request finished",
+      "correlation_id": "094e7a9f-7914-4683-a6a8-9c4c2aaf9e37",
+      "status": 201
+    },
+    {
+      "service": "outbox-publisher",
+      "time": "2026-11-27T12:34:30.052514+00:00",
+      "level": "INFO",
+      "message": "Outbox publication confirmed",
+      "event_id": "a233ba6a-e727-4c8e-8fad-138c1b7a45d6",
+      "correlation_id": "094e7a9f-7914-4683-a6a8-9c4c2aaf9e37",
+      "order_id": 1
+    },
+    {
+      "service": "email-worker",
+      "time": "2026-11-27T12:35:01.046616+00:00",
+      "level": "INFO",
+      "message": "Order email processing",
+      "event_id": "a233ba6a-e727-4c8e-8fad-138c1b7a45d6",
+      "correlation_id": "094e7a9f-7914-4683-a6a8-9c4c2aaf9e37",
+      "order_id": 1,
+      "attempt": 1
+    },
+    {
+      "service": "email-worker",
+      "time": "2026-11-27T12:35:01.118731+00:00",
+      "level": "INFO",
+      "message": "Order confirmation accepted by delivery transport",
+      "event_id": "a233ba6a-e727-4c8e-8fad-138c1b7a45d6",
+      "correlation_id": "094e7a9f-7914-4683-a6a8-9c4c2aaf9e37",
+      "delivery_mode": "external"
+    },
+    {
+      "service": "email-worker",
+      "time": "2026-11-27T12:35:01.127185+00:00",
+      "level": "INFO",
+      "message": "Order email processed",
+      "event_id": "a233ba6a-e727-4c8e-8fad-138c1b7a45d6",
+      "correlation_id": "094e7a9f-7914-4683-a6a8-9c4c2aaf9e37",
+      "order_id": 1,
+      "attempt": 1
+    }
+  ],
+  "smtp_copies_for_order": 1,
+  "observed_http_5xx": 61,
+  "delivered_alerts": [
+    "OrderEmailQueueHigh",
+    "HttpErrorsHigh"
+  ],
+  "recovered_alerts": [
+    "OrderEmailQueueHigh",
+    "HttpErrorsHigh"
+  ],
+  "secret_probe": "absent from checked logs",
+  "dashboard_url": "http://127.0.0.1:3006/d/req6-orders/orders?from=1795782837371&to=1795783016928"
+}

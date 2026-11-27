@@ -21,6 +21,8 @@ class OutboxPublisher
                 return false;
             }
 
+            $context = ['event_id' => $event->event_id, 'order_id' => $event->order_id,
+                'correlation_id' => $event->payload['correlation_id'] ?? $event->event_id];
             try {
                 $this->broker->publish(
                     json_encode($event->payload, JSON_THROW_ON_ERROR),
@@ -36,14 +38,14 @@ class OutboxPublisher
                     'last_error' => $exception::class,
                 ]);
                 $this->broker->close();
-                Log::warning('Outbox publication deferred', ['event_id' => $event->event_id, 'attempt' => $attempts, 'error_type' => $exception::class]);
+                Log::warning('Outbox publication deferred', $context + ['attempt' => $attempts, 'error_type' => $exception::class]);
 
                 return true;
             }
 
             // A crash after the confirm but before this commit republishes the same event ID.
             $event->update(['published_at' => now(), 'attempts' => $event->attempts + 1, 'last_error' => null]);
-            Log::info('Outbox publication confirmed', ['event_id' => $event->event_id]);
+            Log::info('Outbox publication confirmed', $context);
 
             return true;
         }, 1);

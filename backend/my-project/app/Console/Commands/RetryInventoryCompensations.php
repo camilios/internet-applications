@@ -102,7 +102,7 @@ class RetryInventoryCompensations extends Command
             Log::error('Inventory compensation retry failed', [
                 'compensation_id' => $compensation->id,
                 'reservation_id' => $compensation->reservation_id,
-                'error' => $exception->getMessage(),
+                'error_type' => $exception::class,
             ]);
             $this->error("Compensation {$compensation->id} remains pending.");
         }

@@ -1,16 +1,14 @@
 
 import { InventoryServiceLogic } from '../services/inventory-service';
 import * as grpc from '@grpc/grpc-js';
+import { randomUUID } from 'crypto';
 
 type GrpcCallback = grpc.sendUnaryData<any>;
 
 function sendInternalError(
-  callback: GrpcCallback,
-  operation: string,
-  error: unknown
+  callback: GrpcCallback
 ): void {
-  const message = error instanceof Error ? error.message : String(error);
-  console.error(`${operation} error:`, message);
+  // The exception may contain SQL bindings. Log the RPC status at the callback boundary instead.
 
   callback({
     code: grpc.status.INTERNAL,
@@ -38,7 +36,7 @@ function readField(
 }
 
 export function createInventoryHandlers(service: InventoryServiceLogic) {
-  return {
+  const handlers = {
     GetStock: async (
       call: grpc.ServerUnaryCall<any, any>,
       callback: GrpcCallback
@@ -68,8 +66,8 @@ export function createInventoryHandlers(service: InventoryServiceLogic) {
           available_quantity: result.availableQuantity,
           found: result.found,
         });
-      } catch (error: unknown) {
-        sendInternalError(callback, 'GetStock', error);
+      } catch {
+        sendInternalError(callback);
       }
     },
 
@@ -121,8 +119,8 @@ export function createInventoryHandlers(service: InventoryServiceLogic) {
             sufficient: item.sufficient,
           })),
         });
-      } catch (error: unknown) {
-        sendInternalError(callback, 'ReserveStock', error);
+      } catch {
+        sendInternalError(callback);
       }
     },
 
@@ -157,11 +155,25 @@ export function createInventoryHandlers(service: InventoryServiceLogic) {
           success: result.success,
           message: result.message,
         });
-      } catch (error: unknown) {
-        sendInternalError(callback, 'ReleaseStock', error);
+      } catch {
+        sendInternalError(callback);
       }
     },
   };
+  const traced = (operation: keyof typeof handlers) =>
+    (call: grpc.ServerUnaryCall<any, any>, callback: GrpcCallback) => {
+      const incoming = call.metadata?.get('x-correlation-id')[0];
+      const correlationId = typeof incoming === 'string' &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(incoming)
+        ? incoming.toLowerCase() : randomUUID();
+      return handlers[operation](call, (error, response) => {
+        console.log(JSON.stringify({time: new Date().toISOString(), service: 'inventory',
+          message: 'Inventory RPC finished', operation, correlation_id: correlationId,
+          status: error?.code ?? grpc.status.OK}));
+        callback(error, response);
+      });
+    };
+  return {GetStock: traced('GetStock'), ReserveStock: traced('ReserveStock'), ReleaseStock: traced('ReleaseStock')};
 }
 
 export const inventoryHandlers = createInventoryHandlers(

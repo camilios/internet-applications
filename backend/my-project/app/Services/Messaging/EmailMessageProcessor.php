@@ -13,9 +13,11 @@ class EmailMessageProcessor
     public function handle(IncomingMessage $message): void
     {
         $event = null;
+        $trace = [];
         try {
             $event = $this->decode($message->body);
-            Log::info('Order email processing', ['event_id' => $event['event_id'], 'attempt' => $message->attempt]);
+            $trace = ['correlation_id' => $event['correlation_id'] ?? $event['event_id'], 'order_id' => $event['order_id']];
+            Log::info('Order email processing', ['event_id' => $event['event_id'], 'attempt' => $message->attempt] + $trace);
             $this->sender->send($event);
         } catch (MailDeliveryConfigurationException $exception) {
             // Misconfiguration is operational, not a failed delivery attempt. Preserve the original message.
@@ -34,13 +36,13 @@ class EmailMessageProcessor
             Log::warning('Order email deferred', [
                 'event_id' => $eventId, 'attempt' => $message->attempt,
                 'destination' => $permanent || $exhausted ? 'dead_letter' : 'retry', 'error_type' => $exception::class,
-            ]);
+            ] + $trace);
             $message->acknowledge();
 
             return;
         }
 
-        Log::info('Order email processed', ['event_id' => $event['event_id'], 'attempt' => $message->attempt]);
+        Log::info('Order email processed', ['event_id' => $event['event_id'], 'attempt' => $message->attempt] + $trace);
         $message->acknowledge();
     }
 
