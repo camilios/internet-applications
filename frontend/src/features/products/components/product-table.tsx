@@ -14,6 +14,7 @@ import {
 import { ConfirmDialog } from "@/components/feedback/confirm-dialog"
 import { Input } from "@/components/ui/input"
 import { useProducts, useDeleteProduct } from "../hooks/use-products"
+import { useProductRealtime } from "../hooks/use-product-realtime"
 import { useAuthStore } from "@/features/auth/stores/auth.store"
 import { ROLES } from "@/lib/constants/roles"
 import { formatCurrency, formatDate } from "@/lib/utils/format"
@@ -36,6 +37,7 @@ export function ProductTable() {
     per_page: 10,
     search: debouncedSearch || undefined,
   })
+  useProductRealtime()
 
   const deleteMutation = useDeleteProduct()
   const [deactivateId, setDeactivateId] = useState<number | null>(null)

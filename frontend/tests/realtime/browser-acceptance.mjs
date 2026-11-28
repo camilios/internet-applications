@@ -20,6 +20,7 @@ const uiPort = Number(process.env.REQ4_BROWSER_UI_PORT || 18173)
 const origin = `http://127.0.0.1:${uiPort}`
 const api = `http://127.0.0.1:${apiPort}/api`
 const checkLayouts = process.env.REQ4_BROWSER_LAYOUT === "true"
+const pricesOnly = process.argv.includes("--prices-only")
 const viewport = { width: checkLayouts ? 720 : 1280, height: 900, deviceScaleFactor: 1, mobile: false }
 const php = process.env.REQ4_QA_PHP || "php"
 const phpFlags = process.platform === "win32" ? ["-d", "extension=sockets", "-d", "extension=sodium", "-d", "extension=pdo_sqlite", "-d", "extension=gd"] : []
@@ -124,7 +125,7 @@ async function newTab(user, token, route) {
       try {
         const frame = JSON.parse(message.params.response.payloadData)
         const data = typeof frame.data === "string" ? JSON.parse(frame.data) : frame.data
-        tab.frames.push({ event: frame.event, channel: frame.channel, order_id: data?.order_id, status: data?.status })
+        tab.frames.push({ event: frame.event, channel: frame.channel, order_id: data?.order_id, status: data?.status, product_id: data?.product_id })
       } catch {}
     }
     if (message.method === "Network.responseReceived") {
@@ -157,6 +158,32 @@ async function screenshot(tab, name) {
   return filename
 }
 
+async function checkProductPrices(fixture, ownerUser) {
+  const products = await newTab(ownerUser, fixture.owner, "/products")
+  const product = await newTab(ownerUser, fixture.owner, `/products/${fixture.product_id}`)
+  const otherProduct = await newTab(ownerUser, fixture.owner, `/products/${fixture.other_product_id}`)
+  const priceVisible = (tab, amount) => until(() => evaluate(tab,
+    `document.querySelector('main').innerText.includes(new Intl.NumberFormat('ar-SA', {style: 'currency', currency: 'SAR', minimumFractionDigits: 2}).format(${amount}))`),
+  `product price ${amount} visible in main content`)
+  for (const tab of [products, product, otherProduct]) await subscribed(tab, "private-catalog.products")
+  await priceVisible(products, 12.5)
+  await priceVisible(product, 12.5)
+  await priceVisible(otherProduct, 30)
+  const saved = await request("PATCH", `/products/${fixture.product_id}`, fixture.admin, { price: 18.75 })
+  assert.equal(saved.status, 200, "administrator can save the price")
+  runPhp("artisan", "queue:work", "database", "--queue=broadcasts", "--once", "--tries=1", "--timeout=15")
+  await Promise.all([priceVisible(products, 18.75), priceVisible(product, 18.75)])
+  const priceToast = "[...document.querySelectorAll('[data-sonner-toast]')].some(toast => toast.innerText.includes('تم تحديث سعر'))"
+  for (const tab of [products, product]) {
+    await until(() => evaluate(tab, priceToast), "product price toast")
+  }
+  await until(() => otherProduct.frames.some((frame) => frame.event === "ProductPriceUpdated" && frame.product_id === fixture.product_id),
+    "other details tab receives the catalog event")
+  assert.equal(await evaluate(otherProduct, priceToast), false, "no price toast for another product")
+  await priceVisible(otherProduct, 30)
+  checks.push("PASS: product price updates in the customer list and matching details without reloading; other product details show no toast")
+}
+
 try {
   const prebuilt = process.env.REQ4_BROWSER_PREBUILT_DIST
   if (prebuilt) {
@@ -184,87 +211,92 @@ try {
   const address = await until(() => fs.existsSync(devToolsFile) && fs.readFileSync(devToolsFile, "utf8").trim().split(/\r?\n/), "isolated headless browser startup")
   cdp = new DevTools(`ws://127.0.0.1:${address[0]}${address[1]}`)
   await cdp.ready
-  const dashboard = await newTab(adminUser, fixture.admin, "/")
-  const adminOrders = await newTab(adminUser, fixture.admin, "/orders")
-  await subscribed(dashboard, "private-admin.orders")
-  await subscribed(adminOrders, "private-admin.orders")
-  await bodyHas(adminOrders, "لا توجد طلبات")
-  const countExpression = `[...document.querySelectorAll('[data-slot="card"]')].find(card => card.querySelector('[data-slot="card-title"]')?.textContent === 'إجمالي الطلبات')?.querySelector('[data-slot="card-content"]')?.innerText.trim()`
-  await until(async () => (await evaluate(dashboard, countExpression)) === "0", "initial dashboard order count")
+  await checkProductPrices(fixture, ownerUser)
 
-  const response = await request("POST", "/orders", fixture.owner, { items: [{ product_id: fixture.product_id, quantity: 1 }] }, { "Idempotency-Key": randomUUID() })
-  assert.equal(response.status, 201, "order creation succeeds with no email worker")
-  const order = (await response.json()).data
-  const beforeBroadcast = JSON.parse(runPhp("tests/qa/reverb-fixture.php", "inspect"))
-  assert.equal(beforeBroadcast.unpublished, 1)
-  assert.equal(beforeBroadcast.deliveries, 0)
-  runPhp("artisan", "queue:work", "database", "--queue=broadcasts", "--once", "--tries=1", "--timeout=15")
-  await bodyHas(dashboard, `طلب جديد #${order.id}`)
-  await until(async () => (await evaluate(dashboard, countExpression)) === "1", "dashboard count changes through Echo")
-  await until(() => evaluate(adminOrders, `!!(${visibleOrder(order.id)})`), "new order appears in the visible table/card")
-  assert.ok(dashboard.frames.some((frame) => frame.event === "OrderCreated" && frame.order_id === order.id))
-  assert.ok(adminOrders.frames.some((frame) => frame.event === "OrderCreated" && frame.order_id === order.id))
-  checks.push("PASS: actual Echo event displays Arabic new-order announcement, updates dashboard count and admin order row without refresh")
-  await screenshot(dashboard, "dashboard-new-order.png")
-  await screenshot(adminOrders, "admin-new-order.png")
+  let layouts = []
+  if (!pricesOnly) {
+    const dashboard = await newTab(adminUser, fixture.admin, "/")
+    const adminOrders = await newTab(adminUser, fixture.admin, "/orders")
+    await subscribed(dashboard, "private-admin.orders")
+    await subscribed(adminOrders, "private-admin.orders")
+    await bodyHas(adminOrders, "لا توجد طلبات")
+    const countExpression = `[...document.querySelectorAll('[data-slot="card"]')].find(card => card.querySelector('[data-slot="card-title"]')?.textContent === 'إجمالي الطلبات')?.querySelector('[data-slot="card-content"]')?.innerText.trim()`
+    await until(async () => (await evaluate(dashboard, countExpression)) === "0", "initial dashboard order count")
 
-  const customer = await newTab(ownerUser, fixture.owner, `/orders/${order.id}`)
-  const customerList = await newTab(ownerUser, fixture.owner, "/orders")
-  const pendingList = await newTab(ownerUser, fixture.owner, "/orders?status=pending")
-  const adminApproval = await newTab(adminUser, fixture.admin, `/orders/${order.id}`)
-  await subscribed(customer, `private-orders.${order.id}`)
-  await subscribed(customerList, `private-orders.${order.id}`)
-  await subscribed(pendingList, `private-orders.${order.id}`)
-  await bodyHas(customer, "قيد الانتظار")
-  await bodyHas(customerList, "قيد الانتظار")
-  await bodyHas(pendingList, "قيد الانتظار")
-  await until(() => evaluate(adminApproval, "!!document.querySelector('#next-order-status')"), "existing admin approval control")
-  await evaluate(adminApproval, "(() => { const select = document.querySelector('#next-order-status'); select.value = 'confirmed'; select.dispatchEvent(new Event('change', { bubbles: true })); })()")
-  await until(() => adminApproval.requests.some((item) => item.route === `/admin/orders/${order.id}/status` && item.status === 200), "existing admin mutation succeeds")
-  runPhp("artisan", "queue:work", "database", "--queue=broadcasts", "--once", "--tries=1", "--timeout=15")
-  await bodyHas(customer, "مؤكد")
-  await until(() => evaluate(customerList, `(${visibleOrder(order.id)})?.innerText.includes('مؤكد')`), "visible customer list/card status updates")
-  await bodyHas(pendingList, "لا توجد طلبات")
-  assert.ok(customer.frames.some((frame) => frame.event === "OrderStatusUpdated" && frame.order_id === order.id && frame.status === "confirmed"))
-  assert.ok(customerList.frames.some((frame) => frame.event === "OrderStatusUpdated" && frame.order_id === order.id && frame.status === "confirmed"))
-  assert.ok(pendingList.frames.some((frame) => frame.event === "OrderStatusUpdated" && frame.order_id === order.id && frame.status === "confirmed"))
-  assert.ok(customer.requests.filter((item) => item.route === `/orders/${order.id}` && item.status === 200).length >= 2)
-  for (const tab of [customer, customerList, pendingList]) {
-    await until(() => evaluate(tab, `[...document.querySelectorAll('[data-sonner-toast]')].some(toast => toast.getClientRects().length && toast.innerText.includes('تم تحديث حالة الطلب #${order.id}'))`), "visible customer status toast")
-  }
-  checks.push("PASS: existing admin approval UI sends PATCH; actual Echo event updates customer detail and orders list and removes the row from the pending filter without refresh")
-  await screenshot(customer, "customer-confirmed.png")
-  await screenshot(adminApproval, "admin-approved.png")
-
-  for (const [status, label] of [["processing", "قيد التجهيز"], ["shipped", "تم الشحن"], ["delivered", "تم التوصيل"]]) {
-    await until(() => evaluate(adminApproval, `(() => { const s=document.querySelector('#next-order-status'); return s && !s.disabled && s.value === '' && [...s.options].some(o=>o.value === '${status}'); })()`), `reset selector before ${status}`)
-    const previous = adminApproval.requests.filter(item => item.route === `/admin/orders/${order.id}/status` && item.status === 200).length
-    await evaluate(adminApproval, `(() => { const s=document.querySelector('#next-order-status'); s.value='${status}'; s.dispatchEvent(new Event('change',{bubbles:true})); })()`)
-    await until(() => adminApproval.requests.filter(item => item.route === `/admin/orders/${order.id}/status` && item.status === 200).length === previous + 1, `saved ${status}`)
+    const response = await request("POST", "/orders", fixture.owner, { items: [{ product_id: fixture.product_id, quantity: 1 }] }, { "Idempotency-Key": randomUUID() })
+    assert.equal(response.status, 201, "order creation succeeds with no email worker")
+    const order = (await response.json()).data
+    const beforeBroadcast = JSON.parse(runPhp("tests/qa/reverb-fixture.php", "inspect"))
+    assert.equal(beforeBroadcast.unpublished, 1)
+    assert.equal(beforeBroadcast.deliveries, 0)
     runPhp("artisan", "queue:work", "database", "--queue=broadcasts", "--once", "--tries=1", "--timeout=15")
-    await bodyHas(adminApproval, label)
-    await bodyHas(customer, label)
-    await until(() => evaluate(customerList, `(${visibleOrder(order.id)})?.innerText.includes(${JSON.stringify(label)})`), `visible customer ${status}`)
-  }
-  await until(() => evaluate(adminApproval, "!document.querySelector('#next-order-status')"), "delivered removes the status selector")
-  checks.push("PASS: confirmed -> processing -> shipped -> delivered through the admin control; each selection resets; delivered hides the selector; customer list/detail update live")
-  await screenshot(adminApproval, "admin-delivered.png")
-  await screenshot(customer, "customer-delivered.png")
+    await bodyHas(dashboard, `طلب جديد #${order.id}`)
+    await until(async () => (await evaluate(dashboard, countExpression)) === "1", "dashboard count changes through Echo")
+    await until(() => evaluate(adminOrders, `!!(${visibleOrder(order.id)})`), "new order appears in the visible table/card")
+    assert.ok(dashboard.frames.some((frame) => frame.event === "OrderCreated" && frame.order_id === order.id))
+    assert.ok(adminOrders.frames.some((frame) => frame.event === "OrderCreated" && frame.order_id === order.id))
+    checks.push("PASS: actual Echo event displays Arabic new-order announcement, updates dashboard count and admin order row without refresh")
+    await screenshot(dashboard, "dashboard-new-order.png")
+    await screenshot(adminOrders, "admin-new-order.png")
 
-  const layouts = checkLayouts ? await checkResponsiveLayouts({
-    cdp, evaluate, until, pause, newTab, screenshot,
-    adminUser, adminToken: fixture.admin, ownerUser, ownerToken: fixture.owner,
-    productId: fixture.product_id, dashboard, customer, customerList, adminApproval,
-    onLayout: entry => fs.appendFileSync(path.join(runDirectory, "layout-results.jsonl"), JSON.stringify(entry) + "\n"),
-  }) : []
-  if (checkLayouts) checks.push(`PASS: ${layouts.length} responsive page/viewport checks; drawer keyboard/focus/navigation and desktop-to-split-screen resize`)
+    const customer = await newTab(ownerUser, fixture.owner, `/orders/${order.id}`)
+    const customerList = await newTab(ownerUser, fixture.owner, "/orders")
+    const pendingList = await newTab(ownerUser, fixture.owner, "/orders?status=pending")
+    const adminApproval = await newTab(adminUser, fixture.admin, `/orders/${order.id}`)
+    await subscribed(customer, `private-orders.${order.id}`)
+    await subscribed(customerList, `private-orders.${order.id}`)
+    await subscribed(pendingList, `private-orders.${order.id}`)
+    await bodyHas(customer, "قيد الانتظار")
+    await bodyHas(customerList, "قيد الانتظار")
+    await bodyHas(pendingList, "قيد الانتظار")
+    await until(() => evaluate(adminApproval, "!!document.querySelector('#next-order-status')"), "existing admin approval control")
+    await evaluate(adminApproval, "(() => { const select = document.querySelector('#next-order-status'); select.value = 'confirmed'; select.dispatchEvent(new Event('change', { bubbles: true })); })()")
+    await until(() => adminApproval.requests.some((item) => item.route === `/admin/orders/${order.id}/status` && item.status === 200), "existing admin mutation succeeds")
+    runPhp("artisan", "queue:work", "database", "--queue=broadcasts", "--once", "--tries=1", "--timeout=15")
+    await bodyHas(customer, "مؤكد")
+    await until(() => evaluate(customerList, `(${visibleOrder(order.id)})?.innerText.includes('مؤكد')`), "visible customer list/card status updates")
+    await bodyHas(pendingList, "لا توجد طلبات")
+    assert.ok(customer.frames.some((frame) => frame.event === "OrderStatusUpdated" && frame.order_id === order.id && frame.status === "confirmed"))
+    assert.ok(customerList.frames.some((frame) => frame.event === "OrderStatusUpdated" && frame.order_id === order.id && frame.status === "confirmed"))
+    assert.ok(pendingList.frames.some((frame) => frame.event === "OrderStatusUpdated" && frame.order_id === order.id && frame.status === "confirmed"))
+    assert.ok(customer.requests.filter((item) => item.route === `/orders/${order.id}` && item.status === 200).length >= 2)
+    for (const tab of [customer, customerList, pendingList]) {
+      await until(() => evaluate(tab, `[...document.querySelectorAll('[data-sonner-toast]')].some(toast => toast.getClientRects().length && toast.innerText.includes('تم تحديث حالة الطلب #${order.id}'))`), "visible customer status toast")
+    }
+    checks.push("PASS: existing admin approval UI sends PATCH; actual Echo event updates customer detail and orders list and removes the row from the pending filter without refresh")
+    await screenshot(customer, "customer-confirmed.png")
+    await screenshot(adminApproval, "admin-approved.png")
+
+    for (const [status, label] of [["processing", "قيد التجهيز"], ["shipped", "تم الشحن"], ["delivered", "تم التوصيل"]]) {
+      await until(() => evaluate(adminApproval, `(() => { const s=document.querySelector('#next-order-status'); return s && !s.disabled && s.value === '' && [...s.options].some(o=>o.value === '${status}'); })()`), `reset selector before ${status}`)
+      const previous = adminApproval.requests.filter(item => item.route === `/admin/orders/${order.id}/status` && item.status === 200).length
+      await evaluate(adminApproval, `(() => { const s=document.querySelector('#next-order-status'); s.value='${status}'; s.dispatchEvent(new Event('change',{bubbles:true})); })()`)
+      await until(() => adminApproval.requests.filter(item => item.route === `/admin/orders/${order.id}/status` && item.status === 200).length === previous + 1, `saved ${status}`)
+      runPhp("artisan", "queue:work", "database", "--queue=broadcasts", "--once", "--tries=1", "--timeout=15")
+      await bodyHas(adminApproval, label)
+      await bodyHas(customer, label)
+      await until(() => evaluate(customerList, `(${visibleOrder(order.id)})?.innerText.includes(${JSON.stringify(label)})`), `visible customer ${status}`)
+    }
+    await until(() => evaluate(adminApproval, "!document.querySelector('#next-order-status')"), "delivered removes the status selector")
+    checks.push("PASS: confirmed -> processing -> shipped -> delivered through the admin control; each selection resets; delivered hides the selector; customer list/detail update live")
+    await screenshot(adminApproval, "admin-delivered.png")
+    await screenshot(customer, "customer-delivered.png")
+
+    layouts = checkLayouts ? await checkResponsiveLayouts({
+      cdp, evaluate, until, pause, newTab, screenshot,
+      adminUser, adminToken: fixture.admin, ownerUser, ownerToken: fixture.owner,
+      productId: fixture.product_id, dashboard, customer, customerList, adminApproval,
+      onLayout: entry => fs.appendFileSync(path.join(runDirectory, "layout-results.jsonl"), JSON.stringify(entry) + "\n"),
+    }) : []
+    if (checkLayouts) checks.push(`PASS: ${layouts.length} responsive page/viewport checks; drawer keyboard/focus/navigation and desktop-to-split-screen resize`)
+  }
 
   for (const tab of tabs) {
     assert.equal(await evaluate(tab, "performance.timeOrigin"), tab.timeOrigin, "no full page reload")
     assert.deepEqual(tab.errors, [], "no uncaught browser exceptions")
   }
   const final = JSON.parse(runPhp("tests/qa/reverb-fixture.php", "inspect"))
-  assert.equal(final.unpublished, 1)
+  assert.equal(final.unpublished, pricesOnly ? 0 : 1)
   assert.equal(final.deliveries, 0)
   assert.equal(final.queued_broadcasts, 0)
   checks.push(`PASS: all ${tabs.length} browser documents retain timeOrigin; no uncaught JS exceptions; realtime independent of absent email worker`)

@@ -5,6 +5,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('admin.orders', fn (User $user): bool => $user->role === 'admin', ['guards' => ['api']]);
+Broadcast::channel('catalog.products', fn (User $user): bool => $user->exists, ['guards' => ['api']]);
 
 Broadcast::channel('orders.{orderId}', function (User $user, string $orderId): bool {
     return ctype_digit($orderId) && Order::query()->useWritePdo()

@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Events\ProductPriceUpdated;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProductService
@@ -37,19 +40,34 @@ class ProductService
      */
     public function update(int $id, array $data): Product
     {
-        $product = Product::findOrFail($id);
+        [$product, $priceChanged] = DB::transaction(function () use ($id, $data): array {
+            $product = Product::query()->lockForUpdate()->findOrFail($id);
+            $wasActive = $product->is_active;
 
-        if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
-            // Delete old image if exists
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+            if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
+                // Delete old image if exists
+                if ($product->image) {
+                    Storage::disk('public')->delete($product->image);
+                }
+                $data['image'] = $data['image']->store('products', 'public');
             }
-            $data['image'] = $data['image']->store('products', 'public');
-        }
 
-        $product->update($data);
+            $product->update($data);
+
+            return [$product, $product->wasChanged('price') && ($wasActive || $product->is_active)];
+        });
         $this->cache->forget($id);
         DashboardCache::forgetAdmin();
+
+        if ($priceChanged) {
+            DB::afterCommit(function () use ($id): void {
+                try {
+                    event(new ProductPriceUpdated($id));
+                } catch (\Throwable $exception) {
+                    Log::error('Product price broadcast enqueue failed after commit', ['error_type' => $exception::class]);
+                }
+            });
+        }
 
         return $product->fresh('category');
     }

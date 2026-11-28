@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useProduct } from "../hooks/use-products";
+import { useProductRealtime } from "../hooks/use-product-realtime";
 import { useCreateOrder } from "@/features/orders/hooks/use-orders";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 import { LoadingSpinner } from "@/components/feedback/loading-spinner";
@@ -20,6 +21,7 @@ interface ProductDetailsProps {
 
 export function ProductDetails({ productId }: ProductDetailsProps) {
   const { data: product, isLoading, error } = useProduct(productId);
+  useProductRealtime(productId);
   const isAdmin = useAuthStore((state) => state.user?.role === ROLES.ADMIN);
   const createOrder = useCreateOrder();
   const navigate = useNavigate();

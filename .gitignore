@@ -1,6 +1,7 @@
 # Environment files and secrets
 .env
 .env.*
+/.proof.env
 !.env.example
 **/.env
 **/.env.*

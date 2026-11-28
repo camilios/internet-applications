@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Events\OrderCreated;
 use App\Events\OrderStatusUpdated;
+use App\Events\ProductPriceUpdated;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\OutboxEvent;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Services\DashboardCache;
 use App\Services\InventoryGrpcClient;
 use App\Services\OrderService;
+use App\Services\ProductService;
 use App\Services\ReservationResult;
 use Illuminate\Broadcasting\BroadcastEvent;
 use Illuminate\Foundation\Testing\RefreshDatabaseState;
@@ -133,7 +135,9 @@ class OrderBroadcastingTest extends TestCase
         $payload = fn ($channel) => ['socket_id' => '123.456', 'channel_name' => 'private-'.$channel];
 
         $this->postJson('/api/broadcasting/auth', $payload('admin.orders'))->assertUnauthorized();
+        $this->postJson('/api/broadcasting/auth', $payload('catalog.products'))->assertUnauthorized();
         $this->actingAs($other, 'api')->postJson('/api/broadcasting/auth', $payload('admin.orders'))->assertForbidden();
+        $this->actingAs($other, 'api')->postJson('/api/broadcasting/auth', $payload('catalog.products'))->assertOk();
         $this->actingAs($admin, 'api')->postJson('/api/broadcasting/auth', $payload('admin.orders'))->assertOk()->assertJsonStructure(['auth']);
         $this->actingAs($owner, 'api')->postJson('/api/broadcasting/auth', $payload('orders.'.$order->id))->assertOk();
         $this->actingAs($other, 'api')->postJson('/api/broadcasting/auth', $payload('orders.'.$order->id))->assertForbidden();
@@ -147,6 +151,31 @@ class OrderBroadcastingTest extends TestCase
         $token = auth('api')->login($admin);
         auth('api')->forgetUser();
         $this->withToken($token)->postJson('/api/broadcasting/auth', ['socket_id' => '123.456', 'channel_name' => 'private-admin.orders'])->assertOk();
+    }
+
+    public function test_catalog_price_broadcast_requires_a_committed_visible_price_change(): void
+    {
+        $category = Category::create(['name' => 'Catalog']);
+        $product = Product::create(['name' => 'Item', 'price' => '5.00', 'is_active' => true, 'category_id' => $category->id]);
+        $service = app(ProductService::class);
+        $service->update($product->id, ['price' => (float) $product->price, 'description' => 'Updated description']);
+
+        DB::beginTransaction();
+        $service->update($product->id, ['price' => '25.00']);
+        Queue::assertNothingPushed();
+        DB::rollBack();
+
+        Queue::assertNothingPushed();
+        $service->update($product->id, ['price' => '25.00']);
+        Queue::assertPushedOn('broadcasts', BroadcastEvent::class, fn ($job) =>
+            $job->event instanceof ProductPriceUpdated
+            && $job->event->broadcastOn()[0]->name === 'private-catalog.products'
+            && $job->event->broadcastWith() === ['product_id' => $product->id]);
+        $this->assertSame('25.00', $product->fresh()->price);
+
+        $service->update($product->id, ['is_active' => false]);
+        $service->update($product->id, ['price' => '30.00']);
+        Queue::assertPushed(BroadcastEvent::class, 1);
     }
 
     private function fixture(): array

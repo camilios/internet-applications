@@ -20,9 +20,12 @@ if (($argv[1] ?? null) === 'init') {
     $product = Product::create([
         'name' => 'QA product', 'price' => '12.50', 'is_active' => true, 'category_id' => $category->id,
     ]);
+    $otherProduct = Product::create([
+        'name' => 'Other QA product', 'price' => '30.00', 'is_active' => true, 'category_id' => $category->id,
+    ]);
     echo json_encode([
         'admin' => auth('api')->login($admin), 'owner' => auth('api')->login($owner),
-        'other' => auth('api')->login($other), 'product_id' => $product->id,
+        'other' => auth('api')->login($other), 'product_id' => $product->id, 'other_product_id' => $otherProduct->id,
     ], JSON_THROW_ON_ERROR);
 } else {
     echo json_encode([

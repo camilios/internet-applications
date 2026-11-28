@@ -21,6 +21,7 @@ class SafeJsonFormatter extends JsonFormatter
         'Order creation failed, attempting stock release', 'Stock compensation recorded for retry',
         'Inventory compensation retry failed', 'Order dashboard cache invalidation failed',
         'Order broadcast enqueue failed after commit', 'Order notification failed after commit',
+        'Product price broadcast enqueue failed after commit',
     ];
 
     public function formatBatch(array $records): string

@@ -1,12 +1,14 @@
 import { StrictMode, type ReactNode } from "react"
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { RealtimeProvider } from "@/app/providers/realtime-provider"
 import { useAuthStore } from "@/features/auth/stores/auth.store"
 import { useAdminOrderRealtime, useOrderListStatusRealtime, useOrderStatusRealtime } from "@/features/orders/hooks/use-order-realtime"
 import { orderKeys, useOrder, useOrders } from "@/features/orders/hooks/use-orders"
 import { ordersApi } from "@/features/orders/api/orders.api"
+import { useProductRealtime } from "@/features/products/hooks/use-product-realtime"
+import { productKeys } from "@/features/products/hooks/use-products"
 import { dashboardKeys } from "@/features/dashboard/hooks/use-dashboard"
 import type { Order } from "@/features/orders/types"
 import type { User } from "@/types/auth"
@@ -47,6 +49,71 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 afterEach(cleanup)
+
+it("refetches only the customer's open product detail after a price change and on reconnect", async () => {
+  useAuthStore.getState().setAuth(customer, "customer-token")
+  const { wrapper, queryClient, clients } = setup()
+  queryClient.setQueryData(productKeys.detail(99), { price: "6.00" })
+  let price = "10.00"
+  const { result, unmount } = renderHook(() => {
+    useProductRealtime(7)
+    const list = useQuery({ queryKey: productKeys.list({ search: "banana" }), queryFn: async () => ({ data: [{ id: 7, price }] }) })
+    const detail = useQuery({ queryKey: productKeys.detail(7), queryFn: async () => ({ id: 7, name: "Banana", price }) })
+    return { list, detail }
+  }, { wrapper })
+  await waitFor(() => expect(result.current.detail.data?.price).toBe("10.00"))
+  await waitFor(() => expect(result.current.list.data?.data[0].price).toBe("10.00"))
+  const channel = clients[0].channels.get("catalog.products")!
+  price = "15.00"
+  await act(async () => channel.emit(".ProductPriceUpdated", { product_id: 99 }))
+  expect(result.current.detail.data?.price).toBe("10.00")
+  expect(toastService.info).not.toHaveBeenCalled()
+  act(() => channel.emit(".ProductPriceUpdated", { product_id: 7 }))
+  await waitFor(() => expect(result.current.detail.data?.price).toBe("15.00"))
+  expect(result.current.list.data?.data[0].price).toBe("10.00")
+  expect(toastService.info).toHaveBeenCalledWith("تم تحديث سعر Banana", expect.any(String))
+  expect(queryClient.getQueryState(productKeys.detail(99))?.isInvalidated).toBe(false)
+
+  price = "17.00"
+  act(() => channel.succeed())
+  await waitFor(() => expect(result.current.detail.data?.price).toBe("17.00"))
+  expect(result.current.list.data?.data[0].price).toBe("10.00")
+  expect(toastService.info).toHaveBeenCalledTimes(1)
+  unmount()
+  expect(channel.listeners.get(".ProductPriceUpdated")?.size).toBe(0)
+})
+
+it("refreshes the customer's filtered product list and announces only a visible changed price", async () => {
+  useAuthStore.getState().setAuth(customer, "customer-token")
+  const { wrapper, queryClient, clients } = setup()
+  const detailKey = productKeys.detail(7)
+  queryClient.setQueryData(detailKey, { id: 7, price: "10.00" })
+  let price = "10.00"
+  const { result } = renderHook(() => {
+    useProductRealtime()
+    return useQuery({
+      queryKey: productKeys.list({ page: 2, search: "banana" }),
+      queryFn: async () => ({ data: [{ id: 7, name: "Banana", price }], meta: { current_page: 2 } }),
+    })
+  }, { wrapper })
+  await waitFor(() => expect(result.current.data?.data[0].price).toBe("10.00"))
+  const channel = clients[0].channels.get("catalog.products")!
+  await act(async () => channel.emit(".ProductPriceUpdated", { product_id: 99 }))
+  expect(toastService.info).not.toHaveBeenCalled()
+  price = "16.00"
+  act(() => channel.emit(".ProductPriceUpdated", { product_id: 7 }))
+  await waitFor(() => expect(result.current.data?.data[0].price).toBe("16.00"))
+  expect(result.current.data?.meta.current_page).toBe(2)
+  expect(toastService.info).toHaveBeenCalledExactlyOnceWith("تم تحديث سعر Banana", expect.any(String))
+  expect(queryClient.getQueryState(detailKey)?.isInvalidated).toBe(false)
+})
+
+it("does not subscribe to price changes for an admin viewing a product detail", () => {
+  useAuthStore.getState().setAuth(admin, "admin-token")
+  const { wrapper, createClient } = setup()
+  renderHook(() => useProductRealtime(7), { wrapper })
+  expect(createClient).not.toHaveBeenCalled()
+})
 
 describe("order query synchronization", () => {
   it("refetches filtered admin orders without changing pagination, other detail caches or CRUD keys", async () => {
